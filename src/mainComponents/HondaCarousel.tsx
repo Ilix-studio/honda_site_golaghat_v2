@@ -1,8 +1,11 @@
 // HondaCarousel.tsx
 import React, { useState, useEffect } from "react";
-
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
+import motocycle1 from "./../assets/one.png";
+import motocycle2 from "./../assets/two.png";
+import motocycle3 from "./../assets/three.png";
 
 interface MotorcycleData {
   id: number;
@@ -24,36 +27,36 @@ const HondaCarousel: React.FC = () => {
   const [motorcycles] = useState<MotorcycleData[]>([
     {
       id: 1,
-      name: "Honda SP125",
-      image: "/motorcycle1.jpg", // Replace with actual image path
+      name: "Honda SP160",
+      image: motocycle1, // Replace with actual image path
       specs: {
-        engine: "123.94 cc",
-        power: "8kW @ 7500 rpm",
+        engine: "162.71 cc",
+        power: "9.9kW @ 7500 rpm",
         transmission: "5 GEARS",
       },
-      price: "₹ from X",
+      price: "₹ 1,21, 226",
     },
     {
       id: 2,
-      name: "Honda CB Shine",
-      image: "/motorcycle2.jpg", // Replace with actual image path
+      name: "Honda CB200X",
+      image: motocycle2, // Replace with actual image path
       specs: {
-        engine: "125.00 cc",
-        power: "7.9kW @ 7500 rpm",
+        engine: "184.4 cc",
+        power: "12.7kW @ 8500 rpm",
         transmission: "5 GEARS",
       },
-      price: "₹ from Y",
+      price: "₹ 1,50,900",
     },
     {
       id: 3,
-      name: "Honda Dream",
-      image: "/motorcycle3.jpg", // Replace with actual image path
+      name: "Honda SP125",
+      image: motocycle3, // Replace with actual image path
       specs: {
-        engine: "109.51 cc",
-        power: "6.5kW @ 7500 rpm",
+        engine: "123.94 cc",
+        power: "8kW @ 7500 rpm",
         transmission: "4 GEARS",
       },
-      price: "₹ from Z",
+      price: "₹ 90,000",
     },
     // Add more motorcycles as needed
   ]);
@@ -121,44 +124,8 @@ const HondaCarousel: React.FC = () => {
         </div>
 
         {/* Navigation arrows */}
-        <button
-          onClick={prevSlide}
-          className='absolute top-1/2 left-4 -translate-y-1/2 bg-white bg-opacity-50 p-2 rounded-full hover:bg-opacity-75 transition-all duration-300'
-        >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
-            className='h-6 w-6'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M15 19l-7-7 7-7'
-            />
-          </svg>
-        </button>
-        <button
-          onClick={nextSlide}
-          className='absolute top-1/2 right-4 -translate-y-1/2 bg-white bg-opacity-50 p-2 rounded-full hover:bg-opacity-75 transition-all duration-300'
-        >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
-            className='h-6 w-6'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M9 5l7 7-7 7'
-            />
-          </svg>
-        </button>
+        <button onClick={prevSlide}></button>
+        <button onClick={nextSlide}></button>
       </div>
 
       {/* Specs section */}

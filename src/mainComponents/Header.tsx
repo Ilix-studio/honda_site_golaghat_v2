@@ -36,7 +36,7 @@ export function Header() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
-            Tsangpool Honda Motorcycles
+            Tsangpool Honda
           </motion.span>
         </Link>
 

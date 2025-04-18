@@ -1,0 +1,82 @@
+/* Additional CSS fixes for spacing issues */
+
+/* Fix header spacing */
+.fixed-header {
+  height: 64px; /* Set fixed height for header */
+}
+
+/* Ensure content doesn't get hidden under the fixed header */
+main > section:first-of-type {
+  padding-top: 64px; /* Same as header height */
+}
+
+/* Remove excess margin/padding from sections */
+section {
+  padding: 3rem 0; /* Standardize padding for all sections */
+  margin: 0; /* Remove any default margins */
+}
+
+/* Tighter spacing between elements */
+.tight-spacing > * + * {
+  margin-top: 1rem;
+}
+
+/* Adjust card padding to be more compact */
+.card-compact {
+  padding: 1rem !important;
+}
+
+/* Remove unwanted margin between section elements */
+section > .container > * + * {
+  margin-top: 1.5rem;
+}
+
+/* Reduce spacing in mobile view even further */
+@media (max-width: 768px) {
+  section {
+    padding: 2rem 0;
+  }
+
+  .section-heading {
+    margin-bottom: 1rem !important;
+  }
+
+  .card-grid-compact {
+    gap: 0.75rem !important;
+  }
+}
+
+/* Ensure grid items don't have excess margin */
+.grid > * {
+  margin: 0;
+}
+
+/* Fix for feature cards to ensure consistent height */
+.feature-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.feature-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure consistent spacing in hero section */
+.hero-content {
+  padding-top: 4rem; /* Account for header */
+  padding-bottom: 2rem;
+  min-height: 60vh; /* Ensure reasonable minimum height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Optimize container padding */
+.container {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+}

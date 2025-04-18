@@ -1,3 +1,7 @@
+import { EmiCalculator } from "./mainComponents/EmiCalculator";
+import { FeaturesSection } from "./mainComponents/FeatureSection";
+
+import { Footer } from "./mainComponents/Footer";
 import { Header } from "./mainComponents/Header";
 import HondaCarousel from "./mainComponents/HondaCarousel";
 
@@ -6,6 +10,9 @@ function Home() {
     <main className='min-h-screen flex flex-col'>
       <Header />
       <HondaCarousel />
+      <EmiCalculator />
+      <FeaturesSection />
+      <Footer />
     </main>
   );
 }
