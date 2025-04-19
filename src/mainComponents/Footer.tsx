@@ -156,7 +156,7 @@ export function Footer() {
           transition={{ delay: 0.5, duration: 0.8 }}
         >
           <p>
-            &copy; {new Date().getFullYear()} Honda Motor Co., Ltd. All Rights
+            &copy; {new Date().getFullYear()} Tsangpool Honda. All Rights
             Reserved.
           </p>
           <div className='flex justify-center space-x-4 mt-4'>

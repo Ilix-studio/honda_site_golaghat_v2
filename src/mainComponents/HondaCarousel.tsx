@@ -281,7 +281,7 @@ const HondaCarousel: React.FC = () => {
       {/* Action section with flex and justify-center */}
       <div className='flex justify-center items-center w-full py-6 px-4 bg-red-600'>
         <div className='max-w-xl md:max-w-3xl space-y-6 w-full'>
-          <div className='flex flex-col sm:flex-row gap-4'>
+          <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
             <button className='w-full sm:w-auto bg-red-700 hover:bg-red-800 text-white py-3 px-6 rounded-md font-medium'>
               Explore Models
             </button>
@@ -291,10 +291,10 @@ const HondaCarousel: React.FC = () => {
               <div className='relative flex-1'>
                 <input
                   type='text'
-                  placeholder='Search bikes or scooters...'
+                  placeholder='Search motocycles'
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className='w-full pl-4 pr-10 py-2 border-2 border-white bg-transparent text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/50 rounded-l-md h-11'
+                  className='w-full pl-4 pr-10 py-2 border-2 border-white bg-transparent text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg h-11'
                 />
                 <button
                   type='submit'
