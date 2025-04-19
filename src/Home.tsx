@@ -1,3 +1,4 @@
+import { ContactSection } from "./mainComponents/ContactSection";
 import { EmiCalculator } from "./mainComponents/EmiCalculator";
 import { FeaturesSection } from "./mainComponents/FeatureSection";
 
@@ -12,6 +13,7 @@ function Home() {
       <HondaCarousel />
       <EmiCalculator />
       <FeaturesSection />
+      <ContactSection />
       <Footer />
     </main>
   );

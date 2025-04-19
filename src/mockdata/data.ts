@@ -148,3 +148,57 @@ export const additionalServices = [
   },
   { id: "suspension", name: "Suspension Check & Adjustment", price: "$75" },
 ];
+
+// Form data interface
+export interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  bikeModel: string;
+  dealership: string;
+  date: Date | undefined;
+  time: string;
+  licenseType: string;
+  ridingExperience: string;
+  additionalInfo: string;
+  termsAccepted: boolean;
+}
+
+// Shared data for motorcycle models
+export interface MotorcycleData {
+  id: string;
+  name: string;
+  category: string;
+}
+
+// Shared data for dealerships
+export interface DealershipData {
+  id: string;
+  name: string;
+  address: string;
+}
+
+export const dealerships: DealershipData[] = [
+  {
+    id: "dealer1",
+    name: "Tsangpool Honda Golaghat",
+    address: "Golaghat Town",
+  },
+  {
+    id: "dealer2",
+    name: "Honda Sarupathar",
+    address: "Sarupath",
+  },
+];
+
+// Shared Props Interface for Steps
+export interface StepProps {
+  formData: FormData;
+  updateFormData?: (fieldName: string, value: any) => void;
+  errors?: Record<string, string>;
+  fadeInUp: {
+    hidden: { opacity: number; y: number };
+    visible: { opacity: number; y: number; transition: { duration: number } };
+  };
+}

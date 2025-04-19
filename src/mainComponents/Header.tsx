@@ -15,7 +15,7 @@ export function Header() {
 
   return (
     <motion.header
-      className='fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b'
+      className='relative top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b'
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
@@ -84,7 +84,7 @@ export function Header() {
             </Link>
           </nav>
           <div className='flex items-center gap-2'>
-            <Link to='/test-ride'>
+            <Link to='/test-drive'>
               <Button variant='outline'>Test Ride</Button>
             </Link>
             <Link to='/book-service'>

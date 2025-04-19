@@ -1,13 +1,11 @@
-import React from "react";
 import { Footer } from "../Footer";
-
-import { BookServiceForm } from "./BookServiceForm";
+import TestRideForm from "./TestRideForm";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Header } from "../Header";
 
-export const BookService: React.FC = () => {
+function TestRidePage() {
   return (
     <main className='min-h-screen flex flex-col'>
       <Header />
@@ -29,12 +27,12 @@ export const BookService: React.FC = () => {
           Book a Test Ride
         </h1>
 
-        <BookServiceForm />
+        <TestRideForm />
       </div>
 
       <Footer />
     </main>
   );
-};
+}
 
-export default BookService;
+export default TestRidePage;
