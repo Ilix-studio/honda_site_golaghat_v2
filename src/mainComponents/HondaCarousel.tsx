@@ -1,7 +1,7 @@
 // HondaCarousel.tsx
 import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import motocycle1 from "./../assets/one.png";
 import motocycle2 from "./../assets/two.png";
@@ -282,9 +282,11 @@ const HondaCarousel: React.FC = () => {
       <div className='flex justify-center items-center w-full py-6 px-4 bg-red-600'>
         <div className='max-w-xl md:max-w-3xl space-y-6 w-full'>
           <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
-            <button className='w-full sm:w-auto bg-red-700 hover:bg-red-800 text-white py-3 px-6 rounded-md font-medium'>
-              Explore Models
-            </button>
+            <Link to='/view-all'>
+              <button className='w-full sm:w-auto bg-red-700 hover:bg-red-800 text-white py-3 px-6 rounded-md font-medium'>
+                Explore Models
+              </button>
+            </Link>
 
             {/* Search Component */}
             <form onSubmit={handleSearch} className='flex w-full sm:w-auto'>
