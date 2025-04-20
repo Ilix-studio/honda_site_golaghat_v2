@@ -18,10 +18,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
-import { serviceLocations, timeSlots } from "./../../../mockdata/data";
-import { ServiceFormValues } from "./../../../lib/form-schema";
-import { format } from "date-fns";
+import { cn } from "../../../lib/utils";
+import { serviceLocations, timeSlots } from "../../../mockdata/data";
+import { ServiceFormValues } from "../../../lib/form-schema";
+import { formatDate } from "../../../lib/dateUtils";
 
 interface ScheduleServiceProps {
   form: UseFormReturn<ServiceFormValues>;
@@ -105,7 +105,7 @@ export function ScheduleService({ form }: ScheduleServiceProps) {
             >
               <CalendarIcon className='mr-2 h-4 w-4' />
               {watchedValues.date
-                ? format(watchedValues.date, "PPP")
+                ? formatDate(watchedValues.date, "PPP")
                 : "Select a date"}
             </Button>
           </PopoverTrigger>
