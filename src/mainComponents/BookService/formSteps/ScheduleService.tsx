@@ -5,7 +5,7 @@ import { AlertTriangle, CalendarIcon } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+
 import {
   Popover,
   PopoverContent,
@@ -109,21 +109,7 @@ export function ScheduleService({ form }: ScheduleServiceProps) {
                 : "Select a date"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className='w-auto p-0'>
-            <Calendar
-              mode='single'
-              selected={watchedValues.date}
-              onSelect={(date) => setValue("date", date as Date)}
-              disabled={
-                (date) =>
-                  date < new Date(new Date().setHours(0, 0, 0, 0)) || // No past dates
-                  date >
-                    new Date(new Date().setMonth(new Date().getMonth() + 2)) || // Max 2 months ahead
-                  date.getDay() === 0 // No Sundays
-              }
-              initialFocus
-            />
-          </PopoverContent>
+          <PopoverContent className='w-auto p-0'></PopoverContent>
         </Popover>
         {errors.date && (
           <p className='text-red-500 text-sm'>{errors.date.message}</p>

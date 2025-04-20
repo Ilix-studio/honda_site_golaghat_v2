@@ -3,7 +3,7 @@ import { formatDate } from "../../../lib/dateUtils";
 import { CalendarIcon, Info } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+
 import {
   Popover,
   PopoverContent,
@@ -53,22 +53,7 @@ export const ScheduleStep = ({
                 : "Select a date"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className='w-auto p-0'>
-            <Calendar
-              mode='single'
-              selected={formData.date}
-              onSelect={(date) =>
-                updateFormData && updateFormData("date", date)
-              }
-              disabled={
-                (date) =>
-                  date < new Date(new Date().setHours(0, 0, 0, 0)) || // No past dates
-                  date >
-                    new Date(new Date().setMonth(new Date().getMonth() + 2)) // Max 2 months ahead
-              }
-              initialFocus
-            />
-          </PopoverContent>
+          <PopoverContent className='w-auto p-0'></PopoverContent>
         </Popover>
         {errors?.date && <p className='text-red-500 text-sm'>{errors.date}</p>}
       </div>

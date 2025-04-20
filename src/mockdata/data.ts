@@ -140,15 +140,15 @@ export const serviceTypes = [
 
 // Additional services
 export const additionalServices = [
-  { id: "wash", name: "Motorcycle Wash & Detail", price: "$50" },
-  { id: "brake", name: "Brake Fluid Change", price: "$80" },
-  { id: "chain", name: "Chain Adjustment & Lubrication", price: "$45" },
+  { id: "wash", name: "Motorcycle Wash & Detail", price: "50" },
+  { id: "brake", name: "Brake Fluid Change", price: "80" },
+  { id: "chain", name: "Chain Adjustment & Lubrication", price: "45" },
   {
     id: "battery",
     name: "Battery Check & Replacement",
-    price: "$25 (check) / $120+ (replacement)",
+    price: "25 (check) / 120+ (replacement)",
   },
-  { id: "suspension", name: "Suspension Check & Adjustment", price: "$75" },
+  { id: "suspension", name: "Suspension Check & Adjustment", price: "75" },
 ];
 
 // Form data interface
