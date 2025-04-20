@@ -9,13 +9,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Link } from "react-router-dom";
+import { branches } from "./Branches/TwoBranch";
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <motion.header
-      className='relative top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b'
+      className='fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b'
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
@@ -36,14 +37,14 @@ export function Header() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
-            Tsangpool Honda
+            Tsangpool Honda Motorcycles
           </motion.span>
         </Link>
 
         <div className='hidden md:flex md:items-center md:gap-4'>
           <nav className='flex items-center gap-6'>
             <Link
-              to='#models'
+              to='/view-all'
               className='text-sm font-medium hover:text-primary transition-colors'
             >
               Models
@@ -60,31 +61,35 @@ export function Header() {
                 <div className='rounded-md border bg-popover text-popover-foreground shadow-md'>
                   <div className='flex flex-col'>
                     <Link
-                      to='#branches/main'
-                      className='px-4 py-2 text-sm hover:bg-muted transition-colors'
+                      to='/branches'
+                      className='px-4 py-2 text-sm hover:bg-muted transition-colors font-medium'
                     >
-                      Golaghat
+                      All Branches
                     </Link>
-                    <Link
-                      to='#branches/downtown'
-                      className='px-4 py-2 text-sm hover:bg-muted transition-colors'
-                    >
-                      Sarupathar
-                    </Link>
+                    <div className='border-t my-1'></div>
+                    {branches.map((branch) => (
+                      <Link
+                        key={branch.id}
+                        to={`/branches/${branch.id}`}
+                        className='px-4 py-2 text-sm hover:bg-muted transition-colors'
+                      >
+                        {branch.name.split(" ").pop()}
+                      </Link>
+                    ))}
                   </div>
                 </div>
               </PopoverContent>
             </Popover>
 
             <Link
-              to='#contact'
+              to='/#finance'
               className='text-sm font-medium hover:text-primary transition-colors'
             >
               Finance
             </Link>
           </nav>
           <div className='flex items-center gap-2'>
-            <Link to='/test-drive'>
+            <Link to='/test-ride'>
               <Button variant='outline'>Test Ride</Button>
             </Link>
             <Link to='/book-service'>
@@ -108,7 +113,7 @@ export function Header() {
         >
           <nav className='flex flex-col p-4 space-y-4 border-t'>
             <Link
-              to='#models'
+              to='/view-all'
               className='text-sm font-medium hover:text-primary transition-colors'
               onClick={() => setIsOpen(false)}
             >
@@ -120,31 +125,34 @@ export function Header() {
               <div className='text-sm font-medium'>Branches</div>
               <div className='pl-4 space-y-2'>
                 <Link
-                  to='#branches/main'
-                  className='block text-sm text-muted-foreground hover:text-primary transition-colors'
+                  to='/branches'
+                  className='block text-sm text-muted-foreground hover:text-primary transition-colors font-medium'
                   onClick={() => setIsOpen(false)}
                 >
-                  Main Branch
+                  All Branches
                 </Link>
-                <Link
-                  to='#branches/downtown'
-                  className='block text-sm text-muted-foreground hover:text-primary transition-colors'
-                  onClick={() => setIsOpen(false)}
-                >
-                  Downtown Branch
-                </Link>
+                {branches.map((branch) => (
+                  <Link
+                    key={branch.id}
+                    to={`/branches/${branch.id}`}
+                    className='block text-sm text-muted-foreground hover:text-primary transition-colors'
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {branch.name.split(" ").pop()}
+                  </Link>
+                ))}
               </div>
             </div>
 
             <Link
-              to='#technology'
+              to='/#technology'
               className='text-sm font-medium hover:text-primary transition-colors'
               onClick={() => setIsOpen(false)}
             >
               Technology
             </Link>
             <Link
-              to='#contact'
+              to='/#contact'
               className='text-sm font-medium hover:text-primary transition-colors'
               onClick={() => setIsOpen(false)}
             >

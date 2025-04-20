@@ -1,10 +1,7 @@
-import React from "react";
-
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -12,13 +9,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
-export function ContactSection() {
+export function ContactSection({ branch }: any) {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = ({ e }: any) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -28,6 +27,29 @@ export function ContactSection() {
       setFormSubmitted(true);
     }, 1500);
   };
+
+  // Default contact details if no branch is provided
+  const contactDetails = {
+    address: branch?.address || "Bengenakhowa GF Rd, Golaghat, Assam 785702",
+    phone: branch?.phone || "910202020",
+    email: branch?.email || "golaghat@hondamotorcycles.example",
+    hours: branch?.hours || {
+      weekdays: "9:00 AM - 7:00 PM",
+      saturday: "10:00 AM - 5:00 PM",
+      sunday: "Closed",
+    },
+    mapUrl:
+      branch?.mapUrl ||
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14281.708160586099!2d93.95457205941675!3d26.50638691585567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x37468fc4ad54202d%3A0x88e76c0b31c949f!2sTsangpool%20Honda!5e0!3m2!1sen!2sin!4v1745182504481!5m2!1sen!2sin",
+  };
+
+  // Title and description based on whether a specific branch is selected
+  const title = branch ? `Contact ${branch.name}` : "Contact Us";
+  const description = branch
+    ? `Get in touch with our ${branch.name
+        .split(" ")
+        .pop()} branch for personalized assistance`
+    : "Visit our dealership or get in touch with our team for any inquiries about Honda motorcycles";
 
   return (
     <section className='py-16 bg-gray-50'>
@@ -39,10 +61,9 @@ export function ContactSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <h2 className='text-3xl font-bold tracking-tight'>Contact Us</h2>
+          <h2 className='text-3xl font-bold tracking-tight'>{title}</h2>
           <p className='mt-4 text-lg text-muted-foreground max-w-2xl mx-auto'>
-            Visit our dealership or get in touch with our team for any inquiries
-            about Honda motorcycles
+            {description}
           </p>
         </motion.div>
 
@@ -57,7 +78,7 @@ export function ContactSection() {
           >
             <div className='aspect-[4/3] w-full h-full min-h-[300px] bg-gray-200 rounded-lg overflow-hidden'>
               <iframe
-                src='https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.3059353029!2d-74.25986548248684!3d40.69714941932609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2s!4v1650000000000!5m2!1sen!2s'
+                src={contactDetails.mapUrl}
                 width='100%'
                 height='100%'
                 style={{ border: 0 }}
@@ -94,10 +115,7 @@ export function ContactSection() {
                     <div>
                       <h3 className='font-medium'>Address</h3>
                       <p className='text-muted-foreground'>
-                        123 Motorcycle Avenue
-                      </p>
-                      <p className='text-muted-foreground'>
-                        New York, NY 10001
+                        {contactDetails.address}
                       </p>
                     </div>
                   </div>
@@ -106,7 +124,9 @@ export function ContactSection() {
                     <Phone className='h-5 w-5 text-red-600 mt-0.5' />
                     <div>
                       <h3 className='font-medium'>Phone</h3>
-                      <p className='text-muted-foreground'>(212) 555-1234</p>
+                      <p className='text-muted-foreground'>
+                        {contactDetails.phone}
+                      </p>
                     </div>
                   </div>
 
@@ -115,7 +135,7 @@ export function ContactSection() {
                     <div>
                       <h3 className='font-medium'>Email</h3>
                       <p className='text-muted-foreground'>
-                        info@hondamotorcycles.example
+                        {contactDetails.email}
                       </p>
                     </div>
                   </div>
@@ -125,12 +145,14 @@ export function ContactSection() {
                     <div>
                       <h3 className='font-medium'>Hours</h3>
                       <p className='text-muted-foreground'>
-                        Monday - Friday: 9:00 AM - 7:00 PM
+                        Monday - Friday: {contactDetails.hours.weekdays}
                       </p>
                       <p className='text-muted-foreground'>
-                        Saturday: 10:00 AM - 5:00 PM
+                        Saturday: {contactDetails.hours.saturday}
                       </p>
-                      <p className='text-muted-foreground'>Sunday: Closed</p>
+                      <p className='text-muted-foreground'>
+                        Sunday: {contactDetails.hours.sunday}
+                      </p>
                     </div>
                   </div>
                 </div>
