@@ -9,6 +9,7 @@ import BranchesPage from "./mainComponents/Branches/BranchesPage";
 import BranchDetailPage from "./mainComponents/Branches/BranchDetailPage";
 import { ViewAllBikes } from "./mainComponents/BikeDetails/ViewAllBikes";
 import BikeDetailsPage from "./mainComponents/BikeDetails/BikeDetailsPage";
+import NotFoundPage from "./mainComponents/NotFoundPage";
 
 const App: React.FC = () => {
   return (
@@ -23,7 +24,7 @@ const App: React.FC = () => {
         {/* View Bikes  */}
         <Route path='/view-all' element={<ViewAllBikes />} />
         <Route path='/bikes/:bikeId' element={<BikeDetailsPage />} />
-        <Route path='*' element={<div>Page not found</div>} />
+        <Route path='*' element={<NotFoundPage />} />
       </Routes>
     </>
   );

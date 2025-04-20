@@ -1,3 +1,5 @@
+import activa6G from "../assets/scooty/activa6G.webp";
+
 export const motorcycles = [
   {
     id: 1,
@@ -256,7 +258,7 @@ export const allBikes: Bike[] = [
     power: 214,
     weight: 201,
     features: ["Quick Shifter", "Riding Modes", "Traction Control"],
-    image: "/placeholder.svg?height=400&width=600",
+    image: activa6G,
     year: 2023,
     isNew: true,
   },
@@ -269,7 +271,7 @@ export const allBikes: Bike[] = [
     power: 118,
     weight: 186,
     features: ["Riding Modes", "Traction Control"],
-    image: "/placeholder.svg?height=400&width=600",
+    image: activa6G,
     year: 2023,
   },
   {
@@ -281,7 +283,7 @@ export const allBikes: Bike[] = [
     power: 49,
     weight: 192,
     features: ["ABS", "LED Lights"],
-    image: "/placeholder.svg?height=400&width=600",
+    image: activa6G,
     year: 2023,
   },
 
@@ -295,7 +297,7 @@ export const allBikes: Bike[] = [
     power: 101,
     weight: 238,
     features: ["DCT", "Cruise Control", "Tubeless Tires"],
-    image: "/placeholder.svg?height=400&width=600",
+    image: activa6G,
     year: 2023,
     isNew: true,
   },
@@ -308,7 +310,7 @@ export const allBikes: Bike[] = [
     power: 58,
     weight: 214,
     features: ["DCT Option", "Storage Compartment"],
-    image: "/placeholder.svg?height=400&width=600",
+    image: activa6G,
     year: 2022,
   },
   {
@@ -320,7 +322,7 @@ export const allBikes: Bike[] = [
     power: 49,
     weight: 199,
     features: ["ABS", "LED Lights"],
-    image: "/placeholder.svg?height=400&width=600",
+    image: activa6G,
     year: 2023,
   },
 
@@ -334,7 +336,7 @@ export const allBikes: Bike[] = [
     power: 86,
     weight: 232,
     features: ["DCT Option", "Cruise Control", "Riding Modes"],
-    image: "/placeholder.svg?height=400&width=600",
+    image: activa6G,
     year: 2023,
     isNew: true,
   },
@@ -347,7 +349,7 @@ export const allBikes: Bike[] = [
     power: 45,
     weight: 191,
     features: ["ABS", "LED Lights"],
-    image: "/placeholder.svg?height=400&width=600",
+    image: activa6G,
     year: 2023,
   },
   {
@@ -359,7 +361,7 @@ export const allBikes: Bike[] = [
     power: 30,
     weight: 168,
     features: ["ABS", "LED Lights"],
-    image: "/placeholder.svg?height=400&width=600",
+    image: activa6G,
     year: 2022,
   },
 
@@ -373,7 +375,7 @@ export const allBikes: Bike[] = [
     power: 126,
     weight: 390,
     features: ["DCT", "Navigation", "Apple CarPlay", "Heated Seats"],
-    image: "/placeholder.svg?height=400&width=600",
+    image: activa6G,
     year: 2023,
   },
   {
@@ -385,7 +387,7 @@ export const allBikes: Bike[] = [
     power: 101,
     weight: 238,
     features: ["DCT Option", "Cruise Control", "Heated Grips"],
-    image: "/placeholder.svg?height=400&width=600",
+    image: activa6G,
     year: 2023,
     isNew: true,
   },
@@ -400,7 +402,7 @@ export const allBikes: Bike[] = [
     power: 143,
     weight: 212,
     features: ["Riding Modes", "Traction Control", "Quick Shifter"],
-    image: "/placeholder.svg?height=400&width=600",
+    image: activa6G,
     year: 2023,
   },
   {
@@ -412,7 +414,7 @@ export const allBikes: Bike[] = [
     power: 94,
     weight: 202,
     features: ["ABS", "LED Lights"],
-    image: "/placeholder.svg?height=400&width=600",
+    image: activa6G,
     year: 2023,
   },
   {
@@ -424,7 +426,7 @@ export const allBikes: Bike[] = [
     power: 30,
     weight: 144,
     features: ["ABS", "LED Lights"],
-    image: "/placeholder.svg?height=400&width=600",
+    image: activa6G,
     year: 2022,
   },
 ];
