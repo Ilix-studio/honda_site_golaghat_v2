@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { format } from "date-fns";
+import { formatDate } from "../../../lib/dateUtils";
 import { CalendarIcon, Info } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -48,7 +48,9 @@ export const ScheduleStep = ({
               )}
             >
               <CalendarIcon className='mr-2 h-4 w-4' />
-              {formData.date ? format(formData.date, "PPP") : "Select a date"}
+              {formData.date
+                ? formatDate(formData.date, "PPP")
+                : "Select a date"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className='w-auto p-0'>

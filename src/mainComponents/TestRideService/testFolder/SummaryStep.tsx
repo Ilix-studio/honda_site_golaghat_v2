@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { format } from "date-fns";
+import { formatDate } from "../../../lib/dateUtils";
 import { CalendarIcon, Info, Bike } from "lucide-react";
 import { bikeModels, dealerships, StepProps } from "../../../mockdata/data";
 
@@ -38,8 +38,8 @@ export const SummaryStep = ({ formData, fadeInUp }: StepProps) => {
             <h4 className='font-medium'>Date & Time</h4>
           </div>
           <p>
-            {formData.date ? format(formData.date, "PPPP") : "Not selected"} at{" "}
-            {formData.time || "Not selected"}
+            {formData.date ? formatDate(formData.date, "PPPP") : "Not selected"}{" "}
+            at {formData.time || "Not selected"}
           </p>
         </div>
 

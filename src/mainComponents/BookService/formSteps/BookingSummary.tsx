@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Info } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { format } from "date-fns";
+import { formatDate } from "../../../lib/dateUtils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -161,7 +161,7 @@ export function BookingSummary({ form }: BookingSummaryProps) {
               <span className='text-muted-foreground'>Date:</span>
               <span>
                 {watchedValues.date
-                  ? format(watchedValues.date, "PPP")
+                  ? formatDate(watchedValues.date, "PPP")
                   : "Not selected"}
               </span>
             </div>

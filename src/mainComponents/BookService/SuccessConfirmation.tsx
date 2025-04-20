@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Wrench } from "lucide-react";
-import { format } from "date-fns";
+import { formatDate } from "../../lib/dateUtils";
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -96,7 +96,9 @@ export function SuccessConfirmation({
             <div className='flex justify-between mb-2'>
               <span className='text-muted-foreground'>Date:</span>
               <span className='font-medium'>
-                {watchedValues.date ? format(watchedValues.date, "PPP") : ""}
+                {watchedValues.date
+                  ? formatDate(watchedValues.date, "PPP")
+                  : ""}
               </span>
             </div>
             <div className='flex justify-between'>
