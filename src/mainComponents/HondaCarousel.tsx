@@ -94,9 +94,8 @@ const HondaCarousel: React.FC = () => {
   }, [activeSlide, motorcycles.length]);
 
   return (
-    <div className='relative w-full overflow-hidden bg-white'>
-      {/* Header with Honda logo and menu button */}
-
+    // Add pt-16 class to add padding top equal to the header height
+    <div className='relative w-full overflow-hidden bg-white pt-16'>
       {/* Carousel content */}
       <div className='relative'>
         {/* Slides */}
