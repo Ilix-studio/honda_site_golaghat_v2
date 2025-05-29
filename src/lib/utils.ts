@@ -6,18 +6,6 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Formats a number as currency (Indian Rupees)
- */
-export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-/**
  * Calculates estimated EMI based on principal, interest rate, and term
  */
 export function calculateEMI(

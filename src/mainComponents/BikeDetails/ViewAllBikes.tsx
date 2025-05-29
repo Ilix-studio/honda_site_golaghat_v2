@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { SlidersHorizontal } from "lucide-react";
+import { PlusCircle, SlidersHorizontal } from "lucide-react";
 
 import { useFilteredBikes } from "@/hooks/useFilteredBikes";
 import { SortSelector } from "./DetailsUIParts/SortSelector";
@@ -33,9 +33,22 @@ export function ViewAllBikes() {
 
   return (
     <section className='py-20'>
+      {/* <header className='bg-white border-b shadow-sm'>
+        <div className='container mx-auto px-4 py-4 flex items-center justify-between'>
+a
+          <Button
+            variant='ghost'
+            onClick={() => Navigate("/admin/dashboard")}
+            className='text-gray-600'
+          >
+            <ArrowLeft className='h-4 w-4 mr-2' />
+            Back to Dashboard
+          </Button>
+        </div>
+      </header> */}
       <div className='container px-4 md:px-6'>
         <motion.div
-          className='text-center mb-12'
+          className='flex flex-row justify-between items-center mb-12 w-full'
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -44,10 +57,9 @@ export function ViewAllBikes() {
           <h2 className='text-3xl font-bold tracking-tight'>
             All Honda Motorcycles
           </h2>
-          <p className='mt-4 text-lg text-muted-foreground max-w-2xl mx-auto'>
-            Explore our complete lineup of motorcycles and find the perfect ride
-            for your style
-          </p>
+          <Button className='bg-red-600 hover:bg-red-700 text-white font-medium px-6'>
+            <PlusCircle className='mr-2 h-4 w-4' /> Add New Bikes
+          </Button>
         </motion.div>
 
         <div className='flex flex-col lg:flex-row gap-8'>

@@ -89,9 +89,6 @@ export function Header() {
             </Link>
           </nav>
           <div className='flex items-center gap-2'>
-            <Link to='/test-ride'>
-              <Button variant='outline'>Test Ride</Button>
-            </Link>
             <Link to='/book-service'>
               <Button>Book Service</Button>
             </Link>
@@ -145,11 +142,11 @@ export function Header() {
             </div>
 
             <Link
-              to='/#technology'
+              to='/#contact'
               className='text-sm font-medium hover:text-primary transition-colors'
               onClick={() => setIsOpen(false)}
             >
-              Technology
+              Finance
             </Link>
             <Link
               to='/#contact'
@@ -159,11 +156,6 @@ export function Header() {
               Contact
             </Link>
             <div className='flex flex-col gap-2'>
-              <Link to='/test-ride' onClick={() => setIsOpen(false)}>
-                <Button variant='outline' className='w-full'>
-                  Test Ride
-                </Button>
-              </Link>
               <Link to='/book-service' onClick={() => setIsOpen(false)}>
                 <Button className='w-full'>Book Service</Button>
               </Link>

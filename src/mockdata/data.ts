@@ -218,6 +218,8 @@ export interface Bike {
   image: string;
   year: number;
   isNew?: boolean;
+  // Add index signature to allow string indexing
+  [key: string]: string | number | boolean | string[] | undefined;
 }
 
 export const categories = [

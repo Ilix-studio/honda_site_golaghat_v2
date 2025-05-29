@@ -21,18 +21,17 @@ export function BikeCard({ bike }: BikeCardProps) {
       whileHover={{ y: -5 }}
       className='h-full'
     >
-      <Card
-        className='overflow-hidden h-full flex flex-col cursor-pointer'
-        onClick={() => (window.location.href = `/bikes/${bike.id}`)}
-      >
+      <Card className='overflow-hidden h-full flex flex-col'>
         <div className='relative'>
-          <div className='aspect-[4/3] relative overflow-hidden'>
-            <img
-              src={bike.image || "/placeholder.svg"}
-              alt={bike.name}
-              className='object-cover transition-transform duration-300 hover:scale-105'
-            />
-          </div>
+          <Link to={`/bikes/${bike.id}`}>
+            <div className='aspect-[4/3] relative overflow-hidden'>
+              <img
+                src={bike.image || "/placeholder.svg"}
+                alt={bike.name}
+                className='object-cover transition-transform duration-300 hover:scale-105'
+              />
+            </div>
+          </Link>
           {bike.isNew && (
             <Badge className='absolute top-2 right-2 bg-red-600'>New</Badge>
           )}
@@ -89,9 +88,11 @@ export function BikeCard({ bike }: BikeCardProps) {
                 Details
               </Button>
             </Link>
-            <Button variant='outline' className='flex-1'>
-              Compare
-            </Button>
+            <Link to={`/compare?bikes=${bike.id}`} className='flex-1'>
+              <Button variant='outline' className='w-full'>
+                Compare
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
