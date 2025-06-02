@@ -25,10 +25,6 @@ export const BookService: React.FC = () => {
           </Link>
         </div>
 
-        <h1 className='text-3xl font-bold mb-8 text-center'>
-          Book a Test Ride
-        </h1>
-
         <BookServiceForm />
       </div>
 

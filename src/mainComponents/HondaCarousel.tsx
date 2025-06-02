@@ -1,11 +1,18 @@
 // HondaCarousel.tsx
 import React, { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Download, EyeIcon, Search, ShoppingCart } from "lucide-react";
+import {
+  IconBolt,
+  IconManualGearboxFilled,
+  IconSettings,
+} from "@tabler/icons-react";
 import { Link, useNavigate } from "react-router-dom";
 
 import motocycle1 from "./../assets/one.png";
 import motocycle2 from "./../assets/two.png";
 import motocycle3 from "./../assets/three.png";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface MotorcycleData {
   id: number;
@@ -31,7 +38,7 @@ const HondaCarousel: React.FC = () => {
       image: motocycle1, // Replace with actual image path
       specs: {
         engine: "162.71 cc",
-        power: "9.9kW @ 7500 rpm",
+        power: "9.9kW @7500rpm",
         transmission: "5 GEARS",
       },
       price: "₹ 1,21, 226",
@@ -42,7 +49,7 @@ const HondaCarousel: React.FC = () => {
       image: motocycle2, // Replace with actual image path
       specs: {
         engine: "184.4 cc",
-        power: "12.7kW @ 8500 rpm",
+        power: "12.7kW @8500rpm",
         transmission: "5 GEARS",
       },
       price: "₹ 1,50,900",
@@ -53,7 +60,7 @@ const HondaCarousel: React.FC = () => {
       image: motocycle3, // Replace with actual image path
       specs: {
         engine: "123.94 cc",
-        power: "8kW @ 7500 rpm",
+        power: "8kW @7500rpm",
         transmission: "4 GEARS",
       },
       price: "₹ 90,000",
@@ -130,73 +137,22 @@ const HondaCarousel: React.FC = () => {
       {/* Specs section */}
       <div className='grid grid-cols-3 gap-4 p-4 text-center'>
         <div className='flex flex-col items-center'>
-          <div className='mb-2'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-              className='h-8 w-8 mx-auto'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M13 10V3L4 14h7v7l9-11h-7z'
-              />
-            </svg>
-          </div>
-          <p className='font-bold text-xl'>
+          <IconBolt stroke={2} />
+          <p className='font-bold text-l'>
             {motorcycles[activeSlide].specs.engine}
           </p>
           <p className='text-gray-500 text-sm'>ENGINE</p>
         </div>
         <div className='flex flex-col items-center'>
-          <div className='mb-2'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-              className='h-8 w-8 mx-auto'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M19 14l-7 7m0 0l-7-7m7 7V3'
-              />
-            </svg>
-          </div>
-          <p className='font-bold text-xl'>
+          <IconManualGearboxFilled />
+          <p className='font-bold text-l'>
             {motorcycles[activeSlide].specs.power}
           </p>
           <p className='text-gray-500 text-sm'>POWER</p>
         </div>
         <div className='flex flex-col items-center'>
-          <div className='mb-2'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-              className='h-8 w-8 mx-auto'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'
-              />
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M15 12a3 3 0 11-6 0 3 3 0 016 0z'
-              />
-            </svg>
-          </div>
-          <p className='font-bold text-xl'>
+          <IconSettings stroke={2} />
+          <p className='font-bold text-l'>
             {motorcycles[activeSlide].specs.transmission}
           </p>
           <p className='text-gray-500 text-sm'>TRANSMISSION</p>
@@ -205,61 +161,15 @@ const HondaCarousel: React.FC = () => {
 
       {/* Action buttons */}
       <div className='grid grid-cols-3 gap-1 bg-red-600 text-white'>
-        <button className='flex items-center justify-center p-4 hover:bg-red-700 transition-colors'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
-            className='h-5 w-5 mr-2'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M15 12a3 3 0 11-6 0 3 3 0 016 0z'
-            />
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z'
-            />
-          </svg>
-          VIEW DETAILS
+        <button className='flex items-center justify-center p-4 hover:bg-red-700 transition-colors gap-1'>
+          <EyeIcon className='h-4 w-4' /> VIEW DETAILS
         </button>
-        <button className='flex items-center justify-center p-4 hover:bg-red-700 transition-colors'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
-            className='h-5 w-5 mr-2'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'
-            />
-          </svg>
+        <button className='flex items-center justify-center p-4 hover:bg-red-700 transition-colors gap-1'>
+          <ShoppingCart className='h-4 w-4' />
           EMI CALCULATOR
         </button>
-        <button className='flex items-center justify-center p-4 hover:bg-red-700 transition-colors'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
-            className='h-5 w-5 mr-2'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10'
-            />
-          </svg>
+        <button className='flex items-center justify-center p-4 hover:bg-red-700 transition-colors gap-1'>
+          <Download className='h-4 w-4' />
           E-BROCHURE
         </button>
       </div>
@@ -267,10 +177,10 @@ const HondaCarousel: React.FC = () => {
       {/* Dot indicators */}
       <div className='flex justify-center py-4'>
         {motorcycles.map((_, index) => (
-          <button
+          <Button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`mx-1 h-3 w-3 rounded-full transition-colors ${
+            className={`mx-1 h-2 w-2 rounded-full transition-colors ${
               index === activeSlide ? "bg-red-600" : "bg-gray-300"
             }`}
             aria-label={`Go to slide ${index + 1}`}
@@ -278,31 +188,32 @@ const HondaCarousel: React.FC = () => {
         ))}
       </div>
       {/* Action section with flex and justify-center */}
-      <div className='flex justify-center items-center w-full py-6 px-4 bg-red-600'>
+      <div className='flex justify-center items-center w-full py-6 px-4 bg-white-600'>
         <div className='max-w-xl md:max-w-3xl space-y-6 w-full'>
           <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
             <Link to='/view-all'>
-              <button className='w-full sm:w-auto bg-red-700 hover:bg-red-800 text-white py-3 px-6 rounded-md font-medium'>
+              <Button className='w-full sm:w-auto bg-red-700 hover:bg-red-800 text-white py-3 px-6 rounded-md font-medium'>
                 Explore Models
-              </button>
+              </Button>
             </Link>
 
             {/* Search Component */}
             <form onSubmit={handleSearch} className='flex w-full sm:w-auto'>
               <div className='relative flex-1'>
-                <input
+                <Input
                   type='text'
                   placeholder='Search motocycles'
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className='w-full pl-4 pr-10 py-2 border-2 border-white bg-transparent text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg h-11'
+                  className='w-full pl-4 pr-10 py-2 border-2 border-gray bg-transparent text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg h-11'
                 />
-                <button
+                <Button
                   type='submit'
+                  variant='outline'
                   className='absolute right-0 top-0 h-full bg-white text-black hover:bg-gray-200 rounded-none rounded-r-md px-3'
                 >
                   <Search className='h-5 w-5' />
-                </button>
+                </Button>
               </div>
             </form>
           </div>
