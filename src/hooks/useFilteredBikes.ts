@@ -1,26 +1,31 @@
-import { allBikes, Bike } from "../mockdata/data";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
+import { allBikes } from "../mockdata/data";
 
 export function useFilteredBikes() {
-  // Filter states
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Initialize state with URL parameters if available
+  const initialSearchQuery = searchParams.get("search") || "";
+
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 30000]);
   const [engineSizeRange, setEngineSizeRange] = useState<[number, number]>([
     0, 2000,
   ]);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [sortBy, setSortBy] = useState("featured");
-  const [filteredBikes, setFilteredBikes] = useState<Bike[]>(allBikes);
 
-  // Toggle feature selection
-  const toggleFeature = (feature: string) => {
-    setSelectedFeatures((prev) =>
-      prev.includes(feature)
-        ? prev.filter((f) => f !== feature)
-        : [...prev, feature]
-    );
-  };
+  // Update URL when search query changes
+  useEffect(() => {
+    if (searchQuery) {
+      searchParams.set("search", searchQuery);
+    } else {
+      searchParams.delete("search");
+    }
+    setSearchParams(searchParams);
+  }, [searchQuery, setSearchParams]);
 
   // Reset all filters
   const resetFilters = () => {
@@ -29,32 +34,43 @@ export function useFilteredBikes() {
     setEngineSizeRange([0, 2000]);
     setSelectedFeatures([]);
     setSearchQuery("");
+    setSortBy("featured");
   };
 
-  // Apply filters
-  useEffect(() => {
-    let result = [...allBikes];
+  // Toggle a feature in the selected features array
+  const toggleFeature = (feature: string) => {
+    setSelectedFeatures((prev) =>
+      prev.includes(feature)
+        ? prev.filter((f) => f !== feature)
+        : [...prev, feature]
+    );
+  };
+
+  // Apply filters and sorting to bikes
+  const filteredBikes = useMemo(() => {
+    // Start with all bikes
+    let filtered = [...allBikes];
 
     // Filter by category
     if (selectedCategory !== "all") {
-      result = result.filter((bike) => bike.category === selectedCategory);
+      filtered = filtered.filter((bike) => bike.category === selectedCategory);
     }
 
     // Filter by price range
-    result = result.filter(
+    filtered = filtered.filter(
       (bike) => bike.price >= priceRange[0] && bike.price <= priceRange[1]
     );
 
-    // Filter by engine size
-    result = result.filter(
+    // Filter by engine size range
+    filtered = filtered.filter(
       (bike) =>
         bike.engineSize >= engineSizeRange[0] &&
         bike.engineSize <= engineSizeRange[1]
     );
 
-    // Filter by features
+    // Filter by selected features
     if (selectedFeatures.length > 0) {
-      result = result.filter((bike) =>
+      filtered = filtered.filter((bike) =>
         selectedFeatures.every((feature) => bike.features.includes(feature))
       );
     }
@@ -62,40 +78,30 @@ export function useFilteredBikes() {
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(
+      filtered = filtered.filter(
         (bike) =>
           bike.name.toLowerCase().includes(query) ||
-          bike.category.toLowerCase().includes(query)
+          bike.category.toLowerCase().includes(query) ||
+          bike.features.some((feature) => feature.toLowerCase().includes(query))
       );
     }
 
-    // Apply sorting
+    // Sort bikes
     switch (sortBy) {
       case "price-low":
-        result.sort((a, b) => a.price - b.price);
-        break;
+        return filtered.sort((a, b) => a.price - b.price);
       case "price-high":
-        result.sort((a, b) => b.price - a.price);
-        break;
+        return filtered.sort((a, b) => b.price - a.price);
       case "newest":
-        result.sort((a, b) => b.year - a.year);
-        break;
+        return filtered.sort((a, b) => b.year - a.year);
       case "engine-size":
-        result.sort((a, b) => b.engineSize - a.engineSize);
-        break;
+        return filtered.sort((a, b) => b.engineSize - a.engineSize);
       case "power":
-        result.sort((a, b) => b.power - a.power);
-        break;
+        return filtered.sort((a, b) => b.power - a.power);
       default:
-        // Featured sorting (new bikes first, then by price)
-        result.sort((a, b) => {
-          if (a.isNew && !b.isNew) return -1;
-          if (!a.isNew && b.isNew) return 1;
-          return b.price - a.price;
-        });
+        // 'featured' - no specific sorting, use default order
+        return filtered;
     }
-
-    setFilteredBikes(result);
   }, [
     selectedCategory,
     priceRange,
@@ -104,6 +110,11 @@ export function useFilteredBikes() {
     searchQuery,
     sortBy,
   ]);
+
+  // Custom setter for search query that also updates URL
+  const setSearchQueryWithUrl = (query: string) => {
+    setSearchQuery(query);
+  };
 
   return {
     filteredBikes,
@@ -116,7 +127,7 @@ export function useFilteredBikes() {
     selectedFeatures,
     toggleFeature,
     searchQuery,
-    setSearchQuery,
+    setSearchQuery: setSearchQueryWithUrl,
     sortBy,
     setSortBy,
     resetFilters,

@@ -18,13 +18,20 @@ import AddBikes from "./mainComponents/Admin/Bikes/AddBikes";
 import EditBikes from "./mainComponents/Admin/Bikes/EditBikes";
 import AddScooty from "./mainComponents/Admin/Scooty/AddScooty";
 import EditScooty from "./mainComponents/Admin/Scooty/EditScooty";
+import Finance from "./mainComponents/Finance";
+import Contact from "./mainComponents/Contact";
+import SearchResults from "./mainComponents/Search/SearchResults";
 
 const App: React.FC = () => {
   return (
     <>
       <Routes>
         <Route path='/' element={<Home />} />
+        <Route path='/finance' element={<Finance />} />
+        <Route path='/contact' element={<Contact />} />
+
         <Route path='/book-service' element={<BookServicePage />} />
+        <Route path='/search' element={<SearchResults />} />
 
         {/* Admin Routes */}
         <Route path='/admin/superlogin' element={<LoginSuperAdmin />} />

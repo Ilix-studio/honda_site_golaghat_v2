@@ -1,6 +1,5 @@
-// HondaCarousel.tsx
 import React, { useState, useEffect } from "react";
-import { Download, EyeIcon, Search, ShoppingCart } from "lucide-react";
+import { Download, EyeIcon, ShoppingCart } from "lucide-react";
 import {
   IconBolt,
   IconManualGearboxFilled,
@@ -12,7 +11,10 @@ import motocycle1 from "./../assets/one.png";
 import motocycle2 from "./../assets/two.png";
 import motocycle3 from "./../assets/three.png";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
+import SearchComponent from "./Search/SearchComponent";
+
+// Import the SearchComponent directly
 
 interface MotorcycleData {
   id: number;
@@ -28,7 +30,7 @@ interface MotorcycleData {
 
 const HondaCarousel: React.FC = () => {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
+
   const navigate = useNavigate();
 
   const [motorcycles] = useState<MotorcycleData[]>([
@@ -83,12 +85,8 @@ const HondaCarousel: React.FC = () => {
     setActiveSlide(index);
   };
 
-  const handleSearch = (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      // Redirect to search results page with the query
-      navigate(`/view-all?search=${encodeURIComponent(searchQuery.trim())}`);
-    }
+  const handleSearch = (query: string) => {
+    navigate(`/view-all?search=${encodeURIComponent(query)}`);
   };
 
   // Auto-play functionality
@@ -187,6 +185,7 @@ const HondaCarousel: React.FC = () => {
           />
         ))}
       </div>
+
       {/* Action section with flex and justify-center */}
       <div className='flex justify-center items-center w-full py-6 px-4 bg-white-600'>
         <div className='max-w-xl md:max-w-3xl space-y-6 w-full'>
@@ -197,25 +196,12 @@ const HondaCarousel: React.FC = () => {
               </Button>
             </Link>
 
-            {/* Search Component */}
-            <form onSubmit={handleSearch} className='flex w-full sm:w-auto'>
-              <div className='relative flex-1'>
-                <Input
-                  type='text'
-                  placeholder='Search motocycles'
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className='w-full pl-4 pr-10 py-2 border-2 border-gray bg-transparent text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg h-11'
-                />
-                <Button
-                  type='submit'
-                  variant='outline'
-                  className='absolute right-0 top-0 h-full bg-white text-black hover:bg-gray-200 rounded-none rounded-r-md px-3'
-                >
-                  <Search className='h-5 w-5' />
-                </Button>
-              </div>
-            </form>
+            <SearchComponent
+              darkMode={false}
+              placeholder='Search motorcycles'
+              onSearch={handleSearch}
+              className='w-full sm:w-auto'
+            />
           </div>
         </div>
       </div>

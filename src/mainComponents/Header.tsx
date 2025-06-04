@@ -23,7 +23,6 @@ export function Header() {
     >
       <div className='container flex items-center justify-between h-16 px-4 md:px-6'>
         <Link to='/' className='flex items-center gap-2'>
-          {/* Logo */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -82,10 +81,16 @@ export function Header() {
             </Popover>
 
             <Link
-              to='/#finance'
+              to='/finance'
               className='text-sm font-medium hover:text-primary transition-colors'
             >
               Finance
+            </Link>
+            <Link
+              to='/contact'
+              className='text-sm font-medium hover:text-primary transition-colors'
+            >
+              Contact
             </Link>
           </nav>
           <div className='flex items-center gap-2'>
@@ -142,14 +147,14 @@ export function Header() {
             </div>
 
             <Link
-              to='/#contact'
+              to='/finance'
               className='text-sm font-medium hover:text-primary transition-colors'
               onClick={() => setIsOpen(false)}
             >
               Finance
             </Link>
             <Link
-              to='/#contact'
+              to='/contact'
               className='text-sm font-medium hover:text-primary transition-colors'
               onClick={() => setIsOpen(false)}
             >

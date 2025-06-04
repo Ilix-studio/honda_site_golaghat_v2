@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, PlusCircle, SlidersHorizontal } from "lucide-react";
 
 import { useFilteredBikes } from "@/hooks/useFilteredBikes";
 import { SortSelector } from "./DetailsUIParts/SortSelector";
@@ -10,9 +10,13 @@ import { CategoryTabs } from "./DetailsUIParts/CategoryTabs";
 import { ActiveFilters } from "./DetailsUIParts/ActiveFilters";
 import { BikeCard } from "./DetailsUIParts/BikeCard";
 import { NoResults } from "./DetailsUIParts/NoResults";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 
 export function ViewAllBikes() {
   const [showFilters, setShowFilters] = useState(false);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   const {
     filteredBikes,
@@ -31,22 +35,28 @@ export function ViewAllBikes() {
     resetFilters,
   } = useFilteredBikes();
 
+  // Extract search query from URL parameters when component mounts or URL changes
+  useEffect(() => {
+    const urlSearchQuery = searchParams.get("search");
+    if (urlSearchQuery) {
+      setSearchQuery(urlSearchQuery);
+    }
+  }, [location.search, setSearchQuery, searchParams]);
+
   return (
     <section className='py-20'>
-      {/* <header className='bg-white border-b shadow-sm'>
-        <div className='container mx-auto px-4 py-4 flex items-center justify-between'>
-a
-          <Button
-            variant='ghost'
-            onClick={() => Navigate("/admin/dashboard")}
-            className='text-gray-600'
-          >
-            <ArrowLeft className='h-4 w-4 mr-2' />
-            Back to Dashboard
-          </Button>
-        </div>
-      </header> */}
-      <div className='container px-4 md:px-6'>
+      <div className='container mx-auto flex items-center justify-between'>
+        <Button
+          variant='ghost'
+          onClick={() => navigate("/")}
+          className='text-gray-600'
+        >
+          <ArrowLeft className='h-4 w-4 mr-2' />
+          Back to Home
+        </Button>
+      </div>
+
+      <div className='container pt-5 px-4 md:px-6'>
         <motion.div
           className='flex flex-row justify-between items-center mb-12 w-full'
           initial={{ opacity: 0, y: 20 }}
@@ -55,7 +65,9 @@ a
           transition={{ duration: 0.8 }}
         >
           <h2 className='text-3xl font-bold tracking-tight'>
-            All Honda Motorcycles
+            {searchQuery
+              ? `Search Results: "${searchQuery}"`
+              : "All Honda Motorcycles"}
           </h2>
           <Button className='bg-red-600 hover:bg-red-700 text-white font-medium px-6'>
             <PlusCircle className='mr-2 h-4 w-4' /> Add New Bikes
@@ -122,6 +134,7 @@ a
             <div className='mb-6 text-sm text-muted-foreground'>
               Showing {filteredBikes.length}{" "}
               {filteredBikes.length === 1 ? "bike" : "bikes"}
+              {searchQuery && <span> for "{searchQuery}"</span>}
               {/* Active filters */}
               <ActiveFilters
                 selectedCategory={selectedCategory}
