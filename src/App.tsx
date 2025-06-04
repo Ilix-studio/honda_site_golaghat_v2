@@ -33,8 +33,8 @@ const App: React.FC = () => {
         {/* Add && Edit Bikes, scooty  */}
         <Route path='/admin/addbikes' element={<AddBikes />} />
         <Route path='/admin/addbikes/edit/:id' element={<EditBikes />} />
-        <Route path='/admin/addbikes' element={<AddScooty />} />
-        <Route path='/admin/addbikes/edit/:id' element={<EditScooty />} />
+        <Route path='/admin/addScooty' element={<AddScooty />} />
+        <Route path='/admin/addScooty/edit/:id' element={<EditScooty />} />
 
         {/* Branches  */}
         <Route path='/branches' element={<BranchesPage />} />
