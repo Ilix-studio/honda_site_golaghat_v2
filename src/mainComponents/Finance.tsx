@@ -10,36 +10,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
+
 import { Label } from "@/components/ui/label";
-import { formatCurrency } from "@/lib/formatters";
-import { ArrowRight, Calculator, FileText, Wallet } from "lucide-react";
+
+import { Calculator, FileText, Wallet } from "lucide-react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 
 export function Finance() {
-  const [loanAmount, setLoanAmount] = useState(10000);
-  const [downPayment, setDownPayment] = useState(2000);
-  const [interestRate, setInterestRate] = useState(7.5);
-  const [tenure, setTenure] = useState(36);
   const [employmentType, setEmploymentType] = useState("salaried");
   const [creditScore, setCreditScore] = useState("excellent");
-
-  // Calculate monthly payment
-  const calculateMonthlyPayment = () => {
-    const principal = loanAmount - downPayment;
-    const monthlyRate = interestRate / 100 / 12;
-    const payments = tenure;
-
-    if (monthlyRate === 0) return principal / payments;
-
-    const x = Math.pow(1 + monthlyRate, payments);
-    return (principal * monthlyRate * x) / (x - 1);
-  };
-
-  const monthlyPayment = calculateMonthlyPayment();
-  const totalPayment = monthlyPayment * tenure;
-  const totalInterest = totalPayment - (loanAmount - downPayment);
 
   return (
     <main className='min-h-screen flex flex-col'>
@@ -113,172 +93,6 @@ export function Finance() {
             </p>
           </motion.div>
         </div>
-
-        {/* Calculator Section */}
-        <motion.div
-          className='bg-gray-50 rounded-xl p-8 mb-16'
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h2 className='text-2xl font-bold mb-6'>EMI Calculator</h2>
-          <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
-            <div className='space-y-6'>
-              {/* Loan Amount */}
-              <div>
-                <div className='flex justify-between mb-2'>
-                  <Label htmlFor='loan-amount' className='text-sm font-medium'>
-                    Loan Amount
-                  </Label>
-                  <span className='text-sm font-medium text-red-600'>
-                    {formatCurrency(loanAmount)}
-                  </span>
-                </div>
-                <Slider
-                  id='loan-amount'
-                  min={1000}
-                  max={50000}
-                  step={500}
-                  value={[loanAmount]}
-                  onValueChange={(value) => setLoanAmount(value[0])}
-                  className='mb-2'
-                />
-                <div className='flex justify-between text-xs text-muted-foreground'>
-                  <span>₹1,000</span>
-                  <span>₹50,000</span>
-                </div>
-              </div>
-
-              {/* Down Payment */}
-              <div>
-                <div className='flex justify-between mb-2'>
-                  <Label htmlFor='down-payment' className='text-sm font-medium'>
-                    Down Payment
-                  </Label>
-                  <span className='text-sm font-medium text-red-600'>
-                    {formatCurrency(downPayment)}
-                  </span>
-                </div>
-                <Slider
-                  id='down-payment'
-                  min={0}
-                  max={loanAmount * 0.5}
-                  step={500}
-                  value={[downPayment]}
-                  onValueChange={(value) => setDownPayment(value[0])}
-                  className='mb-2'
-                />
-                <div className='flex justify-between text-xs text-muted-foreground'>
-                  <span>₹0</span>
-                  <span>{formatCurrency(loanAmount * 0.5)}</span>
-                </div>
-              </div>
-
-              {/* Interest Rate */}
-              <div>
-                <div className='flex justify-between mb-2'>
-                  <Label
-                    htmlFor='interest-rate'
-                    className='text-sm font-medium'
-                  >
-                    Interest Rate
-                  </Label>
-                  <span className='text-sm font-medium text-red-600'>
-                    {interestRate}%
-                  </span>
-                </div>
-                <Slider
-                  id='interest-rate'
-                  min={5}
-                  max={15}
-                  step={0.1}
-                  value={[interestRate]}
-                  onValueChange={(value) => setInterestRate(value[0])}
-                  className='mb-2'
-                />
-                <div className='flex justify-between text-xs text-muted-foreground'>
-                  <span>5%</span>
-                  <span>15%</span>
-                </div>
-              </div>
-
-              {/* Tenure */}
-              <div>
-                <div className='flex justify-between mb-2'>
-                  <Label htmlFor='tenure' className='text-sm font-medium'>
-                    Loan Tenure (Months)
-                  </Label>
-                  <span className='text-sm font-medium text-red-600'>
-                    {tenure} months
-                  </span>
-                </div>
-                <Slider
-                  id='tenure'
-                  min={12}
-                  max={84}
-                  step={12}
-                  value={[tenure]}
-                  onValueChange={(value) => setTenure(value[0])}
-                  className='mb-2'
-                />
-                <div className='flex justify-between text-xs text-muted-foreground'>
-                  <span>12 months</span>
-                  <span>84 months</span>
-                </div>
-              </div>
-            </div>
-
-            <div className='bg-white p-6 rounded-lg border'>
-              <h3 className='text-lg font-semibold mb-4'>Loan Summary</h3>
-
-              <div className='space-y-4 mb-6'>
-                <div className='flex justify-between pb-2 border-b'>
-                  <span className='text-muted-foreground'>
-                    Principal Amount
-                  </span>
-                  <span className='font-medium'>
-                    {formatCurrency(loanAmount - downPayment)}
-                  </span>
-                </div>
-                <div className='flex justify-between pb-2 border-b'>
-                  <span className='text-muted-foreground'>Interest Rate</span>
-                  <span className='font-medium'>{interestRate}% per annum</span>
-                </div>
-                <div className='flex justify-between pb-2 border-b'>
-                  <span className='text-muted-foreground'>Loan Period</span>
-                  <span className='font-medium'>{tenure} months</span>
-                </div>
-                <div className='flex justify-between pb-2 border-b'>
-                  <span className='text-muted-foreground'>Total Interest</span>
-                  <span className='font-medium'>
-                    {formatCurrency(totalInterest)}
-                  </span>
-                </div>
-                <div className='flex justify-between pb-2 border-b'>
-                  <span className='text-muted-foreground'>
-                    Total Amount Payable
-                  </span>
-                  <span className='font-medium'>
-                    {formatCurrency(totalPayment)}
-                  </span>
-                </div>
-              </div>
-
-              <div className='bg-gray-50 p-4 rounded-lg mb-6'>
-                <div className='flex justify-between items-center'>
-                  <span className='text-lg'>Monthly Payment</span>
-                  <span className='text-xl font-bold text-red-600'>
-                    {formatCurrency(monthlyPayment)}
-                  </span>
-                </div>
-              </div>
-
-              <Button className='w-full bg-red-600 hover:bg-red-700'>
-                Apply for Financing <ArrowRight className='ml-2 h-4 w-4' />
-              </Button>
-            </div>
-          </div>
-        </motion.div>
 
         {/* Application Form */}
         <div className='mb-16'>

@@ -1,14 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Header } from "./Header";
-import {
-  Calendar,
-  Clock,
-  Mail,
-  MapPin,
-  MessageSquare,
-  Phone,
-} from "lucide-react";
+import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { Footer } from "./Footer";
 
 export function Contact() {
@@ -153,47 +146,6 @@ export function Contact() {
               </p>
             </form>
           </motion.div>
-        </div>
-
-        {/* Quick Contact Options */}
-        <div className='mb-16'>
-          <h2 className='text-2xl font-bold mb-6'>Quick Contact Options</h2>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-            <div className='p-6 border rounded-lg text-center'>
-              <MessageSquare className='h-8 w-8 text-red-600 mx-auto mb-4' />
-              <h3 className='text-lg font-semibold mb-2'>Live Chat</h3>
-              <p className='text-muted-foreground mb-4'>
-                Chat with our customer support team in real-time for immediate
-                assistance.
-              </p>
-              <Button className='bg-red-600 hover:bg-red-700'>
-                Start Chat
-              </Button>
-            </div>
-
-            <div className='p-6 border rounded-lg text-center'>
-              <Calendar className='h-8 w-8 text-red-600 mx-auto mb-4' />
-              <h3 className='text-lg font-semibold mb-2'>Book a Test Ride</h3>
-              <p className='text-muted-foreground mb-4'>
-                Schedule a test ride at our showroom and experience the thrill
-                first-hand.
-              </p>
-              <Button className='bg-red-600 hover:bg-red-700'>
-                Schedule Now
-              </Button>
-            </div>
-
-            <div className='p-6 border rounded-lg text-center'>
-              <Phone className='h-8 w-8 text-red-600 mx-auto mb-4' />
-              <h3 className='text-lg font-semibold mb-2'>Request a Callback</h3>
-              <p className='text-muted-foreground mb-4'>
-                Leave your number and we'll call you back at your convenience.
-              </p>
-              <Button className='bg-red-600 hover:bg-red-700'>
-                Request Call
-              </Button>
-            </div>
-          </div>
         </div>
 
         {/* FAQ Section */}
