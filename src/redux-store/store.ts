@@ -14,6 +14,11 @@ import {
 import createIdbStorage from "redux-persist-indexeddb-storage";
 
 import authReducer from "./slices/authSlice";
+import bikesReducer from "./slices/bikesSlice";
+import scootyReducer from "./slices/scootySlice";
+import branchReducer from "./slices/branchSlice";
+import comparisonReducer from "./slices/comparisonSlice";
+import uiReducer from "./slices/uiSlice";
 
 // Create IndexedDB storage for redux-persist
 const idbStorage = createIdbStorage("honda-golaghat-app-madebyilix");
@@ -28,6 +33,11 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  bikes: bikesReducer,
+  scooty: scootyReducer,
+  branch: branchReducer,
+  comparison: comparisonReducer,
+  ui: uiReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
