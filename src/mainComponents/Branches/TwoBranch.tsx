@@ -8,46 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Star } from "lucide-react";
-
-// Define Types
-export interface StaffMember {
-  name: string;
-  position: string;
-}
-
-export interface HoursType {
-  weekdays: string;
-  saturday: string;
-  sunday: string;
-}
-
-export interface InventoryType {
-  sport: number;
-  adventure: number;
-  cruiser: number;
-  touring: number;
-  naked: number;
-}
-
-export interface BranchType {
-  id: string;
-  name: string;
-  address: string;
-  phone: string;
-  email: string;
-  hours: HoursType;
-  staff: StaffMember[];
-  rating: number;
-  reviews: number;
-  image: string;
-  mapUrl: string;
-  featured: boolean;
-  inventory: InventoryType;
-}
-
-interface BranchesProps {
-  defaultBranch?: string;
-}
+import { BranchesProps, BranchType } from "@/types/branch.type";
 
 // Branch data
 export const branches: BranchType[] = [
