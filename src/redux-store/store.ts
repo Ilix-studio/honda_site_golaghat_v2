@@ -1,3 +1,4 @@
+// src/redux-store/store.ts
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import {
@@ -13,12 +14,22 @@ import {
 
 import createIdbStorage from "redux-persist-indexeddb-storage";
 
+// Import reducers
 import authReducer from "./slices/authSlice";
 import bikesReducer from "./slices/bikesSlice";
 import scootyReducer from "./slices/scootySlice";
 import branchReducer from "./slices/branchSlice";
 import comparisonReducer from "./slices/comparisonSlice";
 import uiReducer from "./slices/uiSlice";
+import formReducer from "./slices/formSlice";
+
+// Import API services
+import { adminAuthApi } from "./services/adminApi";
+import { bikesApi } from "./services/bikeApi";
+import { scootyApi } from "./services/scootyApi";
+import { branchApi } from "./services/branchApi";
+import { staffApi } from "./services/staffApi";
+import { branchManagerApi } from "./services/branchManagerApi";
 
 // Create IndexedDB storage for redux-persist
 const idbStorage = createIdbStorage("honda-golaghat-app-madebyilix");
@@ -28,7 +39,15 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage: idbStorage,
-  whitelist: ["auth"], // Only persist auth state to avoid persisting API cache
+  whitelist: ["auth", "comparison", "ui"], // Only persist certain slices
+  blacklist: [
+    "adminAuthApi",
+    "bikesApi",
+    "scootyApi",
+    "branchApi",
+    "staffApi",
+    "branchManagerApi",
+  ], // Don't persist API cache
 };
 
 const rootReducer = combineReducers({
@@ -38,6 +57,14 @@ const rootReducer = combineReducers({
   branch: branchReducer,
   comparison: comparisonReducer,
   ui: uiReducer,
+  form: formReducer,
+  // API services
+  [adminAuthApi.reducerPath]: adminAuthApi.reducer,
+  [bikesApi.reducerPath]: bikesApi.reducer,
+  [scootyApi.reducerPath]: scootyApi.reducer,
+  [branchApi.reducerPath]: branchApi.reducer,
+  [staffApi.reducerPath]: staffApi.reducer,
+  [branchManagerApi.reducerPath]: branchManagerApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -50,7 +77,15 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(),
+    }).concat(
+      // Add API middleware
+      adminAuthApi.middleware,
+      bikesApi.middleware,
+      scootyApi.middleware,
+      branchApi.middleware,
+      staffApi.middleware,
+      branchManagerApi.middleware
+    ),
 });
 
 // Create persistor for use with PersistGate
