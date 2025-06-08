@@ -1,173 +1,254 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Filter, SlidersHorizontal, Grid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, PlusCircle, SlidersHorizontal } from "lucide-react";
-
-import { useFilteredBikes } from "@/hooks/useFilteredBikes";
-import { SortSelector } from "./DetailsUIParts/SortSelector";
+import { Header } from "../Header";
+import { Footer } from "../Footer";
+import { BikeCard } from "./DetailsUIParts/BikeCard";
 import { FilterSidebar } from "./DetailsUIParts/FilterSidebar";
 import { CategoryTabs } from "./DetailsUIParts/CategoryTabs";
+import { SortSelector } from "./DetailsUIParts/SortSelector";
 import { ActiveFilters } from "./DetailsUIParts/ActiveFilters";
-import { BikeCard } from "./DetailsUIParts/BikeCard";
 import { NoResults } from "./DetailsUIParts/NoResults";
-import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
+
+// Redux hooks
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { useBikes } from "../../hooks/useBikes";
+import {
+  setFilters,
+  setSortBy,
+  setPagination,
+  resetFilters,
+  selectBikesFilters,
+  selectBikesSortBy,
+} from "../../redux-store/slices/bikesSlice";
+import {
+  toggleFilterSidebar,
+  setFilterSidebarOpen,
+  selectIsFilterSidebarOpen,
+} from "../../redux-store/slices/uiSlice";
 
 export function ViewAllBikes() {
-  const [showFilters, setShowFilters] = useState(false);
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const location = useLocation();
+  const dispatch = useAppDispatch();
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  const {
-    filteredBikes,
-    selectedCategory,
-    setSelectedCategory,
-    priceRange,
-    setPriceRange,
-    engineSizeRange,
-    setEngineSizeRange,
-    selectedFeatures,
-    toggleFeature,
-    searchQuery,
-    setSearchQuery,
-    sortBy,
-    setSortBy,
-    resetFilters,
-  } = useFilteredBikes();
+  // Redux state
+  const filters = useAppSelector(selectBikesFilters);
+  const sortBy = useAppSelector(selectBikesSortBy);
+  const showFilterSidebar = useAppSelector(selectIsFilterSidebarOpen);
 
-  // Extract search query from URL parameters when component mounts or URL changes
+  // Custom hooks
+  const { bikes, loading, error, pagination } = useBikes();
+
+  // Filter handlers
+  const updateFilters = (newFilters: Partial<typeof filters>) => {
+    dispatch(setFilters(newFilters));
+    dispatch(setPagination({ page: 1 })); // Reset to first page when filters change
+  };
+
+  const handleSortChange = (newSortBy: string) => {
+    dispatch(setSortBy(newSortBy));
+  };
+
+  const handleResetFilters = () => {
+    dispatch(resetFilters());
+  };
+
+  const toggleFeature = (feature: string) => {
+    const currentFeatures = filters.selectedFeatures || [];
+    const newFeatures = currentFeatures.includes(feature)
+      ? currentFeatures.filter((f) => f !== feature)
+      : [...currentFeatures, feature];
+
+    updateFilters({ selectedFeatures: newFeatures });
+  };
+
+  // Close sidebar on mobile when clicking outside
   useEffect(() => {
-    const urlSearchQuery = searchParams.get("search");
-    if (urlSearchQuery) {
-      setSearchQuery(urlSearchQuery);
-    }
-  }, [location.search, setSearchQuery, searchParams]);
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        dispatch(setFilterSidebarOpen(false));
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [dispatch]);
+
+  if (loading) {
+    return (
+      <main className='min-h-screen flex flex-col'>
+        <Header />
+        <div className='flex-grow flex items-center justify-center'>
+          <div className='animate-spin h-8 w-8 border-4 border-red-600 rounded-full border-t-transparent'></div>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className='min-h-screen flex flex-col'>
+        <Header />
+        <div className='flex-grow flex items-center justify-center'>
+          <div className='text-center'>
+            <h2 className='text-xl font-semibold mb-2'>Error Loading Bikes</h2>
+            <p className='text-muted-foreground'>{error}</p>
+          </div>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
 
   return (
-    <section className='py-20'>
-      <div className='container mx-auto flex items-center justify-between'>
-        <Button
-          variant='ghost'
-          onClick={() => navigate("/")}
-          className='text-gray-600'
-        >
-          <ArrowLeft className='h-4 w-4 mr-2' />
-          Back to Home
-        </Button>
-      </div>
+    <main className='min-h-screen flex flex-col'>
+      <Header />
 
-      <div className='container pt-5 px-4 md:px-6'>
+      <div className='container pt-28 pb-10 px-4 flex-grow'>
+        {/* Page Header */}
         <motion.div
-          className='flex flex-row justify-between items-center mb-12 w-full'
+          className='mb-8'
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <h2 className='text-3xl font-bold tracking-tight'>
-            {searchQuery
-              ? `Search Results: "${searchQuery}"`
-              : "All Honda Motorcycles"}
-          </h2>
-          <Button className='bg-red-600 hover:bg-red-700 text-white font-medium px-6'>
-            <PlusCircle className='mr-2 h-4 w-4' /> Add New Bikes
-          </Button>
+          <h1 className='text-3xl font-bold mb-4'>All Motorcycles</h1>
+          <p className='text-muted-foreground'>
+            Discover our complete range of Honda motorcycles
+          </p>
         </motion.div>
 
-        <div className='flex flex-col lg:flex-row gap-8'>
-          {/* Mobile filter toggle */}
-          <div className='lg:hidden flex justify-between items-center mb-4'>
+        {/* Category Tabs */}
+        <CategoryTabs
+          selectedCategory={filters.category || "all"}
+          setSelectedCategory={(category) => updateFilters({ category })}
+          className='mb-6'
+        />
+
+        {/* Controls Bar */}
+        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6'>
+          <div className='flex items-center gap-2'>
+            {/* Mobile Filter Toggle */}
             <Button
               variant='outline'
-              onClick={() => setShowFilters(!showFilters)}
-              className='flex items-center gap-2'
+              size='sm'
+              className='lg:hidden'
+              onClick={() => dispatch(toggleFilterSidebar())}
             >
-              <SlidersHorizontal className='h-4 w-4' />
-              {showFilters ? "Hide Filters" : "Show Filters"}
+              <Filter className='h-4 w-4 mr-2' />
+              Filters
             </Button>
 
-            <SortSelector sortBy={sortBy} setSortBy={setSortBy} />
+            {/* Advanced Filters Toggle for Desktop */}
+            <Button
+              variant='outline'
+              size='sm'
+              className='hidden lg:flex'
+              onClick={() => dispatch(toggleFilterSidebar())}
+            >
+              <SlidersHorizontal className='h-4 w-4 mr-2' />
+              {showFilterSidebar ? "Hide" : "Show"} Filters
+            </Button>
+
+            {/* Results Count */}
+            <span className='text-sm text-muted-foreground'>
+              {pagination.total} bikes found
+            </span>
           </div>
 
-          {/* Filters sidebar */}
+          <div className='flex items-center gap-2'>
+            {/* Sort Selector */}
+            <SortSelector sortBy={sortBy} setSortBy={handleSortChange} />
+
+            {/* View Mode Toggle */}
+            <div className='hidden sm:flex border rounded-md'>
+              <Button
+                variant={viewMode === "grid" ? "default" : "ghost"}
+                size='sm'
+                onClick={() => setViewMode("grid")}
+                className='rounded-r-none'
+              >
+                <Grid className='h-4 w-4' />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "ghost"}
+                size='sm'
+                onClick={() => setViewMode("list")}
+                className='rounded-l-none'
+              >
+                <List className='h-4 w-4' />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Active Filters */}
+        <ActiveFilters
+          selectedCategory={filters.category || "all"}
+          setSelectedCategory={(category) => updateFilters({ category })}
+          priceRange={[filters.minPrice || 0, filters.maxPrice || 30000]}
+          setPriceRange={([min, max]) =>
+            updateFilters({ minPrice: min, maxPrice: max })
+          }
+          engineSizeRange={[0, 2000]} // You'll need to add this to your filters
+          setEngineSizeRange={() => {}} // Implement this
+          selectedFeatures={filters.selectedFeatures || []}
+          toggleFeature={toggleFeature}
+          searchQuery={filters.search || ""}
+          setSearchQuery={(search) => updateFilters({ search })}
+        />
+
+        {/* Main Content */}
+        <div className='flex gap-8'>
+          {/* Filter Sidebar */}
           <AnimatePresence>
-            {(showFilters ||
-              (typeof window !== "undefined" && window.innerWidth >= 1024)) && (
+            {showFilterSidebar && (
               <FilterSidebar
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                priceRange={priceRange}
-                setPriceRange={setPriceRange}
-                engineSizeRange={engineSizeRange}
-                setEngineSizeRange={setEngineSizeRange}
-                selectedFeatures={selectedFeatures}
+                searchQuery={filters.search || ""}
+                setSearchQuery={(search) => updateFilters({ search })}
+                priceRange={[filters.minPrice || 0, filters.maxPrice || 30000]}
+                setPriceRange={([min, max]) =>
+                  updateFilters({ minPrice: min, maxPrice: max })
+                }
+                engineSizeRange={[0, 2000]}
+                setEngineSizeRange={() => {}}
+                selectedFeatures={filters.selectedFeatures || []}
                 toggleFeature={toggleFeature}
-                resetFilters={resetFilters}
-                showOnMobile={showFilters}
+                resetFilters={handleResetFilters}
+                showOnMobile={true}
               />
             )}
           </AnimatePresence>
 
-          {/* Main content */}
-          <div className='lg:w-3/4'>
-            {/* Desktop category tabs and sort */}
-            <div className='hidden lg:flex justify-between items-center mb-6'>
-              <CategoryTabs
-                selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
-                className='w-auto'
-              />
-
-              <SortSelector sortBy={sortBy} setSortBy={setSortBy} />
-            </div>
-
-            {/* Mobile category tabs */}
-            <div className='lg:hidden mb-6'>
-              <CategoryTabs
-                selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
-                className='w-full'
-              />
-            </div>
-
-            {/* Results count */}
-            <div className='mb-6 text-sm text-muted-foreground'>
-              Showing {filteredBikes.length}{" "}
-              {filteredBikes.length === 1 ? "bike" : "bikes"}
-              {searchQuery && <span> for "{searchQuery}"</span>}
-              {/* Active filters */}
-              <ActiveFilters
-                selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
-                priceRange={priceRange}
-                setPriceRange={setPriceRange}
-                engineSizeRange={engineSizeRange}
-                setEngineSizeRange={setEngineSizeRange}
-                selectedFeatures={selectedFeatures}
-                toggleFeature={toggleFeature}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-              />
-            </div>
-
-            {/* Bikes grid */}
-            {filteredBikes.length > 0 ? (
+          {/* Bikes Grid/List */}
+          <div className='flex-1'>
+            {bikes.length > 0 ? (
               <motion.div
-                className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
-                layout
+                className={
+                  viewMode === "grid"
+                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                    : "space-y-6"
+                }
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
               >
-                <AnimatePresence>
-                  {filteredBikes.map((bike) => (
-                    <BikeCard key={bike.id} bike={bike} />
-                  ))}
-                </AnimatePresence>
+                {bikes.map((bike) => (
+                  <BikeCard key={bike.id} bike={bike} />
+                ))}
               </motion.div>
             ) : (
-              <NoResults resetFilters={resetFilters} />
+              <NoResults resetFilters={handleResetFilters} />
             )}
+
+            {/* Pagination would go here */}
           </div>
         </div>
       </div>
-    </section>
+
+      <Footer />
+    </main>
   );
 }

@@ -14,7 +14,10 @@ import { Button } from "@/components/ui/button";
 
 import SearchComponent from "./Search/SearchComponent";
 
-// Import the SearchComponent directly
+// Redux
+import { useAppDispatch } from "../hooks/redux";
+import { setFilters } from "../redux-store/slices/bikesSlice";
+import { addNotification } from "../redux-store/slices/uiSlice";
 
 interface MotorcycleData {
   id: number;
@@ -30,14 +33,14 @@ interface MotorcycleData {
 
 const HondaCarousel: React.FC = () => {
   const [activeSlide, setActiveSlide] = useState(0);
-
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const [motorcycles] = useState<MotorcycleData[]>([
     {
       id: 1,
       name: "Honda SP160",
-      image: motocycle1, // Replace with actual image path
+      image: motocycle1,
       specs: {
         engine: "162.71 cc",
         power: "9.9kW @7500rpm",
@@ -48,7 +51,7 @@ const HondaCarousel: React.FC = () => {
     {
       id: 2,
       name: "Honda CB200X",
-      image: motocycle2, // Replace with actual image path
+      image: motocycle2,
       specs: {
         engine: "184.4 cc",
         power: "12.7kW @8500rpm",
@@ -59,7 +62,7 @@ const HondaCarousel: React.FC = () => {
     {
       id: 3,
       name: "Honda SP125",
-      image: motocycle3, // Replace with actual image path
+      image: motocycle3,
       specs: {
         engine: "123.94 cc",
         power: "8kW @7500rpm",
@@ -67,39 +70,66 @@ const HondaCarousel: React.FC = () => {
       },
       price: "₹ 90,000",
     },
-    // Add more motorcycles as needed
   ]);
 
-  // Function to move to the next slide
-  const nextSlide = () => {
-    setActiveSlide((prev) => (prev === motorcycles.length - 1 ? 0 : prev + 1));
-  };
+  // Auto-play functionality
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveSlide((prev) =>
+        prev === motorcycles.length - 1 ? 0 : prev + 1
+      );
+    }, 5000);
 
-  // Function to move to the previous slide
-  const prevSlide = () => {
-    setActiveSlide((prev) => (prev === 0 ? motorcycles.length - 1 : prev - 1));
-  };
+    return () => clearInterval(interval);
+  }, [motorcycles.length]);
 
-  // Function to go to a specific slide
   const goToSlide = (index: number) => {
     setActiveSlide(index);
   };
 
   const handleSearch = (query: string) => {
+    // Update Redux filters with search query
+    dispatch(setFilters({ search: query }));
     navigate(`/view-all?search=${encodeURIComponent(query)}`);
   };
 
-  // Auto-play functionality
-  useEffect(() => {
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 5000); // Change slide every 5 seconds
+  const handleViewDetails = () => {
+    const currentBike = motorcycles[activeSlide];
+    dispatch(
+      addNotification({
+        type: "info",
+        message: `Viewing details for ${currentBike.name}`,
+      })
+    );
+    // Navigate to bike details or show modal
+  };
 
-    return () => clearInterval(interval);
-  }, [activeSlide, motorcycles.length]);
+  const handleEmiCalculator = () => {
+    dispatch(
+      addNotification({
+        type: "info",
+        message: "EMI Calculator opened",
+      })
+    );
+    // Scroll to EMI calculator section
+    const emiSection = document.getElementById("finance");
+    if (emiSection) {
+      emiSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleDownloadBrochure = () => {
+    const currentBike = motorcycles[activeSlide];
+    dispatch(
+      addNotification({
+        type: "success",
+        message: `${currentBike.name} brochure download started`,
+      })
+    );
+    // Implement brochure download logic
+  };
 
   return (
-    // Add pt-16 class to add padding top equal to the header height
     <div className='relative w-full overflow-hidden bg-white pt-16'>
       {/* Carousel content */}
       <div className='relative'>
@@ -128,8 +158,6 @@ const HondaCarousel: React.FC = () => {
         </div>
 
         {/* Navigation arrows */}
-        <button onClick={prevSlide}></button>
-        <button onClick={nextSlide}></button>
       </div>
 
       {/* Specs section */}
@@ -159,14 +187,23 @@ const HondaCarousel: React.FC = () => {
 
       {/* Action buttons */}
       <div className='grid grid-cols-3 gap-1 bg-red-600 text-white'>
-        <button className='flex items-center justify-center p-4 hover:bg-red-700 transition-colors gap-1'>
+        <button
+          className='flex items-center justify-center p-4 hover:bg-red-700 transition-colors gap-1'
+          onClick={handleViewDetails}
+        >
           <EyeIcon className='h-4 w-4' /> VIEW DETAILS
         </button>
-        <button className='flex items-center justify-center p-4 hover:bg-red-700 transition-colors gap-1'>
+        <button
+          className='flex items-center justify-center p-4 hover:bg-red-700 transition-colors gap-1'
+          onClick={handleEmiCalculator}
+        >
           <ShoppingCart className='h-4 w-4' />
           EMI CALCULATOR
         </button>
-        <button className='flex items-center justify-center p-4 hover:bg-red-700 transition-colors gap-1'>
+        <button
+          className='flex items-center justify-center p-4 hover:bg-red-700 transition-colors gap-1'
+          onClick={handleDownloadBrochure}
+        >
           <Download className='h-4 w-4' />
           E-BROCHURE
         </button>
@@ -186,7 +223,7 @@ const HondaCarousel: React.FC = () => {
         ))}
       </div>
 
-      {/* Action section with flex and justify-center */}
+      {/* Action section */}
       <div className='flex justify-center items-center w-full py-6 px-4 bg-white-600'>
         <div className='max-w-xl md:max-w-3xl space-y-6 w-full'>
           <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>

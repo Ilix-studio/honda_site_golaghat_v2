@@ -13,9 +13,26 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import {
+  updateContactFormData,
+  setContactFormSubmitting,
+  setContactFormSubmitted,
+  resetContactForm,
+  selectContactFormData,
+  selectContactFormSubmitting,
+  selectContactFormSubmitted,
+} from "../redux-store/slices/formSlice";
+
 export function ContactSection({ branch }: any) {
+  const dispatch = useAppDispatch();
+  const formData = useAppSelector(selectContactFormData);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleInputChange = (field: string, value: string) => {
+    dispatch(updateContactFormData({ [field]: value }));
+  };
 
   const handleSubmit = ({ e }: any) => {
     e.preventDefault();
@@ -26,6 +43,10 @@ export function ContactSection({ branch }: any) {
       setIsSubmitting(false);
       setFormSubmitted(true);
     }, 1500);
+  };
+
+  const handleReset = () => {
+    dispatch(resetContactForm());
   };
 
   // Default contact details if no branch is provided

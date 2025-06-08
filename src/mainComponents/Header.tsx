@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,8 +11,39 @@ import {
 import { Link } from "react-router-dom";
 import { branches } from "./Branches/TwoBranch";
 
+// Redux
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import {
+  toggleMobileMenu,
+  setMobileMenuOpen,
+  selectIsMobileMenuOpen,
+} from "../redux-store/slices/uiSlice";
+import { selectComparisonBikes } from "../redux-store/slices/comparisonSlice";
+
 export function Header() {
-  const [isOpen, setIsOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const isMobileMenuOpen = useAppSelector(selectIsMobileMenuOpen);
+  const comparisonBikes = useAppSelector(selectComparisonBikes);
+
+  // Close mobile menu when clicking outside or on route change
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        dispatch(setMobileMenuOpen(false));
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [dispatch]);
+
+  const handleMobileMenuToggle = () => {
+    dispatch(toggleMobileMenu());
+  };
+
+  const closeMobileMenu = () => {
+    dispatch(setMobileMenuOpen(false));
+  };
 
   return (
     <motion.header
@@ -22,7 +53,11 @@ export function Header() {
       transition={{ duration: 0.5 }}
     >
       <div className='container flex items-center justify-between h-16 px-4 md:px-6'>
-        <Link to='/' className='flex items-center gap-2'>
+        <Link
+          to='/'
+          className='flex items-center gap-2'
+          onClick={closeMobileMenu}
+        >
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -92,6 +127,19 @@ export function Header() {
             >
               Contact
             </Link>
+
+            {/* Comparison indicator */}
+            {comparisonBikes.length > 0 && (
+              <Link
+                to='/compare'
+                className='text-sm font-medium hover:text-primary transition-colors relative'
+              >
+                Compare
+                <span className='absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center'>
+                  {comparisonBikes.length}
+                </span>
+              </Link>
+            )}
           </nav>
           <div className='flex items-center gap-2'>
             <Link to='/book-service'>
@@ -100,12 +148,12 @@ export function Header() {
           </div>
         </div>
 
-        <button className='md:hidden' onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <X /> : <Menu />}
+        <button className='md:hidden' onClick={handleMobileMenuToggle}>
+          {isMobileMenuOpen ? <X /> : <Menu />}
         </button>
       </div>
 
-      {isOpen && (
+      {isMobileMenuOpen && (
         <motion.div
           className='md:hidden'
           initial={{ opacity: 0, height: 0 }}
@@ -113,11 +161,11 @@ export function Header() {
           exit={{ opacity: 0, height: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <nav className='flex flex-col p-4 space-y-4 border-t'>
+          <nav className='flex flex-col p-4 space-y-4 border-t bg-background'>
             <Link
               to='/view-all'
               className='text-sm font-medium hover:text-primary transition-colors'
-              onClick={() => setIsOpen(false)}
+              onClick={closeMobileMenu}
             >
               Models
             </Link>
@@ -129,7 +177,7 @@ export function Header() {
                 <Link
                   to='/branches'
                   className='block text-sm text-muted-foreground hover:text-primary transition-colors font-medium'
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeMobileMenu}
                 >
                   All Branches
                 </Link>
@@ -138,7 +186,7 @@ export function Header() {
                     key={branch.id}
                     to={`/branches/${branch.id}`}
                     className='block text-sm text-muted-foreground hover:text-primary transition-colors'
-                    onClick={() => setIsOpen(false)}
+                    onClick={closeMobileMenu}
                   >
                     {branch.name.split(" ").pop()}
                   </Link>
@@ -149,19 +197,34 @@ export function Header() {
             <Link
               to='/finance'
               className='text-sm font-medium hover:text-primary transition-colors'
-              onClick={() => setIsOpen(false)}
+              onClick={closeMobileMenu}
             >
               Finance
             </Link>
             <Link
               to='/contact'
               className='text-sm font-medium hover:text-primary transition-colors'
-              onClick={() => setIsOpen(false)}
+              onClick={closeMobileMenu}
             >
               Contact
             </Link>
+
+            {/* Mobile Comparison indicator */}
+            {comparisonBikes.length > 0 && (
+              <Link
+                to='/compare'
+                className='text-sm font-medium hover:text-primary transition-colors flex items-center gap-2'
+                onClick={closeMobileMenu}
+              >
+                Compare Bikes
+                <span className='bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center'>
+                  {comparisonBikes.length}
+                </span>
+              </Link>
+            )}
+
             <div className='flex flex-col gap-2'>
-              <Link to='/book-service' onClick={() => setIsOpen(false)}>
+              <Link to='/book-service' onClick={closeMobileMenu}>
                 <Button className='w-full'>Book Service</Button>
               </Link>
             </div>

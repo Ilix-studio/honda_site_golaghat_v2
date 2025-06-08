@@ -21,6 +21,9 @@ import EditScooty from "./mainComponents/Admin/Scooty/EditScooty";
 import Finance from "./mainComponents/Finance";
 import Contact from "./mainComponents/Contact";
 import SearchResults from "./mainComponents/Search/SearchResults";
+import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
+
+// Import Notification System
 
 const App: React.FC = () => {
   return (
@@ -37,6 +40,7 @@ const App: React.FC = () => {
         <Route path='/admin/superlogin' element={<LoginSuperAdmin />} />
         <Route path='/admin/managerlogin' element={<LoginBranchManager />} />
         <Route path='/admin/dashboard' element={<AdminDashboard />} />
+
         {/* Add && Edit Bikes, scooty  */}
         <Route path='/admin/addbikes' element={<AddBikes />} />
         <Route path='/admin/addbikes/edit/:id' element={<EditBikes />} />
@@ -55,6 +59,9 @@ const App: React.FC = () => {
         <Route path='/compare' element={<CompareBike />} />
         <Route path='*' element={<NotFoundPage />} />
       </Routes>
+
+      {/* Global Notification System */}
+      <NotificationSystem />
     </>
   );
 };

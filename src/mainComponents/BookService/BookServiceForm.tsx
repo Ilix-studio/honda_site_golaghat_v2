@@ -1,5 +1,4 @@
-// src/components/service-booking/BookServiceForm.tsx
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence } from "framer-motion";
@@ -24,33 +23,27 @@ import { SuccessConfirmation } from "./SuccessConfirmation";
 import { StepIndicator } from "./StepIndicator";
 import { FormNavigation } from "./FormNavigation";
 
+// Redux
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import {
+  selectServiceBookingForm,
+  setServiceBookingStep,
+  updateServiceBookingData,
+  setServiceBookingSubmitting,
+  setServiceBookingSubmitted,
+  resetServiceBookingForm,
+} from "../../redux-store/slices/formSlice";
+import { addNotification } from "../../redux-store/slices/uiSlice";
+
 export const BookServiceForm: React.FC = () => {
-  const [step, setStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const totalSteps = 6;
+  const dispatch = useAppDispatch();
+  const { currentStep, totalSteps, isSubmitting, isSubmitted, formData } =
+    useAppSelector(selectServiceBookingForm);
 
   // Initialize form with react-hook-form and zod validation
   const form = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceFormSchema),
-    defaultValues: {
-      bikeModel: "",
-      year: "",
-      vin: "",
-      mileage: "",
-      registrationNumber: "",
-      serviceType: "",
-      additionalServices: [],
-      serviceLocation: "",
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      issues: "",
-      dropOff: false,
-      waitOnsite: false,
-      termsAccepted: false,
-    },
+    defaultValues: formData,
   });
 
   // Handle next step
@@ -58,7 +51,7 @@ export const BookServiceForm: React.FC = () => {
     let fieldsToValidate: (keyof ServiceFormValues)[] = [];
 
     // Determine which fields to validate based on current step
-    switch (step) {
+    switch (currentStep) {
       case 1:
         fieldsToValidate = ["bikeModel", "year", "mileage"];
         break;
@@ -80,40 +73,60 @@ export const BookServiceForm: React.FC = () => {
     const isValid = await form.trigger(fieldsToValidate as any);
 
     if (isValid) {
-      if (step < totalSteps) {
-        setStep(step + 1);
+      // Update Redux state with current form data
+      const currentData = form.getValues();
+      dispatch(updateServiceBookingData(currentData));
+
+      if (currentStep < totalSteps) {
+        dispatch(setServiceBookingStep(currentStep + 1));
       }
     }
   };
 
   // Handle back step
   const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1);
+    if (currentStep > 1) {
+      dispatch(setServiceBookingStep(currentStep - 1));
     }
   };
 
   // Handle form reset
   const handleReset = () => {
-    setIsSubmitted(false);
-    setStep(1);
+    dispatch(resetServiceBookingForm());
+    form.reset();
   };
 
   // Handle form submission
-  const onSubmit = form.handleSubmit((data) => {
-    setIsSubmitting(true);
+  const onSubmit = form.handleSubmit(async (data) => {
+    dispatch(setServiceBookingSubmitting(true));
+    dispatch(updateServiceBookingData(data));
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Form submitted:", data);
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-    }, 1500);
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      dispatch(setServiceBookingSubmitted(true));
+      dispatch(
+        addNotification({
+          type: "success",
+          message: "Service booking submitted successfully!",
+        })
+      );
+    } catch (error) {
+      dispatch(
+        addNotification({
+          type: "error",
+          message: "Failed to submit service booking. Please try again.",
+        })
+      );
+    } finally {
+      dispatch(setServiceBookingSubmitting(false));
+    }
   });
 
   // Render appropriate step component
   const renderStepContent = () => {
-    switch (step) {
+    switch (currentStep) {
       case 1:
         return <VehicleInformation form={form} />;
       case 2:
@@ -143,7 +156,7 @@ export const BookServiceForm: React.FC = () => {
           <CardDescription>
             Schedule maintenance or repairs for your Honda motorcycle
           </CardDescription>
-          <StepIndicator currentStep={step} totalSteps={totalSteps} />
+          <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
         </CardHeader>
 
         <CardContent>
@@ -154,7 +167,7 @@ export const BookServiceForm: React.FC = () => {
 
         <CardFooter>
           <FormNavigation
-            step={step}
+            step={currentStep}
             totalSteps={totalSteps}
             handleBack={handleBack}
             handleNext={handleNext}

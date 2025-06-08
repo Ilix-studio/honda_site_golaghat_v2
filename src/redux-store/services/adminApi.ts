@@ -25,7 +25,7 @@ export const adminAuthApi = createApi({
   endpoints: (builder) => ({
     loginAdmin: builder.mutation<LoginResponse, LoginRequest>({
       query: (credentials) => ({
-        url: "/admin/login",
+        url: "/adminLogin/super-ad-login",
         method: "POST",
         body: credentials,
       }),
@@ -49,7 +49,7 @@ export const adminAuthApi = createApi({
 
     logoutAdmin: builder.mutation<{ success: boolean; message: string }, void>({
       query: () => ({
-        url: "/admin/logout",
+        url: "/adminLogin/super-ad-logout",
         method: "POST",
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
