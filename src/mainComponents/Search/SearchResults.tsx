@@ -2,19 +2,23 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Header } from "../Header";
 import { Footer } from "../Footer";
-
-import { allBikes, Bike } from "../../mockdata/data";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import SearchComponent from "./SearchComponent";
 import { BikeCard } from "../BikeDetails/DetailsUIParts/BikeCard";
 import { NoResults } from "../BikeDetails/DetailsUIParts/NoResults";
+import { Bike } from "@/redux-store/slices/bikesSlice"; // Use the Redux Bike type
+import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
 
 export function SearchResults() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchResults, setSearchResults] = useState<Bike[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Get bikes data from API
+  const { data: bikesResponse, isLoading: apiLoading } = useGetBikesQuery({});
+  const allBikes = bikesResponse?.data || [];
 
   const searchQuery = searchParams.get("search") || "";
 
@@ -27,17 +31,19 @@ export function SearchResults() {
   useEffect(() => {
     setLoading(true);
 
-    // Simulate API call delay
+    // Simulate API call delay for better UX
     setTimeout(() => {
-      if (searchQuery) {
+      if (searchQuery && allBikes.length > 0) {
         const query = searchQuery.toLowerCase();
-        const results = allBikes.filter((bike) => {
+        const results = allBikes.filter((bike: Bike) => {
           return (
-            bike.name.toLowerCase().includes(query) ||
+            bike.modelName.toLowerCase().includes(query) ||
             bike.category.toLowerCase().includes(query) ||
-            bike.features.some((feature) =>
-              feature.toLowerCase().includes(query)
-            )
+            (bike.features &&
+              bike.features.some((feature: string) =>
+                feature.toLowerCase().includes(query)
+              )) ||
+            bike.engine.toLowerCase().includes(query)
           );
         });
         setSearchResults(results);
@@ -45,8 +51,21 @@ export function SearchResults() {
         setSearchResults([]);
       }
       setLoading(false);
-    }, 500);
-  }, [searchQuery]);
+    }, 300);
+  }, [searchQuery, allBikes]);
+
+  // Show loading if API is still fetching
+  if (apiLoading) {
+    return (
+      <main className='min-h-screen flex flex-col'>
+        <Header />
+        <div className='flex-grow flex items-center justify-center'>
+          <div className='animate-spin h-8 w-8 border-4 border-red-600 rounded-full border-t-transparent'></div>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
 
   return (
     <main className='min-h-screen flex flex-col'>
@@ -93,7 +112,7 @@ export function SearchResults() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            {searchResults.map((bike) => (
+            {searchResults.map((bike: Bike) => (
               <BikeCard key={bike.id} bike={bike} />
             ))}
           </motion.div>

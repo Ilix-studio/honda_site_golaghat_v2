@@ -16,12 +16,14 @@ import LoginSuperAdmin from "./mainComponents/Admin/LoginSuperAdmin";
 import AdminDashboard from "./mainComponents/Admin/AdminDashboard";
 import AddBikes from "./mainComponents/Admin/Bikes/AddBikes";
 import EditBikes from "./mainComponents/Admin/Bikes/EditBikes";
-import AddScooty from "./mainComponents/Admin/Scooty/AddScooty";
+
 import EditScooty from "./mainComponents/Admin/Scooty/EditScooty";
 import Finance from "./mainComponents/Finance";
 import Contact from "./mainComponents/Contact";
 import SearchResults from "./mainComponents/Search/SearchResults";
 import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
+import AddScooty from "./mainComponents/Admin/Scooty/AddScooty";
+import AddBranch from "./mainComponents/Branches/AddBranch";
 
 // Import Notification System
 
@@ -46,6 +48,9 @@ const App: React.FC = () => {
         <Route path='/admin/addbikes/edit/:id' element={<EditBikes />} />
         <Route path='/admin/addScooty' element={<AddScooty />} />
         <Route path='/admin/addScooty/edit/:id' element={<EditScooty />} />
+
+        {/* Branch Management Routes */}
+        <Route path='/admin/addbranch' element={<AddBranch />} />
 
         {/* Branches  */}
         <Route path='/branches' element={<BranchesPage />} />

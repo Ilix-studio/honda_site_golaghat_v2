@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Filter, SlidersHorizontal, Grid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ export function ViewAllBikes() {
   const sortBy = useAppSelector(selectBikesSortBy);
   const showFilterSidebar = useAppSelector(selectIsFilterSidebarOpen);
 
-  // Custom hooks
+  // Custom hooks - getting data from API
   const { bikes, loading, error, pagination } = useBikes();
 
   // Filter handlers

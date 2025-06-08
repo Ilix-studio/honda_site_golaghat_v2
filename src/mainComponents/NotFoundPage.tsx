@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
-import { MapPin, Home, PhoneCall, Bike, Frown, Search } from "lucide-react";
+import { MapPin, Home, PhoneCall, Frown, Search } from "lucide-react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 
@@ -65,16 +65,6 @@ const NotFoundPage = () => {
                       <Button className='w-full bg-red-600 hover:bg-red-700 flex items-center justify-center gap-2'>
                         <Home className='h-4 w-4' />
                         Back to Homepage
-                      </Button>
-                    </Link>
-
-                    <Link to='/test-ride'>
-                      <Button
-                        variant='outline'
-                        className='w-full flex items-center justify-center gap-2'
-                      >
-                        <Bike className='h-4 w-4' />
-                        Book a Test Ride
                       </Button>
                     </Link>
                   </div>

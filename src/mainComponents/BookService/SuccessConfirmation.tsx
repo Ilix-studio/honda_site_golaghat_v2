@@ -14,11 +14,91 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ServiceFormValues } from "../../lib/form-schema";
-import {
-  bikeModels,
-  serviceLocations,
-  serviceTypes,
-} from "../../mockdata/data";
+import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
+import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
+
+// Define types for service-related data
+interface BikeModel {
+  id: string;
+  name?: string;
+  modelName: string;
+  category: string;
+}
+
+interface ServiceType {
+  id: string;
+  name: string;
+  price: string;
+  estimatedTime: string;
+  description: string;
+}
+
+interface ServiceLocation {
+  _id: string;
+  id: string;
+  name: string;
+  address: string;
+}
+
+// Service types data - you should replace this with actual API data
+const serviceTypes: ServiceType[] = [
+  {
+    id: "regular",
+    name: "Regular Service",
+    price: "₹2,500",
+    estimatedTime: "2-3 hours",
+    description: "Basic maintenance service",
+  },
+  {
+    id: "major",
+    name: "Major Service",
+    price: "₹5,000",
+    estimatedTime: "4-6 hours",
+    description: "Comprehensive service check",
+  },
+  {
+    id: "diagnostic",
+    name: "Diagnostic Check",
+    price: "₹1,000",
+    estimatedTime: "1-2 hours",
+    description: "Computer diagnostic scan",
+  },
+  {
+    id: "repair",
+    name: "Repair Service",
+    price: "Varies",
+    estimatedTime: "Varies",
+    description: "Repair specific issues",
+  },
+  {
+    id: "tires",
+    name: "Tire Service",
+    price: "₹3,000",
+    estimatedTime: "1-2 hours",
+    description: "Tire replacement and balancing",
+  },
+  {
+    id: "warranty",
+    name: "Warranty Service",
+    price: "Free",
+    estimatedTime: "2-4 hours",
+    description: "Warranty-covered repairs",
+  },
+  {
+    id: "recall",
+    name: "Recall Service",
+    price: "Free",
+    estimatedTime: "1-3 hours",
+    description: "Manufacturer recall service",
+  },
+  {
+    id: "inspection",
+    name: "Safety Inspection",
+    price: "₹800",
+    estimatedTime: "1 hour",
+    description: "Complete safety inspection",
+  },
+];
 
 interface SuccessConfirmationProps {
   form: UseFormReturn<ServiceFormValues>;
@@ -32,15 +112,24 @@ export function SuccessConfirmation({
   const { watch, reset } = form;
   const watchedValues = watch();
 
+  // Get bikes and branches data from API
+  const { data: bikesResponse } = useGetBikesQuery({});
+  const { data: branchesResponse } = useGetBranchesQuery();
+
+  const bikeModels = bikesResponse?.data || [];
+  const serviceLocations = branchesResponse?.data || [];
+
   // Get selected items for summary
   const selectedBike = bikeModels.find(
-    (bike) => bike.id === watchedValues.bikeModel
+    (bike: BikeModel) => bike.id === watchedValues.bikeModel
   );
   const selectedService = serviceTypes.find(
-    (service) => service.id === watchedValues.serviceType
+    (service: ServiceType) => service.id === watchedValues.serviceType
   );
   const selectedLocation = serviceLocations.find(
-    (location) => location.id === watchedValues.serviceLocation
+    (location: ServiceLocation) =>
+      location._id === watchedValues.serviceLocation ||
+      location.id === watchedValues.serviceLocation
   );
 
   return (
@@ -81,29 +170,38 @@ export function SuccessConfirmation({
             the details.
           </p>
           <p>
-            A service advisor from {selectedLocation?.name} will contact you
+            A service advisor from{" "}
+            {selectedLocation?.name || "our service center"} will contact you
             shortly to confirm your appointment.
           </p>
           <div className='p-4 bg-gray-50 rounded-lg mt-4'>
             <div className='flex justify-between mb-2'>
               <span className='text-muted-foreground'>Service:</span>
-              <span className='font-medium'>{selectedService?.name}</span>
+              <span className='font-medium'>
+                {selectedService?.name || "Service"}
+              </span>
             </div>
             <div className='flex justify-between mb-2'>
               <span className='text-muted-foreground'>Motorcycle:</span>
-              <span className='font-medium'>{selectedBike?.name}</span>
+              <span className='font-medium'>
+                {selectedBike?.modelName ||
+                  selectedBike?.modelName ||
+                  "Motorcycle"}
+              </span>
             </div>
             <div className='flex justify-between mb-2'>
               <span className='text-muted-foreground'>Date:</span>
               <span className='font-medium'>
                 {watchedValues.date
                   ? formatDate(watchedValues.date, "PPP")
-                  : ""}
+                  : "Date to be confirmed"}
               </span>
             </div>
             <div className='flex justify-between'>
               <span className='text-muted-foreground'>Time:</span>
-              <span className='font-medium'>{watchedValues.time}</span>
+              <span className='font-medium'>
+                {watchedValues.time || "Time to be confirmed"}
+              </span>
             </div>
           </div>
 
@@ -115,8 +213,18 @@ export function SuccessConfirmation({
                 <li>Your motorcycle key</li>
                 <li>Proof of ownership (registration)</li>
                 <li>Service history (if available)</li>
+                <li>Valid driving license</li>
+                <li>Insurance documents</li>
               </ul>
             </div>
+          </div>
+
+          <div className='p-4 bg-yellow-50 rounded-lg text-left'>
+            <p className='text-sm text-yellow-800'>
+              <strong>Important:</strong> Please arrive 15 minutes before your
+              scheduled appointment time. If you need to reschedule, please
+              contact us at least 24 hours in advance.
+            </p>
           </div>
         </CardContent>
         <CardFooter className='flex justify-center gap-4'>

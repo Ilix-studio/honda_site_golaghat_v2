@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "../../../lib/formatters";
-import { categories } from "../../../mockdata/data";
+import { categories } from "../../../constants/formOptions";
 
 interface ActiveFiltersProps {
   selectedCategory: string;

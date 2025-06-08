@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { categories } from "../../../mockdata/data";
+import { categories } from "../../../constants/formOptions";
 
 interface CategoryTabsProps {
   selectedCategory: string;

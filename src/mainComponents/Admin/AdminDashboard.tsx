@@ -8,15 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Users,
-  Bike,
-  Building2,
-  TrendingUp,
-  Plus,
-  LogOut,
-  Settings,
-} from "lucide-react";
+import { Users, Bike, Building2, TrendingUp, Plus, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 // Redux
@@ -87,7 +79,7 @@ const AdminDashboard = () => {
       icon: Building2,
       loading: branchesLoading,
       description: "Service locations",
-      action: { label: "Manage", href: "/admin/branches" },
+      action: { label: "Manage", href: "/admin/addbranch" },
     },
     {
       title: "Branch Managers",
@@ -128,10 +120,6 @@ const AdminDashboard = () => {
               <p className='text-gray-600'>Welcome back, {user?.name}</p>
             </div>
             <div className='flex items-center gap-2'>
-              <Button variant='outline' size='sm'>
-                <Settings className='h-4 w-4 mr-2' />
-                Settings
-              </Button>
               <Button
                 variant='outline'
                 size='sm'
@@ -204,6 +192,14 @@ const AdminDashboard = () => {
                 <Button className='w-full justify-start' variant='outline'>
                   <Bike className='h-4 w-4 mr-2' />
                   Add New Scooty
+                </Button>
+              </Link>
+              <Link to='/admin/addbranch'>
+                {" "}
+                {/* Add this new button */}
+                <Button className='w-full justify-start' variant='outline'>
+                  <Building2 className='h-4 w-4 mr-2' />
+                  Add New Branch
                 </Button>
               </Link>
               <Link to='/admin/managers'>

@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 import { SearchBar } from "./SearchBar";
 import { formatCurrency } from "../../../lib/formatters";
-import { availableFeatures } from "../../../mockdata/data";
+import { availableFeatures } from "../../../constants/formOptions";
 
 interface FilterSidebarProps {
   searchQuery: string;

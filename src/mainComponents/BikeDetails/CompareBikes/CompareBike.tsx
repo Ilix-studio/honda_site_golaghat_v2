@@ -17,11 +17,23 @@ import { Badge } from "@/components/ui/badge";
 
 import { AddBikeCard } from "./AddBikeCard";
 import { BikeComparisonCard } from "./BikeComparisonCard";
-import { allBikes, Bike } from "@/mockdata/data";
 import { Header } from "@/mainComponents/Header";
 import { formatCurrency } from "@/lib/formatters";
 import { Footer } from "@/mainComponents/Footer";
 import { comparisonSections } from "./comparisonSections";
+import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
+import { Bike } from "@/redux-store/slices/bikesSlice"; // Use the Redux Bike type
+
+// Define constants for categories - you may need to adjust this based on your actual categories
+const CATEGORIES = [
+  "all",
+  "sport",
+  "adventure",
+  "cruiser",
+  "touring",
+  "naked",
+  "electric",
+];
 
 const EMPTY_SLOT_PLACEHOLDER = "add-bike";
 
@@ -38,9 +50,20 @@ const MAX_BIKES = {
   DESKTOP: 4,
 };
 
+// Create an extended type for comparison with additional properties
+interface ComparisonBike extends Bike {
+  name?: string; // Make it optional since it might not exist in the API data
+  engineSize?: number; // Make it optional since it might not exist in the API data
+  image?: string; // Make it optional
+}
+
 export default function CompareBike() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  // Get bikes data from API
+  const { data: bikesResponse, isLoading } = useGetBikesQuery({});
+  const allBikes: ComparisonBike[] = bikesResponse?.data || [];
 
   // Get bike IDs from URL parameters
   const bikeIds = searchParams.getAll("bikes") || [];
@@ -66,7 +89,9 @@ export default function CompareBike() {
   const [selectedBikeIds, setSelectedBikeIds] = useState<string[]>([]);
 
   // Actual bike objects corresponding to the selected IDs
-  const [selectedBikes, setSelectedBikes] = useState<(Bike | null)[]>([]);
+  const [selectedBikes, setSelectedBikes] = useState<(ComparisonBike | null)[]>(
+    []
+  );
 
   // State for category filter in the bike selector
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -136,22 +161,32 @@ export default function CompareBike() {
     (bike) =>
       (categoryFilter === "all" || bike.category === categoryFilter) &&
       (searchQuery === "" ||
-        bike.name.toLowerCase().includes(searchQuery.toLowerCase()))
+        bike.modelName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (bike.name &&
+          bike.name.toLowerCase().includes(searchQuery.toLowerCase())))
   );
-
-  // Categories for filtering
-  const categories = [
-    "all",
-    ...Array.from(new Set(allBikes.map((bike) => bike.category))),
-  ];
 
   // Update selected bikes whenever the IDs change
   useEffect(() => {
-    const bikes = selectedBikeIds.map((id) =>
-      id === EMPTY_SLOT_PLACEHOLDER
-        ? null
-        : allBikes.find((bike) => bike.id === id) || null
-    );
+    const bikes = selectedBikeIds.map((id) => {
+      if (id === EMPTY_SLOT_PLACEHOLDER) {
+        return null;
+      }
+
+      const foundBike = allBikes.find((bike) => bike.id === id);
+      if (!foundBike) return null;
+
+      // Create a complete comparison bike object with fallback values
+      const comparisonBike: ComparisonBike = {
+        ...foundBike,
+        name: foundBike.name || foundBike.modelName, // Use modelName as fallback for name
+        engineSize: foundBike.engineSize || parseInt(foundBike.engine) || 0, // Extract from engine string if needed
+        image: foundBike.images?.[0] || "/placeholder.svg", // Use first image or placeholder
+      };
+
+      return comparisonBike;
+    });
+
     setSelectedBikes(bikes);
 
     // Update URL parameters with only real bike IDs (not placeholders)
@@ -164,7 +199,7 @@ export default function CompareBike() {
     } else {
       navigate("/compare"); // Clear parameters if no bikes are selected
     }
-  }, [selectedBikeIds, setSearchParams, navigate]);
+  }, [selectedBikeIds, setSearchParams, navigate, allBikes]);
 
   // Remove a bike from comparison
   const removeBike = (index: number) => {
@@ -208,20 +243,25 @@ export default function CompareBike() {
 
   // Find best value for a particular spec across all bikes
   const findBestValue = (
-    key: keyof Bike,
+    key: keyof ComparisonBike,
     isHigherBetter: boolean = true
   ): number => {
     const values = selectedBikes
       .filter((bike) => bike !== null)
-      .map((bike) => (bike ? Number(bike[key]) : 0));
+      .map((bike) => {
+        if (!bike) return 0;
+        const value = bike[key];
+        return typeof value === "number" ? value : 0;
+      });
 
+    if (values.length === 0) return 0;
     return isHigherBetter ? Math.max(...values) : Math.min(...values);
   };
 
   // Helper to determine if a spec value is the best
   const isBestValue = (
     value: number,
-    key: keyof Bike,
+    key: keyof ComparisonBike,
     isHigherBetter: boolean = true
   ): boolean => {
     if (!value) return false;
@@ -231,14 +271,16 @@ export default function CompareBike() {
 
   // Compare values and return the appropriate indicator
   const getComparisonIndicator = (
-    bike: Bike | null,
-    key: keyof Bike,
+    bike: ComparisonBike | null,
+    key: keyof ComparisonBike,
     isHigherBetter: boolean = true
   ) => {
     if (!bike) return null;
 
-    const value = Number(bike[key]);
-    if (isBestValue(value, key, isHigherBetter)) {
+    const value = bike[key];
+    const numericValue = typeof value === "number" ? value : 0;
+
+    if (isBestValue(numericValue, key, isHigherBetter)) {
       return (
         <span
           className='text-green-500 flex items-center'
@@ -256,8 +298,8 @@ export default function CompareBike() {
       const worstValue = findBestValue(key, !isHigherBetter);
 
       if (
-        (isHigherBetter && value === worstValue) ||
-        (!isHigherBetter && value === bestValue)
+        (isHigherBetter && numericValue === worstValue) ||
+        (!isHigherBetter && numericValue === bestValue)
       ) {
         return (
           <span
@@ -272,6 +314,18 @@ export default function CompareBike() {
 
     return <Minus className='h-4 w-4 text-gray-300' />;
   };
+
+  if (isLoading) {
+    return (
+      <main className='min-h-screen flex flex-col'>
+        <Header />
+        <div className='flex-grow flex items-center justify-center'>
+          <div className='animate-spin h-8 w-8 border-4 border-red-600 rounded-full border-t-transparent'></div>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
 
   return (
     <main className='min-h-screen flex flex-col'>
@@ -337,11 +391,6 @@ export default function CompareBike() {
             )}
         </div>
 
-        {/* Viewport indicator (for debugging) */}
-        {/* <div className="mb-4 p-2 bg-gray-100 rounded">
-          <p>Current Viewport: {viewport} - Max bikes: {getMaxBikes()}</p>
-        </div> */}
-
         {/* Comparison table */}
         <div className='grid grid-cols-1 gap-6 print:block'>
           {/* Motorcycle selection row */}
@@ -363,7 +412,7 @@ export default function CompareBike() {
                         setCategoryFilter={setCategoryFilter}
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
-                        categories={categories}
+                        categories={CATEGORIES}
                       />
                     ) : (
                       <BikeComparisonCard
@@ -446,30 +495,54 @@ export default function CompareBike() {
                                 <>
                                   <div className='flex-1'>
                                     {spec.type === "price" &&
-                                    typeof bike[spec.key] === "number" ? (
-                                      formatCurrency(bike[spec.key] as number)
+                                    typeof bike[
+                                      spec.key as keyof ComparisonBike
+                                    ] === "number" ? (
+                                      formatCurrency(
+                                        bike[
+                                          spec.key as keyof ComparisonBike
+                                        ] as number
+                                      )
                                     ) : spec.type === "cc" ? (
-                                      `${bike[spec.key]} cc`
+                                      `${
+                                        bike[
+                                          spec.key as keyof ComparisonBike
+                                        ] || 0
+                                      } cc`
                                     ) : spec.type === "hp" ? (
-                                      `${bike[spec.key]} HP`
+                                      `${
+                                        bike[
+                                          spec.key as keyof ComparisonBike
+                                        ] || 0
+                                      } HP`
                                     ) : spec.type === "kg" ? (
-                                      `${bike[spec.key]} kg`
+                                      `${
+                                        bike[
+                                          spec.key as keyof ComparisonBike
+                                        ] || 0
+                                      } kg`
                                     ) : spec.type === "features" ? (
                                       <div className='flex flex-wrap gap-1'>
-                                        {(bike[spec.key] as string[]).map(
-                                          (feature, idx) => (
-                                            <Badge
-                                              key={idx}
-                                              variant='secondary'
-                                              className='text-xs'
-                                            >
-                                              {feature}
-                                            </Badge>
-                                          )
-                                        )}
+                                        {(
+                                          (bike[
+                                            spec.key as keyof ComparisonBike
+                                          ] as string[]) || []
+                                        ).map((feature, idx) => (
+                                          <Badge
+                                            key={idx}
+                                            variant='secondary'
+                                            className='text-xs'
+                                          >
+                                            {feature}
+                                          </Badge>
+                                        ))}
                                       </div>
                                     ) : (
-                                      bike[spec.key]
+                                      String(
+                                        bike[
+                                          spec.key as keyof ComparisonBike
+                                        ] || ""
+                                      )
                                     )}
                                   </div>
 
@@ -480,7 +553,7 @@ export default function CompareBike() {
                                     <div className='ml-2'>
                                       {getComparisonIndicator(
                                         bike,
-                                        spec.key as keyof Bike,
+                                        spec.key as keyof ComparisonBike,
                                         spec.isHigherBetter !== false
                                       )}
                                     </div>

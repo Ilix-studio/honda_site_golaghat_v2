@@ -10,13 +10,77 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import {
-  bikeModels,
-  serviceTypes,
-  serviceLocations,
-  additionalServices,
-} from "../../../mockdata/data";
 import { ServiceFormValues } from "../../../lib/form-schema";
+import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
+import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
+
+// Define types for service-related data
+interface BikeModel {
+  id: string;
+  modelName: string;
+  category: string;
+}
+
+interface ServiceType {
+  id: string;
+  name: string;
+  price: string;
+  estimatedTime: string;
+  description: string;
+}
+
+interface ServiceLocation {
+  _id: string;
+  id: string;
+  name: string;
+  address: string;
+}
+
+interface AdditionalService {
+  id: string;
+  name: string;
+  price: string;
+}
+
+// Mock data - you should replace these with actual API calls or constants
+const serviceTypes: ServiceType[] = [
+  {
+    id: "regular",
+    name: "Regular Service",
+    price: "₹2,500",
+    estimatedTime: "2-3 hours",
+    description: "Basic maintenance service",
+  },
+  {
+    id: "major",
+    name: "Major Service",
+    price: "₹5,000",
+    estimatedTime: "4-6 hours",
+    description: "Comprehensive service check",
+  },
+  {
+    id: "diagnostic",
+    name: "Diagnostic Check",
+    price: "₹1,000",
+    estimatedTime: "1-2 hours",
+    description: "Computer diagnostic scan",
+  },
+  {
+    id: "repair",
+    name: "Repair Service",
+    price: "Varies",
+    estimatedTime: "Varies",
+    description: "Repair specific issues",
+  },
+];
+
+const additionalServices: AdditionalService[] = [
+  { id: "wash", name: "Bike Wash", price: "₹200" },
+  { id: "brake", name: "Brake Service", price: "₹800" },
+  { id: "chain", name: "Chain Lubrication", price: "₹300" },
+  { id: "battery", name: "Battery Check", price: "₹500" },
+  { id: "oil-change", name: "Oil Change", price: "₹600" },
+];
 
 interface BookingSummaryProps {
   form: UseFormReturn<ServiceFormValues>;
@@ -26,18 +90,27 @@ export function BookingSummary({ form }: BookingSummaryProps) {
   const { watch } = form;
   const watchedValues = watch();
 
+  // Get bikes and branches data from API
+  const { data: bikesResponse } = useGetBikesQuery({});
+  const { data: branchesResponse } = useGetBranchesQuery();
+
+  const bikeModels = bikesResponse?.data || [];
+  const serviceLocations = branchesResponse?.data || [];
+
   // Get selected items for summary
   const selectedBike = bikeModels.find(
-    (bike) => bike.id === watchedValues.bikeModel
+    (bike: BikeModel) => bike.id === watchedValues.bikeModel
   );
   const selectedService = serviceTypes.find(
-    (service) => service.id === watchedValues.serviceType
+    (service: ServiceType) => service.id === watchedValues.serviceType
   );
   const selectedLocation = serviceLocations.find(
-    (location) => location.id === watchedValues.serviceLocation
+    (location: ServiceLocation) =>
+      location._id === watchedValues.serviceLocation
   );
-  const selectedAdditionalServices = additionalServices.filter((service) =>
-    watchedValues.additionalServices?.includes(service.id)
+  const selectedAdditionalServices = additionalServices.filter(
+    (service: AdditionalService) =>
+      watchedValues.additionalServices?.includes(service.id)
   );
 
   // Calculate estimated total cost
@@ -79,7 +152,9 @@ export function BookingSummary({ form }: BookingSummaryProps) {
             <div className='flex justify-between'>
               <span className='text-muted-foreground'>Model:</span>
               <span className='font-medium'>
-                {selectedBike?.name || "Not selected"}
+                {selectedBike?.modelName ||
+                  selectedBike?.modelName ||
+                  "Not selected"}
               </span>
             </div>
             <div className='flex justify-between'>
@@ -131,11 +206,13 @@ export function BookingSummary({ form }: BookingSummaryProps) {
                   Additional Services:
                 </span>
                 <div className='flex flex-wrap gap-2 mt-1'>
-                  {selectedAdditionalServices.map((service) => (
-                    <Badge key={service.id} variant='secondary'>
-                      {service.name} ({service.price})
-                    </Badge>
-                  ))}
+                  {selectedAdditionalServices.map(
+                    (service: AdditionalService) => (
+                      <Badge key={service.id} variant='secondary'>
+                        {service.name} ({service.price})
+                      </Badge>
+                    )
+                  )}
                 </div>
               </div>
             )}

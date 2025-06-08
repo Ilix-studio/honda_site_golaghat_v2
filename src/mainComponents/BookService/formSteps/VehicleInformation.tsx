@@ -12,9 +12,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { ServiceFormValues } from "../../../lib/form-schema";
-import { bikeModels } from "../../../mockdata/data";
+import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
+
+// Define types for bike models
+interface BikeModel {
+  id: string;
+  modelName: string;
+  name?: string;
+  category: string;
+  year: number;
+  engine: string;
+}
 
 interface VehicleInformationProps {
   form: UseFormReturn<ServiceFormValues>;
@@ -29,11 +38,18 @@ export const VehicleInformation = ({ form }: VehicleInformationProps) => {
   } = form;
   const watchedValues = watch();
 
+  // Get bikes data from API
+  const { data: bikesResponse, isLoading } = useGetBikesQuery({});
+  const bikeModels: BikeModel[] = bikesResponse?.data || [];
+
   // Animation variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
+
+  // Get current year for validation
+  const currentYear = new Date().getFullYear();
 
   return (
     <motion.div
@@ -51,20 +67,36 @@ export const VehicleInformation = ({ form }: VehicleInformationProps) => {
         <Select
           value={watchedValues.bikeModel}
           onValueChange={(value) => setValue("bikeModel", value)}
+          disabled={isLoading}
         >
           <SelectTrigger className={errors.bikeModel ? "border-red-500" : ""}>
-            <SelectValue placeholder='Select your motorcycle model' />
+            <SelectValue
+              placeholder={
+                isLoading ? "Loading models..." : "Select your motorcycle model"
+              }
+            />
           </SelectTrigger>
           <SelectContent>
-            {bikeModels.map((bike) => (
+            {bikeModels.map((bike: BikeModel) => (
               <SelectItem key={bike.id} value={bike.id}>
-                {bike.name} ({bike.category})
+                {bike.modelName || bike.name} ({bike.category})
               </SelectItem>
             ))}
+            {!isLoading && bikeModels.length === 0 && (
+              <SelectItem value='other' disabled>
+                No models available
+              </SelectItem>
+            )}
           </SelectContent>
         </Select>
         {errors.bikeModel && (
           <p className='text-red-500 text-sm'>{errors.bikeModel.message}</p>
+        )}
+        {!isLoading && bikeModels.length === 0 && (
+          <p className='text-amber-600 text-sm'>
+            Unable to load motorcycle models. Please contact support if this
+            persists.
+          </p>
         )}
       </div>
 
@@ -73,25 +105,36 @@ export const VehicleInformation = ({ form }: VehicleInformationProps) => {
           <Label htmlFor='year'>Year</Label>
           <Input
             id='year'
+            type='number'
             placeholder='e.g., 2023'
+            min='1990'
+            max={currentYear + 1}
             {...register("year")}
             className={errors.year ? "border-red-500" : ""}
           />
           {errors.year && (
             <p className='text-red-500 text-sm'>{errors.year.message}</p>
           )}
+          <p className='text-xs text-muted-foreground'>
+            Enter the year your motorcycle was manufactured
+          </p>
         </div>
         <div className='space-y-2'>
           <Label htmlFor='mileage'>Current Mileage</Label>
           <Input
             id='mileage'
+            type='number'
             placeholder='e.g., 5000'
+            min='0'
             {...register("mileage")}
             className={errors.mileage ? "border-red-500" : ""}
           />
           {errors.mileage && (
             <p className='text-red-500 text-sm'>{errors.mileage.message}</p>
           )}
+          <p className='text-xs text-muted-foreground'>
+            Enter the current odometer reading in kilometers
+          </p>
         </div>
       </div>
 
@@ -101,8 +144,14 @@ export const VehicleInformation = ({ form }: VehicleInformationProps) => {
           <Input
             id='vin'
             placeholder='Vehicle Identification Number'
+            maxLength={17}
             {...register("vin")}
+            className='uppercase'
+            style={{ textTransform: "uppercase" }}
           />
+          <p className='text-xs text-muted-foreground'>
+            17-character Vehicle Identification Number
+          </p>
         </div>
         <div className='space-y-2'>
           <Label htmlFor='registrationNumber'>
@@ -112,17 +161,71 @@ export const VehicleInformation = ({ form }: VehicleInformationProps) => {
             id='registrationNumber'
             placeholder='License plate number'
             {...register("registrationNumber")}
+            className='uppercase'
+            style={{ textTransform: "uppercase" }}
           />
+          <p className='text-xs text-muted-foreground'>
+            Your motorcycle's license plate number
+          </p>
         </div>
       </div>
 
+      {/* Selected bike details */}
+      {watchedValues.bikeModel && (
+        <div className='p-4 bg-green-50 rounded-lg'>
+          <h4 className='text-sm font-medium mb-2'>Selected Motorcycle:</h4>
+          {(() => {
+            const selectedBike = bikeModels.find(
+              (bike: BikeModel) => bike.id === watchedValues.bikeModel
+            );
+            if (selectedBike) {
+              return (
+                <div className='space-y-1'>
+                  <p className='text-sm'>
+                    <span className='font-medium'>Model:</span>{" "}
+                    {selectedBike.modelName || selectedBike.name}
+                  </p>
+                  <p className='text-sm'>
+                    <span className='font-medium'>Category:</span>{" "}
+                    {selectedBike.category}
+                  </p>
+                  {selectedBike.engine && (
+                    <p className='text-sm'>
+                      <span className='font-medium'>Engine:</span>{" "}
+                      {selectedBike.engine}
+                    </p>
+                  )}
+                </div>
+              );
+            }
+            return null;
+          })()}
+        </div>
+      )}
+
       <div className='p-4 bg-blue-50 rounded-lg flex items-start gap-2'>
         <Info className='h-5 w-5 text-blue-500 mt-0.5' />
-        <p className='text-sm'>
-          Providing accurate vehicle information helps our technicians prepare
-          for your service appointment.
-        </p>
+        <div className='text-sm'>
+          <p className='font-medium mb-1'>Why we need this information:</p>
+          <ul className='space-y-1 text-muted-foreground'>
+            <li>• Helps our technicians prepare the right tools and parts</li>
+            <li>
+              • Ensures we have the correct service manual and specifications
+            </li>
+            <li>• Allows us to check for any recalls or service bulletins</li>
+            <li>• Helps us provide accurate service estimates</li>
+          </ul>
+        </div>
       </div>
+
+      {isLoading && (
+        <div className='flex items-center justify-center py-4'>
+          <div className='animate-spin h-6 w-6 border-2 border-red-600 rounded-full border-t-transparent'></div>
+          <span className='ml-2 text-sm text-muted-foreground'>
+            Loading motorcycle models...
+          </span>
+        </div>
+      )}
     </motion.div>
   );
 };

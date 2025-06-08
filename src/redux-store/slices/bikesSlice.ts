@@ -28,7 +28,7 @@ export interface BikesState {
   loading: boolean;
   error: string | null;
   filters: {
-    selectedFeatures: never[];
+    selectedFeatures: string[]; // Fixed: changed from never[] to string[]
     category: string;
     minPrice: number;
     maxPrice: number;
@@ -53,7 +53,7 @@ const initialState: BikesState = {
     category: "all",
     minPrice: 0,
     maxPrice: 2000000,
-    selectedFeatures: [],
+    selectedFeatures: [], // Fixed: proper empty array
   },
   sortBy: "newest",
   pagination: {
