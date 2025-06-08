@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
 import {
   Select,
   SelectContent,
@@ -15,12 +14,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Plus, X } from "lucide-react";
+import { ArrowLeft, Plus, X, Upload, Camera } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 // Redux
 import { useAppDispatch } from "../../../hooks/redux";
-
 import { useGetBranchesQuery } from "../../../redux-store/services/branchApi";
 import { addNotification } from "../../../redux-store/slices/uiSlice";
 import { useCreateBikeMutation } from "@/redux-store/services/bikeApi";
@@ -54,11 +52,18 @@ const bikeSchema = z.object({
 
 type BikeFormData = z.infer<typeof bikeSchema>;
 
+interface ImageFile {
+  file: File;
+  preview: string;
+}
+
 const AddBikes = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [currentFeature, setCurrentFeature] = useState("");
   const [currentColor, setCurrentColor] = useState("");
+  const [selectedImages, setSelectedImages] = useState<ImageFile[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   const { data: branchesData } = useGetBranchesQuery();
   const [createBike, { isLoading }] = useCreateBikeMutation();
@@ -112,9 +117,169 @@ const AddBikes = () => {
     );
   };
 
+  // Handle image selection with proper error handling
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const fileArray = Array.from(files);
+    const validFiles: File[] = [];
+
+    // Validate each file
+    fileArray.forEach((file) => {
+      // Check file type
+      if (!file.type.startsWith("image/")) {
+        dispatch(
+          addNotification({
+            type: "error",
+            message: `${file.name} is not a valid image file`,
+          })
+        );
+        return;
+      }
+
+      // Check file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        dispatch(
+          addNotification({
+            type: "error",
+            message: `${file.name} is too large. Maximum size is 5MB`,
+          })
+        );
+        return;
+      }
+
+      validFiles.push(file);
+    });
+
+    // Process valid files
+    if (validFiles.length > 0) {
+      const newImageFiles: ImageFile[] = [];
+      let processedCount = 0;
+
+      validFiles.forEach((file) => {
+        const reader = new FileReader();
+
+        reader.onload = (e: ProgressEvent<FileReader>) => {
+          // Fixed: Proper null checking for e.target
+          if (
+            e.target &&
+            e.target.result &&
+            typeof e.target.result === "string"
+          ) {
+            newImageFiles.push({
+              file,
+              preview: e.target.result,
+            });
+          }
+
+          processedCount++;
+
+          // Update state when all files are processed
+          if (processedCount === validFiles.length) {
+            setSelectedImages((prev) => [...prev, ...newImageFiles]);
+          }
+        };
+
+        reader.onerror = () => {
+          dispatch(
+            addNotification({
+              type: "error",
+              message: `Failed to read ${file.name}`,
+            })
+          );
+          processedCount++;
+        };
+
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Reset the input
+    event.target.value = "";
+  };
+
+  // Remove selected image
+  const removeImage = (index: number) => {
+    setSelectedImages((prev) => {
+      const newImages = prev.filter((_, i) => i !== index);
+      // Revoke the object URL to prevent memory leaks
+      if (prev[index]?.preview) {
+        URL.revokeObjectURL(prev[index].preview);
+      }
+      return newImages;
+    });
+  };
+
+  // Upload images to your service (mock implementation)
+  const uploadImages = async (): Promise<string[]> => {
+    if (selectedImages.length === 0) return [];
+
+    setUploadingImages(true);
+    const uploadedUrls: string[] = [];
+
+    try {
+      for (const imageFile of selectedImages) {
+        // This is a mock upload - replace with your actual upload logic
+        const formData = new FormData();
+        formData.append("file", imageFile.file);
+        formData.append("upload_preset", "your_upload_preset"); // For Cloudinary
+
+        // Mock response - replace with actual upload
+        // For now, we'll use the preview URL (in production, upload to your service)
+        uploadedUrls.push(imageFile.preview);
+
+        // Actual Cloudinary upload would look like:
+        /*
+        const response = await fetch('https://api.cloudinary.com/v1_1/your_cloud_name/image/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to upload ${imageFile.file.name}`);
+        }
+        
+        const data = await response.json();
+        uploadedUrls.push(data.secure_url);
+        */
+      }
+
+      return uploadedUrls;
+    } catch (error) {
+      console.error("Error uploading images:", error);
+      dispatch(
+        addNotification({
+          type: "error",
+          message: "Failed to upload images",
+        })
+      );
+      return [];
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
   const onSubmit = async (data: BikeFormData) => {
     try {
-      await createBike(data).unwrap();
+      // Upload images first
+      const imageUrls = await uploadImages();
+
+      // Add image URLs to form data
+      const finalData = {
+        ...data,
+        images: imageUrls,
+      };
+
+      await createBike(finalData).unwrap();
+
+      // Clean up preview URLs
+      selectedImages.forEach((imageFile) => {
+        if (imageFile.preview.startsWith("blob:")) {
+          URL.revokeObjectURL(imageFile.preview);
+        }
+      });
+
       dispatch(
         addNotification({
           type: "success",
@@ -131,6 +296,17 @@ const AddBikes = () => {
       );
     }
   };
+
+  // Clean up on component unmount
+  useEffect(() => {
+    return () => {
+      selectedImages.forEach((imageFile) => {
+        if (imageFile.preview.startsWith("blob:")) {
+          URL.revokeObjectURL(imageFile.preview);
+        }
+      });
+    };
+  }, [selectedImages]);
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -275,6 +451,72 @@ const AddBikes = () => {
                 </div>
               </div>
 
+              {/* Image Upload Section */}
+              <div className='space-y-4'>
+                <Label htmlFor='picture'>Motorcycle Images</Label>
+                <div className='border-2 border-dashed border-gray-300 rounded-lg p-6'>
+                  <div className='text-center'>
+                    <Camera className='mx-auto h-12 w-12 text-gray-400' />
+                    <div className='mt-4'>
+                      <div className='cursor-pointer'>
+                        <span className='mt-2 block text-sm font-medium text-gray-900'>
+                          Upload motorcycle images
+                        </span>
+                        <span className='mt-2 block text-sm text-gray-500'>
+                          PNG, JPG, GIF up to 5MB each
+                        </span>
+                      </div>
+                      <Input
+                        id='picture'
+                        type='file'
+                        multiple
+                        accept='image/*'
+                        onChange={handleImageChange}
+                        className='hidden'
+                      />
+                      <Button
+                        type='button'
+                        variant='outline'
+                        className='mt-3'
+                        onClick={() =>
+                          document.getElementById("picture")?.click()
+                        }
+                      >
+                        <Upload className='h-4 w-4 mr-2' />
+                        Choose Images
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Image Previews */}
+                {selectedImages.length > 0 && (
+                  <div className='space-y-2'>
+                    <Label>Selected Images ({selectedImages.length})</Label>
+                    <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+                      {selectedImages.map((imageFile, index) => (
+                        <div key={index} className='relative group'>
+                          <img
+                            src={imageFile.preview}
+                            alt={`Preview ${index + 1}`}
+                            className='w-full h-24 object-cover rounded-lg border'
+                          />
+                          <Button
+                            type='button'
+                            variant='destructive'
+                            size='sm'
+                            className='absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity'
+                            onClick={() => removeImage(index)}
+                          >
+                            <X className='h-3 w-3' />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Features */}
               <div className='space-y-2'>
                 <Label>Features</Label>
@@ -391,8 +633,16 @@ const AddBikes = () => {
                 <Link to='/admin/dashboard'>
                   <Button variant='outline'>Cancel</Button>
                 </Link>
-                <Button type='submit' disabled={isLoading}>
-                  {isLoading ? "Adding..." : "Add Motorcycle"}
+                <Button
+                  type='submit'
+                  disabled={isLoading || uploadingImages}
+                  className='bg-red-600 hover:bg-red-700'
+                >
+                  {isLoading
+                    ? "Adding..."
+                    : uploadingImages
+                    ? "Uploading Images..."
+                    : "Add Motorcycle"}
                 </Button>
               </div>
             </form>

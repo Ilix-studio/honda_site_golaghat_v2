@@ -24,6 +24,7 @@ import SearchResults from "./mainComponents/Search/SearchResults";
 import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
 import AddScooty from "./mainComponents/Admin/Scooty/AddScooty";
 import AddBranch from "./mainComponents/Branches/AddBranch";
+import BranchManager from "./mainComponents/Branches/BranchManager";
 
 // Import Notification System
 
@@ -51,6 +52,7 @@ const App: React.FC = () => {
 
         {/* Branch Management Routes */}
         <Route path='/admin/addbranch' element={<AddBranch />} />
+        <Route path='/admin/managers' element={<BranchManager />} />
 
         {/* Branches  */}
         <Route path='/branches' element={<BranchesPage />} />
