@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/formatters";
-import { Bike } from "@/mockdata/data";
-import { ArrowLeftRight, Badge, Link, X } from "lucide-react";
+import { Bike } from "@/redux-store/slices/bikesSlice"; // Use Redux Bike type
+import { ArrowLeftRight, X } from "lucide-react";
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
 
 // Card for displaying a bike in the comparison
 export const BikeComparisonCard = ({
@@ -28,8 +30,8 @@ export const BikeComparisonCard = ({
         <div className='pt-4'>
           <div className='aspect-[4/3] relative overflow-hidden mb-4'>
             <img
-              src={bike.image || "/placeholder.svg"}
-              alt={bike.name}
+              src={bike.images?.[0] || "/placeholder.svg"}
+              alt={bike.modelName}
               className='w-full h-full object-cover rounded-md'
             />
             {bike.isNew && (
@@ -37,7 +39,7 @@ export const BikeComparisonCard = ({
             )}
           </div>
 
-          <h3 className='font-bold text-lg mb-1'>{bike.name}</h3>
+          <h3 className='font-bold text-lg mb-1'>{bike.modelName}</h3>
 
           <div className='flex justify-between items-center mb-3'>
             <p className='text-sm text-muted-foreground capitalize'>

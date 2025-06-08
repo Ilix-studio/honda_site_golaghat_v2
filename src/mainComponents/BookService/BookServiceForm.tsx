@@ -40,10 +40,35 @@ export const BookServiceForm: React.FC = () => {
   const { currentStep, totalSteps, isSubmitting, isSubmitted, formData } =
     useAppSelector(selectServiceBookingForm);
 
+  // Convert Redux form data to match Zod schema types
+  const getFormDefaultValues = (): Partial<ServiceFormValues> => {
+    return {
+      bikeModel: formData.bikeModel,
+      year: formData.year,
+      vin: formData.vin,
+      mileage: formData.mileage,
+      registrationNumber: formData.registrationNumber,
+      serviceType: formData.serviceType,
+      additionalServices: formData.additionalServices,
+      serviceLocation: formData.serviceLocation,
+      // Convert string date to Date object for the form
+      date: formData.date ? new Date(formData.date) : undefined,
+      time: formData.time,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      issues: formData.issues,
+      dropOff: formData.dropOff,
+      waitOnsite: formData.waitOnsite,
+      termsAccepted: formData.termsAccepted,
+    };
+  };
+
   // Initialize form with react-hook-form and zod validation
   const form = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceFormSchema),
-    defaultValues: formData,
+    defaultValues: getFormDefaultValues(),
   });
 
   // Handle next step
@@ -70,12 +95,18 @@ export const BookServiceForm: React.FC = () => {
     }
 
     // Validate the fields for the current step
-    const isValid = await form.trigger(fieldsToValidate as any);
+    const isValid = await form.trigger(fieldsToValidate);
 
     if (isValid) {
-      // Update Redux state with current form data
+      // Get current form data and convert Date to string for Redux
       const currentData = form.getValues();
-      dispatch(updateServiceBookingData(currentData));
+      const reduxData = {
+        ...currentData,
+        // Convert Date back to string for Redux storage
+        date: currentData.date ? currentData.date.toISOString() : null,
+      };
+
+      dispatch(updateServiceBookingData(reduxData));
 
       if (currentStep < totalSteps) {
         dispatch(setServiceBookingStep(currentStep + 1));
@@ -97,11 +128,21 @@ export const BookServiceForm: React.FC = () => {
   };
 
   // Handle form submission
-  const onSubmit = form.handleSubmit(async (data) => {
+  const onSubmit = form.handleSubmit(async (data: ServiceFormValues) => {
     dispatch(setServiceBookingSubmitting(true));
-    dispatch(updateServiceBookingData(data));
+
+    // Convert Date to string for Redux storage
+    const reduxData = {
+      ...data,
+      date: data.date ? data.date.toISOString() : null,
+    };
+
+    dispatch(updateServiceBookingData(reduxData));
 
     try {
+      // Here you would make an actual API call
+      // Example: await submitServiceBooking(data);
+
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
 

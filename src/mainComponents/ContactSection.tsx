@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from "lucide-react";
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Send,
+  CheckCircle,
+  ExternalLink,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -16,13 +23,96 @@ import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import {
   updateContactFormData,
-  setContactFormSubmitting,
-  setContactFormSubmitted,
   resetContactForm,
   selectContactFormData,
-  selectContactFormSubmitting,
-  selectContactFormSubmitted,
 } from "../redux-store/slices/formSlice";
+
+// Map Component with Error Handling
+interface MapComponentProps {
+  mapUrl: string;
+  address: string;
+  title?: string;
+}
+
+function MapComponent({
+  mapUrl,
+  address,
+  title = "Honda Motorcycles Location",
+}: MapComponentProps) {
+  const [mapError, setMapError] = useState(false);
+
+  // Create Google Maps directions URL
+  const getDirectionsUrl = () => {
+    const encodedAddress = encodeURIComponent(address);
+    return `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
+  };
+
+  // Handle iframe load error
+  const handleMapError = () => {
+    console.warn("Google Maps iframe failed to load");
+    setMapError(true);
+  };
+
+  if (mapError) {
+    // Fallback UI when map fails to load
+    return (
+      <div className='aspect-[4/3] w-full h-full min-h-[300px] bg-gray-100 rounded-lg flex flex-col items-center justify-center p-6 text-center'>
+        <MapPin className='h-12 w-12 text-red-600 mb-4' />
+        <h3 className='text-lg font-semibold mb-2'>Visit Our Location</h3>
+        <p className='text-muted-foreground mb-4 max-w-sm'>{address}</p>
+        <div className='space-y-2'>
+          <Button
+            onClick={() => window.open(getDirectionsUrl(), "_blank")}
+            className='bg-red-600 hover:bg-red-700 flex items-center gap-2'
+          >
+            <ExternalLink className='h-4 w-4' />
+            Get Directions
+          </Button>
+          <Button
+            variant='outline'
+            onClick={() => setMapError(false)}
+            className='text-sm'
+          >
+            Try Loading Map Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className='aspect-[4/3] w-full h-full min-h-[300px] bg-gray-200 rounded-lg overflow-hidden relative'>
+      <iframe
+        src={mapUrl}
+        width='100%'
+        height='100%'
+        style={{ border: 0 }}
+        allowFullScreen={true}
+        loading='lazy'
+        referrerPolicy='no-referrer-when-downgrade'
+        title={title}
+        className='w-full h-full'
+        frameBorder='0'
+        onError={handleMapError}
+        onLoad={() => {
+          // Reset error state if map loads successfully
+          setMapError(false);
+        }}
+      />
+
+      {/* Overlay button for directions */}
+      <Button
+        onClick={() => window.open(getDirectionsUrl(), "_blank")}
+        className='absolute bottom-4 right-4 bg-white hover:bg-gray-100 text-gray-800 text-sm shadow-lg'
+        variant='outline'
+        size='sm'
+      >
+        <ExternalLink className='h-3 w-3 mr-1' />
+        Directions
+      </Button>
+    </div>
+  );
+}
 
 export function ContactSection({ branch }: any) {
   const dispatch = useAppDispatch();
@@ -34,7 +124,7 @@ export function ContactSection({ branch }: any) {
     dispatch(updateContactFormData({ [field]: value }));
   };
 
-  const handleSubmit = ({ e }: any) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -59,6 +149,7 @@ export function ContactSection({ branch }: any) {
       saturday: "10:00 AM - 5:00 PM",
       sunday: "Closed",
     },
+    // Fixed Google Maps embed URL with proper referrer policy and format
     mapUrl:
       branch?.mapUrl ||
       "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14281.708160586099!2d93.95457205941675!3d26.50638691585567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x37468fc4ad54202d%3A0x88e76c0b31c949f!2sTsangpool%20Honda!5e0!3m2!1sen!2sin!4v1745182504481!5m2!1sen!2sin",
@@ -89,7 +180,7 @@ export function ContactSection({ branch }: any) {
         </motion.div>
 
         <div className='flex flex-col lg:flex-row gap-8'>
-          {/* Map Embed */}
+          {/* Map Embed with Fallback */}
           <motion.div
             className='lg:w-1/2'
             initial={{ opacity: 0, x: -20 }}
@@ -97,19 +188,11 @@ export function ContactSection({ branch }: any) {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <div className='aspect-[4/3] w-full h-full min-h-[300px] bg-gray-200 rounded-lg overflow-hidden'>
-              <iframe
-                src={contactDetails.mapUrl}
-                width='100%'
-                height='100%'
-                style={{ border: 0 }}
-                allowFullScreen
-                loading='lazy'
-                referrerPolicy='no-referrer-when-downgrade'
-                title='Honda Motorcycles Dealership Location'
-                className='w-full h-full'
-              ></iframe>
-            </div>
+            <MapComponent
+              mapUrl={contactDetails.mapUrl}
+              address={contactDetails.address}
+              title='Honda Motorcycles Dealership Location'
+            />
           </motion.div>
 
           {/* Contact Information */}
@@ -146,7 +229,12 @@ export function ContactSection({ branch }: any) {
                     <div>
                       <h3 className='font-medium'>Phone</h3>
                       <p className='text-muted-foreground'>
-                        {contactDetails.phone}
+                        <a
+                          href={`tel:${contactDetails.phone}`}
+                          className='hover:text-red-600 transition-colors'
+                        >
+                          {contactDetails.phone}
+                        </a>
                       </p>
                     </div>
                   </div>
@@ -156,7 +244,12 @@ export function ContactSection({ branch }: any) {
                     <div>
                       <h3 className='font-medium'>Email</h3>
                       <p className='text-muted-foreground'>
-                        {contactDetails.email}
+                        <a
+                          href={`mailto:${contactDetails.email}`}
+                          className='hover:text-red-600 transition-colors'
+                        >
+                          {contactDetails.email}
+                        </a>
                       </p>
                     </div>
                   </div>
@@ -184,17 +277,47 @@ export function ContactSection({ branch }: any) {
                     <h3 className='font-medium'>Send us a message</h3>
                     <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                       <div className='space-y-2'>
-                        <Input placeholder='Name' required />
+                        <Input
+                          placeholder='Name'
+                          required
+                          value={formData.name}
+                          onChange={(e) =>
+                            handleInputChange("name", e.target.value)
+                          }
+                        />
                       </div>
                       <div className='space-y-2'>
-                        <Input type='email' placeholder='Email' required />
+                        <Input
+                          type='email'
+                          placeholder='Email'
+                          required
+                          value={formData.email}
+                          onChange={(e) =>
+                            handleInputChange("email", e.target.value)
+                          }
+                        />
                       </div>
                     </div>
                     <div className='space-y-2'>
-                      <Input placeholder='Subject' required />
+                      <Input
+                        placeholder='Subject'
+                        required
+                        value={formData.subject}
+                        onChange={(e) =>
+                          handleInputChange("subject", e.target.value)
+                        }
+                      />
                     </div>
                     <div className='space-y-2'>
-                      <Textarea placeholder='Your message' rows={4} required />
+                      <Textarea
+                        placeholder='Your message'
+                        rows={4}
+                        required
+                        value={formData.message}
+                        onChange={(e) =>
+                          handleInputChange("message", e.target.value)
+                        }
+                      />
                     </div>
                     <Button
                       type='submit'
@@ -246,7 +369,10 @@ export function ContactSection({ branch }: any) {
                     <Button
                       variant='outline'
                       className='mt-4'
-                      onClick={() => setFormSubmitted(false)}
+                      onClick={() => {
+                        setFormSubmitted(false);
+                        handleReset();
+                      }}
                     >
                       Send Another Message
                     </Button>

@@ -1,9 +1,39 @@
 import { JSX, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ContactSection } from "../ContactSection";
-import { branches, Branches, BranchType } from "./TwoBranch";
+import { branches, Branches } from "./TwoBranch";
 import { Footer } from "../Footer";
 import { Header } from "../Header";
+
+// Define the BranchType interface locally or import from the correct location
+interface BranchType {
+  id: string;
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+  hours: {
+    weekdays: string;
+    saturday: string;
+    sunday: string;
+  };
+  staff: Array<{
+    name: string;
+    position: string;
+  }>;
+  rating: number;
+  reviews: number;
+  image: string;
+  mapUrl: string;
+  featured: boolean;
+  inventory: {
+    sport: number;
+    adventure: number;
+    cruiser: number;
+    touring: number;
+    naked: number;
+  };
+}
 
 function BranchDetailPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();

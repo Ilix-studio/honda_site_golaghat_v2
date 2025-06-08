@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatCurrency } from "@/lib/formatters";
-import { Bike } from "@/mockdata/data";
+import { Bike } from "@/redux-store/slices/bikesSlice"; // Use Redux Bike type
 import { PlusCircle } from "lucide-react";
 
 // Card for adding a new bike to compare
@@ -90,13 +90,15 @@ export const AddBikeCard = ({
                       <div className='flex items-center gap-2'>
                         <div className='w-12 h-12 bg-gray-200 rounded-md overflow-hidden'>
                           <img
-                            src={bike.image || "/placeholder.svg"}
-                            alt={bike.name}
+                            src={bike.images?.[0] || "/placeholder.svg"}
+                            alt={bike.modelName}
                             className='w-full h-full object-cover'
                           />
                         </div>
                         <div className='flex-1'>
-                          <div className='font-medium text-sm'>{bike.name}</div>
+                          <div className='font-medium text-sm'>
+                            {bike.modelName}
+                          </div>
                           <div className='text-xs text-muted-foreground capitalize'>
                             {bike.category} • {formatCurrency(bike.price)}
                           </div>

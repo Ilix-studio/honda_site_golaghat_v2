@@ -11,7 +11,7 @@ import BikeDetailsPage from "./mainComponents/BikeDetails/BikeDetailsPage";
 import NotFoundPage from "./mainComponents/NotFoundPage";
 import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
 
-import LoginBranchManager from "./mainComponents/Admin/LoginUser";
+import LoginBranchManager from "./mainComponents/Admin/LoginBranchManager";
 import LoginSuperAdmin from "./mainComponents/Admin/LoginSuperAdmin";
 import AdminDashboard from "./mainComponents/Admin/AdminDashboard";
 import AddBikes from "./mainComponents/Admin/Bikes/AddBikes";
