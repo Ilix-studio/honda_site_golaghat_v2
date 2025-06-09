@@ -1,5 +1,4 @@
 // Purpose: Manages admin authentication for only one user
-// Admin can add user after 3 months
 // Handles: User login, authentication status, permissions
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
@@ -10,6 +9,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  role?: string; // Add role property as optional
 }
 
 // Define the authentication state

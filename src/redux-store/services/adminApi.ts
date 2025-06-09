@@ -15,6 +15,7 @@ export interface LoginResponse {
     id: string;
     name: string;
     email: string;
+    role: string;
     token: string;
   };
 }
@@ -37,6 +38,7 @@ export const adminAuthApi = createApi({
               id: data.data.id,
               name: data.data.name,
               email: data.data.email,
+              role: data.data.role, // Include role in user data
             };
             dispatch(loginSuccess({ user: userData, token: data.data.token }));
           }

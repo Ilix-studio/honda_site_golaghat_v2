@@ -1,5 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQuery } from "../../lib/apiConfig";
+import { User, loginSuccess } from "../slices/authSlice";
 
 export interface LoginBranchManagerRequest {
   applicationId: string;
@@ -16,6 +17,7 @@ export interface LoginBranchManagerResponse {
       name: string;
       location: string;
     };
+    role: string; // Add role to response
     token: string;
   };
 }
@@ -48,6 +50,22 @@ export const branchManagerApi = createApi({
         method: "POST",
         body: credentials,
       }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data.success) {
+            const userData: User = {
+              id: data.data.id,
+              name: data.data.applicationId, // Use applicationId as name
+              email: data.data.branch.name, // Use branch name as email placeholder
+              role: data.data.role || "Branch-Admin", // Set role for branch manager
+            };
+            dispatch(loginSuccess({ user: userData, token: data.data.token }));
+          }
+        } catch (error) {
+          console.error("Branch manager login failed:", error);
+        }
+      },
     }),
     logoutBranchManager: builder.mutation<
       { success: boolean; message: string },
