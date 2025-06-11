@@ -1,0 +1,77 @@
+Create the overview of both frontend and backend of the project and check whether route working or not with the controller and check whether frontend match with backend architecture. 
+
+
+Remove mock data and add Cloudinary to store images from frontend to backend. Super-admin can add branch-manager by creating application-id and password. Super-admin can delete branch-manager forever. Branch-manager can create staff-member as to display their information in contact-details.tsx. Super-admin and branch-manager both can add bikes and scooty in the application. 
+
+
+
+adjust backend model and frontend Usage: The frontend BikeCard and BikeDetailsPage components expect similar properties: name, // Note: modelName in backend category, engineSize, // Note: engine in backend power, weight, // Not directly in backend model year, price, features, isNew, // Not directly in backend model image, // singular, while backend has images array * Field naming differences (modelName vs name, engine vs engineSize) make it modelName and engine * Some frontend fields don't exist in backend (weight, isNew) * Image handling is different (single vs array) Fix all other related issues or give me solutions Frontend Filtering should not effect the backend, it should be client oriented.
+ 
+Create the overview of both frontend and backend of the project and check whether route working or not with the controller and missing parts from frontend to implement in backend and check whether frontend match with backend architecture and missing parts from backend to implement in frontend. Remove mock data and add Cloudinary to store images from frontend to backend. Super-admin can add branch-manager by creating application-id and password. Super-admin can delete branch-manager forever. Branch-manager can create staff-member as to display their information in contact-details.tsx. Super-admin and branch-manager both can add bikes and scooty in the application.
+Compare types interface in both frontend and backend. Make it correct. And mark unwanted files. 
+Complete the redux store with slices and services
+use skipToken    <Route path='/admin/addbikes/edit/:id' element={<EditBikes />} /> component
+
+// src/App.tsx
+import { Route, Routes } from "react-router-dom";
+import "./App.css";
+import EnhancedErrorPage from "./ErrorBoundary/EnhancedErrorPage";
+import GlobalErrorBoundary from "./ErrorBoundary/GlobalErrorBoundary";
+import BikeDetailsPage from "./mainComponents/BikeDetails/BikeDetailsPage";
+import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
+import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
+
+
+
+
+// Error Boundary wrapper for individual routes
+const RouteErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+ <GlobalErrorBoundary fallback={<EnhancedErrorPage errorType="routeError" />}>
+   {children}
+ </GlobalErrorBoundary>
+);
+
+
+const App: React.FC = () => {
+ return (
+   <GlobalErrorBoundary>
+     <Routes>
+       {/* Public Routes with Error Boundaries */}
+       <Route
+         path='/bikes/:bikeId'
+         element={
+           <RouteErrorBoundary>
+             <BikeDetailsPage />
+           </RouteErrorBoundary>
+         }
+       />
+
+
+       {/* Compare Bike Route with Error Boundary */}
+       <Route
+         path='/compare'
+         element={
+           <RouteErrorBoundary>
+             <CompareBike />
+           </RouteErrorBoundary>
+         }
+       />
+
+
+       {/* Enhanced 404 Route - Must be last */}
+       <Route
+         path='*'
+         element={<EnhancedErrorPage errorType="notFound" showSearch={true} />}
+       />
+     </Routes>
+
+
+     {/* Global Notification System */}
+     <NotificationSystem />
+   </GlobalErrorBoundary>
+ );
+};
+
+
+export default App;
+

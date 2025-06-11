@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { skipToken } from "@reduxjs/toolkit/query"; // Import skipToken
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +14,8 @@ import {
   Star,
   Plus,
   Minus,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 import { Header } from "../Header";
 import { Footer } from "../Footer";
@@ -30,11 +33,12 @@ export default function BikeDetailsPage() {
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
 
+  // Use skipToken when bikeId is undefined to prevent unnecessary API calls
   const {
     data: bikeResponse,
     isLoading,
-    error,
-  } = useGetBikeByIdQuery(bikeId || "");
+    isError,
+  } = useGetBikeByIdQuery(bikeId ?? skipToken);
 
   const bike = bikeResponse?.data;
 
@@ -85,84 +89,159 @@ export default function BikeDetailsPage() {
     );
   };
 
-  const handlePriceCalculator = () => {
-    // Scroll to EMI calculator section or redirect
-    const emiSection = document.getElementById("finance");
-    if (emiSection) {
-      emiSection.scrollIntoView({ behavior: "smooth" });
-    } else {
-      // Navigate to home page finance section
-      window.location.href = "/#finance";
-    }
+  const handleQuantityChange = (change: number) => {
+    setQuantity(Math.max(1, quantity + change));
   };
 
-  if (isLoading) {
+  const handleBuyNow = () => {
+    dispatch(
+      addNotification({
+        type: "info",
+        message: "Purchase feature coming soon!",
+      })
+    );
+  };
+
+  // Handle case when no bikeId is provided
+  if (!bikeId) {
     return (
-      <main className='min-h-screen flex flex-col'>
+      <>
         <Header />
-        <div className='flex-grow flex items-center justify-center'>
-          <div className='animate-spin h-8 w-8 border-4 border-red-600 rounded-full border-t-transparent'></div>
-        </div>
+        <main className='min-h-screen bg-gray-50 pt-20'>
+          <div className='container max-w-4xl px-4 py-8'>
+            <div className='text-center'>
+              <AlertCircle className='h-16 w-16 text-red-500 mx-auto mb-4' />
+              <h1 className='text-3xl font-bold mb-4'>Invalid Bike ID</h1>
+              <p className='text-muted-foreground mb-6'>
+                No bike ID was provided in the URL.
+              </p>
+              <Link to='/view-all'>
+                <Button>
+                  <ChevronLeft className='h-4 w-4 mr-2' />
+                  Browse All Bikes
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </main>
         <Footer />
-      </main>
+      </>
     );
   }
 
-  if (error || !bike) {
+  // Loading state
+  if (isLoading) {
     return (
-      <main className='min-h-screen flex flex-col'>
+      <>
         <Header />
-        <div className='container pt-28 pb-10 px-4 flex-grow text-center'>
-          <h1 className='text-3xl font-bold mb-4'>Motorcycle Not Found</h1>
-          <p className='text-muted-foreground mb-6'>
-            The motorcycle you're looking for doesn't exist or has been removed.
-          </p>
-          <Link to='/view-all'>
-            <Button>View All Motorcycles</Button>
-          </Link>
-        </div>
+        <main className='min-h-screen bg-gray-50 pt-20'>
+          <div className='container max-w-6xl px-4 py-8'>
+            <div className='flex items-center justify-center min-h-[60vh]'>
+              <div className='text-center'>
+                <Loader2 className='h-12 w-12 animate-spin mx-auto mb-4 text-blue-600' />
+                <h2 className='text-xl font-semibold mb-2'>
+                  Loading Bike Details
+                </h2>
+                <p className='text-muted-foreground'>
+                  Please wait while we fetch the information...
+                </p>
+              </div>
+            </div>
+          </div>
+        </main>
         <Footer />
-      </main>
+      </>
+    );
+  }
+
+  // Error state or bike not found
+  if (isError || !bike) {
+    return (
+      <>
+        <Header />
+        <main className='min-h-screen bg-gray-50 pt-20'>
+          <div className='container max-w-4xl px-4 py-8'>
+            <div className='text-center'>
+              <AlertCircle className='h-16 w-16 text-red-500 mx-auto mb-4' />
+              <h1 className='text-3xl font-bold mb-4'>Bike Not Found</h1>
+              <p className='text-muted-foreground mb-6'>
+                {isError
+                  ? "There was an error loading the bike details. Please try again later."
+                  : "The bike you're looking for doesn't exist or has been removed."}
+              </p>
+              <div className='flex gap-4 justify-center'>
+                <Link to='/view-all'>
+                  <Button>
+                    <ChevronLeft className='h-4 w-4 mr-2' />
+                    Browse All Bikes
+                  </Button>
+                </Link>
+                <Button
+                  variant='outline'
+                  onClick={() => window.location.reload()}
+                >
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <main className='min-h-screen flex flex-col'>
+    <>
       <Header />
-
-      <div className='container pt-28 pb-10 px-4 flex-grow'>
-        {/* Back button */}
-        <div className='mb-6'>
-          <Link to='/view-all'>
-            <Button
-              variant='ghost'
-              className='pl-0 flex items-center text-muted-foreground hover:text-foreground'
-            >
-              <ChevronLeft className='h-4 w-4 mr-1' />
-              Back to All Motorcycles
-            </Button>
-          </Link>
+      <main className='min-h-screen bg-gray-50 pt-20'>
+        {/* Breadcrumb Navigation */}
+        <div className='bg-white border-b'>
+          <div className='container px-4 py-4'>
+            <nav className='flex items-center gap-2 text-sm text-muted-foreground'>
+              <Link to='/' className='hover:text-primary'>
+                Home
+              </Link>
+              <span>/</span>
+              <Link to='/view-all' className='hover:text-primary'>
+                Motorcycles
+              </Link>
+              <span>/</span>
+              <span className='text-foreground font-medium'>
+                {bike.modelName}
+              </span>
+            </nav>
+          </div>
         </div>
 
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12'>
-          {/* Image Gallery */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-          >
+        <div className='container max-w-6xl px-4 py-8'>
+          {/* Back Button */}
+          <Link to='/view-all'>
+            <Button variant='outline' className='mb-6'>
+              <ChevronLeft className='h-4 w-4 mr-2' />
+              Back to All Bikes
+            </Button>
+          </Link>
+
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
+            {/* Image Gallery */}
             <div className='space-y-4'>
-              {/* Main Image */}
-              <div className='aspect-[4/3] relative overflow-hidden rounded-lg border'>
-                <img
-                  src={bike.images?.[selectedImageIndex] || "/placeholder.svg"}
-                  alt={bike.modelName}
-                  className='w-full h-full object-cover'
-                />
-                {bike.year === new Date().getFullYear() && (
-                  <Badge className='absolute top-4 right-4 bg-red-600'>
-                    New
-                  </Badge>
+              <div className='aspect-video bg-white rounded-lg border overflow-hidden'>
+                {bike.images && bike.images.length > 0 ? (
+                  <img
+                    src={
+                      bike.images[selectedImageIndex] ||
+                      "/api/placeholder/600/400"
+                    }
+                    alt={bike.modelName}
+                    className='w-full h-full object-cover'
+                  />
+                ) : (
+                  <div className='w-full h-full flex items-center justify-center bg-gray-100'>
+                    <span className='text-muted-foreground'>
+                      No image available
+                    </span>
+                  </div>
                 )}
               </div>
 
@@ -173,14 +252,14 @@ export default function BikeDetailsPage() {
                     <button
                       key={index}
                       onClick={() => setSelectedImageIndex(index)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-colors ${
+                      className={`flex-shrink-0 w-20 h-20 border rounded-lg overflow-hidden ${
                         selectedImageIndex === index
-                          ? "border-red-600"
-                          : "border-gray-200 hover:border-gray-300"
+                          ? "border-primary ring-2 ring-primary/20"
+                          : "border-gray-200"
                       }`}
                     >
                       <img
-                        src={image}
+                        src={image || "/api/placeholder/80/80"}
                         alt={`${bike.modelName} view ${index + 1}`}
                         className='w-full h-full object-cover'
                       />
@@ -189,270 +268,238 @@ export default function BikeDetailsPage() {
                 </div>
               )}
             </div>
-          </motion.div>
 
-          {/* Product Details */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className='space-y-6'
-          >
-            {/* Title and Price */}
-            <div>
-              <div className='flex items-center gap-2 mb-2'>
-                <Badge variant='outline' className='capitalize'>
-                  {bike.category}
-                </Badge>
-                {bike.inStock ? (
-                  <Badge className='bg-green-100 text-green-800'>
-                    In Stock
-                  </Badge>
-                ) : (
-                  <Badge variant='destructive'>Out of Stock</Badge>
-                )}
-              </div>
-              <h1 className='text-3xl font-bold mb-2'>{bike.modelName}</h1>
-              <div className='flex items-center gap-4'>
-                <span className='text-3xl font-bold text-red-600'>
-                  {formatCurrency(bike.price)}
-                </span>
-                <div className='flex items-center gap-1'>
-                  <Star className='h-4 w-4 text-yellow-500 fill-yellow-500' />
-                  <span className='text-sm font-medium'>4.8</span>
-                  <span className='text-sm text-muted-foreground'>
-                    (124 reviews)
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Key Specifications */}
-            <Card>
-              <CardContent className='p-6'>
-                <h3 className='font-semibold mb-4'>Key Specifications</h3>
-                <div className='grid grid-cols-2 gap-4'>
-                  <div>
-                    <span className='text-sm text-muted-foreground'>
-                      Engine
-                    </span>
-                    <p className='font-medium'>{bike.engine}</p>
-                  </div>
-                  <div>
-                    <span className='text-sm text-muted-foreground'>Power</span>
-                    <p className='font-medium'>{bike.power} HP</p>
-                  </div>
-                  <div>
-                    <span className='text-sm text-muted-foreground'>
-                      Transmission
-                    </span>
-                    <p className='font-medium'>{bike.transmission}</p>
-                  </div>
-                  <div>
-                    <span className='text-sm text-muted-foreground'>Year</span>
-                    <p className='font-medium'>{bike.year}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Colors */}
-            {bike.colors && bike.colors.length > 0 && (
+            {/* Product Details */}
+            <div className='space-y-6'>
               <div>
-                <h3 className='font-semibold mb-3'>Available Colors</h3>
-                <div className='flex flex-wrap gap-2'>
-                  {bike.colors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={`px-3 py-2 rounded-md border transition-colors capitalize ${
-                        selectedColor === color
-                          ? "border-red-600 bg-red-50 text-red-600"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      {color}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+                <h1 className='text-3xl font-bold mb-2'>{bike.modelName}</h1>
+                <p className='text-2xl font-bold text-primary mb-4'>
+                  {formatCurrency(bike.price)}
+                </p>
 
-            {/* Quantity */}
-            <div>
-              <h3 className='font-semibold mb-3'>Quantity</h3>
-              <div className='flex items-center gap-3'>
-                <div className='flex items-center border rounded-md'>
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className='p-2 hover:bg-gray-100'
-                    disabled={quantity <= 1}
-                  >
-                    <Minus className='h-4 w-4' />
-                  </button>
-                  <span className='px-4 py-2 font-medium'>{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className='p-2 hover:bg-gray-100'
-                  >
-                    <Plus className='h-4 w-4' />
-                  </button>
+                {/* Badges */}
+                <div className='flex gap-2 mb-4'>
+                  <Badge variant='secondary' className='capitalize'>
+                    {bike.category}
+                  </Badge>
+                  <Badge variant={bike.inStock ? "default" : "destructive"}>
+                    {bike.inStock ? "In Stock" : "Out of Stock"}
+                  </Badge>
+                  <Badge variant='outline'>{bike.year}</Badge>
                 </div>
-                {bike.quantity && (
+
+                {/* Rating */}
+                <div className='flex items-center gap-2 mb-4'>
+                  <div className='flex items-center'>
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className='h-4 w-4 fill-yellow-400 text-yellow-400'
+                      />
+                    ))}
+                  </div>
                   <span className='text-sm text-muted-foreground'>
-                    {bike.quantity} available
+                    4.8 (124 reviews)
                   </span>
-                )}
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className='space-y-3'>
-              <div className='flex gap-3'>
-                <Button
-                  onClick={handleBookTestRide}
-                  className='flex-1 bg-red-600 hover:bg-red-700'
-                  disabled={!bike.inStock}
-                >
-                  <Calendar className='h-4 w-4 mr-2' />
-                  Book Test Ride
-                </Button>
-                <Button
-                  onClick={handleAddToWishlist}
-                  variant='outline'
-                  size='icon'
-                >
-                  <Heart className='h-4 w-4' />
-                </Button>
-                <Button onClick={handleShare} variant='outline' size='icon'>
-                  <Share2 className='h-4 w-4' />
-                </Button>
-              </div>
-
-              <Button
-                onClick={handlePriceCalculator}
-                variant='outline'
-                className='w-full'
-              >
-                <Calculator className='h-4 w-4 mr-2' />
-                Calculate EMI
-              </Button>
-
-              <Link to={`/compare?bikes=${bike.id}`}>
-                <Button variant='outline' className='w-full'>
-                  Compare with Other Models
-                </Button>
-              </Link>
-            </div>
-
-            {/* Contact Info */}
-            <div className='p-4 bg-gray-50 rounded-lg'>
-              <h4 className='font-medium mb-2'>Need Help?</h4>
-              <p className='text-sm text-muted-foreground mb-2'>
-                Contact our sales team for more information
-              </p>
-              <p className='text-sm font-medium'>📞 883920-2092122</p>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Features */}
-        {bike.features && bike.features.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className='mb-12'
-          >
-            <Card>
-              <CardContent className='p-6'>
-                <h3 className='text-xl font-semibold mb-4'>Features</h3>
-                <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3'>
-                  {bike.features.map((feature, index) => (
-                    <div
-                      key={index}
-                      className='flex items-center gap-2 p-3 bg-gray-50 rounded-md'
-                    >
-                      <div className='w-2 h-2 bg-red-600 rounded-full' />
-                      <span className='text-sm'>{feature}</span>
-                    </div>
-                  ))}
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
+              </div>
 
-        {/* Detailed Specifications */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <Card>
-            <CardContent className='p-6'>
-              <h3 className='text-xl font-semibold mb-6'>
-                Detailed Specifications
-              </h3>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                <div className='space-y-4'>
-                  <h4 className='font-medium text-lg border-b pb-2'>
-                    Engine & Performance
-                  </h4>
-                  <div className='space-y-3'>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Engine Type</span>
-                      <span className='font-medium'>{bike.engine}</span>
+              {/* Specifications */}
+              <Card>
+                <CardContent className='pt-6'>
+                  <h3 className='font-semibold mb-4'>Key Specifications</h3>
+                  <div className='grid grid-cols-2 gap-4 text-sm'>
+                    <div>
+                      <span className='text-muted-foreground'>Engine:</span>
+                      <p className='font-medium'>{bike.engine}</p>
                     </div>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Power</span>
-                      <span className='font-medium'>{bike.power} HP</span>
+                    <div>
+                      <span className='text-muted-foreground'>Power:</span>
+                      <p className='font-medium'>{bike.power} HP</p>
                     </div>
-                    <div className='flex justify-between'>
+                    <div>
                       <span className='text-muted-foreground'>
-                        Transmission
+                        Transmission:
                       </span>
-                      <span className='font-medium'>{bike.transmission}</span>
+                      <p className='font-medium'>{bike.transmission}</p>
+                    </div>
+                    <div>
+                      <span className='text-muted-foreground'>Year:</span>
+                      <p className='font-medium'>{bike.year}</p>
                     </div>
                   </div>
-                </div>
+                </CardContent>
+              </Card>
 
-                <div className='space-y-4'>
-                  <h4 className='font-medium text-lg border-b pb-2'>
-                    General Information
-                  </h4>
-                  <div className='space-y-3'>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Category</span>
-                      <span className='font-medium capitalize'>
-                        {bike.category}
-                      </span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Year</span>
-                      <span className='font-medium'>{bike.year}</span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>
-                        Availability
-                      </span>
-                      <span
-                        className={`font-medium ${
-                          bike.inStock ? "text-green-600" : "text-red-600"
+              {/* Color Selection */}
+              {bike.colors && bike.colors.length > 0 && (
+                <div>
+                  <h3 className='font-semibold mb-3'>Available Colors</h3>
+                  <div className='flex gap-2'>
+                    {bike.colors.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setSelectedColor(color)}
+                        className={`px-3 py-2 border rounded-lg text-sm capitalize ${
+                          selectedColor === color
+                            ? "border-primary bg-primary/5 text-primary"
+                            : "border-gray-200 hover:border-gray-300"
                         }`}
                       >
-                        {bike.inStock ? "In Stock" : "Out of Stock"}
-                      </span>
-                    </div>
+                        {color}
+                      </button>
+                    ))}
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+              )}
 
+              {/* Features */}
+              {bike.features && bike.features.length > 0 && (
+                <div>
+                  <h3 className='font-semibold mb-3'>Features</h3>
+                  <div className='flex flex-wrap gap-2'>
+                    {bike.features.map((feature, index) => (
+                      <Badge key={index} variant='outline'>
+                        {feature}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Quantity and Actions */}
+              <div className='space-y-4'>
+                <div className='flex items-center gap-4'>
+                  <span className='font-medium'>Quantity:</span>
+                  <div className='flex items-center border rounded-lg'>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => handleQuantityChange(-1)}
+                      disabled={quantity <= 1}
+                    >
+                      <Minus className='h-4 w-4' />
+                    </Button>
+                    <span className='px-4 py-2 border-x'>{quantity}</span>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => handleQuantityChange(1)}
+                      disabled={!bike.inStock}
+                    >
+                      <Plus className='h-4 w-4' />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className='grid grid-cols-2 gap-4'>
+                  <Button
+                    onClick={handleBookTestRide}
+                    variant='outline'
+                    className='w-full'
+                  >
+                    <Calendar className='h-4 w-4 mr-2' />
+                    Book Test Ride
+                  </Button>
+                  <Button
+                    onClick={handleBuyNow}
+                    disabled={!bike.inStock}
+                    className='w-full'
+                  >
+                    <Calculator className='h-4 w-4 mr-2' />
+                    Buy Now
+                  </Button>
+                </div>
+
+                <div className='grid grid-cols-2 gap-4'>
+                  <Button
+                    onClick={handleAddToWishlist}
+                    variant='outline'
+                    className='w-full'
+                  >
+                    <Heart className='h-4 w-4 mr-2' />
+                    Add to Wishlist
+                  </Button>
+                  <Button
+                    onClick={handleShare}
+                    variant='outline'
+                    className='w-full'
+                  >
+                    <Share2 className='h-4 w-4 mr-2' />
+                    Share
+                  </Button>
+                </div>
+              </div>
+
+              {/* Stock Information */}
+              {bike.quantity !== undefined && (
+                <div className='p-4 bg-blue-50 rounded-lg'>
+                  <p className='text-sm text-blue-800'>
+                    <strong>Stock Available:</strong> {bike.quantity} units
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Additional Information Sections */}
+          <div className='mt-12 grid grid-cols-1 md:grid-cols-2 gap-8'>
+            {/* Financing Options */}
+            <Card>
+              <CardContent className='pt-6'>
+                <h3 className='font-semibold mb-4'>Financing Options</h3>
+                <div className='space-y-3'>
+                  <div className='flex justify-between'>
+                    <span>EMI from:</span>
+                    <span className='font-medium'>
+                      {formatCurrency(Math.round(bike.price / 36))}
+                    </span>
+                  </div>
+                  <div className='flex justify-between'>
+                    <span>Down Payment:</span>
+                    <span className='font-medium'>
+                      {formatCurrency(Math.round(bike.price * 0.2))}
+                    </span>
+                  </div>
+                  <Link to='/finance'>
+                    <Button variant='outline' size='sm' className='w-full mt-4'>
+                      Calculate EMI
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Service Information */}
+            <Card>
+              <CardContent className='pt-6'>
+                <h3 className='font-semibold mb-4'>Service & Support</h3>
+                <div className='space-y-3'>
+                  <div className='flex items-center gap-2'>
+                    <Star className='h-4 w-4 text-yellow-400' />
+                    <span className='text-sm'>2 Years Warranty</span>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <Star className='h-4 w-4 text-yellow-400' />
+                    <span className='text-sm'>Free Service for 6 months</span>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <Star className='h-4 w-4 text-yellow-400' />
+                    <span className='text-sm'>24/7 Roadside Assistance</span>
+                  </div>
+                  <Link to='/book-service'>
+                    <Button variant='outline' size='sm' className='w-full mt-4'>
+                      Book Service
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </main>
       <Footer />
-    </main>
+    </>
   );
 }

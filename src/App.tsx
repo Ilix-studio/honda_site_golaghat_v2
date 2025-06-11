@@ -25,6 +25,7 @@ import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
 import AddScooty from "./mainComponents/Admin/Scooty/AddScooty";
 import AddBranch from "./mainComponents/Branches/AddBranch";
 import BranchManager from "./mainComponents/Branches/BranchManager";
+// import TestBike from "./mainComponents/TestBike";
 
 // Import Notification System
 
@@ -46,7 +47,7 @@ const App: React.FC = () => {
 
         {/* Add && Edit Bikes, scooty  */}
         <Route path='/admin/addbikes' element={<AddBikes />} />
-        <Route path='/admin/addbikes/edit/:bikeId' element={<EditBikes />} />
+        <Route path='/admin/addbikes/edit/:id' element={<EditBikes />} />
         <Route path='/admin/addScooty' element={<AddScooty />} />
         <Route path='/admin/addScooty/edit/:bikeId' element={<EditScooty />} />
 
@@ -61,6 +62,8 @@ const App: React.FC = () => {
         {/* View Bikes  */}
         <Route path='/view-all' element={<ViewAllBikes />} />
         <Route path='/bikes/:bikeId' element={<BikeDetailsPage />} />
+
+        {/* <Route path='/test' element={<TestBike />} /> */}
 
         {/* Compare Bike  */}
         <Route path='/compare' element={<CompareBike />} />

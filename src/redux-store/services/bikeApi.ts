@@ -126,7 +126,7 @@ export const bikesApi = createApi({
         method: "PUT",
         body: data,
       }),
-      invalidatesTags: (_result, _error, _id) => [{ type: "Bike", _id }],
+      invalidatesTags: (_result, _error, { id }) => [{ type: "Bike", id }],
     }),
 
     // DELETE /api/bikes/:id - Fixed URL and method

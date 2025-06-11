@@ -305,7 +305,7 @@ const AdminDashboard = () => {
                       >
                         {bike.inStock ? "In Stock" : "Out of Stock"}
                       </span>
-                      <Link to={`/admin/addbikes/edit/${bike.id}`}>
+                      <Link to={`/admin/addbikes/edit/${bike._id || bike.id}`}>
                         <Button variant='outline' size='sm'>
                           Edit
                         </Button>
