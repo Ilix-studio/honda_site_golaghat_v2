@@ -5,6 +5,7 @@ import { RootState } from "../store";
 
 // Define bike types
 export interface Bike {
+  _id?: string;
   id: string;
   modelName: string;
   category: string;
@@ -17,7 +18,7 @@ export interface Bike {
   colors: string[];
   images: string[];
   year: number;
-  isNew?: boolean;
+  isNewModel?: boolean;
   inStock: boolean;
   quantity: number;
   branch: string;

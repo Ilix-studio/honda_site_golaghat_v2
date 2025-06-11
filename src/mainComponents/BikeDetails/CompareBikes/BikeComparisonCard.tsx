@@ -34,7 +34,7 @@ export const BikeComparisonCard = ({
               alt={bike.modelName}
               className='w-full h-full object-cover rounded-md'
             />
-            {bike.isNew && (
+            {bike.isNewModel && (
               <Badge className='absolute top-2 left-2 bg-red-600'>New</Badge>
             )}
           </div>

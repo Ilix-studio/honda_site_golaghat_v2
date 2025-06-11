@@ -12,7 +12,6 @@ import { BikeCard } from "./DetailsUIParts/BikeCard";
 import { NoResults } from "./DetailsUIParts/NoResults";
 import { SortSelector } from "./DetailsUIParts/SortSelector";
 import { ActiveFilters } from "./DetailsUIParts/ActiveFilters";
-import { useFilteredBikes } from "../../hooks/useFilteredBikes";
 
 // Redux
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
@@ -20,6 +19,7 @@ import {
   toggleFilterSidebar,
   selectIsFilterSidebarOpen,
 } from "../../redux-store/slices/uiSlice";
+import { useSearchBikesQuery } from "../../redux-store/services/bikeApi";
 
 export function ViewAllBikes() {
   const dispatch = useAppDispatch();
@@ -27,24 +27,15 @@ export function ViewAllBikes() {
   const [searchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  // Use the custom hook for filtering bikes
-  const {
-    filteredBikes,
-    selectedCategory,
-    setSelectedCategory,
-    priceRange,
-    setPriceRange,
-    engineSizeRange,
-    setEngineSizeRange,
-    selectedFeatures,
-    toggleFeature,
-    searchQuery,
-    setSearchQuery,
-    sortBy,
-    setSortBy,
-    resetFilters,
-    isLoading,
-  } = useFilteredBikes();
+  // Filter states
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 2000000]);
+  const [engineSizeRange, setEngineSizeRange] = useState<[number, number]>([
+    0, 2000,
+  ]);
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("featured");
 
   // Initialize search query from URL params
   useEffect(() => {
@@ -52,10 +43,49 @@ export function ViewAllBikes() {
     if (searchParam && searchQuery !== searchParam) {
       setSearchQuery(searchParam);
     }
-  }, [searchParams, searchQuery, setSearchQuery]);
+  }, [searchParams, searchQuery]);
+
+  // Build search filters object
+  const searchFilters = {
+    ...(selectedCategory !== "all" && { category: selectedCategory }),
+    ...(priceRange[0] > 0 && { minPrice: priceRange[0] }),
+    ...(priceRange[1] < 2000000 && { maxPrice: priceRange[1] }),
+    ...(searchQuery && { search: searchQuery }),
+    ...(selectedFeatures.length > 0 && { features: selectedFeatures }),
+    sortBy,
+    page: 1,
+    limit: 50, // Adjust as needed
+  };
+
+  // Use the search bikes query with filters
+  const {
+    data: bikesResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useSearchBikesQuery(searchFilters);
+
+  const filteredBikes = bikesResponse?.data || [];
 
   const handleToggleFilter = () => {
     dispatch(toggleFilterSidebar());
+  };
+
+  const toggleFeature = (feature: string) => {
+    setSelectedFeatures((prev) =>
+      prev.includes(feature)
+        ? prev.filter((f) => f !== feature)
+        : [...prev, feature]
+    );
+  };
+
+  const resetFilters = () => {
+    setSelectedCategory("all");
+    setPriceRange([0, 2000000]);
+    setEngineSizeRange([0, 2000]);
+    setSelectedFeatures([]);
+    setSearchQuery("");
+    setSortBy("featured");
   };
 
   if (isLoading) {
@@ -64,6 +94,26 @@ export function ViewAllBikes() {
         <Header />
         <div className='flex-grow flex items-center justify-center'>
           <div className='animate-spin h-8 w-8 border-4 border-red-600 rounded-full border-t-transparent'></div>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className='min-h-screen flex flex-col'>
+        <Header />
+        <div className='container pt-28 pb-10 px-4 flex-grow'>
+          <div className='text-center'>
+            <h1 className='text-2xl font-bold mb-4'>
+              Error Loading Motorcycles
+            </h1>
+            <p className='text-muted-foreground mb-4'>
+              Unable to load motorcycle data. Please try again.
+            </p>
+            <Button onClick={() => refetch()}>Retry</Button>
+          </div>
         </div>
         <Footer />
       </main>

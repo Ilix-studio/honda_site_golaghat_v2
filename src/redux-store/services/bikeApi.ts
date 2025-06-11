@@ -87,10 +87,20 @@ export const bikesApi = createApi({
     // GET /api/bikes/:id - Fixed URL
     getBikeById: builder.query<{ success: boolean; data: Bike }, string>({
       query: (id) => ({
-        url: `/bikes/${id}`, // Changed from /bikes/getBike/${id}
+        url: `/bikes/${id}`,
         method: "GET",
       }),
-      providesTags: (_result, _error, id) => [{ type: "Bike", id }],
+      transformResponse: (response: any) => {
+        // Transform _id to id for frontend consistency
+        if (response.data) {
+          response.data = {
+            ...response.data,
+            id: response.data._id || response.data.id,
+          };
+        }
+        return response;
+      },
+      providesTags: (_result, _error, _id) => ["Bike"],
     }),
 
     // POST /api/bikes - Fixed URL
@@ -99,7 +109,7 @@ export const bikesApi = createApi({
       CreateBikeRequest
     >({
       query: (bikeData) => ({
-        url: "/bikes", // Changed from /bikes/addBikes
+        url: "/bikes/addBikes",
         method: "POST",
         body: bikeData,
       }),
@@ -112,19 +122,19 @@ export const bikesApi = createApi({
       { id: string; data: Partial<CreateBikeRequest> }
     >({
       query: ({ id, data }) => ({
-        url: `/bikes/${id}`, // Changed from /bikes/updateBike/${id}
-        method: "PUT", // Changed from POST to PUT
+        url: `/bikes/${id}`,
+        method: "PUT",
         body: data,
       }),
-      invalidatesTags: (_result, _error, { id }) => [{ type: "Bike", id }],
+      invalidatesTags: (_result, _error, _id) => [{ type: "Bike", _id }],
     }),
 
     // DELETE /api/bikes/:id - Fixed URL and method
     deleteBike: builder.mutation<{ success: boolean; message: string }, string>(
       {
         query: (id) => ({
-          url: `/bikes/${id}`, // Changed from /bikes/deleteBike/${id}
-          method: "DELETE", // Changed from POST to DELETE
+          url: `/bikes/${id}`,
+          method: "DELETE",
         }),
         invalidatesTags: ["Bike"],
       }
@@ -140,5 +150,3 @@ export const {
   useUpdateBikeMutation,
   useDeleteBikeMutation,
 } = bikesApi;
-
-// Where to implement these new hook "useSearchBikesQuery" in components

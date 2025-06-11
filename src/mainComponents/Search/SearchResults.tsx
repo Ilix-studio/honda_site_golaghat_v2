@@ -8,59 +8,60 @@ import { motion } from "framer-motion";
 import SearchComponent from "./SearchComponent";
 import { BikeCard } from "../BikeDetails/DetailsUIParts/BikeCard";
 import { NoResults } from "../BikeDetails/DetailsUIParts/NoResults";
-import { Bike } from "@/redux-store/slices/bikesSlice"; // Use the Redux Bike type
-import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
+import { Bike } from "@/redux-store/slices/bikesSlice";
+import { useSearchBikesQuery } from "@/redux-store/services/bikeApi";
 
 export function SearchResults() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchResults, setSearchResults] = useState<Bike[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Get bikes data from API
-  const { data: bikesResponse, isLoading: apiLoading } = useGetBikesQuery({});
-  const allBikes = bikesResponse?.data || [];
-
-  const searchQuery = searchParams.get("search") || "";
+  // Get initial search query from URL params
+  useEffect(() => {
+    const initialQuery = searchParams.get("search") || "";
+    setSearchQuery(initialQuery);
+  }, [searchParams]);
 
   // Update search query parameter
   const handleSearch = (query: string) => {
-    setSearchParams({ search: query });
+    setSearchQuery(query);
+    if (query.trim()) {
+      setSearchParams({ search: query });
+    } else {
+      setSearchParams({});
+    }
   };
 
-  // Filter bikes based on search query
-  useEffect(() => {
-    setLoading(true);
+  // Build search filters
+  const searchFilters = {
+    ...(searchQuery.trim() && { search: searchQuery.trim() }),
+    limit: 50,
+    page: 1,
+  };
 
-    // Simulate API call delay for better UX
-    setTimeout(() => {
-      if (searchQuery && allBikes.length > 0) {
-        const query = searchQuery.toLowerCase();
-        const results = allBikes.filter((bike: Bike) => {
-          return (
-            bike.modelName.toLowerCase().includes(query) ||
-            bike.category.toLowerCase().includes(query) ||
-            (bike.features &&
-              bike.features.some((feature: string) =>
-                feature.toLowerCase().includes(query)
-              )) ||
-            bike.engine.toLowerCase().includes(query)
-          );
-        });
-        setSearchResults(results);
-      } else {
-        setSearchResults([]);
-      }
-      setLoading(false);
-    }, 300);
-  }, [searchQuery, allBikes]);
+  // Use search bikes query
+  const {
+    data: bikesResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useSearchBikesQuery(searchFilters, {
+    skip: !searchQuery.trim(), // Skip the query if no search term
+  });
 
-  // Show loading if API is still fetching
-  if (apiLoading) {
+  const searchResults: Bike[] = bikesResponse?.data || [];
+
+  if (error) {
     return (
       <main className='min-h-screen flex flex-col'>
         <Header />
-        <div className='flex-grow flex items-center justify-center'>
-          <div className='animate-spin h-8 w-8 border-4 border-red-600 rounded-full border-t-transparent'></div>
+        <div className='container pt-28 pb-10 px-4 flex-grow'>
+          <div className='text-center'>
+            <h1 className='text-2xl font-bold mb-4'>Search Error</h1>
+            <p className='text-muted-foreground mb-4'>
+              Unable to perform search. Please try again.
+            </p>
+            <Button onClick={() => refetch()}>Retry Search</Button>
+          </div>
         </div>
         <Footer />
       </main>
@@ -86,10 +87,12 @@ export function SearchResults() {
         <div className='mb-8'>
           <h1 className='text-3xl font-bold mb-4'>Search Results</h1>
           <p className='text-muted-foreground mb-6'>
-            {searchResults.length > 0
-              ? `Found ${searchResults.length} results for "${searchQuery}"`
-              : searchQuery
-              ? `No results found for "${searchQuery}"`
+            {searchQuery.trim()
+              ? searchResults.length > 0
+                ? `Found ${searchResults.length} results for "${searchQuery}"`
+                : isLoading
+                ? `Searching for "${searchQuery}"...`
+                : `No results found for "${searchQuery}"`
               : "Enter a search term to find motorcycles"}
           </p>
 
@@ -101,7 +104,7 @@ export function SearchResults() {
           </div>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className='flex items-center justify-center py-20'>
             <div className='animate-spin h-8 w-8 border-4 border-red-600 rounded-full border-t-transparent'></div>
           </div>
@@ -116,7 +119,7 @@ export function SearchResults() {
               <BikeCard key={bike.id} bike={bike} />
             ))}
           </motion.div>
-        ) : searchQuery ? (
+        ) : searchQuery.trim() ? (
           <NoResults resetFilters={() => setSearchParams({})} />
         ) : (
           <div className='text-center py-12 border rounded-lg'>

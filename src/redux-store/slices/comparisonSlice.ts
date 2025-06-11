@@ -1,7 +1,3 @@
-// Purpose: Manages bike comparison state
-// Handles: Selection, viewport adaptation, and comparison settings
-
-// src/redux-store/slices/comparisonSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 

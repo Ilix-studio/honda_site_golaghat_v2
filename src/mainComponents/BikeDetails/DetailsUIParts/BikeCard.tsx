@@ -46,7 +46,7 @@ export function BikeCard({ bike }: BikeCardProps) {
               />
             </div>
           </Link>
-          {bike.isNew && (
+          {bike.isNewModel && (
             <Badge className='absolute top-2 right-2 bg-red-600'>New</Badge>
           )}
           {!bike.inStock && (
@@ -104,7 +104,7 @@ export function BikeCard({ bike }: BikeCardProps) {
           )}
 
           <div className='mt-auto flex gap-2'>
-            <Link to={`/bikes/${bike.id}`} className='flex-1'>
+            <Link to={`/bikes/${bike._id || bike.id}`} className='flex-1'>
               <Button
                 className='w-full bg-red-600 hover:bg-red-700'
                 disabled={!bike.inStock}
@@ -112,7 +112,10 @@ export function BikeCard({ bike }: BikeCardProps) {
                 {bike.inStock ? "Details" : "Out of Stock"}
               </Button>
             </Link>
-            <Link to={`/compare?bikes=${bike.id}`} className='flex-1'>
+            <Link
+              to={`/compare?bikes=${bike._id || bike.id}`}
+              className='flex-1'
+            >
               <Button variant='outline' className='w-full'>
                 Compare
               </Button>
