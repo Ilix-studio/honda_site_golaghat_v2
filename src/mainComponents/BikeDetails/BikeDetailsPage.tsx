@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query"; // Import skipToken
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
   Minus,
   Loader2,
   AlertCircle,
+  Stamp,
 } from "lucide-react";
 import { Header } from "../Header";
 import { Footer } from "../Footer";
@@ -32,6 +33,7 @@ export default function BikeDetailsPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const navigate = useNavigate();
 
   // Use skipToken when bikeId is undefined to prevent unnecessary API calls
   const {
@@ -89,6 +91,9 @@ export default function BikeDetailsPage() {
     );
   };
 
+  const handleFinance = () => {
+    navigate("/finance");
+  };
   const handleQuantityChange = (change: number) => {
     setQuantity(Math.max(1, quantity + change));
   };
@@ -428,6 +433,14 @@ export default function BikeDetailsPage() {
                   >
                     <Share2 className='h-4 w-4 mr-2' />
                     Share
+                  </Button>
+                  <Button
+                    onClick={handleFinance}
+                    variant='outline'
+                    className='w-full'
+                  >
+                    <Stamp className='h-4 w-4 mr-2' />
+                    Get Approved
                   </Button>
                 </div>
               </div>

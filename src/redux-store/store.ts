@@ -22,6 +22,7 @@ import branchReducer from "./slices/branchSlice";
 import comparisonReducer from "./slices/comparisonSlice";
 import uiReducer from "./slices/uiSlice";
 import formReducer from "./slices/formSlice";
+import getApprovedReducer from "./slices/getApprovedSlice";
 
 // Import API services
 import { adminAuthApi } from "./services/adminApi";
@@ -30,6 +31,7 @@ import { scootyApi } from "./services/scootyApi";
 import { branchApi } from "./services/branchApi";
 import { staffApi } from "./services/staffApi";
 import { branchManagerApi } from "./services/branchManagerApi";
+import { getApprovedApi } from "./services/getApprovedApi";
 
 // Create IndexedDB storage for redux-persist
 const idbStorage = createIdbStorage("honda-golaghat-app-madebyilix");
@@ -39,7 +41,7 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage: idbStorage,
-  whitelist: ["auth", "comparison", "ui"], // Only persist certain slices
+  whitelist: ["auth", "comparison", "ui", "getApproved"],
   blacklist: [
     "adminAuthApi",
     "bikesApi",
@@ -47,6 +49,7 @@ const persistConfig = {
     "branchApi",
     "staffApi",
     "branchManagerApi",
+    "getApprovedApi",
   ], // Don't persist API cache
 };
 
@@ -58,6 +61,7 @@ const rootReducer = combineReducers({
   comparison: comparisonReducer,
   ui: uiReducer,
   form: formReducer,
+  getApproved: getApprovedReducer,
   // API services
   [adminAuthApi.reducerPath]: adminAuthApi.reducer,
   [bikesApi.reducerPath]: bikesApi.reducer,
@@ -65,6 +69,7 @@ const rootReducer = combineReducers({
   [branchApi.reducerPath]: branchApi.reducer,
   [staffApi.reducerPath]: staffApi.reducer,
   [branchManagerApi.reducerPath]: branchManagerApi.reducer,
+  [getApprovedApi.reducerPath]: getApprovedApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -84,7 +89,8 @@ export const store = configureStore({
       scootyApi.middleware,
       branchApi.middleware,
       staffApi.middleware,
-      branchManagerApi.middleware
+      branchManagerApi.middleware,
+      getApprovedApi.middleware
     ),
 });
 
