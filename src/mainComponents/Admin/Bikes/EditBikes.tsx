@@ -38,18 +38,18 @@ const EditBikes = () => {
   const [currentColor, setCurrentColor] = useState("");
 
   // Debug information
-  useEffect(() => {
-    console.log("EditBikes Debug Info:");
-    console.log("- URL Parameter ID:", id);
-    console.log("- Current pathname:", window.location.pathname);
-    console.log("- Full URL:", window.location.href);
-  }, [id]);
+  // useEffect(() => {
+  //   console.log("EditBikes Debug Info:");
+  //   console.log("- URL Parameter ID:", id);
+  //   console.log("- Current pathname:", window.location.pathname);
+  //   console.log("- Full URL:", window.location.href);
+  // }, [id]);
 
   // Use skipToken when id is undefined to prevent unnecessary API calls
   const {
     data: bikeResponse,
     isLoading: bikeLoading,
-    error: bikeError,
+
     isError: isBikeError,
   } = useGetBikeByIdQuery(id ?? skipToken);
 
@@ -59,14 +59,14 @@ const EditBikes = () => {
   const bike = bikeResponse?.data;
 
   // Debug bike data
-  useEffect(() => {
-    if (bike) {
-      console.log("Bike data loaded:", bike);
-    }
-    if (bikeError) {
-      console.error("Bike loading error:", bikeError);
-    }
-  }, [bike, bikeError]);
+  // useEffect(() => {
+  //   if (bike) {
+  //     console.log("Bike data loaded:", bike);
+  //   }
+  //   if (bikeError) {
+  //     console.error("Bike loading error:", bikeError);
+  //   }
+  // }, [bike, bikeError]);
 
   const form = useForm<BikeFormData>({
     resolver: zodResolver(bikeSchema),
@@ -301,16 +301,16 @@ const EditBikes = () => {
             </Button>
           </Link>
           <div>
-            <h1 className='text-3xl font-bold'>Edit Motorcycle</h1>
-            <p className='text-muted-foreground'>
+            <h1 className='text-2xl font-semibold'>Edit Motorcycle</h1>
+            {/* <p className='text-muted-foreground'>
               Update the details for {bike.modelName}
-            </p>
+            </p> */}
             {/* Debug info in development */}
-            {process.env.NODE_ENV === "development" && (
+            {/* {process.env.NODE_ENV === "development" && (
               <p className='text-xs text-blue-600 mt-1'>
                 Editing bike ID: {id}
               </p>
-            )}
+            )} */}
           </div>
         </div>
 

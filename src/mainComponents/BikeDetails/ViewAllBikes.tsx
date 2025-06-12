@@ -21,6 +21,140 @@ import {
 } from "../../redux-store/slices/uiSlice";
 import { useSearchBikesQuery } from "../../redux-store/services/bikeApi";
 
+// Skeleton Components
+const Skeleton = ({ className = "", ...props }) => {
+  return (
+    <div
+      className={`animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] rounded ${className}`}
+      {...props}
+    />
+  );
+};
+
+const CardSkeleton = ({ showImage = true, lines = 3 }) => {
+  return (
+    <div className='bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm'>
+      {showImage && <Skeleton className='w-full h-48 mb-4 rounded-md' />}
+      <div className='space-y-3'>
+        <Skeleton className='h-6 w-3/4' />
+        {Array.from({ length: lines }).map((_, i) => (
+          <Skeleton
+            key={i}
+            className={`h-4 ${i === lines - 1 ? "w-2/3" : "w-full"}`}
+          />
+        ))}
+      </div>
+      <div className='flex justify-between items-center mt-4'>
+        <Skeleton className='h-8 w-20' />
+        <Skeleton className='h-9 w-24' />
+      </div>
+    </div>
+  );
+};
+
+const CategoryTabsSkeleton = () => {
+  return (
+    <div className='flex flex-wrap gap-2 mb-8'>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Skeleton key={i} className='h-10 w-24' />
+      ))}
+    </div>
+  );
+};
+
+const FilterSidebarSkeleton = () => {
+  return (
+    <div className='w-full lg:w-80 space-y-6'>
+      <div className='bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4'>
+        {/* Search */}
+        <div className='space-y-2 mb-6'>
+          <Skeleton className='h-4 w-16' />
+          <Skeleton className='h-10 w-full' />
+        </div>
+
+        {/* Price Range */}
+        <div className='space-y-2 mb-6'>
+          <Skeleton className='h-4 w-20' />
+          <Skeleton className='h-6 w-full' />
+          <div className='flex justify-between'>
+            <Skeleton className='h-3 w-16' />
+            <Skeleton className='h-3 w-16' />
+          </div>
+        </div>
+
+        {/* Features */}
+        <div className='space-y-2 mb-6'>
+          <Skeleton className='h-4 w-16' />
+          <div className='space-y-2'>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className='flex items-center space-x-2'>
+                <Skeleton className='h-4 w-4' />
+                <Skeleton className='h-4 w-20' />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Reset Button */}
+        <Skeleton className='h-9 w-full' />
+      </div>
+    </div>
+  );
+};
+
+const ControlsBarSkeleton = () => {
+  return (
+    <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6'>
+      <div className='flex items-center gap-4'>
+        <Skeleton className='h-9 w-20 lg:hidden' />
+        <div className='flex items-center gap-2'>
+          <Skeleton className='h-8 w-8' />
+          <Skeleton className='h-8 w-8' />
+        </div>
+      </div>
+
+      <div className='flex items-center gap-4'>
+        <Skeleton className='h-4 w-32' />
+        <Skeleton className='h-9 w-32' />
+      </div>
+    </div>
+  );
+};
+
+const BikeGridSkeleton = ({
+  viewMode,
+  count = 12,
+}: {
+  viewMode: "grid" | "list";
+  count?: number;
+}) => {
+  return (
+    <motion.div
+      key='skeleton-results'
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className={
+        viewMode === "grid"
+          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          : "space-y-4"
+      }
+    >
+      {Array.from({ length: count }).map((_, i) => (
+        <CardSkeleton key={i} />
+      ))}
+    </motion.div>
+  );
+};
+
+// Add shimmer animation styles
+const shimmerStyles = `
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+`;
+
 export function ViewAllBikes() {
   const dispatch = useAppDispatch();
   const isFilterSidebarOpen = useAppSelector(selectIsFilterSidebarOpen);
@@ -88,13 +222,44 @@ export function ViewAllBikes() {
     setSortBy("featured");
   };
 
+  // Loading state with skeleton
   if (isLoading) {
     return (
       <main className='min-h-screen flex flex-col'>
+        <style>{shimmerStyles}</style>
         <Header />
-        <div className='flex-grow flex items-center justify-center'>
-          <div className='animate-spin h-8 w-8 border-4 border-red-600 rounded-full border-t-transparent'></div>
+
+        <div className='container pt-28 pb-10 px-4 flex-grow'>
+          {/* Title Skeleton */}
+          <motion.div
+            className='mb-8'
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Skeleton className='h-8 w-64 mb-4' />
+            <Skeleton className='h-4 w-96' />
+          </motion.div>
+
+          {/* Category Tabs Skeleton */}
+          <CategoryTabsSkeleton />
+
+          {/* Content Layout */}
+          <div className='flex flex-col lg:flex-row gap-8'>
+            {/* Sidebar Skeleton */}
+            <FilterSidebarSkeleton />
+
+            {/* Main Content Skeleton */}
+            <div className='flex-1'>
+              {/* Controls Bar Skeleton */}
+              <ControlsBarSkeleton />
+
+              {/* Bike Grid Skeleton */}
+              <BikeGridSkeleton viewMode={viewMode} count={12} />
+            </div>
+          </div>
         </div>
+
         <Footer />
       </main>
     );
@@ -122,6 +287,7 @@ export function ViewAllBikes() {
 
   return (
     <main className='min-h-screen flex flex-col'>
+      <style>{shimmerStyles}</style>
       <Header />
 
       <div className='container pt-28 pb-10 px-4 flex-grow'>
