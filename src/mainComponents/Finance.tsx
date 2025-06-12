@@ -1,3 +1,6 @@
+// Updated Finance component using the enhanced type-safe hooks
+// src/components/Finance.tsx
+
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
@@ -24,15 +27,15 @@ import {
 } from "lucide-react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
-
-// Import Redux hooks
 import {
-  useGetApprovedForm,
   useApplicationStatusCheck,
-} from "../hooks/useGetApproved";
+  useGetApprovedSimpleForm,
+} from "@/hooks/useGetApproved";
+
+// Import the enhanced hooks
 
 export function Finance() {
-  // Redux form management
+  // Use the simple form hook for basic financing
   const {
     form,
     errors,
@@ -44,7 +47,7 @@ export function Finance() {
     resetForm,
     clearMessages,
     validation,
-  } = useGetApprovedForm();
+  } = useGetApprovedSimpleForm();
 
   // Status check functionality
   const {
@@ -74,7 +77,6 @@ export function Finance() {
     try {
       const result = await handleSubmit();
       if (result) {
-        // Success handled by Redux state
         console.log(
           "Application submitted successfully:",
           result.data.applicationId
@@ -503,6 +505,14 @@ export function Finance() {
                           statusResult.submittedAt
                         ).toLocaleDateString()}
                       </div>
+                      {statusResult.enquiryType && (
+                        <div>
+                          <strong>Enquiry Type:</strong>{" "}
+                          {statusResult.enquiryType
+                            .replace("-", " ")
+                            .toUpperCase()}
+                        </div>
+                      )}
                       {statusResult.preApprovalAmount && (
                         <div>
                           <strong>Pre-approved Amount:</strong> ₹
@@ -580,6 +590,7 @@ export function Finance() {
             </>
           )}
         </div>
+
         {/* Benefits Section */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-8 mb-16'>
           <motion.div

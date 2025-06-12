@@ -1,7 +1,181 @@
+// Updated Redux slice with proper bike enquiry types
 // src/redux-store/slices/getApprovedSlice.ts
+
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
-import { GetApprovedApplication } from "@/types/getApproved.types";
+
+// Enhanced bike enquiry types
+export interface BikeEnquiry {
+  bikeId?: string;
+  bikeModel?: string;
+  category?:
+    | "sport"
+    | "adventure"
+    | "cruiser"
+    | "touring"
+    | "naked"
+    | "electric";
+  priceRange?: {
+    min: number;
+    max: number;
+  };
+  preferredFeatures?: string[];
+  intendedUse?:
+    | "daily-commute"
+    | "long-touring"
+    | "sport-riding"
+    | "off-road"
+    | "leisure"
+    | "business";
+  previousBikeExperience?:
+    | "first-time"
+    | "beginner"
+    | "intermediate"
+    | "experienced";
+  urgency?: "immediate" | "within-month" | "within-3months" | "exploring";
+  additionalRequirements?: string;
+  tradeInBike?: {
+    hasTradeIn: boolean;
+    currentBikeModel?: string;
+    currentBikeYear?: number;
+    estimatedValue?: number;
+    condition?: "excellent" | "good" | "fair" | "poor";
+  };
+}
+
+// Enhanced GetApproved application type
+export interface GetApprovedApplication {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  employmentType:
+    | "salaried"
+    | "self-employed"
+    | "business-owner"
+    | "retired"
+    | "student";
+  monthlyIncome: number;
+  creditScoreRange: "excellent" | "good" | "fair" | "poor";
+  applicationId: string;
+  status: "pending" | "under-review" | "pre-approved" | "approved" | "rejected";
+  enquiryType: "general-financing" | "specific-bike" | "trade-in" | "upgrade";
+  reviewedBy?: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  reviewedAt?: string;
+  reviewNotes?: string;
+  preApprovalAmount?: number;
+  preApprovalValidUntil?: string;
+  branch?: {
+    _id: string;
+    name: string;
+    address: string;
+  };
+  bikeEnquiry?: BikeEnquiry;
+  termsAccepted: boolean;
+  privacyPolicyAccepted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  fullName?: string;
+  applicationAge?: number;
+}
+
+// Enhanced form data interface
+export interface GetApprovedFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  employmentType:
+    | "salaried"
+    | "self-employed"
+    | "business-owner"
+    | "retired"
+    | "student"
+    | "";
+  monthlyIncome: string;
+  creditScoreRange: "excellent" | "good" | "fair" | "poor" | "";
+  branch: string;
+  termsAccepted: boolean;
+  privacyPolicyAccepted: boolean;
+
+  // Bike enquiry fields
+  bikeId: string;
+  bikeModel: string;
+  category:
+    | "sport"
+    | "adventure"
+    | "cruiser"
+    | "touring"
+    | "naked"
+    | "electric"
+    | "";
+  priceRangeMin: string;
+  priceRangeMax: string;
+  preferredFeatures: string[];
+  intendedUse:
+    | "daily-commute"
+    | "long-touring"
+    | "sport-riding"
+    | "off-road"
+    | "leisure"
+    | "business"
+    | "";
+  previousBikeExperience:
+    | "first-time"
+    | "beginner"
+    | "intermediate"
+    | "experienced"
+    | "";
+  urgency: "immediate" | "within-month" | "within-3months" | "exploring";
+  additionalRequirements: string;
+
+  // Trade-in fields
+  hasTradeIn: boolean;
+  currentBikeModel: string;
+  currentBikeYear: string;
+  estimatedValue: string;
+  tradeInCondition: "excellent" | "good" | "fair" | "poor" | "";
+}
+
+// Enhanced filters interface
+export interface GetApprovedFilters {
+  status: string;
+  employmentType: string;
+  creditScoreRange: string;
+  enquiryType: string;
+  category: string;
+  urgency: string;
+  hasTradeIn: string;
+  search: string;
+  dateRange: {
+    start: string | null;
+    end: string | null;
+  };
+  branch: string;
+}
+
+// Enhanced stats interface
+export interface GetApprovedStats {
+  totalApplications: number;
+  recentApplications: number;
+  averageMonthlyIncome: number;
+  statusBreakdown: Record<string, number>;
+  employmentTypeBreakdown: Record<string, number>;
+  creditScoreBreakdown: Record<string, number>;
+  enquiryTypeBreakdown: Record<string, number>;
+  categoryInterest: Record<string, number>;
+  urgencyBreakdown: Record<string, number>;
+  tradeInStats: {
+    _id: string;
+    count: number;
+    avgEstimatedValue: number;
+  }[];
+}
 
 export interface GetApprovedState {
   // Applications data
@@ -23,17 +197,7 @@ export interface GetApprovedState {
   statusUpdateSuccess: boolean;
 
   // Filters and search
-  filters: {
-    status: string;
-    employmentType: string;
-    creditScoreRange: string;
-    search: string;
-    dateRange: {
-      start: string | null;
-      end: string | null;
-    };
-    branch: string;
-  };
+  filters: GetApprovedFilters;
 
   // Sorting and pagination
   sortBy: string;
@@ -46,37 +210,15 @@ export interface GetApprovedState {
   };
 
   // Statistics
-  stats: {
-    totalApplications: number;
-    recentApplications: number;
-    averageMonthlyIncome: number;
-    statusBreakdown: Record<string, number>;
-    employmentTypeBreakdown: Record<string, number>;
-    creditScoreBreakdown: Record<string, number>;
-  } | null;
+  stats: GetApprovedStats | null;
 
-  // Form state for submission
+  // Enhanced form state for bike enquiry
   form: {
-    data: {
-      firstName: string;
-      lastName: string;
-      email: string;
-      phone: string;
-      employmentType:
-        | "salaried"
-        | "self-employed"
-        | "business-owner"
-        | "retired"
-        | "student"
-        | "";
-      monthlyIncome: string;
-      creditScoreRange: "excellent" | "good" | "fair" | "poor" | "";
-      branch: string;
-      termsAccepted: boolean;
-      privacyPolicyAccepted: boolean;
-    };
+    data: GetApprovedFormData;
     errors: Record<string, string>;
     touched: Record<string, boolean>;
+    currentStep: number;
+    totalSteps: number;
   };
 
   // Status check
@@ -86,6 +228,7 @@ export interface GetApprovedState {
     result: {
       applicationId: string;
       status: string;
+      enquiryType?: string;
       preApprovalAmount?: number;
       preApprovalValidUntil?: string;
       submittedAt: string;
@@ -95,7 +238,44 @@ export interface GetApprovedState {
       };
     } | null;
   };
+
+  // Bike recommendations
+  recommendations: {
+    loading: boolean;
+    error: string | null;
+    bikes: any[];
+    maxRecommendedPrice: number;
+    criteriaUsed: any;
+  };
 }
+
+const initialFormData: GetApprovedFormData = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  employmentType: "",
+  monthlyIncome: "",
+  creditScoreRange: "",
+  branch: "",
+  termsAccepted: false,
+  privacyPolicyAccepted: false,
+  bikeId: "",
+  bikeModel: "",
+  category: "",
+  priceRangeMin: "",
+  priceRangeMax: "",
+  preferredFeatures: [],
+  intendedUse: "",
+  previousBikeExperience: "",
+  urgency: "exploring",
+  additionalRequirements: "",
+  hasTradeIn: false,
+  currentBikeModel: "",
+  currentBikeYear: "",
+  estimatedValue: "",
+  tradeInCondition: "",
+};
 
 const initialState: GetApprovedState = {
   applications: [],
@@ -112,6 +292,10 @@ const initialState: GetApprovedState = {
     status: "all",
     employmentType: "all",
     creditScoreRange: "all",
+    enquiryType: "all",
+    category: "all",
+    urgency: "all",
+    hasTradeIn: "all",
     search: "",
     dateRange: {
       start: null,
@@ -129,25 +313,23 @@ const initialState: GetApprovedState = {
   },
   stats: null,
   form: {
-    data: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      employmentType: "",
-      monthlyIncome: "",
-      creditScoreRange: "",
-      branch: "",
-      termsAccepted: false,
-      privacyPolicyAccepted: false,
-    },
+    data: initialFormData,
     errors: {},
     touched: {},
+    currentStep: 1,
+    totalSteps: 4,
   },
   statusCheck: {
     loading: false,
     error: null,
     result: null,
+  },
+  recommendations: {
+    loading: false,
+    error: null,
+    bikes: [],
+    maxRecommendedPrice: 0,
+    criteriaUsed: {},
   },
 };
 
@@ -216,10 +398,7 @@ const getApprovedSlice = createSlice({
     },
 
     // Filters and search
-    setFilters: (
-      state,
-      action: PayloadAction<Partial<GetApprovedState["filters"]>>
-    ) => {
+    setFilters: (state, action: PayloadAction<Partial<GetApprovedFilters>>) => {
       state.filters = { ...state.filters, ...action.payload };
     },
     resetFilters: (state) => {
@@ -245,14 +424,14 @@ const getApprovedSlice = createSlice({
     },
 
     // Statistics
-    setStats: (state, action: PayloadAction<GetApprovedState["stats"]>) => {
+    setStats: (state, action: PayloadAction<GetApprovedStats | null>) => {
       state.stats = action.payload;
     },
 
-    // Form management
+    // Enhanced form management
     setFormData: (
       state,
-      action: PayloadAction<Partial<GetApprovedState["form"]["data"]>>
+      action: PayloadAction<Partial<GetApprovedFormData>>
     ) => {
       state.form.data = { ...state.form.data, ...action.payload };
     },
@@ -261,7 +440,9 @@ const getApprovedSlice = createSlice({
       action: PayloadAction<{ field: string; value: any }>
     ) => {
       const { field, value } = action.payload;
-      (state.form.data as any)[field] = value;
+      if (field in state.form.data) {
+        (state.form.data as any)[field] = value;
+      }
 
       // Mark field as touched
       state.form.touched[field] = true;
@@ -277,10 +458,42 @@ const getApprovedSlice = createSlice({
     setFormTouched: (state, action: PayloadAction<Record<string, boolean>>) => {
       state.form.touched = action.payload;
     },
+    setFormStep: (state, action: PayloadAction<number>) => {
+      state.form.currentStep = action.payload;
+    },
     clearForm: (state) => {
       state.form = initialState.form;
       state.submitError = null;
       state.submitSuccess = false;
+    },
+
+    // Bike enquiry specific actions
+    toggleFeature: (state, action: PayloadAction<string>) => {
+      const feature = action.payload;
+      const features = state.form.data.preferredFeatures;
+      if (features.includes(feature)) {
+        state.form.data.preferredFeatures = features.filter(
+          (f) => f !== feature
+        );
+      } else {
+        state.form.data.preferredFeatures = [...features, feature];
+      }
+    },
+    setSelectedBike: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        model: string;
+        category: string;
+        price: number;
+      }>
+    ) => {
+      const { id, model, category, price } = action.payload;
+      state.form.data.bikeId = id;
+      state.form.data.bikeModel = model;
+      state.form.data.category = category as never;
+      state.form.data.priceRangeMin = price.toString();
+      state.form.data.priceRangeMax = price.toString();
     },
 
     // Status check
@@ -298,6 +511,25 @@ const getApprovedSlice = createSlice({
     },
     clearStatusCheck: (state) => {
       state.statusCheck = initialState.statusCheck;
+    },
+
+    // Recommendations
+    setRecommendationsLoading: (state, action: PayloadAction<boolean>) => {
+      state.recommendations.loading = action.payload;
+    },
+    setRecommendationsError: (state, action: PayloadAction<string | null>) => {
+      state.recommendations.error = action.payload;
+    },
+    setRecommendations: (
+      state,
+      action: PayloadAction<{ bikes: any[]; maxPrice: number; criteria: any }>
+    ) => {
+      state.recommendations.bikes = action.payload.bikes;
+      state.recommendations.maxRecommendedPrice = action.payload.maxPrice;
+      state.recommendations.criteriaUsed = action.payload.criteria;
+    },
+    clearRecommendations: (state) => {
+      state.recommendations = initialState.recommendations;
     },
 
     // Clear all notifications/success states
@@ -350,7 +582,12 @@ export const {
   setFormField,
   setFormErrors,
   setFormTouched,
+  setFormStep,
   clearForm,
+
+  // Bike enquiry specific
+  toggleFeature,
+  setSelectedBike,
 
   // Status check
   setStatusCheckLoading,
@@ -358,93 +595,115 @@ export const {
   setStatusCheckResult,
   clearStatusCheck,
 
+  // Recommendations
+  setRecommendationsLoading,
+  setRecommendationsError,
+  setRecommendations,
+  clearRecommendations,
+
   // Clear notifications
   clearNotifications,
 } = getApprovedSlice.actions;
 
-// Selectors
-export const selectGetApprovedApplications = (state: RootState) =>
-  state.getApproved.applications;
-export const selectCurrentApplication = (state: RootState) =>
-  state.getApproved.currentApplication;
-export const selectGetApprovedLoading = (state: RootState) =>
+// Enhanced selectors with proper typing
+export const selectGetApprovedApplications = (
+  state: RootState
+): GetApprovedApplication[] => state.getApproved.applications;
+export const selectCurrentApplication = (
+  state: RootState
+): GetApprovedApplication | null => state.getApproved.currentApplication;
+export const selectGetApprovedLoading = (state: RootState): boolean =>
   state.getApproved.loading;
-export const selectSubmitLoading = (state: RootState) =>
+export const selectSubmitLoading = (state: RootState): boolean =>
   state.getApproved.submitLoading;
-export const selectStatusLoading = (state: RootState) =>
+export const selectStatusLoading = (state: RootState): boolean =>
   state.getApproved.statusLoading;
-export const selectGetApprovedError = (state: RootState) =>
+export const selectGetApprovedError = (state: RootState): string | null =>
   state.getApproved.error;
-export const selectSubmitError = (state: RootState) =>
+export const selectSubmitError = (state: RootState): string | null =>
   state.getApproved.submitError;
-export const selectStatusError = (state: RootState) =>
+export const selectStatusError = (state: RootState): string | null =>
   state.getApproved.statusError;
-export const selectSubmitSuccess = (state: RootState) =>
+export const selectSubmitSuccess = (state: RootState): boolean =>
   state.getApproved.submitSuccess;
-export const selectStatusUpdateSuccess = (state: RootState) =>
+export const selectStatusUpdateSuccess = (state: RootState): boolean =>
   state.getApproved.statusUpdateSuccess;
-export const selectGetApprovedFilters = (state: RootState) =>
-  state.getApproved.filters;
+export const selectGetApprovedFilters = (
+  state: RootState
+): GetApprovedFilters => state.getApproved.filters;
 export const selectGetApprovedSorting = (state: RootState) => ({
   sortBy: state.getApproved.sortBy,
   sortOrder: state.getApproved.sortOrder,
 });
 export const selectGetApprovedPagination = (state: RootState) =>
   state.getApproved.pagination;
-export const selectGetApprovedStats = (state: RootState) =>
-  state.getApproved.stats;
+export const selectGetApprovedStats = (
+  state: RootState
+): GetApprovedStats | null => state.getApproved.stats;
 export const selectGetApprovedForm = (state: RootState) =>
   state.getApproved.form;
 export const selectStatusCheck = (state: RootState) =>
   state.getApproved.statusCheck;
+export const selectRecommendations = (state: RootState) =>
+  state.getApproved.recommendations;
 
-// Computed selectors
-export const selectFilteredApplicationsCount = (state: RootState) => {
-  const { applications, filters } = state.getApproved;
-
-  return applications.filter((app) => {
-    if (filters.status !== "all" && app.status !== filters.status) return false;
-    if (
-      filters.employmentType !== "all" &&
-      app.employmentType !== filters.employmentType
-    )
-      return false;
-    if (
-      filters.creditScoreRange !== "all" &&
-      app.creditScoreRange !== filters.creditScoreRange
-    )
-      return false;
-    if (
-      filters.search &&
-      !app.fullName?.toLowerCase().includes(filters.search.toLowerCase()) &&
-      !app.email.toLowerCase().includes(filters.search.toLowerCase()) &&
-      !app.applicationId.toLowerCase().includes(filters.search.toLowerCase())
-    )
-      return false;
-
-    return true;
-  }).length;
-};
-
+// Enhanced computed selectors
 export const selectFormValidation = (state: RootState) => {
   const { data, errors } = state.getApproved.form;
 
   const hasErrors = Object.keys(errors).length > 0;
-  const isComplete =
+  const isPersonalInfoComplete =
     data.firstName &&
     data.lastName &&
     data.email &&
     data.phone &&
     data.employmentType &&
     data.monthlyIncome &&
-    data.creditScoreRange &&
-    data.termsAccepted &&
-    data.privacyPolicyAccepted;
+    data.creditScoreRange;
+  const isTermsAccepted = data.termsAccepted && data.privacyPolicyAccepted;
+  const isComplete = isPersonalInfoComplete && isTermsAccepted;
 
   return {
     isValid: !hasErrors && isComplete,
     isComplete,
     hasErrors,
+    isPersonalInfoComplete: !!isPersonalInfoComplete,
+    isTermsAccepted,
+  };
+};
+
+export const selectBikeEnquiryData = (state: RootState) => {
+  const { data } = state.getApproved.form;
+
+  return {
+    bikeId: data.bikeId,
+    bikeModel: data.bikeModel,
+    category: data.category,
+    priceRange:
+      data.priceRangeMin && data.priceRangeMax
+        ? {
+            min: parseFloat(data.priceRangeMin),
+            max: parseFloat(data.priceRangeMax),
+          }
+        : undefined,
+    preferredFeatures: data.preferredFeatures,
+    intendedUse: data.intendedUse,
+    previousBikeExperience: data.previousBikeExperience,
+    urgency: data.urgency,
+    additionalRequirements: data.additionalRequirements,
+    tradeInBike: data.hasTradeIn
+      ? {
+          hasTradeIn: true,
+          currentBikeModel: data.currentBikeModel,
+          currentBikeYear: data.currentBikeYear
+            ? parseInt(data.currentBikeYear)
+            : undefined,
+          estimatedValue: data.estimatedValue
+            ? parseFloat(data.estimatedValue)
+            : undefined,
+          condition: data.tradeInCondition,
+        }
+      : { hasTradeIn: false },
   };
 };
 
