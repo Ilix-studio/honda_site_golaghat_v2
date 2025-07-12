@@ -2,7 +2,7 @@ import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const API_CONFIG = {
   BASE_URL:
-    "https://honda-golaghat-dealer-be-86367414980.asia-northeast1.run.app//api",
+    "https://honda-golaghat-dealer-be-86367414980.asia-northeast1.run.app/api",
 };
 
 export const baseQuery = fetchBaseQuery({
