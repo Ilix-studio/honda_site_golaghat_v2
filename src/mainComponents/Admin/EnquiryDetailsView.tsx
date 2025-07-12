@@ -144,7 +144,7 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
       setError(null);
 
       // Fetch enquiry details
-      const response = await fetch(`/api/getapproved/${enquiryId}`, {
+      const response = await fetch(`/getapproved/${enquiryId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

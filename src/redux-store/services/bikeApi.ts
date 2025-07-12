@@ -67,7 +67,7 @@ export const bikesApi = createApi({
 
         const queryString = params.toString();
         return {
-          url: `/api/bikes${queryString ? `?${queryString}` : ""}`, // Added /api
+          url: `/bikes${queryString ? `?${queryString}` : ""}`, // Added /api
           method: "GET",
         };
       },
@@ -77,7 +77,7 @@ export const bikesApi = createApi({
     // Alternative: POST /api/bikes/search - with request body (for complex filters)
     searchBikes: builder.query<BikeResponse, BikeFilters>({
       query: (filters) => ({
-        url: "/api/bikes/search", // Added /api
+        url: "/bikes/search", // Added /api
         method: "POST",
         body: filters,
       }),
@@ -87,7 +87,7 @@ export const bikesApi = createApi({
     // GET /api/bikes/:id
     getBikeById: builder.query<{ success: boolean; data: Bike }, string>({
       query: (id) => ({
-        url: `/api/bikes/${id}`, // Added /api
+        url: `/bikes/${id}`, // Added /api
         method: "GET",
       }),
       transformResponse: (response: any) => {
@@ -109,7 +109,7 @@ export const bikesApi = createApi({
       CreateBikeRequest
     >({
       query: (bikeData) => ({
-        url: "/api/bikes/addBikes", // Added /api
+        url: "/bikes/addBikes", // Added /api
         method: "POST",
         body: bikeData,
       }),
@@ -122,7 +122,7 @@ export const bikesApi = createApi({
       { id: string; data: Partial<CreateBikeRequest> }
     >({
       query: ({ id, data }) => ({
-        url: `/api/bikes/${id}`, // Added /api
+        url: `/bikes/${id}`, // Added /api
         method: "PUT",
         body: data,
       }),
@@ -133,7 +133,7 @@ export const bikesApi = createApi({
     deleteBike: builder.mutation<{ success: boolean; message: string }, string>(
       {
         query: (id) => ({
-          url: `/api/bikes/${id}`, // Added /api
+          url: `/bikes/${id}`, // Added /api
           method: "DELETE",
         }),
         invalidatesTags: ["Bike"],

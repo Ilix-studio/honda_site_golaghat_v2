@@ -19,7 +19,7 @@ import {
   toggleFilterSidebar,
   selectIsFilterSidebarOpen,
 } from "../../redux-store/slices/uiSlice";
-import { useSearchBikesQuery } from "../../redux-store/services/bikeApi";
+import { useGetBikesQuery } from "../../redux-store/services/bikeApi";
 
 // Skeleton Components
 const Skeleton = ({ className = "", ...props }) => {
@@ -179,25 +179,25 @@ export function ViewAllBikes() {
     }
   }, [searchParams, searchQuery]);
 
-  // Build search filters object
+  // Build search filters object - only include non-default values
   const searchFilters = {
     ...(selectedCategory !== "all" && { category: selectedCategory }),
     ...(priceRange[0] > 0 && { minPrice: priceRange[0] }),
     ...(priceRange[1] < 2000000 && { maxPrice: priceRange[1] }),
     ...(searchQuery && { search: searchQuery }),
     ...(selectedFeatures.length > 0 && { features: selectedFeatures }),
-    sortBy,
+    ...(sortBy !== "featured" && { sortBy }),
     page: 1,
     limit: 50, // Adjust as needed
   };
 
-  // Use the search bikes query with filters
+  // Use the GET bikes query instead of POST search
   const {
     data: bikesResponse,
     isLoading,
     error,
     refetch,
-  } = useSearchBikesQuery(searchFilters);
+  } = useGetBikesQuery(searchFilters);
 
   const filteredBikes = bikesResponse?.data || [];
 

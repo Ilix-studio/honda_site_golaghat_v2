@@ -424,7 +424,7 @@ export const useGetApprovedBikeForm = () => {
       };
 
       // Call API (you'll need to implement this with your API service)
-      const response = await fetch("/api/getapproved/with-bike", {
+      const response = await fetch("/getapproved/with-bike", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -542,7 +542,7 @@ export const useGetApprovedSimpleForm = () => {
         enquiryType: "general-financing",
       };
 
-      const response = await fetch("/api/getapproved", {
+      const response = await fetch("/getapproved", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -597,7 +597,7 @@ export const useApplicationStatusCheck = () => {
         dispatch(setStatusCheckLoading(true));
         dispatch(setStatusCheckError(null));
 
-        const response = await fetch("/api/getapproved/check-status", {
+        const response = await fetch("/getapproved/check-status", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
