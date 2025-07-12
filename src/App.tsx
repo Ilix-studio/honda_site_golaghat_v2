@@ -1,8 +1,8 @@
 import "./App.css";
 import Home from "./Home";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import BookServicePage from "./mainComponents/BookService/BookServicePage";
-import React from "react";
+import React, { useEffect } from "react";
 
 import BranchesPage from "./mainComponents/Branches/BranchesPage";
 import BranchDetailPage from "./mainComponents/Branches/BranchDetailPage";
@@ -30,6 +30,12 @@ import BranchManager from "./mainComponents/Branches/BranchManager";
 // Import Notification System
 
 const App: React.FC = () => {
+  const location = useLocation();
+
+  // Scroll to top when route changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
   return (
     <>
       <Routes>

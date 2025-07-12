@@ -67,7 +67,7 @@ export const bikesApi = createApi({
 
         const queryString = params.toString();
         return {
-          url: `/bikes${queryString ? `?${queryString}` : ""}`,
+          url: `/api/bikes${queryString ? `?${queryString}` : ""}`, // Added /api
           method: "GET",
         };
       },
@@ -77,17 +77,17 @@ export const bikesApi = createApi({
     // Alternative: POST /api/bikes/search - with request body (for complex filters)
     searchBikes: builder.query<BikeResponse, BikeFilters>({
       query: (filters) => ({
-        url: "/bikes/search",
+        url: "/api/bikes/search", // Added /api
         method: "POST",
         body: filters,
       }),
       providesTags: ["Bike"],
     }),
 
-    // GET /api/bikes/:id - Fixed URL
+    // GET /api/bikes/:id
     getBikeById: builder.query<{ success: boolean; data: Bike }, string>({
       query: (id) => ({
-        url: `/bikes/${id}`,
+        url: `/api/bikes/${id}`, // Added /api
         method: "GET",
       }),
       transformResponse: (response: any) => {
@@ -103,37 +103,37 @@ export const bikesApi = createApi({
       providesTags: (_result, _error, _id) => ["Bike"],
     }),
 
-    // POST /api/bikes - Fixed URL
+    // POST /api/bikes/addBikes
     createBike: builder.mutation<
       { success: boolean; data: Bike; message: string },
       CreateBikeRequest
     >({
       query: (bikeData) => ({
-        url: "/bikes/addBikes",
+        url: "/api/bikes/addBikes", // Added /api
         method: "POST",
         body: bikeData,
       }),
       invalidatesTags: ["Bike"],
     }),
 
-    // PUT /api/bikes/:id - Fixed URL and method
+    // PUT /api/bikes/:id
     updateBike: builder.mutation<
       { success: boolean; data: Bike; message: string },
       { id: string; data: Partial<CreateBikeRequest> }
     >({
       query: ({ id, data }) => ({
-        url: `/bikes/${id}`,
+        url: `/api/bikes/${id}`, // Added /api
         method: "PUT",
         body: data,
       }),
       invalidatesTags: (_result, _error, { id }) => [{ type: "Bike", id }],
     }),
 
-    // DELETE /api/bikes/:id - Fixed URL and method
+    // DELETE /api/bikes/:id
     deleteBike: builder.mutation<{ success: boolean; message: string }, string>(
       {
         query: (id) => ({
-          url: `/bikes/${id}`,
+          url: `/api/bikes/${id}`, // Added /api
           method: "DELETE",
         }),
         invalidatesTags: ["Bike"],
