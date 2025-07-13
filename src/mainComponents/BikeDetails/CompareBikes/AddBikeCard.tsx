@@ -1,26 +1,36 @@
-import { Badge } from "@/components/ui/badge";
+// AddBikeCard.tsx
+import { useState } from "react";
+import { Plus, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { formatCurrency } from "@/lib/formatters";
-import { Bike } from "@/redux-store/slices/bikesSlice"; // Use Redux Bike type
-import { PlusCircle } from "lucide-react";
 
-// Card for adding a new bike to compare
-export const AddBikeCard = ({
-  onSelect,
-  bikes,
-  categoryFilter,
-  setCategoryFilter,
-  searchQuery,
-  setSearchQuery,
-  categories,
-}: {
+interface Bike {
+  id: string;
+  modelName: string;
+  category: string;
+  price: number;
+  images?: string[];
+  engine?: string;
+  power?: number;
+}
+
+interface AddBikeCardProps {
   onSelect: (bikeId: string) => void;
   bikes: Bike[];
   categoryFilter: string;
@@ -28,94 +38,161 @@ export const AddBikeCard = ({
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   categories: string[];
-}) => {
-  return (
-    <Card className='h-full'>
-      <CardContent className='p-4 flex flex-col items-center justify-center h-full'>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button className='bg-red-600 hover:bg-red-700 flex items-center gap-2'>
-              <PlusCircle className='h-5 w-5' />
-              Select Motorcycle
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className='w-80 p-0' align='center'>
-            <div className='p-4 border-b'>
-              <h4 className='font-medium'>Select a motorcycle</h4>
-              <p className='text-sm text-muted-foreground mt-1'>
-                Choose a motorcycle to add to your comparison
-              </p>
+}
 
-              {/* Search input */}
-              <div className='mt-2'>
-                <input
-                  type='text'
+export function AddBikeCard({
+  onSelect,
+  bikes,
+  categoryFilter,
+  setCategoryFilter,
+  searchQuery,
+  setSearchQuery,
+  categories,
+}: AddBikeCardProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleBikeSelect = (bikeId: string) => {
+    onSelect(bikeId);
+    setIsOpen(false);
+    // Reset filters after selection
+    setSearchQuery("");
+    setCategoryFilter("all");
+  };
+
+  const filteredBikes = bikes.filter(
+    (bike) =>
+      (categoryFilter === "all" || bike.category === categoryFilter) &&
+      (searchQuery === "" ||
+        bike.modelName.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <div className='border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center min-h-[300px] hover:border-gray-400 transition-colors cursor-pointer group'>
+          <div className='w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4 group-hover:bg-gray-200 transition-colors'>
+            <Plus className='h-8 w-8 text-gray-400 group-hover:text-gray-600' />
+          </div>
+          <h3 className='text-lg font-semibold text-gray-600 mb-2'>
+            Add Motorcycle
+          </h3>
+          <p className='text-sm text-gray-500 text-center'>
+            Click to select a motorcycle for comparison
+          </p>
+        </div>
+      </DialogTrigger>
+
+      <DialogContent className='max-w-4xl max-h-[80vh] overflow-hidden'>
+        <DialogHeader>
+          <DialogTitle>Select a Motorcycle to Compare</DialogTitle>
+        </DialogHeader>
+
+        <div className='space-y-4'>
+          {/* Filters */}
+          <div className='flex flex-col sm:flex-row gap-4'>
+            <div className='flex-1'>
+              <div className='relative'>
+                <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
+                <Input
                   placeholder='Search motorcycles...'
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className='w-full p-2 border rounded-md text-sm'
+                  className='pl-10'
                 />
               </div>
+            </div>
+            <div className='sm:w-48'>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger>
+                  <Filter className='h-4 w-4 mr-2' />
+                  <SelectValue placeholder='Category' />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category === "all"
+                        ? "All Categories"
+                        : category.charAt(0).toUpperCase() + category.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-              {/* Category filter */}
-              <div className='mt-2 flex flex-wrap gap-1'>
-                {categories.map((category) => (
-                  <Badge
-                    key={category}
-                    variant={
-                      categoryFilter === category ? "default" : "outline"
-                    }
-                    className='cursor-pointer capitalize'
-                    onClick={() => setCategoryFilter(category)}
+          {/* Results */}
+          <div className='overflow-y-auto max-h-[50vh]'>
+            {filteredBikes.length === 0 ? (
+              <div className='text-center py-8'>
+                <p className='text-gray-500'>
+                  No motorcycles found matching your criteria.
+                </p>
+              </div>
+            ) : (
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                {filteredBikes.map((bike) => (
+                  <div
+                    key={bike.id}
+                    onClick={() => handleBikeSelect(bike.id)}
+                    className='border rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow hover:border-red-300'
                   >
-                    {category}
-                  </Badge>
+                    <div className='aspect-video bg-gray-100 rounded-md mb-3 overflow-hidden'>
+                      <img
+                        src={bike.images?.[0] || "/placeholder.svg"}
+                        alt={bike.modelName}
+                        className='w-full h-full object-cover'
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/placeholder.svg";
+                        }}
+                      />
+                    </div>
+
+                    <div className='space-y-2'>
+                      <h4 className='font-semibold text-sm line-clamp-2'>
+                        {bike.modelName}
+                      </h4>
+
+                      <div className='flex items-center justify-between'>
+                        <Badge variant='secondary' className='text-xs'>
+                          {bike.category}
+                        </Badge>
+                        <span className='text-sm font-medium text-red-600'>
+                          {formatCurrency(bike.price)}
+                        </span>
+                      </div>
+
+                      {bike.engine && (
+                        <div className='text-xs text-gray-600'>
+                          <span>{bike.engine}cc</span>
+                          {bike.power && <span> • {bike.power}hp</span>}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 ))}
               </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className='border-t pt-4'>
+            <div className='flex justify-between items-center text-sm text-gray-600'>
+              <span>
+                {filteredBikes.length} motorcycle
+                {filteredBikes.length !== 1 ? "s" : ""} available
+              </span>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setIsOpen(false)}
+              >
+                Cancel
+              </Button>
             </div>
-
-            <ScrollArea className='h-[300px]'>
-              <div className='p-2'>
-                {bikes.length === 0 ? (
-                  <div className='text-center py-8 text-muted-foreground'>
-                    No motorcycles found
-                  </div>
-                ) : (
-                  bikes.map((bike) => (
-                    <div
-                      key={bike.id}
-                      className='p-2 hover:bg-gray-100 rounded-md cursor-pointer'
-                      onClick={() => onSelect(bike.id)}
-                    >
-                      <div className='flex items-center gap-2'>
-                        <div className='w-12 h-12 bg-gray-200 rounded-md overflow-hidden'>
-                          <img
-                            src={bike.images?.[0] || "/placeholder.svg"}
-                            alt={bike.modelName}
-                            className='w-full h-full object-cover'
-                          />
-                        </div>
-                        <div className='flex-1'>
-                          <div className='font-medium text-sm'>
-                            {bike.modelName}
-                          </div>
-                          <div className='text-xs text-muted-foreground capitalize'>
-                            {bike.category} • {formatCurrency(bike.price)}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </ScrollArea>
-          </PopoverContent>
-        </Popover>
-
-        <div className='text-sm text-muted-foreground text-center mt-4'>
-          Select a motorcycle to add to your comparison
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
-};
+}

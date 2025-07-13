@@ -127,19 +127,6 @@ export function Header() {
             >
               Contact
             </Link>
-
-            {/* Comparison indicator */}
-            {comparisonBikes.length > 0 && (
-              <Link
-                to='/compare'
-                className='text-sm font-medium hover:text-primary transition-colors relative'
-              >
-                Compare
-                <span className='absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center'>
-                  {comparisonBikes.length}
-                </span>
-              </Link>
-            )}
           </nav>
           <div className='flex items-center gap-2'>
             <Link to='/book-service'>

@@ -235,8 +235,7 @@ export default function BikeDetailsPage() {
                 {bike.images && bike.images.length > 0 ? (
                   <img
                     src={
-                      bike.images[selectedImageIndex] ||
-                      "/api/placeholder/600/400"
+                      bike.images[selectedImageIndex] || "/placeholder/600/400"
                     }
                     alt={bike.modelName}
                     className='w-full h-full object-cover'
@@ -264,7 +263,7 @@ export default function BikeDetailsPage() {
                       }`}
                     >
                       <img
-                        src={image || "/api/placeholder/80/80"}
+                        src={image || "/placeholder/80/80"}
                         alt={`${bike.modelName} view ${index + 1}`}
                         className='w-full h-full object-cover'
                       />

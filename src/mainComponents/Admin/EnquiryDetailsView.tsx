@@ -182,7 +182,7 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
   const loadBikeRecommendations = async () => {
     try {
       const response = await fetch(
-        `/api/getapproved/${enquiryId}/bike-recommendations`,
+        `/getapproved/${enquiryId}/bike-recommendations`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -217,7 +217,7 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
           }),
       };
 
-      const response = await fetch(`/api/getapproved/${enquiryId}/status`, {
+      const response = await fetch(`/getapproved/${enquiryId}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

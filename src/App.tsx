@@ -9,7 +9,7 @@ import BranchDetailPage from "./mainComponents/Branches/BranchDetailPage";
 import { ViewAllBikes } from "./mainComponents/BikeDetails/ViewAllBikes";
 import BikeDetailsPage from "./mainComponents/BikeDetails/BikeDetailsPage";
 import NotFoundPage from "./mainComponents/NotFoundPage";
-import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
+// import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
 
 import LoginBranchManager from "./mainComponents/Admin/LoginBranchManager";
 import LoginSuperAdmin from "./mainComponents/Admin/LoginSuperAdmin";
@@ -72,7 +72,8 @@ const App: React.FC = () => {
         {/* <Route path='/test' element={<TestBike />} /> */}
 
         {/* Compare Bike  */}
-        <Route path='/compare' element={<CompareBike />} />
+        {/* <Route path='/compare' element={<CompareBike />} /> */}
+        {/* Not Found  */}
         <Route path='*' element={<NotFoundPage />} />
       </Routes>
 

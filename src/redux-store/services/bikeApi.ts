@@ -38,11 +38,17 @@ export interface CreateBikeRequest {
   quantity?: number;
   branch: string;
 }
-
+export interface ComparisonBikeResponse {
+  success: boolean;
+  count: number;
+  data: Bike[];
+}
 export const bikesApi = createApi({
   reducerPath: "bikesApi",
   baseQuery,
   tagTypes: ["Bike"],
+  // Add caching configuration
+  keepUnusedDataFor: 300, // 5 minutes
   endpoints: (builder) => ({
     // GET /api/bikes - with query parameters
     getBikes: builder.query<BikeResponse, BikeFilters>({

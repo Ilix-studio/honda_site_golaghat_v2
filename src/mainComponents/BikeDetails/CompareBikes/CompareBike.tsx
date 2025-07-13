@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+// Updated CompareBike.tsx with improved handleBikeSelect
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
@@ -11,9 +12,12 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+// If you have toast notifications
 
 import { AddBikeCard } from "./AddBikeCard";
 import { BikeComparisonCard } from "./BikeComparisonCard";
@@ -22,9 +26,8 @@ import { formatCurrency } from "@/lib/formatters";
 import { Footer } from "@/mainComponents/Footer";
 import { comparisonSections } from "./comparisonSections";
 import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
-import { Bike } from "@/redux-store/slices/bikesSlice"; // Use the Redux Bike type
+import { Bike } from "@/redux-store/slices/bikesSlice";
 
-// Define constants for categories - you may need to adjust this based on your actual categories
 const CATEGORIES = [
   "all",
   "sport",
@@ -35,120 +38,270 @@ const CATEGORIES = [
   "electric",
 ];
 
-const EMPTY_SLOT_PLACEHOLDER = "add-bike";
-
-// Viewport breakpoints
-const VIEWPORT_BREAKPOINTS = {
-  MOBILE: 640, // sm breakpoint in Tailwind
-  TABLET: 1024, // lg breakpoint in Tailwind
-};
-
-// Maximum bikes to compare by viewport
-const MAX_BIKES = {
-  MOBILE: 2,
-  TABLET: 3,
-  DESKTOP: 4,
-};
-
-// Create an extended type for comparison with additional properties
 interface ComparisonBike extends Bike {
-  name?: string; // Make it optional since it might not exist in the API data
-  engineSize?: number; // Make it optional since it might not exist in the API data
-  image?: string; // Make it optional
+  name: string;
+  engineSize: number;
+  image: string;
 }
+
+const getViewport = (): "MOBILE" | "TABLET" | "DESKTOP" => {
+  const width = window.innerWidth;
+  return width < 640 ? "MOBILE" : width < 1024 ? "TABLET" : "DESKTOP";
+};
+
+const getMaxBikes = (viewport: string) => {
+  return viewport === "MOBILE" ? 2 : viewport === "TABLET" ? 3 : 4;
+};
 
 export default function CompareBike() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // Get bikes data from API
-  const { data: bikesResponse, isLoading } = useGetBikesQuery({});
-  const allBikes: ComparisonBike[] = bikesResponse?.data || [];
-
-  // Get bike IDs from URL parameters
-  const bikeIds = searchParams.getAll("bikes") || [];
-
-  // State to track viewport size
-  const [viewport, setViewport] = useState<"MOBILE" | "TABLET" | "DESKTOP">(
-    "DESKTOP"
-  );
-
-  // Determine max bikes based on viewport
-  const getMaxBikes = () => {
-    switch (viewport) {
-      case "MOBILE":
-        return MAX_BIKES.MOBILE;
-      case "TABLET":
-        return MAX_BIKES.TABLET;
-      default:
-        return MAX_BIKES.DESKTOP;
-    }
-  };
-
-  // State for selected bikes (using IDs with placeholders for empty slots)
   const [selectedBikeIds, setSelectedBikeIds] = useState<string[]>([]);
-
-  // Actual bike objects corresponding to the selected IDs
-  const [selectedBikes, setSelectedBikes] = useState<(ComparisonBike | null)[]>(
-    []
-  );
-
-  // State for category filter in the bike selector
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
-
-  // State for search input in the bike selector
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // State for which specification sections are expanded (for mobile view)
+  const [viewport, setViewport] = useState(getViewport());
   const [expandedSections, setExpandedSections] = useState({
     basicInfo: true,
     engine: true,
     dimensions: true,
     features: true,
   });
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const {
+    data: bikesResponse,
+    isLoading,
+    error,
+  } = useGetBikesQuery({ limit: 1000 });
+
+  const allBikes: ComparisonBike[] = (bikesResponse?.data || []).map(
+    (bike) => ({
+      ...bike,
+      name: bike.modelName,
+      engineSize: parseInt(bike.engine) || 0,
+      image: bike.images?.[0] || "/placeholder.svg",
+    })
+  );
+
+  const maxBikes = getMaxBikes(viewport);
+
+  // ===== ENHANCED BIKE SELECTION HANDLERS =====
+
+  const handleBikeSelect = (bikeId: string, slotIndex: number) => {
+    console.log("Selecting bike:", {
+      bikeId,
+      slotIndex,
+      currentIds: selectedBikeIds,
+      maxBikes,
+    });
+
+    // Validation
+    if (!bikeId || bikeId === "add-bike") {
+      toast?.({
+        title: "Invalid Selection",
+        description: "Please select a valid motorcycle.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Check for duplicates
+    if (selectedBikeIds.includes(bikeId)) {
+      toast?.({
+        title: "Already Selected",
+        description: "This motorcycle is already in your comparison.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Check slot index bounds
+    if (slotIndex >= maxBikes) {
+      toast?.({
+        title: "Maximum Reached",
+        description: `You can only compare up to ${maxBikes} motorcycles on this device.`,
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    setSelectedBikeIds((prev) => {
+      const newIds = [...prev];
+
+      // Handle different scenarios
+      if (slotIndex >= newIds.length) {
+        // Adding to new slot
+        if (newIds.length < maxBikes) {
+          newIds.push(bikeId);
+        } else {
+          toast?.({
+            title: "Comparison Full",
+            description: `Cannot add more than ${maxBikes} motorcycles.`,
+            variant: "destructive",
+          });
+          return prev;
+        }
+      } else {
+        // Replacing existing slot
+        newIds[slotIndex] = bikeId;
+      }
+
+      console.log("New bike IDs:", newIds);
+
+      // Show success message
+      const selectedBike = allBikes.find((bike) => bike.id === bikeId);
+      if (selectedBike) {
+        toast?.({
+          title: "Motorcycle Added",
+          description: `${selectedBike.modelName} has been added to your comparison.`,
+          variant: "",
+        });
+      }
+
+      return newIds;
+    });
+
+    return true;
+  };
+
+  const handleBikeRemove = (slotIndex: number) => {
+    const removedBike = allBikes.find(
+      (bike) => bike.id === selectedBikeIds[slotIndex]
+    );
+
+    setSelectedBikeIds((prev) => prev.filter((_, i) => i !== slotIndex));
+
+    if (removedBike) {
+      toast?.({
+        title: "Motorcycle Removed",
+        description: `${removedBike.modelName} has been removed from comparison.`,
+        variant: "",
+      });
+    }
+  };
+
+  const addBike = () => {
+    if (selectedBikeIds.length < maxBikes) {
+      // This will trigger the UI to show an AddBikeCard in the next available slot
+      // The actual selection will be handled by handleBikeSelect
+    } else {
+      toast?.({
+        title: "Maximum Reached",
+        description: `You can only compare up to ${maxBikes} motorcycles.`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const clearAll = () => {
+    const count = selectedBikeIds.length;
+    setSelectedBikeIds([]);
+
+    if (count > 0) {
+      toast?.({
+        title: "Comparison Cleared",
+        description: `Removed ${count} motorcycle${
+          count > 1 ? "s" : ""
+        } from comparison.`,
+        variant: "",
+      });
+    }
+  };
+
+  // ===== EXISTING CODE CONTINUES =====
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("bike-comparison");
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        setSelectedBikeIds(data.selectedBikeIds || []);
+        setExpandedSections(data.expandedSections || expandedSections);
+      } catch (e) {
+        console.error("Failed to parse saved comparison data:", e);
+      }
+    }
+  }, []);
+
+  // Save to localStorage when state changes
+  useEffect(() => {
+    localStorage.setItem(
+      "bike-comparison",
+      JSON.stringify({
+        selectedBikeIds,
+        expandedSections,
+      })
+    );
+  }, [selectedBikeIds, expandedSections]);
 
   // Handle viewport changes
   useEffect(() => {
     const handleResize = () => {
-      const width = window.innerWidth;
-      if (width < VIEWPORT_BREAKPOINTS.MOBILE) {
-        setViewport("MOBILE");
-      } else if (width < VIEWPORT_BREAKPOINTS.TABLET) {
-        setViewport("TABLET");
-      } else {
-        setViewport("DESKTOP");
+      const newViewport = getViewport();
+      if (newViewport !== viewport) {
+        setViewport(newViewport);
+        const newMaxBikes = getMaxBikes(newViewport);
+        if (selectedBikeIds.length > newMaxBikes) {
+          const removedCount = selectedBikeIds.length - newMaxBikes;
+          setSelectedBikeIds((prev) => prev.slice(0, newMaxBikes));
+
+          toast?.({
+            title: "Screen Size Changed",
+            description: `Removed ${removedCount} motorcycle${
+              removedCount > 1 ? "s" : ""
+            } due to smaller screen size.`,
+            variant: "destructive",
+          });
+        }
       }
     };
 
-    // Initial check
-    handleResize();
-
-    // Add event listener
     window.addEventListener("resize", handleResize);
-
-    // Cleanup
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [viewport, selectedBikeIds]);
 
-  // Initialize bike slots based on viewport and URL params
+  // Initialize from URL
   useEffect(() => {
-    const maxBikes = getMaxBikes();
-
-    // Filter valid bike IDs to match max bikes for current viewport
-    const validBikeIds = bikeIds.slice(0, maxBikes);
-
-    // Create array with valid bikes and empty slots to fill the grid
-    const initialSelectedBikeIds = [...validBikeIds];
-
-    // Add empty slots to fill the grid
-    while (initialSelectedBikeIds.length < maxBikes) {
-      initialSelectedBikeIds.push(EMPTY_SLOT_PLACEHOLDER);
+    const bikeIds = searchParams.getAll("bikes");
+    if (bikeIds.length > 0) {
+      const validIds = bikeIds.slice(0, maxBikes);
+      // Only set if different from current selection
+      if (JSON.stringify(validIds) !== JSON.stringify(selectedBikeIds)) {
+        setSelectedBikeIds(validIds);
+      }
     }
+  }, [searchParams, maxBikes]);
 
-    setSelectedBikeIds(initialSelectedBikeIds);
-  }, [bikeIds, viewport]);
+  // Update URL when selection changes
+  useEffect(() => {
+    const validIds = selectedBikeIds.filter((id) => id && id !== "add-bike");
+    if (validIds.length > 0) {
+      setSearchParams({ bikes: validIds });
+    } else {
+      navigate("/compare", { replace: true });
+    }
+  }, [selectedBikeIds, setSearchParams, navigate]);
 
-  // Toggle expanded sections on mobile
+  // Get slots with placeholders
+  const slots = Array.from(
+    { length: maxBikes },
+    (_, i) => selectedBikeIds[i] || "add-bike"
+  );
+
+  const selectedBikes = slots.map((id) =>
+    id === "add-bike" ? null : allBikes.find((bike) => bike.id === id) || null
+  );
+
+  const filteredBikes = allBikes.filter(
+    (bike) =>
+      (categoryFilter === "all" || bike.category === categoryFilter) &&
+      (searchQuery === "" ||
+        bike.modelName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        bike.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      !selectedBikeIds.includes(bike.id) // Exclude already selected bikes
+  );
+
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -156,164 +309,8 @@ export default function CompareBike() {
     }));
   };
 
-  // Filter bikes based on category and search query for bike selector
-  const filteredBikes = allBikes.filter(
-    (bike) =>
-      (categoryFilter === "all" || bike.category === categoryFilter) &&
-      (searchQuery === "" ||
-        bike.modelName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bike.name &&
-          bike.name.toLowerCase().includes(searchQuery.toLowerCase())))
-  );
-
-  // Update selected bikes whenever the IDs change
-  useEffect(() => {
-    const bikes = selectedBikeIds.map((id) => {
-      if (id === EMPTY_SLOT_PLACEHOLDER) {
-        return null;
-      }
-
-      const foundBike = allBikes.find((bike) => bike.id === id);
-      if (!foundBike) return null;
-
-      // Create a complete comparison bike object with fallback values
-      const comparisonBike: ComparisonBike = {
-        ...foundBike,
-        name: foundBike.name || foundBike.modelName, // Use modelName as fallback for name
-        engineSize: foundBike.engineSize || parseInt(foundBike.engine) || 0, // Extract from engine string if needed
-        image: foundBike.images?.[0] || "/placeholder.svg", // Use first image or placeholder
-      };
-
-      return comparisonBike;
-    });
-
-    setSelectedBikes(bikes);
-
-    // Update URL parameters with only real bike IDs (not placeholders)
-    const validBikeIds = selectedBikeIds.filter(
-      (id) => id !== EMPTY_SLOT_PLACEHOLDER
-    );
-
-    if (validBikeIds.length > 0) {
-      setSearchParams({ bikes: validBikeIds });
-    } else {
-      navigate("/compare"); // Clear parameters if no bikes are selected
-    }
-  }, [selectedBikeIds, setSearchParams, navigate, allBikes]);
-
-  // Remove a bike from comparison
-  const removeBike = (index: number) => {
-    const newSelectedBikeIds = [...selectedBikeIds];
-    newSelectedBikeIds[index] = EMPTY_SLOT_PLACEHOLDER;
-    setSelectedBikeIds(newSelectedBikeIds);
-  };
-
-  // Add empty slot if we have fewer than max bikes
-  const addEmptySlot = () => {
-    const maxBikes = getMaxBikes();
-    if (selectedBikeIds.length < maxBikes) {
-      setSelectedBikeIds([...selectedBikeIds, EMPTY_SLOT_PLACEHOLDER]);
-    }
-  };
-
-  // Print the comparison
-  const handlePrint = () => {
-    window.print();
-  };
-
-  // Share the comparison
-  const handleShare = () => {
-    // Create a shareable URL
-    const url = window.location.href;
-
-    // Use the Web Share API if available
-    if (navigator.share) {
-      navigator.share({
-        title: "Honda Motorcycles Comparison",
-        text: "Check out this motorcycle comparison!",
-        url: url,
-      });
-    } else {
-      // Fallback to copying to clipboard
-      navigator.clipboard.writeText(url).then(() => {
-        alert("Comparison link copied to clipboard!");
-      });
-    }
-  };
-
-  // Find best value for a particular spec across all bikes
-  const findBestValue = (
-    key: keyof ComparisonBike,
-    isHigherBetter: boolean = true
-  ): number => {
-    const values = selectedBikes
-      .filter((bike) => bike !== null)
-      .map((bike) => {
-        if (!bike) return 0;
-        const value = bike[key];
-        return typeof value === "number" ? value : 0;
-      });
-
-    if (values.length === 0) return 0;
-    return isHigherBetter ? Math.max(...values) : Math.min(...values);
-  };
-
-  // Helper to determine if a spec value is the best
-  const isBestValue = (
-    value: number,
-    key: keyof ComparisonBike,
-    isHigherBetter: boolean = true
-  ): boolean => {
-    if (!value) return false;
-    const bestValue = findBestValue(key, isHigherBetter);
-    return value === bestValue;
-  };
-
-  // Compare values and return the appropriate indicator
-  const getComparisonIndicator = (
-    bike: ComparisonBike | null,
-    key: keyof ComparisonBike,
-    isHigherBetter: boolean = true
-  ) => {
-    if (!bike) return null;
-
-    const value = bike[key];
-    const numericValue = typeof value === "number" ? value : 0;
-
-    if (isBestValue(numericValue, key, isHigherBetter)) {
-      return (
-        <span
-          className='text-green-500 flex items-center'
-          title='Best in comparison'
-        >
-          <TrendingUp className='h-4 w-4' />
-        </span>
-      );
-    }
-
-    // Only show negative indicator if there are more than 1 bike being compared
-    const bikesWithValues = selectedBikes.filter((b) => b !== null).length;
-    if (bikesWithValues > 1) {
-      const bestValue = findBestValue(key, isHigherBetter);
-      const worstValue = findBestValue(key, !isHigherBetter);
-
-      if (
-        (isHigherBetter && numericValue === worstValue) ||
-        (!isHigherBetter && numericValue === bestValue)
-      ) {
-        return (
-          <span
-            className='text-red-500 flex items-center'
-            title='Lowest in comparison'
-          >
-            <TrendingDown className='h-4 w-4' />
-          </span>
-        );
-      }
-    }
-
-    return <Minus className='h-4 w-4 text-gray-300' />;
-  };
+  // Rest of your comparison utilities (findBestValue, getComparisonIndicator, renderSpecValue)
+  // ... [Keep all your existing comparison logic here] ...
 
   if (isLoading) {
     return (
@@ -326,6 +323,26 @@ export default function CompareBike() {
       </main>
     );
   }
+
+  if (error) {
+    return (
+      <main className='min-h-screen flex flex-col'>
+        <Header />
+        <div className='flex-grow flex items-center justify-center p-4'>
+          <Alert variant='destructive' className='max-w-md'>
+            <AlertCircle className='h-4 w-4' />
+            <AlertDescription>
+              Failed to load motorcycle data. Please refresh the page.
+            </AlertDescription>
+          </Alert>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
+
+  const canAddMore = selectedBikeIds.length < maxBikes;
+  const isEmpty = selectedBikeIds.length === 0;
 
   return (
     <main className='min-h-screen flex flex-col'>
@@ -347,234 +364,263 @@ export default function CompareBike() {
           className='mb-8'
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
         >
           <h1 className='text-3xl font-bold'>Compare Motorcycles</h1>
           <p className='text-muted-foreground mt-2'>
-            Select up to {getMaxBikes()} motorcycles to compare specifications
-            and features side by side
+            Select up to {maxBikes} motorcycles to compare side by side
           </p>
         </motion.div>
 
-        {/* Action buttons */}
         <div className='flex flex-wrap gap-2 mb-6'>
           <Button
-            onClick={handlePrint}
+            onClick={() => window.print()}
             variant='outline'
+            disabled={isEmpty}
             className='flex items-center gap-2'
           >
             <Printer className='h-4 w-4' />
-            <span className='hidden sm:inline'>Print Comparison</span>
+            Print
           </Button>
 
           <Button
-            onClick={handleShare}
+            onClick={() =>
+              navigator.share?.({
+                title: "Honda Motorcycles Comparison",
+                url: window.location.href,
+              }) || navigator.clipboard.writeText(window.location.href)
+            }
             variant='outline'
+            disabled={isEmpty}
             className='flex items-center gap-2'
           >
             <Share2 className='h-4 w-4' />
-            <span className='hidden sm:inline'>Share Comparison</span>
+            Share
           </Button>
 
-          {/* Only show add button if we have fewer than the max bikes for current viewport */}
-          {selectedBikeIds.filter((id) => id === EMPTY_SLOT_PLACEHOLDER)
-            .length === 0 &&
-            selectedBikeIds.length < getMaxBikes() && (
-              <Button
-                onClick={addEmptySlot}
-                variant='outline'
-                className='flex items-center gap-2 ml-auto'
-              >
-                <PlusCircle className='h-4 w-4' />
-                <span>Add Motorcycle</span>
-              </Button>
-            )}
+          {canAddMore && (
+            <Button
+              onClick={addBike}
+              variant='outline'
+              className='flex items-center gap-2 ml-auto'
+            >
+              <PlusCircle className='h-4 w-4' />
+              Add Motorcycle
+            </Button>
+          )}
+
+          {!isEmpty && (
+            <Button
+              onClick={clearAll}
+              variant='outline'
+              className='text-red-600 hover:text-red-700'
+            >
+              Clear All
+            </Button>
+          )}
         </div>
 
-        {/* Comparison table */}
-        <div className='grid grid-cols-1 gap-6 print:block'>
-          {/* Motorcycle selection row */}
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 print:flex print:flex-row'>
-            {selectedBikeIds.map(
-              (bikeId, index) =>
-                // Only render the number of slots appropriate for the current viewport
-                index < getMaxBikes() && (
-                  <div key={`${bikeId}-${index}`} className='print:w-1/4'>
-                    {bikeId === EMPTY_SLOT_PLACEHOLDER ? (
-                      <AddBikeCard
-                        onSelect={(selectedBikeId) => {
-                          const newSelectedBikeIds = [...selectedBikeIds];
-                          newSelectedBikeIds[index] = selectedBikeId;
-                          setSelectedBikeIds(newSelectedBikeIds);
-                        }}
-                        bikes={filteredBikes}
-                        categoryFilter={categoryFilter}
-                        setCategoryFilter={setCategoryFilter}
-                        searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
-                        categories={CATEGORIES}
-                      />
-                    ) : (
-                      <BikeComparisonCard
-                        bike={
-                          allBikes.find((bike) => bike.id === bikeId) || null
-                        }
-                        onRemove={() => removeBike(index)}
-                      />
-                    )}
-                  </div>
-                )
-            )}
+        <div className='grid grid-cols-1 gap-6'>
+          {/* Selection Row */}
+          <div
+            className={`grid gap-4 ${
+              viewport === "MOBILE"
+                ? "grid-cols-1"
+                : viewport === "TABLET"
+                ? "grid-cols-3"
+                : "grid-cols-4"
+            }`}
+          >
+            {slots.map((bikeId, index) => (
+              <div key={index}>
+                {bikeId === "add-bike" ? (
+                  <AddBikeCard
+                    onSelect={(id) => handleBikeSelect(id, index)}
+                    bikes={filteredBikes}
+                    categoryFilter={categoryFilter}
+                    setCategoryFilter={setCategoryFilter}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    categories={CATEGORIES}
+                  />
+                ) : (
+                  <BikeComparisonCard
+                    bike={selectedBikes[index]}
+                    onRemove={() => handleBikeRemove(index)}
+                  />
+                )}
+              </div>
+            ))}
           </div>
 
-          {/* Specification comparison sections */}
-          {comparisonSections.map((section) => (
-            <div
-              key={section.id}
-              className='border rounded-lg overflow-hidden print:mb-4'
-            >
-              {/* Section header */}
-              <div
-                className='bg-gray-100 p-4 font-semibold flex justify-between items-center cursor-pointer'
-                onClick={() =>
-                  toggleSection(section.id as keyof typeof expandedSections)
-                }
-              >
-                <h3>{section.title}</h3>
-                <div className='md:hidden'>
-                  {expandedSections[
-                    section.id as keyof typeof expandedSections
-                  ] ? (
-                    <ChevronUp className='h-4 w-4' />
-                  ) : (
-                    <ChevronDown className='h-4 w-4' />
-                  )}
-                </div>
-              </div>
-
-              {/* Section content */}
-              <div
-                className={
-                  expandedSections[section.id as keyof typeof expandedSections]
-                    ? "block"
-                    : "hidden md:block"
-                }
-              >
-                {section.specs.map((spec) => (
-                  <div key={spec.key} className='border-t'>
-                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 print:flex print:flex-row'>
-                      {/* Spec label (visible only on small screens) */}
-                      <div className='p-4 font-medium bg-gray-50 md:hidden'>
-                        {spec.label}
-                      </div>
-
-                      {/* Spec values - Only show the number of columns for current viewport */}
-                      {selectedBikes
-                        .slice(0, getMaxBikes())
-                        .map((bike, index) => (
-                          <div
-                            key={`${bike?.id || index}-${spec.key}`}
-                            className={`p-4 border-t md:border-t-0 md:border-l flex items-center print:w-1/4 ${
-                              viewport === "MOBILE"
-                                ? "col-span-1"
-                                : viewport === "TABLET"
-                                ? "col-span-1 md:col-span-1"
-                                : "col-span-1 md:col-span-1 lg:col-span-1"
-                            }`}
-                          >
-                            {/* Spec label (visible only on medium and up screens) */}
-                            {index === 0 && (
-                              <div className='hidden md:block font-medium min-w-[120px]'>
-                                {spec.label}
-                              </div>
-                            )}
-
-                            {/* Spec value */}
-                            <div className='flex-1 flex justify-between items-center'>
-                              {bike ? (
-                                <>
-                                  <div className='flex-1'>
-                                    {spec.type === "price" &&
-                                    typeof bike[
-                                      spec.key as keyof ComparisonBike
-                                    ] === "number" ? (
-                                      formatCurrency(
-                                        bike[
-                                          spec.key as keyof ComparisonBike
-                                        ] as number
-                                      )
-                                    ) : spec.type === "cc" ? (
-                                      `${
-                                        bike[
-                                          spec.key as keyof ComparisonBike
-                                        ] || 0
-                                      } cc`
-                                    ) : spec.type === "hp" ? (
-                                      `${
-                                        bike[
-                                          spec.key as keyof ComparisonBike
-                                        ] || 0
-                                      } HP`
-                                    ) : spec.type === "kg" ? (
-                                      `${
-                                        bike[
-                                          spec.key as keyof ComparisonBike
-                                        ] || 0
-                                      } kg`
-                                    ) : spec.type === "features" ? (
-                                      <div className='flex flex-wrap gap-1'>
-                                        {(
-                                          (bike[
-                                            spec.key as keyof ComparisonBike
-                                          ] as string[]) || []
-                                        ).map((feature, idx) => (
-                                          <Badge
-                                            key={idx}
-                                            variant='secondary'
-                                            className='text-xs'
-                                          >
-                                            {feature}
-                                          </Badge>
-                                        ))}
-                                      </div>
-                                    ) : (
-                                      String(
-                                        bike[
-                                          spec.key as keyof ComparisonBike
-                                        ] || ""
-                                      )
-                                    )}
-                                  </div>
-
-                                  {/* Show indicator for numeric specs */}
-                                  {["price", "cc", "hp", "kg"].includes(
-                                    spec.type
-                                  ) && (
-                                    <div className='ml-2'>
-                                      {getComparisonIndicator(
-                                        bike,
-                                        spec.key as keyof ComparisonBike,
-                                        spec.isHigherBetter !== false
-                                      )}
-                                    </div>
-                                  )}
-                                </>
-                              ) : (
-                                <span className='text-gray-400'>-</span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
+          {/* Specifications Comparison */}
+          {selectedBikes.some((bike) => bike !== null) && (
+            <>
+              {comparisonSections.map((section) => (
+                <div
+                  key={section.id}
+                  className='border rounded-lg overflow-hidden'
+                >
+                  <div
+                    className='bg-gray-100 p-4 font-semibold flex justify-between items-center cursor-pointer'
+                    onClick={() =>
+                      toggleSection(section.id as keyof typeof expandedSections)
+                    }
+                  >
+                    <h3>{section.title}</h3>
+                    <div className='md:hidden'>
+                      {expandedSections[
+                        section.id as keyof typeof expandedSections
+                      ] ? (
+                        <ChevronUp className='h-4 w-4' />
+                      ) : (
+                        <ChevronDown className='h-4 w-4' />
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          ))}
+
+                  <div
+                    className={
+                      expandedSections[
+                        section.id as keyof typeof expandedSections
+                      ]
+                        ? "block"
+                        : "hidden md:block"
+                    }
+                  >
+                    {section.specs.map((spec) => (
+                      <div key={spec.key} className='border-t'>
+                        <div
+                          className={`grid ${
+                            viewport === "MOBILE"
+                              ? "grid-cols-1"
+                              : viewport === "TABLET"
+                              ? "grid-cols-3"
+                              : "grid-cols-4"
+                          }`}
+                        >
+                          <div className='p-4 font-medium bg-gray-50 md:hidden'>
+                            {spec.label}
+                          </div>
+
+                          {selectedBikes.map((bike, index) => (
+                            <div
+                              key={`${bike?.id || index}-${spec.key}`}
+                              className='p-4 border-t md:border-t-0 md:border-l flex items-center'
+                            >
+                              {index === 0 && (
+                                <div className='hidden md:block font-medium min-w-[120px]'>
+                                  {spec.label}
+                                </div>
+                              )}
+
+                              <div className='flex-1 flex justify-between items-center'>
+                                <div className='flex-1'>
+                                  {renderSpecValue(bike, spec)}
+                                </div>
+
+                                {["price", "cc", "hp", "kg"].includes(
+                                  spec.type
+                                ) && (
+                                  <div className='ml-2'>
+                                    {getComparisonIndicator(
+                                      bike,
+                                      spec.key as keyof ComparisonBike,
+                                      spec.isHigherBetter !== false
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
         </div>
       </div>
 
       <Footer />
     </main>
   );
+
+  // ===== HELPER FUNCTIONS =====
+
+  // Comparison utilities
+  function findBestValue(key: keyof ComparisonBike, isHigherBetter = true) {
+    const values = selectedBikes
+      .filter((bike): bike is ComparisonBike => bike !== null)
+      .map((bike) =>
+        typeof bike[key] === "number" ? (bike[key] as number) : 0
+      );
+
+    return values.length === 0
+      ? 0
+      : isHigherBetter
+      ? Math.max(...values)
+      : Math.min(...values);
+  }
+
+  function getComparisonIndicator(
+    bike: ComparisonBike | null,
+    key: keyof ComparisonBike,
+    isHigherBetter = true
+  ) {
+    if (!bike) return null;
+
+    const value = typeof bike[key] === "number" ? (bike[key] as number) : 0;
+    const bestValue = findBestValue(key, isHigherBetter);
+    const worstValue = findBestValue(key, !isHigherBetter);
+    const validBikes = selectedBikes.filter((b) => b !== null).length;
+
+    if (value === bestValue) {
+      return (
+        <span className='text-green-500 flex items-center' title='Best'>
+          <TrendingUp className='h-4 w-4' />
+        </span>
+      );
+    }
+    if (validBikes > 1 && value === worstValue) {
+      return (
+        <span className='text-red-500 flex items-center' title='Lowest'>
+          <TrendingDown className='h-4 w-4' />
+        </span>
+      );
+    }
+    return <Minus className='h-4 w-4 text-gray-300' />;
+  }
+
+  function renderSpecValue(bike: ComparisonBike | null, spec: any) {
+    if (!bike) return <span className='text-gray-400'>-</span>;
+
+    const value = bike[spec.key as keyof ComparisonBike];
+
+    switch (spec.type) {
+      case "price":
+        return typeof value === "number" ? formatCurrency(value) : "-";
+      case "cc":
+      case "hp":
+      case "kg":
+        return `${value || 0} ${spec.type}`;
+      case "features":
+        return (
+          <div className='flex flex-wrap gap-1'>
+            {((value as string[]) || []).map((feature, idx) => (
+              <Badge key={idx} variant='secondary' className='text-xs'>
+                {feature}
+              </Badge>
+            ))}
+          </div>
+        );
+      default:
+        return String(value || "");
+    }
+  }
+}
+
+function toast(_arg0: { title: string; description: string; variant: string }) {
+  throw new Error("Function not implemented.");
 }
