@@ -9,7 +9,6 @@ import BranchDetailPage from "./mainComponents/Branches/BranchDetailPage";
 import { ViewAllBikes } from "./mainComponents/BikeDetails/ViewAllBikes";
 import BikeDetailsPage from "./mainComponents/BikeDetails/BikeDetailsPage";
 import NotFoundPage from "./mainComponents/NotFoundPage";
-// import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
 
 import LoginBranchManager from "./mainComponents/Admin/LoginBranchManager";
 import LoginSuperAdmin from "./mainComponents/Admin/LoginSuperAdmin";
@@ -25,6 +24,7 @@ import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
 import AddScooty from "./mainComponents/Admin/Scooty/AddScooty";
 import AddBranch from "./mainComponents/Branches/AddBranch";
 import BranchManager from "./mainComponents/Branches/BranchManager";
+import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
 // import TestBike from "./mainComponents/TestBike";
 
 // Import Notification System
@@ -72,7 +72,7 @@ const App: React.FC = () => {
         {/* <Route path='/test' element={<TestBike />} /> */}
 
         {/* Compare Bike  */}
-        {/* <Route path='/compare' element={<CompareBike />} /> */}
+        <Route path='/compare' element={<CompareBike />} />
         {/* Not Found  */}
         <Route path='*' element={<NotFoundPage />} />
       </Routes>

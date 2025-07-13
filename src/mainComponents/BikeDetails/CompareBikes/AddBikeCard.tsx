@@ -1,4 +1,3 @@
-// AddBikeCard.tsx
 import { useState } from "react";
 import { Plus, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,16 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatCurrency } from "@/lib/formatters";
-
-interface Bike {
-  id: string;
-  modelName: string;
-  category: string;
-  price: number;
-  images?: string[];
-  engine?: string;
-  power?: number;
-}
+import { Bike } from "@/redux-store/slices/bikesSlice";
 
 interface AddBikeCardProps {
   onSelect: (bikeId: string) => void;
@@ -132,8 +122,8 @@ export function AddBikeCard({
               <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                 {filteredBikes.map((bike) => (
                   <div
-                    key={bike.id}
-                    onClick={() => handleBikeSelect(bike.id)}
+                    key={bike.id || bike._id}
+                    onClick={() => handleBikeSelect(bike.id || bike._id || "")}
                     className='border rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow hover:border-red-300'
                   >
                     <div className='aspect-video bg-gray-100 rounded-md mb-3 overflow-hidden'>
@@ -164,10 +154,22 @@ export function AddBikeCard({
 
                       {bike.engine && (
                         <div className='text-xs text-gray-600'>
-                          <span>{bike.engine}cc</span>
+                          <span>{bike.engine}</span>
                           {bike.power && <span> • {bike.power}hp</span>}
                         </div>
                       )}
+
+                      {/* Stock status */}
+                      <div className='flex items-center gap-2'>
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            bike.inStock ? "bg-green-500" : "bg-red-500"
+                          }`}
+                        />
+                        <span className='text-xs text-gray-600'>
+                          {bike.inStock ? "In Stock" : "Out of Stock"}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}

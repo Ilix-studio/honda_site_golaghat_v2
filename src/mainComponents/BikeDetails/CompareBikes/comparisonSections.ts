@@ -20,6 +20,8 @@ export const comparisonSections = [
         isHigherBetter: true,
       },
       { key: "power", label: "Power", type: "hp", isHigherBetter: true },
+      { key: "engine", label: "Engine Type", type: "text" },
+      { key: "transmission", label: "Transmission", type: "text" },
     ],
   },
   {
@@ -31,7 +33,19 @@ export const comparisonSections = [
   },
   {
     id: "features",
-    title: "Features",
-    specs: [{ key: "features", label: "Features", type: "features" }],
+    title: "Features & Colors",
+    specs: [
+      { key: "features", label: "Features", type: "features" },
+      { key: "colors", label: "Available Colors", type: "features" },
+    ],
+  },
+  {
+    id: "availability",
+    title: "Availability",
+    specs: [
+      { key: "inStock", label: "In Stock", type: "boolean" },
+      { key: "quantity", label: "Quantity", type: "number" },
+      { key: "branch", label: "Branch", type: "text" },
+    ],
   },
 ];

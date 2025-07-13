@@ -1,9 +1,7 @@
-// Updated CompareBike.tsx with improved handleBikeSelect
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
-  PlusCircle,
   ChevronLeft,
   ChevronDown,
   ChevronUp,
@@ -17,9 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-// If you have toast notifications
 
-import { AddBikeCard } from "./AddBikeCard";
 import { BikeComparisonCard } from "./BikeComparisonCard";
 import { Header } from "@/mainComponents/Header";
 import { formatCurrency } from "@/lib/formatters";
@@ -27,6 +23,7 @@ import { Footer } from "@/mainComponents/Footer";
 import { comparisonSections } from "./comparisonSections";
 import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
 import { Bike } from "@/redux-store/slices/bikesSlice";
+import { AddBikeCard } from "./AddBikeCard";
 
 const CATEGORIES = [
   "all",
@@ -68,6 +65,7 @@ export default function CompareBike() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Use proper conditional fetching with skipToken
   const {
     data: bikesResponse,
     isLoading,
@@ -78,16 +76,15 @@ export default function CompareBike() {
     (bike) => ({
       ...bike,
       name: bike.modelName,
-      engineSize: parseInt(bike.engine) || 0,
+      engineSize: parseInt(bike.engine?.match(/\d+/)?.[0] || "0") || 0,
       image: bike.images?.[0] || "/placeholder.svg",
     })
   );
 
   const maxBikes = getMaxBikes(viewport);
 
-  // ===== ENHANCED BIKE SELECTION HANDLERS =====
-
-  const handleBikeSelect = (bikeId: string, slotIndex: number) => {
+  // Enhanced handleBikeSelect function
+  const handleBikeSelect = (bikeId: string, slotIndex: number): boolean => {
     console.log("Selecting bike:", {
       bikeId,
       slotIndex,
@@ -97,31 +94,19 @@ export default function CompareBike() {
 
     // Validation
     if (!bikeId || bikeId === "add-bike") {
-      toast?.({
-        title: "Invalid Selection",
-        description: "Please select a valid motorcycle.",
-        variant: "destructive",
-      });
+      console.warn("Invalid bike selection");
       return false;
     }
 
     // Check for duplicates
     if (selectedBikeIds.includes(bikeId)) {
-      toast?.({
-        title: "Already Selected",
-        description: "This motorcycle is already in your comparison.",
-        variant: "destructive",
-      });
+      console.warn("Bike already selected");
       return false;
     }
 
     // Check slot index bounds
     if (slotIndex >= maxBikes) {
-      toast?.({
-        title: "Maximum Reached",
-        description: `You can only compare up to ${maxBikes} motorcycles on this device.`,
-        variant: "destructive",
-      });
+      console.warn("Maximum bikes reached");
       return false;
     }
 
@@ -134,11 +119,7 @@ export default function CompareBike() {
         if (newIds.length < maxBikes) {
           newIds.push(bikeId);
         } else {
-          toast?.({
-            title: "Comparison Full",
-            description: `Cannot add more than ${maxBikes} motorcycles.`,
-            variant: "destructive",
-          });
+          console.warn("Cannot add more bikes");
           return prev;
         }
       } else {
@@ -147,17 +128,6 @@ export default function CompareBike() {
       }
 
       console.log("New bike IDs:", newIds);
-
-      // Show success message
-      const selectedBike = allBikes.find((bike) => bike.id === bikeId);
-      if (selectedBike) {
-        toast?.({
-          title: "Motorcycle Added",
-          description: `${selectedBike.modelName} has been added to your comparison.`,
-          variant: "",
-        });
-      }
-
       return newIds;
     });
 
@@ -165,50 +135,12 @@ export default function CompareBike() {
   };
 
   const handleBikeRemove = (slotIndex: number) => {
-    const removedBike = allBikes.find(
-      (bike) => bike.id === selectedBikeIds[slotIndex]
-    );
-
     setSelectedBikeIds((prev) => prev.filter((_, i) => i !== slotIndex));
-
-    if (removedBike) {
-      toast?.({
-        title: "Motorcycle Removed",
-        description: `${removedBike.modelName} has been removed from comparison.`,
-        variant: "",
-      });
-    }
-  };
-
-  const addBike = () => {
-    if (selectedBikeIds.length < maxBikes) {
-      // This will trigger the UI to show an AddBikeCard in the next available slot
-      // The actual selection will be handled by handleBikeSelect
-    } else {
-      toast?.({
-        title: "Maximum Reached",
-        description: `You can only compare up to ${maxBikes} motorcycles.`,
-        variant: "destructive",
-      });
-    }
   };
 
   const clearAll = () => {
-    const count = selectedBikeIds.length;
     setSelectedBikeIds([]);
-
-    if (count > 0) {
-      toast?.({
-        title: "Comparison Cleared",
-        description: `Removed ${count} motorcycle${
-          count > 1 ? "s" : ""
-        } from comparison.`,
-        variant: "",
-      });
-    }
   };
-
-  // ===== EXISTING CODE CONTINUES =====
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -243,16 +175,7 @@ export default function CompareBike() {
         setViewport(newViewport);
         const newMaxBikes = getMaxBikes(newViewport);
         if (selectedBikeIds.length > newMaxBikes) {
-          const removedCount = selectedBikeIds.length - newMaxBikes;
           setSelectedBikeIds((prev) => prev.slice(0, newMaxBikes));
-
-          toast?.({
-            title: "Screen Size Changed",
-            description: `Removed ${removedCount} motorcycle${
-              removedCount > 1 ? "s" : ""
-            } due to smaller screen size.`,
-            variant: "destructive",
-          });
         }
       }
     };
@@ -290,7 +213,9 @@ export default function CompareBike() {
   );
 
   const selectedBikes = slots.map((id) =>
-    id === "add-bike" ? null : allBikes.find((bike) => bike.id === id) || null
+    id === "add-bike"
+      ? null
+      : allBikes.find((bike) => bike.id === id || bike._id === id) || null
   );
 
   const filteredBikes = allBikes.filter(
@@ -299,7 +224,7 @@ export default function CompareBike() {
       (searchQuery === "" ||
         bike.modelName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         bike.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      !selectedBikeIds.includes(bike.id) // Exclude already selected bikes
+      !selectedBikeIds.includes(bike.id || bike._id || "")
   );
 
   const toggleSection = (section: keyof typeof expandedSections) => {
@@ -309,8 +234,76 @@ export default function CompareBike() {
     }));
   };
 
-  // Rest of your comparison utilities (findBestValue, getComparisonIndicator, renderSpecValue)
-  // ... [Keep all your existing comparison logic here] ...
+  // Comparison utilities
+  const findBestValue = (key: keyof ComparisonBike, isHigherBetter = true) => {
+    const values = selectedBikes
+      .filter((bike): bike is ComparisonBike => bike !== null)
+      .map((bike) =>
+        typeof bike[key] === "number" ? (bike[key] as number) : 0
+      );
+
+    return values.length === 0
+      ? 0
+      : isHigherBetter
+      ? Math.max(...values)
+      : Math.min(...values);
+  };
+
+  const getComparisonIndicator = (
+    bike: ComparisonBike | null,
+    key: keyof ComparisonBike,
+    isHigherBetter = true
+  ) => {
+    if (!bike) return null;
+
+    const value = typeof bike[key] === "number" ? (bike[key] as number) : 0;
+    const bestValue = findBestValue(key, isHigherBetter);
+    const worstValue = findBestValue(key, !isHigherBetter);
+    const validBikes = selectedBikes.filter((b) => b !== null).length;
+
+    if (value === bestValue) {
+      return (
+        <span className='text-green-500 flex items-center' title='Best'>
+          <TrendingUp className='h-4 w-4' />
+        </span>
+      );
+    }
+    if (validBikes > 1 && value === worstValue) {
+      return (
+        <span className='text-red-500 flex items-center' title='Lowest'>
+          <TrendingDown className='h-4 w-4' />
+        </span>
+      );
+    }
+    return <Minus className='h-4 w-4 text-gray-300' />;
+  };
+
+  const renderSpecValue = (bike: ComparisonBike | null, spec: any) => {
+    if (!bike) return <span className='text-gray-400'>-</span>;
+
+    const value = bike[spec.key as keyof ComparisonBike];
+
+    switch (spec.type) {
+      case "price":
+        return typeof value === "number" ? formatCurrency(value) : "-";
+      case "cc":
+      case "hp":
+      case "kg":
+        return `${value || 0} ${spec.type}`;
+      case "features":
+        return (
+          <div className='flex flex-wrap gap-1'>
+            {((value as string[]) || []).map((feature, idx) => (
+              <Badge key={idx} variant='secondary' className='text-xs'>
+                {feature}
+              </Badge>
+            ))}
+          </div>
+        );
+      default:
+        return String(value || "");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -341,7 +334,6 @@ export default function CompareBike() {
     );
   }
 
-  const canAddMore = selectedBikeIds.length < maxBikes;
   const isEmpty = selectedBikeIds.length === 0;
 
   return (
@@ -396,17 +388,6 @@ export default function CompareBike() {
             <Share2 className='h-4 w-4' />
             Share
           </Button>
-
-          {canAddMore && (
-            <Button
-              onClick={addBike}
-              variant='outline'
-              className='flex items-center gap-2 ml-auto'
-            >
-              <PlusCircle className='h-4 w-4' />
-              Add Motorcycle
-            </Button>
-          )}
 
           {!isEmpty && (
             <Button
@@ -504,7 +485,9 @@ export default function CompareBike() {
 
                           {selectedBikes.map((bike, index) => (
                             <div
-                              key={`${bike?.id || index}-${spec.key}`}
+                              key={`${bike?.id || bike?._id || index}-${
+                                spec.key
+                              }`}
                               className='p-4 border-t md:border-t-0 md:border-l flex items-center'
                             >
                               {index === 0 && (
@@ -546,81 +529,4 @@ export default function CompareBike() {
       <Footer />
     </main>
   );
-
-  // ===== HELPER FUNCTIONS =====
-
-  // Comparison utilities
-  function findBestValue(key: keyof ComparisonBike, isHigherBetter = true) {
-    const values = selectedBikes
-      .filter((bike): bike is ComparisonBike => bike !== null)
-      .map((bike) =>
-        typeof bike[key] === "number" ? (bike[key] as number) : 0
-      );
-
-    return values.length === 0
-      ? 0
-      : isHigherBetter
-      ? Math.max(...values)
-      : Math.min(...values);
-  }
-
-  function getComparisonIndicator(
-    bike: ComparisonBike | null,
-    key: keyof ComparisonBike,
-    isHigherBetter = true
-  ) {
-    if (!bike) return null;
-
-    const value = typeof bike[key] === "number" ? (bike[key] as number) : 0;
-    const bestValue = findBestValue(key, isHigherBetter);
-    const worstValue = findBestValue(key, !isHigherBetter);
-    const validBikes = selectedBikes.filter((b) => b !== null).length;
-
-    if (value === bestValue) {
-      return (
-        <span className='text-green-500 flex items-center' title='Best'>
-          <TrendingUp className='h-4 w-4' />
-        </span>
-      );
-    }
-    if (validBikes > 1 && value === worstValue) {
-      return (
-        <span className='text-red-500 flex items-center' title='Lowest'>
-          <TrendingDown className='h-4 w-4' />
-        </span>
-      );
-    }
-    return <Minus className='h-4 w-4 text-gray-300' />;
-  }
-
-  function renderSpecValue(bike: ComparisonBike | null, spec: any) {
-    if (!bike) return <span className='text-gray-400'>-</span>;
-
-    const value = bike[spec.key as keyof ComparisonBike];
-
-    switch (spec.type) {
-      case "price":
-        return typeof value === "number" ? formatCurrency(value) : "-";
-      case "cc":
-      case "hp":
-      case "kg":
-        return `${value || 0} ${spec.type}`;
-      case "features":
-        return (
-          <div className='flex flex-wrap gap-1'>
-            {((value as string[]) || []).map((feature, idx) => (
-              <Badge key={idx} variant='secondary' className='text-xs'>
-                {feature}
-              </Badge>
-            ))}
-          </div>
-        );
-      default:
-        return String(value || "");
-    }
-  }
-}
-
-function toast(_arg0: { title: string; description: string; variant: string }) {
-  throw new Error("Function not implemented.");
 }

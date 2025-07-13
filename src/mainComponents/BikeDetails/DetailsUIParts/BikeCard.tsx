@@ -112,14 +112,14 @@ export function BikeCard({ bike }: BikeCardProps) {
                 {bike.inStock ? "Details" : "Out of Stock"}
               </Button>
             </Link>
-            {/* <Link
+            <Link
               to={`/compare?bikes=${bike._id || bike.id}`}
               className='flex-1'
             >
               <Button variant='outline' className='w-full'>
                 Compare
               </Button>
-            </Link> */}
+            </Link>
           </div>
         </CardContent>
       </Card>
