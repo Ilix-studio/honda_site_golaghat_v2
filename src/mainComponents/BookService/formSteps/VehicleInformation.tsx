@@ -1,5 +1,3 @@
-// src/components/service-booking/steps/VehicleInformation.tsx
-
 import { motion } from "framer-motion";
 import { Info } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
@@ -36,6 +34,8 @@ export const VehicleInformation = ({ form }: VehicleInformationProps) => {
     watch,
     setValue,
   } = form;
+
+  // Use watch to get reactive values instead of getValues
   const watchedValues = watch();
 
   // Get bikes data from API
@@ -66,7 +66,9 @@ export const VehicleInformation = ({ form }: VehicleInformationProps) => {
         <Label htmlFor='bikeModel'>Motorcycle Model</Label>
         <Select
           value={watchedValues.bikeModel}
-          onValueChange={(value) => setValue("bikeModel", value)}
+          onValueChange={(value) => {
+            setValue("bikeModel", value, { shouldValidate: true });
+          }}
           disabled={isLoading}
         >
           <SelectTrigger className={errors.bikeModel ? "border-red-500" : ""}>
@@ -79,7 +81,7 @@ export const VehicleInformation = ({ form }: VehicleInformationProps) => {
           <SelectContent>
             {bikeModels.map((bike: BikeModel) => (
               <SelectItem key={bike.id} value={bike.id}>
-                {bike.modelName || bike.name} ({bike.category})
+                {bike.modelName} ({bike.category})
               </SelectItem>
             ))}
             {!isLoading && bikeModels.length === 0 && (
@@ -170,8 +172,8 @@ export const VehicleInformation = ({ form }: VehicleInformationProps) => {
         </div>
       </div>
 
-      {/* Selected bike details */}
-      {watchedValues.bikeModel && (
+      {/* Selected bike details - NOW REACTIVE */}
+      {watchedValues.bikeModel && bikeModels.length > 0 && (
         <div className='p-4 bg-green-50 rounded-lg'>
           <h4 className='text-sm font-medium mb-2'>Selected Motorcycle:</h4>
           {(() => {
@@ -198,7 +200,11 @@ export const VehicleInformation = ({ form }: VehicleInformationProps) => {
                 </div>
               );
             }
-            return null;
+            return (
+              <p className='text-sm text-amber-600'>
+                Selected model not found in available options
+              </p>
+            );
           })()}
         </div>
       )}

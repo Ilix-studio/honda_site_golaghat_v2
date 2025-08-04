@@ -14,7 +14,7 @@ import {
 
 import { ServiceFormValues, serviceFormSchema } from "@/lib/form-schema";
 import { VehicleInformation } from "./formSteps/VehicleInformation";
-import { ServiceSelection } from "./formSteps/ServiceSelection";
+
 import { ScheduleService } from "./formSteps/ScheduleService";
 import { CustomerInformation } from "./formSteps/CustomerInformation";
 import { AdditionalInformation } from "./formSteps/AdditionalInformation";
@@ -34,6 +34,7 @@ import {
   resetServiceBookingForm,
 } from "../../redux-store/slices/formSlice";
 import { addNotification } from "../../redux-store/slices/uiSlice";
+import { ServiceSelection } from "./formSteps/ServiceSelection";
 
 export const BookServiceForm: React.FC = () => {
   const dispatch = useAppDispatch();
