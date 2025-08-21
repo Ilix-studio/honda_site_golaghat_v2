@@ -1,5 +1,5 @@
 import React from "react";
-import { Footer } from "../Footer";
+import { Footer } from "../Home/Footer";
 
 import { BookServiceForm } from "./BookServiceForm";
 import { Button } from "@/components/ui/button";

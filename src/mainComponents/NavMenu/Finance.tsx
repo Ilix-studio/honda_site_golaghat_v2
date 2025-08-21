@@ -25,8 +25,8 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
-import { Header } from "./Header";
-import { Footer } from "./Footer";
+import { Header } from "../Home/Header";
+import { Footer } from "../Home/Footer";
 import {
   useApplicationStatusCheck,
   useGetApprovedSimpleForm,

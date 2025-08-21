@@ -1,4 +1,4 @@
-import { Footer } from "../Footer";
+import { Footer } from "../Home/Footer";
 import { Header } from "../Header";
 import { motion } from "framer-motion";
 import { GetApprovedForm } from "./GetApprovedForm";

@@ -1,9 +1,10 @@
 import { JSX, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ContactSection } from "../ContactSection";
+
 import { branches, Branches } from "./TwoBranch";
-import { Footer } from "../Footer";
-import { Header } from "../Header";
+import { Footer } from "../../Home/Footer";
+import { Header } from "../../Home/Header";
+import { ContactSection } from "../../Home/ContactSection";
 
 // Define the BranchType interface locally or import from the correct location
 interface BranchType {

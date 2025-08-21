@@ -1,5 +1,5 @@
-import { Footer } from "../Footer";
-import { Header } from "../Header";
+import { Footer } from "../../Home/Footer";
+import { Header } from "../../Home/Header";
 import { Branches } from "./TwoBranch";
 
 export default function BranchesPage() {

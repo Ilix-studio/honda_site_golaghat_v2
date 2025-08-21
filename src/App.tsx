@@ -4,8 +4,8 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import BookServicePage from "./mainComponents/BookService/BookServicePage";
 import React, { useEffect } from "react";
 
-import BranchesPage from "./mainComponents/Branches/BranchesPage";
-import BranchDetailPage from "./mainComponents/Branches/BranchDetailPage";
+import BranchesPage from "./mainComponents/NavMenu/Branches/BranchesPage";
+import BranchDetailPage from "./mainComponents/NavMenu/Branches/BranchDetailPage";
 import { ViewAllBikes } from "./mainComponents/BikeDetails/ViewAllBikes";
 import BikeDetailsPage from "./mainComponents/BikeDetails/BikeDetailsPage";
 import NotFoundPage from "./mainComponents/NotFoundPage";
@@ -17,13 +17,13 @@ import AddBikes from "./mainComponents/Admin/Bikes/AddBikes";
 import EditBikes from "./mainComponents/Admin/Bikes/EditBikes";
 
 import EditScooty from "./mainComponents/Admin/Scooty/EditScooty";
-import Finance from "./mainComponents/Finance";
-import Contact from "./mainComponents/Contact";
+import Finance from "./mainComponents/NavMenu/Finance";
+import Contact from "./mainComponents/NavMenu/Contact";
 import SearchResults from "./mainComponents/Search/SearchResults";
 import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
 import AddScooty from "./mainComponents/Admin/Scooty/AddScooty";
-import AddBranch from "./mainComponents/Branches/AddBranch";
-import BranchManager from "./mainComponents/Branches/BranchManager";
+import AddBranch from "./mainComponents/NavMenu/Branches/AddBranch";
+import BranchManager from "./mainComponents/NavMenu/Branches/BranchManager";
 import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
 // import TestBike from "./mainComponents/TestBike";
 
@@ -49,6 +49,7 @@ const App: React.FC = () => {
         {/* Admin Routes */}
         <Route path='/admin/superlogin' element={<LoginSuperAdmin />} />
         <Route path='/admin/managerlogin' element={<LoginBranchManager />} />
+        {/* Customer Login  */}
         <Route path='/admin/dashboard' element={<AdminDashboard />} />
 
         {/* Add && Edit Bikes, scooty  */}
