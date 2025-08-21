@@ -17,13 +17,14 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { BikeComparisonCard } from "./BikeComparisonCard";
-import { Header } from "@/mainComponents/Header";
+
 import { formatCurrency } from "@/lib/formatters";
-import { Footer } from "@/mainComponents/Footer";
+import { Footer } from "@/mainComponents/Home/Footer";
 import { comparisonSections } from "./comparisonSections";
 import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
 import { Bike } from "@/redux-store/slices/bikesSlice";
 import { AddBikeCard } from "./AddBikeCard";
+import { Header } from "@/mainComponents/Home/Header";
 
 const CATEGORIES = [
   "all",

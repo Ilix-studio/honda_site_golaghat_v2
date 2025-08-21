@@ -4,8 +4,8 @@ import { useSearchParams } from "react-router-dom";
 import { Filter, Grid, List } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Header } from "../Header";
-import { Footer } from "../Footer";
+import { Header } from "../Home/Header";
+import { Footer } from "../Home/Footer";
 import { FilterSidebar } from "./DetailsUIParts/FilterSidebar";
 import { CategoryTabs } from "./DetailsUIParts/CategoryTabs";
 import { BikeCard } from "./DetailsUIParts/BikeCard";

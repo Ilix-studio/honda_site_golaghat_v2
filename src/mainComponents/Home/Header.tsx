@@ -2,23 +2,24 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Logo from "../assets/logo.png";
+import Logo from "../../assets/logo.png";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Link } from "react-router-dom";
-import { branches } from "./Branches/TwoBranch";
 
 // Redux
-import { useAppDispatch, useAppSelector } from "../hooks/redux";
+
 import {
   toggleMobileMenu,
   setMobileMenuOpen,
   selectIsMobileMenuOpen,
-} from "../redux-store/slices/uiSlice";
-import { selectComparisonBikes } from "../redux-store/slices/comparisonSlice";
+} from "@/redux-store/slices/uiSlice";
+import { selectComparisonBikes } from "@/redux-store/slices/comparisonSlice";
+import { useAppSelector, useAppDispatch } from "@/hooks/redux";
+import { branches } from "../NavMenu/Branches/TwoBranch";
 
 export function Header() {
   const dispatch = useAppDispatch();
@@ -77,6 +78,12 @@ export function Header() {
 
         <div className='hidden md:flex md:items-center md:gap-4'>
           <nav className='flex items-center gap-6'>
+            <Link
+              to='/'
+              className='text-sm font-medium hover:text-primary transition-colors'
+            >
+              Home
+            </Link>
             <Link
               to='/view-all'
               className='text-sm font-medium hover:text-primary transition-colors'
