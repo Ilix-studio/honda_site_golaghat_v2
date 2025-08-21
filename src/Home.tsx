@@ -10,15 +10,17 @@ import HondaCarousel2 from "./mainComponents/Home/HondaCarousel2";
 
 function Home() {
   return (
-    <main className='min-h-screen flex flex-col'>
+    <div className='min-h-screen flex flex-col'>
       <Header />
-      <HondaCarousel />
-      <HondaCarousel2 />
-      <EmiCalculator />
-      <FeaturesSection />
-      <ContactSection />
-      <Footer />
-    </main>
+      <main>
+        <HondaCarousel />
+        <HondaCarousel2 />
+        <EmiCalculator />
+        <FeaturesSection />
+        <ContactSection />
+        <Footer />
+      </main>
+    </div>
   );
 }
 

@@ -140,6 +140,11 @@ export function Header() {
               <Button>Book Service</Button>
             </Link>
           </div>
+          <div className='flex items-center gap-2'>
+            <Link to='/login'>
+              <Button>Login</Button>
+            </Link>
+          </div>
         </div>
 
         <button className='md:hidden' onClick={handleMobileMenuToggle}>
@@ -156,6 +161,13 @@ export function Header() {
           transition={{ duration: 0.3 }}
         >
           <nav className='flex flex-col p-4 space-y-4 border-t bg-background'>
+            <Link
+              to='/'
+              className='text-sm font-medium hover:text-primary transition-colors'
+              onClick={closeMobileMenu}
+            >
+              Home
+            </Link>
             <Link
               to='/view-all'
               className='text-sm font-medium hover:text-primary transition-colors'
@@ -220,6 +232,11 @@ export function Header() {
             <div className='flex flex-col gap-2'>
               <Link to='/book-service' onClick={closeMobileMenu}>
                 <Button className='w-full'>Book Service</Button>
+              </Link>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <Link to='/login' onClick={closeMobileMenu}>
+                <Button className='w-full'>Login</Button>
               </Link>
             </div>
           </nav>

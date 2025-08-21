@@ -25,6 +25,7 @@ import AddScooty from "./mainComponents/Admin/Scooty/AddScooty";
 import AddBranch from "./mainComponents/NavMenu/Branches/AddBranch";
 import BranchManager from "./mainComponents/NavMenu/Branches/BranchManager";
 import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
+import UserLogin from "./mainComponents/CustomerSystem/UserLogin";
 // import TestBike from "./mainComponents/TestBike";
 
 // Import Notification System
@@ -46,10 +47,13 @@ const App: React.FC = () => {
         <Route path='/book-service' element={<BookServicePage />} />
         <Route path='/search' element={<SearchResults />} />
 
+        {/* Customer Login  */}
+        <Route path='/login' element={<UserLogin />} />
+
         {/* Admin Routes */}
         <Route path='/admin/superlogin' element={<LoginSuperAdmin />} />
         <Route path='/admin/managerlogin' element={<LoginBranchManager />} />
-        {/* Customer Login  */}
+
         <Route path='/admin/dashboard' element={<AdminDashboard />} />
 
         {/* Add && Edit Bikes, scooty  */}
