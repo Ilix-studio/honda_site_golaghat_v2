@@ -1,0 +1,394 @@
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+import { Phone, ShieldCheck, Loader2, ArrowRight, User } from "lucide-react";
+// import { auth } from "../firebase";
+// import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+
+interface CustomerSignUpProps {
+  onSignUpSuccess?: () => void;
+}
+
+const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
+  const [step, setStep] = useState<"phone" | "otp" | "details">("phone");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [otp, setOtp] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [otpTimer, setOtpTimer] = useState(0);
+  // const [confirmationResult, setConfirmationResult] = useState<any>(null);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (otpTimer > 0) {
+      interval = setInterval(() => {
+        setOtpTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [otpTimer]);
+
+  const formatPhoneNumber = (value: string) => {
+    const cleaned = value.replace(/\D/g, "");
+    return cleaned.slice(0, 10);
+  };
+
+  // const setupRecaptcha = () => {
+  // if (!window.recaptchaVerifier) {
+  //   window.recaptchaVerifier = new RecaptchaVerifier(
+  //     auth,
+  //     "recaptcha-container",
+  //     {
+  //       size: "invisible",
+  //       callback: () => {},
+  //     }
+  //   );
+  // }
+  // };
+
+  const handleSendOtp = async () => {
+    // if (phoneNumber.length !== 10) return;
+    // setIsLoading(true);
+    // try {
+    //   setupRecaptcha();
+    //   const appVerifier = window.recaptchaVerifier;
+    //   const formatNumber = `+91${phoneNumber}`;
+    //   const confirmation = await signInWithPhoneNumber(
+    //     auth,
+    //     formatNumber,
+    //     appVerifier
+    //   );
+    //   setConfirmationResult(confirmation);
+    //   setStep("otp");
+    //   setOtpTimer(60);
+    // } catch (error) {
+    //   console.error("Error sending OTP:", error);
+    // } finally {
+    //   setIsLoading(false);
+    // }
+  };
+
+  const handleVerifyOtp = async () => {
+    // if (otp.length !== 6 || !confirmationResult) return;
+
+    setIsLoading(true);
+    try {
+      // const result = await confirmationResult.confirm(otp);
+
+      // Check if user exists in backend
+      const response = await fetch("/api/customer/check-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: phoneNumber,
+          // firebaseUid: result.user.uid,
+        }),
+      });
+
+      const userData = await response.json();
+
+      if (userData.exists) {
+        // User exists, login successful
+        localStorage.setItem("customerToken", userData.token);
+        onSignUpSuccess?.();
+      } else {
+        // New user, show details form
+        setStep("details");
+      }
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCompleteRegistration = async () => {
+    if (!name.trim()) return;
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/customer/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: phoneNumber,
+          name: name.trim(),
+          email: email.trim() || undefined,
+          address: address.trim() || undefined,
+          // firebaseUid: auth.currentUser?.uid,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("customerToken", data.token);
+        onSignUpSuccess?.();
+      }
+    } catch (error) {
+      console.error("Error completing registration:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className='min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4'>
+      <div id='recaptcha-container'></div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className='w-full max-w-md'
+      >
+        <Card className='shadow-xl border-0 bg-white/80 backdrop-blur-sm'>
+          <CardHeader className='space-y-1 pb-6'>
+            <div className='flex items-center justify-center mb-4'>
+              <div className='w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center'>
+                {step === "details" ? (
+                  <User className='h-6 w-6 text-white' />
+                ) : (
+                  <ShieldCheck className='h-6 w-6 text-white' />
+                )}
+              </div>
+            </div>
+            <CardTitle className='text-2xl font-bold text-center text-gray-900'>
+              {step === "phone" && "Welcome"}
+              {step === "otp" && "Verify OTP"}
+              {step === "details" && "Complete Setup"}
+            </CardTitle>
+            <p className='text-center text-gray-600 text-sm'>
+              {step === "phone" && "Sign up or sign in to continue"}
+              {step === "otp" && "Enter the code sent to your phone"}
+              {step === "details" && "Tell us a bit about yourself"}
+            </p>
+          </CardHeader>
+
+          <CardContent className='space-y-6'>
+            {/* Phone Number Step */}
+            {step === "phone" && (
+              <div className='space-y-4'>
+                <div className='space-y-2'>
+                  <Label
+                    htmlFor='phone'
+                    className='text-sm font-medium text-gray-700'
+                  >
+                    Phone Number
+                  </Label>
+                  <div className='relative'>
+                    <Phone className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
+                    <Input
+                      id='phone'
+                      type='tel'
+                      placeholder='Enter Mobile Number'
+                      value={phoneNumber}
+                      onChange={(e) =>
+                        setPhoneNumber(formatPhoneNumber(e.target.value))
+                      }
+                      className='pl-10 h-12 text-base'
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleSendOtp}
+                  disabled={phoneNumber.length !== 10 || isLoading}
+                  className='w-full h-12 bg-red-600 hover:bg-red-700 text-white font-medium'
+                >
+                  {isLoading ? (
+                    <Loader2 className='h-4 w-4 animate-spin mr-2' />
+                  ) : (
+                    <ArrowRight className='h-4 w-4 mr-2' />
+                  )}
+                  Send OTP
+                </Button>
+              </div>
+            )}
+
+            {/* OTP Verification Step */}
+            {step === "otp" && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className='space-y-4'
+              >
+                <div className='space-y-2'>
+                  <Label className='text-sm font-medium text-gray-700'>
+                    Enter OTP
+                  </Label>
+                  <div className='flex justify-center'>
+                    <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  <p className='text-xs text-gray-500 text-center'>
+                    OTP sent to +91 {phoneNumber}
+                  </p>
+                </div>
+
+                <Button
+                  onClick={handleVerifyOtp}
+                  disabled={otp.length !== 6 || isLoading}
+                  className='w-full h-12 bg-green-600 hover:bg-green-700 text-white font-medium'
+                >
+                  {isLoading ? (
+                    <Loader2 className='h-4 w-4 animate-spin mr-2' />
+                  ) : null}
+                  Verify & Continue
+                </Button>
+
+                <div className='flex items-center justify-between text-sm'>
+                  <button
+                    onClick={() => {
+                      setStep("phone");
+                      setOtp("");
+                      setOtpTimer(0);
+                    }}
+                    className='text-red-600 hover:text-red-700 font-medium'
+                  >
+                    Change Number
+                  </button>
+                  {otpTimer > 0 ? (
+                    <span className='text-gray-500'>Resend in {otpTimer}s</span>
+                  ) : (
+                    <button
+                      onClick={handleSendOtp}
+                      className='text-red-600 hover:text-red-700 font-medium'
+                    >
+                      Resend OTP
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* User Details Step */}
+            {step === "details" && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className='space-y-4'
+              >
+                <div className='space-y-2'>
+                  <Label
+                    htmlFor='name'
+                    className='text-sm font-medium text-gray-700'
+                  >
+                    Full Name *
+                  </Label>
+                  <Input
+                    id='name'
+                    type='text'
+                    placeholder='Enter your full name'
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className='h-12'
+                  />
+                </div>
+
+                <div className='space-y-2'>
+                  <Label
+                    htmlFor='email'
+                    className='text-sm font-medium text-gray-700'
+                  >
+                    Email (Optional)
+                  </Label>
+                  <Input
+                    id='email'
+                    type='email'
+                    placeholder='Enter your email'
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className='h-12'
+                  />
+                </div>
+
+                <div className='space-y-2'>
+                  <Label
+                    htmlFor='address'
+                    className='text-sm font-medium text-gray-700'
+                  >
+                    Address (Optional)
+                  </Label>
+                  <Input
+                    id='address'
+                    type='text'
+                    placeholder='Enter your address'
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className='h-12'
+                  />
+                </div>
+
+                <Button
+                  onClick={handleCompleteRegistration}
+                  disabled={!name.trim() || isLoading}
+                  className='w-full h-12 bg-red-600 hover:bg-red-700 text-white font-medium'
+                >
+                  {isLoading ? (
+                    <Loader2 className='h-4 w-4 animate-spin mr-2' />
+                  ) : null}
+                  Complete Registration
+                </Button>
+              </motion.div>
+            )}
+
+            {/* Terms */}
+            <div className='text-center'>
+              <p className='text-xs text-gray-500'>
+                By continuing, you agree to our{" "}
+                <a
+                  href='#'
+                  className='text-red-600 hover:text-red-700 underline'
+                >
+                  Terms of Service
+                </a>{" "}
+                and{" "}
+                <a
+                  href='#'
+                  className='text-red-600 hover:text-red-700 underline'
+                >
+                  Privacy Policy
+                </a>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className='mt-6 text-center'
+        >
+          <p className='text-sm text-gray-600'>
+            Need help?{" "}
+            <a href='#' className='text-red-600 hover:text-red-700 font-medium'>
+              Contact Support
+            </a>
+          </p>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default CustomerSignUp;

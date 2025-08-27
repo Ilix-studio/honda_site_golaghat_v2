@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Menu, X, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Logo from "../../assets/logo.png";
+// import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -11,7 +10,6 @@ import {
 import { Link } from "react-router-dom";
 
 // Redux
-
 import {
   toggleMobileMenu,
   setMobileMenuOpen,
@@ -54,26 +52,16 @@ export function Header() {
       transition={{ duration: 0.5 }}
     >
       <div className='container flex items-center justify-between h-16 px-4 md:px-6'>
-        <Link
-          to='/'
-          className='flex items-center gap-2'
-          onClick={closeMobileMenu}
-        >
+        <Link to='/' className='flex items-center' onClick={closeMobileMenu}>
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5 }}
+            className='text-3xl md:text-1xl lg:text-3xl font-bold bg-gradient-to-r from-red-600 via-red-700 to-red-800 bg-clip-text text-transparent hover:from-red-500 hover:via-red-600 hover:to-red-700 transition-all duration-300'
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            whileHover={{ scale: 1.02 }}
           >
-            <img src={Logo} alt='Honda Logo' width={60} height={40} />
+            <span className='font-black tracking-tight'>Tsangpool Honda</span>
           </motion.div>
-          <motion.span
-            className='text-xl font-bold'
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-          >
-            Tsangpool Honda
-          </motion.span>
         </Link>
 
         <div className='hidden md:flex md:items-center md:gap-4'>
@@ -135,16 +123,12 @@ export function Header() {
               Contact
             </Link>
           </nav>
-          <div className='flex items-center gap-2'>
+          {/* <div className='flex items-center gap-2'>
             <Link to='/book-service'>
               <Button>Book Service</Button>
             </Link>
-          </div>
-          <div className='flex items-center gap-2'>
-            <Link to='/login'>
-              <Button>Login</Button>
-            </Link>
-          </div>
+          </div> */}
+          {/* Authorize user like customer can see  */}
         </div>
 
         <button className='md:hidden' onClick={handleMobileMenuToggle}>
@@ -229,16 +213,11 @@ export function Header() {
               </Link>
             )}
 
-            <div className='flex flex-col gap-2'>
+            {/* <div className='flex flex-col gap-2'>
               <Link to='/book-service' onClick={closeMobileMenu}>
                 <Button className='w-full'>Book Service</Button>
               </Link>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Link to='/login' onClick={closeMobileMenu}>
-                <Button className='w-full'>Login</Button>
-              </Link>
-            </div>
+            </div> */}
           </nav>
         </motion.div>
       )}
