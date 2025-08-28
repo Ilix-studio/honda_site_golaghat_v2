@@ -27,6 +27,7 @@ import BranchManager from "./mainComponents/NavMenu/Branches/BranchManager";
 import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
 import CustomerLogin from "./mainComponents/CustomerSystem/CustomerLogin";
 import CustomerSignUp from "./mainComponents/CustomerSystem/CustomerSignUp";
+import CustomerDash from "./mainComponents/CustomerSystem/CustomerDash";
 
 // import TestBike from "./mainComponents/TestBike";
 
@@ -75,6 +76,7 @@ const App: React.FC = () => {
         {/* Customer Login  */}
         <Route path='/customer-sign-up' element={<CustomerSignUp />} />
         <Route path='/customer-login' element={<CustomerLogin />} />
+        <Route path='/customer-dash' element={<CustomerDash />} />
 
         {/* Compare Bike  */}
         <Route path='/compare' element={<CompareBike />} />
