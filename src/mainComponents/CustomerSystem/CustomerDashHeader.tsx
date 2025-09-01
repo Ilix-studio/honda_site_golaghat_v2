@@ -95,7 +95,7 @@ export function CustomerDashHeader() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant='ghost'
-                  className='relative h-10 w-10 rounded-full'
+                  className='relative h-10 w-10 rounded-full bg-gray-200'
                 >
                   <User2Icon />
                 </Button>
@@ -104,10 +104,10 @@ export function CustomerDashHeader() {
                 <DropdownMenuLabel className='font-normal'>
                   <div className='flex flex-col space-y-1'>
                     <p className='text-sm font-medium leading-none'>
-                      Rajesh Kumar
+                      Ilix Hazarika
                     </p>
                     <p className='text-xs leading-none text-muted-foreground'>
-                      rajesh.kumar@email.com
+                      ilixHazarika@email.com
                     </p>
                   </div>
                 </DropdownMenuLabel>

@@ -10,14 +10,50 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Phone, ShieldCheck, Loader2, ArrowRight, User } from "lucide-react";
-// import { auth } from "../firebase";
-// import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { auth } from "../../lib/firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+
+// Redux imports
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+
+import { addNotification } from "@/redux-store/slices/uiSlice";
+import {
+  clearError,
+  otpVerified,
+  profileCompleted,
+  registrationStarted,
+  selectCustomerAuth,
+} from "@/redux-store/slices/customer/customerAuthSlice";
+import {
+  useCreateProfileMutation,
+  useRegisterCustomerMutation,
+  useResendOTPMutation,
+  useVerifyOTPMutation,
+} from "@/redux-store/services/customer/customerApi";
+import { setError } from "@/redux-store/slices/authSlice";
 
 interface CustomerSignUpProps {
   onSignUpSuccess?: () => void;
 }
 
+// Extend window type for recaptcha
+declare global {
+  interface Window {
+    recaptchaVerifier: any;
+  }
+}
+
 const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
+  const dispatch = useAppDispatch();
+  const { error } = useAppSelector(selectCustomerAuth);
+
+  // RTK Query mutations
+  const [registerCustomer] = useRegisterCustomerMutation();
+  const [verifyOTP] = useVerifyOTPMutation();
+  const [resendOTP] = useResendOTPMutation();
+  const [createProfile] = useCreateProfileMutation();
+
+  // Component state
   const [step, setStep] = useState<"phone" | "otp" | "details">("phone");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
@@ -26,8 +62,9 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
   const [address, setAddress] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [otpTimer, setOtpTimer] = useState(0);
-  // const [confirmationResult, setConfirmationResult] = useState<any>(null);
+  const [confirmationResult, setConfirmationResult] = useState<any>(null);
 
+  // OTP Timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (otpTimer > 0) {
@@ -38,77 +75,146 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
     return () => clearInterval(interval);
   }, [otpTimer]);
 
+  // Clear errors when step changes
+  useEffect(() => {
+    dispatch(clearError());
+  }, [step, dispatch]);
+
   const formatPhoneNumber = (value: string) => {
     const cleaned = value.replace(/\D/g, "");
     return cleaned.slice(0, 10);
   };
 
-  // const setupRecaptcha = () => {
-  // if (!window.recaptchaVerifier) {
-  //   window.recaptchaVerifier = new RecaptchaVerifier(
-  //     auth,
-  //     "recaptcha-container",
-  //     {
-  //       size: "invisible",
-  //       callback: () => {},
-  //     }
-  //   );
-  // }
-  // };
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        "recaptcha-container",
+        {
+          size: "invisible",
+          callback: () => {},
+        }
+      );
+    }
+  };
 
   const handleSendOtp = async () => {
-    // if (phoneNumber.length !== 10) return;
-    // setIsLoading(true);
-    // try {
-    //   setupRecaptcha();
-    //   const appVerifier = window.recaptchaVerifier;
-    //   const formatNumber = `+91${phoneNumber}`;
-    //   const confirmation = await signInWithPhoneNumber(
-    //     auth,
-    //     formatNumber,
-    //     appVerifier
-    //   );
-    //   setConfirmationResult(confirmation);
-    //   setStep("otp");
-    //   setOtpTimer(60);
-    // } catch (error) {
-    //   console.error("Error sending OTP:", error);
-    // } finally {
-    //   setIsLoading(false);
-    // }
+    if (phoneNumber.length !== 10) return;
+
+    setIsLoading(true);
+    dispatch(registrationStarted());
+
+    try {
+      // Register customer in backend
+      await registerCustomer({ phoneNumber }).unwrap();
+
+      // Setup Firebase and send OTP
+      setupRecaptcha();
+      const appVerifier = window.recaptchaVerifier;
+      const formatNumber = `+91${phoneNumber}`;
+      const confirmation = await signInWithPhoneNumber(
+        auth,
+        formatNumber,
+        appVerifier
+      );
+
+      setConfirmationResult(confirmation);
+      setStep("otp");
+      setOtpTimer(60);
+
+      dispatch(
+        addNotification({
+          type: "success",
+          message: "OTP sent successfully!",
+        })
+      );
+    } catch (error: any) {
+      const errorMessage = error?.data?.message || "Failed to send OTP";
+      dispatch(setError(errorMessage));
+      dispatch(
+        addNotification({
+          type: "error",
+          message: errorMessage,
+        })
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleVerifyOtp = async () => {
-    // if (otp.length !== 6 || !confirmationResult) return;
+    if (otp.length !== 6 || !confirmationResult) return;
 
     setIsLoading(true);
+
     try {
-      // const result = await confirmationResult.confirm(otp);
+      // Verify OTP with Firebase
+      const result = await confirmationResult.confirm(otp);
+      const idToken = await result.user.getIdToken();
 
-      // Check if user exists in backend
-      const response = await fetch("/api/customer/check-user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone: phoneNumber,
-          // firebaseUid: result.user.uid,
-        }),
-      });
+      // Verify OTP with backend
+      const response = await verifyOTP({
+        phoneNumber,
+        idToken,
+      }).unwrap();
 
-      const userData = await response.json();
+      dispatch(
+        otpVerified({
+          customer: response.data.customer!,
+          firebaseToken: idToken,
+          needsProfile: response.data.needsProfile || false,
+        })
+      );
 
-      if (userData.exists) {
-        // User exists, login successful
-        localStorage.setItem("customerToken", userData.token);
-        onSignUpSuccess?.();
-      } else {
-        // New user, show details form
+      if (response.data.needsProfile) {
         setStep("details");
+        dispatch(
+          addNotification({
+            type: "info",
+            message: "Please complete your profile",
+          })
+        );
+      } else {
+        dispatch(
+          addNotification({
+            type: "success",
+            message: "Login successful!",
+          })
+        );
+        onSignUpSuccess?.();
       }
-    } catch (error) {
-      console.error("Error verifying OTP:", error);
+    } catch (error: any) {
+      const errorMessage = error?.data?.message || "Invalid OTP";
+      dispatch(setError(errorMessage));
+      dispatch(
+        addNotification({
+          type: "error",
+          message: errorMessage,
+        })
+      );
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    try {
+      await resendOTP({ phoneNumber }).unwrap();
+      setOtpTimer(60);
+
+      dispatch(
+        addNotification({
+          type: "success",
+          message: "OTP resent successfully!",
+        })
+      );
+    } catch (error: any) {
+      dispatch(
+        addNotification({
+          type: "error",
+          message: error?.data?.message || "Failed to resend OTP",
+        })
+      );
     }
   };
 
@@ -116,26 +222,44 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
     if (!name.trim()) return;
 
     setIsLoading(true);
-    try {
-      const response = await fetch("/api/customer/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone: phoneNumber,
-          name: name.trim(),
-          email: email.trim() || undefined,
-          address: address.trim() || undefined,
-          // firebaseUid: auth.currentUser?.uid,
-        }),
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem("customerToken", data.token);
-        onSignUpSuccess?.();
-      }
-    } catch (error) {
-      console.error("Error completing registration:", error);
+    try {
+      // Split name into first and last name
+      const nameParts = name.trim().split(" ");
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(" ") || firstName;
+
+      const profileData = {
+        firstName,
+        lastName,
+        email: email.trim() || undefined,
+        village: address.trim() || "Not specified",
+        postOffice: "Not specified",
+        policeStation: "Not specified",
+        district: "Not specified",
+        state: "Not specified",
+      };
+
+      const response = await createProfile(profileData).unwrap();
+
+      dispatch(profileCompleted(response.data.customer!));
+      dispatch(
+        addNotification({
+          type: "success",
+          message: "Profile completed successfully!",
+        })
+      );
+
+      onSignUpSuccess?.();
+    } catch (error: any) {
+      const errorMessage = error?.data?.message || "Failed to create profile";
+      dispatch(setError(errorMessage));
+      dispatch(
+        addNotification({
+          type: "error",
+          message: errorMessage,
+        })
+      );
     } finally {
       setIsLoading(false);
     }
@@ -172,6 +296,13 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
               {step === "otp" && "Enter the code sent to your phone"}
               {step === "details" && "Tell us a bit about yourself"}
             </p>
+
+            {/* Error Display */}
+            {error && (
+              <div className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm'>
+                {error}
+              </div>
+            )}
           </CardHeader>
 
           <CardContent className='space-y-6'>
@@ -270,7 +401,7 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
                     <span className='text-gray-500'>Resend in {otpTimer}s</span>
                   ) : (
                     <button
-                      onClick={handleSendOtp}
+                      onClick={handleResendOtp}
                       className='text-red-600 hover:text-red-700 font-medium'
                     >
                       Resend OTP
@@ -301,6 +432,7 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className='h-12'
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -318,6 +450,7 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className='h-12'
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -335,6 +468,7 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     className='h-12'
+                    disabled={isLoading}
                   />
                 </div>
 
