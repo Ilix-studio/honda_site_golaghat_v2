@@ -23,6 +23,8 @@ import comparisonReducer from "./slices/comparisonSlice";
 import uiReducer from "./slices/uiSlice";
 import formReducer from "./slices/formSlice";
 import getApprovedReducer from "./slices/getApprovedSlice";
+//new
+import customerAuthReducer from "./slices/customer/customerAuthSlice";
 
 // Import API services
 import { adminAuthApi } from "./services/adminApi";
@@ -32,6 +34,9 @@ import { branchApi } from "./services/branchApi";
 import { staffApi } from "./services/staffApi";
 import { branchManagerApi } from "./services/branchManagerApi";
 import { getApprovedApi } from "./services/getApprovedApi";
+//
+import { customerApi } from "./services/customer/customerApi";
+import { customerDashboardApi } from "./services/customer/customerDashApi";
 
 // Create IndexedDB storage for redux-persist
 const idbStorage = createIdbStorage("honda-golaghat-app-madebyilix");
@@ -41,7 +46,7 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage: idbStorage,
-  whitelist: ["auth", "comparison", "ui", "getApproved"],
+  whitelist: ["auth", "customerAuth", "comparison", "ui", "getApproved"],
   blacklist: [
     "adminAuthApi",
     "bikesApi",
@@ -62,6 +67,8 @@ const rootReducer = combineReducers({
   ui: uiReducer,
   form: formReducer,
   getApproved: getApprovedReducer,
+  //update
+  customerAuth: customerAuthReducer,
   // API services
   [adminAuthApi.reducerPath]: adminAuthApi.reducer,
   [bikesApi.reducerPath]: bikesApi.reducer,
@@ -70,6 +77,9 @@ const rootReducer = combineReducers({
   [staffApi.reducerPath]: staffApi.reducer,
   [branchManagerApi.reducerPath]: branchManagerApi.reducer,
   [getApprovedApi.reducerPath]: getApprovedApi.reducer,
+  //new
+  [customerApi.reducerPath]: customerApi.reducer,
+  [customerDashboardApi.reducerPath]: customerDashboardApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -90,7 +100,9 @@ export const store = configureStore({
       branchApi.middleware,
       staffApi.middleware,
       branchManagerApi.middleware,
-      getApprovedApi.middleware
+      getApprovedApi.middleware,
+      customerApi.middleware,
+      customerDashboardApi.middleware
     ),
 });
 

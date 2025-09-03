@@ -25,6 +25,10 @@ import AddScooty from "./mainComponents/Admin/Scooty/AddScooty";
 import AddBranch from "./mainComponents/NavMenu/Branches/AddBranch";
 import BranchManager from "./mainComponents/NavMenu/Branches/BranchManager";
 import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
+import CustomerLogin from "./mainComponents/CustomerSystem/CustomerLogin";
+import CustomerSignUp from "./mainComponents/CustomerSystem/CustomerSignUp";
+import CustomerDash from "./mainComponents/CustomerSystem/CustomerDash";
+
 // import TestBike from "./mainComponents/TestBike";
 
 // Import Notification System
@@ -49,7 +53,6 @@ const App: React.FC = () => {
         {/* Admin Routes */}
         <Route path='/admin/superlogin' element={<LoginSuperAdmin />} />
         <Route path='/admin/managerlogin' element={<LoginBranchManager />} />
-        {/* Customer Login  */}
         <Route path='/admin/dashboard' element={<AdminDashboard />} />
 
         {/* Add && Edit Bikes, scooty  */}
@@ -70,7 +73,10 @@ const App: React.FC = () => {
         <Route path='/view-all' element={<ViewAllBikes />} />
         <Route path='/bikes/:bikeId' element={<BikeDetailsPage />} />
 
-        {/* <Route path='/test' element={<TestBike />} /> */}
+        {/* Customer Login  */}
+        <Route path='/customer-sign-up' element={<CustomerSignUp />} />
+        <Route path='/customer-login' element={<CustomerLogin />} />
+        <Route path='/customer-dash' element={<CustomerDash />} />
 
         {/* Compare Bike  */}
         <Route path='/compare' element={<CompareBike />} />
