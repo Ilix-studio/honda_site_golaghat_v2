@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,113 +9,105 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { Phone, ShieldCheck, Loader2, ArrowRight, User } from "lucide-react";
+import { Phone, ShieldCheck, Loader2 } from "lucide-react";
 import { auth } from "../../lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-
-// Redux imports
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
-
 import { addNotification } from "@/redux-store/slices/uiSlice";
 import {
   clearError,
-  otpVerified,
-  profileCompleted,
+  loginSuccess,
   registrationStarted,
   selectCustomerAuth,
 } from "@/redux-store/slices/customer/customerAuthSlice";
-import {
-  useCreateProfileMutation,
-  useRegisterCustomerMutation,
-  useResendOTPMutation,
-  useVerifyOTPMutation,
-} from "@/redux-store/services/customer/customerApi";
 import { setError } from "@/redux-store/slices/authSlice";
 
 interface CustomerSignUpProps {
   onSignUpSuccess?: () => void;
 }
 
-// Extend window type for recaptcha
-declare global {
-  interface Window {
-    recaptchaVerifier: any;
-  }
-}
-
 const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
   const dispatch = useAppDispatch();
   const { error } = useAppSelector(selectCustomerAuth);
 
-  // RTK Query mutations
-  const [registerCustomer] = useRegisterCustomerMutation();
-  const [verifyOTP] = useVerifyOTPMutation();
-  const [resendOTP] = useResendOTPMutation();
-  const [createProfile] = useCreateProfileMutation();
-
-  // Component state
-  const [step, setStep] = useState<"phone" | "otp" | "details">("phone");
+  const recaptchaRef = useRef<any>(null);
+  const [step, setStep] = useState<"phone" | "otp">("phone");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [otpTimer, setOtpTimer] = useState(0);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
 
-  // OTP Timer effect
+  // Initialize reCAPTCHA once on mount
+  useEffect(() => {
+    const initRecaptcha = () => {
+      try {
+        if (!recaptchaRef.current) {
+          recaptchaRef.current = new RecaptchaVerifier(
+            auth,
+            "recaptcha-container",
+            {
+              size: "invisible",
+              callback: () => console.log("Recaptcha solved"),
+              "expired-callback": () => console.warn("Recaptcha expired"),
+            }
+          );
+        }
+      } catch (error) {
+        console.error("Recaptcha setup error:", error);
+      }
+    };
+
+    initRecaptcha();
+
+    return () => {
+      if (recaptchaRef.current) {
+        recaptchaRef.current.clear();
+        recaptchaRef.current = null;
+      }
+    };
+  }, []);
+
+  // OTP Timer
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (otpTimer > 0) {
-      interval = setInterval(() => {
-        setOtpTimer((prev) => prev - 1);
-      }, 1000);
+      interval = setInterval(() => setOtpTimer((prev) => prev - 1), 1000);
     }
     return () => clearInterval(interval);
   }, [otpTimer]);
 
-  // Clear errors when step changes
   useEffect(() => {
     dispatch(clearError());
   }, [step, dispatch]);
 
   const formatPhoneNumber = (value: string) => {
-    const cleaned = value.replace(/\D/g, "");
-    return cleaned.slice(0, 10);
-  };
-
-  const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(
-        auth,
-        "recaptcha-container",
-        {
-          size: "invisible",
-          callback: () => {},
-        }
-      );
-    }
+    return value.replace(/\D/g, "").slice(0, 10);
   };
 
   const handleSendOtp = async () => {
-    if (phoneNumber.length !== 10) return;
+    if (phoneNumber.length !== 10) {
+      dispatch(
+        addNotification({
+          type: "error",
+          message: "Please enter a valid 10-digit phone number",
+        })
+      );
+      return;
+    }
 
     setIsLoading(true);
     dispatch(registrationStarted());
 
     try {
-      // Register customer in backend
-      await registerCustomer({ phoneNumber }).unwrap();
+      if (!recaptchaRef.current) {
+        throw new Error("Recaptcha not initialized");
+      }
 
-      // Setup Firebase and send OTP
-      setupRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
-      const formatNumber = `+91${phoneNumber}`;
       const confirmation = await signInWithPhoneNumber(
         auth,
-        formatNumber,
-        appVerifier
+        `+91${phoneNumber}`,
+        recaptchaRef.current
       );
 
       setConfirmationResult(confirmation);
@@ -125,18 +117,31 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
       dispatch(
         addNotification({
           type: "success",
-          message: "OTP sent successfully!",
+          message: `OTP sent to +91${phoneNumber}`,
         })
       );
     } catch (error: any) {
-      const errorMessage = error?.data?.message || "Failed to send OTP";
+      console.error("OTP sending error:", error);
+
+      let errorMessage = "Failed to send OTP";
+      if (error.code) {
+        switch (error.code) {
+          case "auth/invalid-phone-number":
+            errorMessage = "Invalid phone number format";
+            break;
+          case "auth/too-many-requests":
+            errorMessage = "Too many requests. Try again later";
+            break;
+          case "auth/quota-exceeded":
+            errorMessage = "SMS quota exceeded. Try tomorrow";
+            break;
+          default:
+            errorMessage = error.message || errorMessage;
+        }
+      }
+
       dispatch(setError(errorMessage));
-      dispatch(
-        addNotification({
-          type: "error",
-          message: errorMessage,
-        })
-      );
+      dispatch(addNotification({ type: "error", message: errorMessage }));
     } finally {
       setIsLoading(false);
     }
@@ -148,121 +153,45 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
     setIsLoading(true);
 
     try {
-      // Verify OTP with Firebase
       const result = await confirmationResult.confirm(otp);
-      const idToken = await result.user.getIdToken();
+      const firebaseUser = result.user;
+      const idToken = await firebaseUser.getIdToken();
 
-      // Verify OTP with backend
-      const response = await verifyOTP({
-        phoneNumber,
-        idToken,
-      }).unwrap();
-
+      // Save to store
       dispatch(
-        otpVerified({
-          customer: response.data.customer!,
+        loginSuccess({
+          customer: {
+            id: firebaseUser.uid,
+            phoneNumber:
+              firebaseUser.phoneNumber?.replace("+91", "") || phoneNumber,
+            firebaseUid: firebaseUser.uid,
+            isVerified: true,
+          },
           firebaseToken: idToken,
-          needsProfile: response.data.needsProfile || false,
         })
       );
 
-      if (response.data.needsProfile) {
-        setStep("details");
-        dispatch(
-          addNotification({
-            type: "info",
-            message: "Please complete your profile",
-          })
-        );
-      } else {
-        dispatch(
-          addNotification({
-            type: "success",
-            message: "Login successful!",
-          })
-        );
-        onSignUpSuccess?.();
-      }
-    } catch (error: any) {
-      const errorMessage = error?.data?.message || "Invalid OTP";
-      dispatch(setError(errorMessage));
       dispatch(
         addNotification({
-          type: "error",
-          message: errorMessage,
+          type: "success",
+          message: "Login successful!",
         })
       );
+
+      onSignUpSuccess?.();
+    } catch (error: any) {
+      console.error("OTP verification error:", error);
+      const errorMessage = "Invalid OTP";
+      dispatch(setError(errorMessage));
+      dispatch(addNotification({ type: "error", message: errorMessage }));
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleResendOtp = async () => {
-    try {
-      await resendOTP({ phoneNumber }).unwrap();
-      setOtpTimer(60);
-
-      dispatch(
-        addNotification({
-          type: "success",
-          message: "OTP resent successfully!",
-        })
-      );
-    } catch (error: any) {
-      dispatch(
-        addNotification({
-          type: "error",
-          message: error?.data?.message || "Failed to resend OTP",
-        })
-      );
-    }
-  };
-
-  const handleCompleteRegistration = async () => {
-    if (!name.trim()) return;
-
-    setIsLoading(true);
-
-    try {
-      // Split name into first and last name
-      const nameParts = name.trim().split(" ");
-      const firstName = nameParts[0];
-      const lastName = nameParts.slice(1).join(" ") || firstName;
-
-      const profileData = {
-        firstName,
-        lastName,
-        email: email.trim() || undefined,
-        village: address.trim() || "Not specified",
-        postOffice: "Not specified",
-        policeStation: "Not specified",
-        district: "Not specified",
-        state: "Not specified",
-      };
-
-      const response = await createProfile(profileData).unwrap();
-
-      dispatch(profileCompleted(response.data.customer!));
-      dispatch(
-        addNotification({
-          type: "success",
-          message: "Profile completed successfully!",
-        })
-      );
-
-      onSignUpSuccess?.();
-    } catch (error: any) {
-      const errorMessage = error?.data?.message || "Failed to create profile";
-      dispatch(setError(errorMessage));
-      dispatch(
-        addNotification({
-          type: "error",
-          message: errorMessage,
-        })
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    setOtp("");
+    await handleSendOtp();
   };
 
   return (
@@ -279,25 +208,18 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
           <CardHeader className='space-y-1 pb-6'>
             <div className='flex items-center justify-center mb-4'>
               <div className='w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center'>
-                {step === "details" ? (
-                  <User className='h-6 w-6 text-white' />
-                ) : (
-                  <ShieldCheck className='h-6 w-6 text-white' />
-                )}
+                <ShieldCheck className='h-6 w-6 text-white' />
               </div>
             </div>
             <CardTitle className='text-2xl font-bold text-center text-gray-900'>
-              {step === "phone" && "Welcome"}
-              {step === "otp" && "Verify OTP"}
-              {step === "details" && "Complete Setup"}
+              {step === "phone" ? "Welcome" : "Verify OTP"}
             </CardTitle>
             <p className='text-center text-gray-600 text-sm'>
-              {step === "phone" && "Sign up or sign in to continue"}
-              {step === "otp" && "Enter the code sent to your phone"}
-              {step === "details" && "Tell us a bit about yourself"}
+              {step === "phone"
+                ? "Sign up or sign in to continue"
+                : "Enter the code sent to your phone"}
             </p>
 
-            {/* Error Display */}
             {error && (
               <div className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm'>
                 {error}
@@ -306,7 +228,6 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
           </CardHeader>
 
           <CardContent className='space-y-6'>
-            {/* Phone Number Step */}
             {step === "phone" && (
               <div className='space-y-4'>
                 <div className='space-y-2'>
@@ -337,23 +258,29 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
                   disabled={phoneNumber.length !== 10 || isLoading}
                   className='w-full h-12 bg-red-600 hover:bg-red-700 text-white font-medium'
                 >
-                  {isLoading ? (
+                  {isLoading && (
                     <Loader2 className='h-4 w-4 animate-spin mr-2' />
-                  ) : (
-                    <ArrowRight className='h-4 w-4 mr-2' />
                   )}
                   Send OTP
                 </Button>
               </div>
             )}
 
-            {/* OTP Verification Step */}
             {step === "otp" && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
                 className='space-y-4'
               >
+                <div className='text-center space-y-2'>
+                  <p className='text-sm text-gray-600'>
+                    We sent a verification code to
+                  </p>
+                  <p className='font-semibold text-gray-900'>
+                    +91 {phoneNumber}
+                  </p>
+                </div>
+
                 <div className='space-y-2'>
                   <Label className='text-sm font-medium text-gray-700'>
                     Enter OTP
@@ -370,122 +297,37 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
                       </InputOTPGroup>
                     </InputOTP>
                   </div>
-                  <p className='text-xs text-gray-500 text-center'>
-                    OTP sent to +91 {phoneNumber}
-                  </p>
                 </div>
 
                 <Button
                   onClick={handleVerifyOtp}
                   disabled={otp.length !== 6 || isLoading}
-                  className='w-full h-12 bg-green-600 hover:bg-green-700 text-white font-medium'
+                  className='w-full h-12 bg-red-600 hover:bg-red-700 text-white font-medium'
                 >
-                  {isLoading ? (
+                  {isLoading && (
                     <Loader2 className='h-4 w-4 animate-spin mr-2' />
-                  ) : null}
-                  Verify & Continue
+                  )}
+                  Verify OTP
                 </Button>
 
-                <div className='flex items-center justify-between text-sm'>
-                  <button
-                    onClick={() => {
-                      setStep("phone");
-                      setOtp("");
-                      setOtpTimer(0);
-                    }}
-                    className='text-red-600 hover:text-red-700 font-medium'
-                  >
-                    Change Number
-                  </button>
+                <div className='text-center'>
                   {otpTimer > 0 ? (
-                    <span className='text-gray-500'>Resend in {otpTimer}s</span>
+                    <p className='text-sm text-gray-600'>
+                      Resend OTP in {otpTimer}s
+                    </p>
                   ) : (
-                    <button
+                    <Button
+                      variant='ghost'
                       onClick={handleResendOtp}
                       className='text-red-600 hover:text-red-700 font-medium'
                     >
                       Resend OTP
-                    </button>
+                    </Button>
                   )}
                 </div>
               </motion.div>
             )}
 
-            {/* User Details Step */}
-            {step === "details" && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className='space-y-4'
-              >
-                <div className='space-y-2'>
-                  <Label
-                    htmlFor='name'
-                    className='text-sm font-medium text-gray-700'
-                  >
-                    Full Name *
-                  </Label>
-                  <Input
-                    id='name'
-                    type='text'
-                    placeholder='Enter your full name'
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className='h-12'
-                    disabled={isLoading}
-                  />
-                </div>
-
-                <div className='space-y-2'>
-                  <Label
-                    htmlFor='email'
-                    className='text-sm font-medium text-gray-700'
-                  >
-                    Email (Optional)
-                  </Label>
-                  <Input
-                    id='email'
-                    type='email'
-                    placeholder='Enter your email'
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className='h-12'
-                    disabled={isLoading}
-                  />
-                </div>
-
-                <div className='space-y-2'>
-                  <Label
-                    htmlFor='address'
-                    className='text-sm font-medium text-gray-700'
-                  >
-                    Address (Optional)
-                  </Label>
-                  <Input
-                    id='address'
-                    type='text'
-                    placeholder='Enter your address'
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className='h-12'
-                    disabled={isLoading}
-                  />
-                </div>
-
-                <Button
-                  onClick={handleCompleteRegistration}
-                  disabled={!name.trim() || isLoading}
-                  className='w-full h-12 bg-red-600 hover:bg-red-700 text-white font-medium'
-                >
-                  {isLoading ? (
-                    <Loader2 className='h-4 w-4 animate-spin mr-2' />
-                  ) : null}
-                  Complete Registration
-                </Button>
-              </motion.div>
-            )}
-
-            {/* Terms */}
             <div className='text-center'>
               <p className='text-xs text-gray-500'>
                 By continuing, you agree to our{" "}
@@ -494,32 +336,11 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
                   className='text-red-600 hover:text-red-700 underline'
                 >
                   Terms of Service
-                </a>{" "}
-                and{" "}
-                <a
-                  href='#'
-                  className='text-red-600 hover:text-red-700 underline'
-                >
-                  Privacy Policy
                 </a>
               </p>
             </div>
           </CardContent>
         </Card>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className='mt-6 text-center'
-        >
-          <p className='text-sm text-gray-600'>
-            Need help?{" "}
-            <a href='#' className='text-red-600 hover:text-red-700 font-medium'>
-              Contact Support
-            </a>
-          </p>
-        </motion.div>
       </motion.div>
     </div>
   );
