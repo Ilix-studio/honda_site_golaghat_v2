@@ -1,7 +1,8 @@
 import { Footer } from "../Home/Footer";
-import { Header } from "../Header";
+
 import { motion } from "framer-motion";
 import { GetApprovedForm } from "./GetApprovedForm";
+import { Header } from "../Home/Header";
 
 // Usage in your Finance component or as a separate page
 export const FinanceWithBikeEnquiry: React.FC = () => {
