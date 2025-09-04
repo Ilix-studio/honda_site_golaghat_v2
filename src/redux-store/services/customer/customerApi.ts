@@ -7,6 +7,18 @@ export interface CustomerLoginRequest {
   phoneNumber: string;
 }
 
+export interface CreateProfileRequest {
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  email?: string;
+  village: string;
+  postOffice: string;
+  policeStation: string;
+  district: string;
+  state: string;
+}
+
 export interface Customer {
   id: string;
   phoneNumber: string;
@@ -31,24 +43,23 @@ export const customerApi = createApi({
   baseQuery,
   tagTypes: ["Customer"],
   endpoints: (builder) => ({
-    // Firebase token authentication - handles login/registration
-    authenticateCustomer: builder.mutation<
-      CustomerAuthResponse,
-      CustomerLoginRequest
-    >({
-      query: (data) => ({
-        url: "/customers/auth",
-        method: "POST",
-        body: data,
-      }),
-      invalidatesTags: ["Customer"],
-    }),
-
     // Get customer profile
     getCustomerProfile: builder.query<CustomerAuthResponse, void>({
-      query: () => "/customers/profile",
+      query: () => "/customer/profile",
       providesTags: ["Customer"],
     }),
+
+    // Create customer profile
+    createProfile: builder.mutation<CustomerAuthResponse, CreateProfileRequest>(
+      {
+        query: (data) => ({
+          url: "/customer/profile",
+          method: "POST",
+          body: data,
+        }),
+        invalidatesTags: ["Customer"],
+      }
+    ),
 
     // Update customer profile
     updateCustomerProfile: builder.mutation<
@@ -56,7 +67,7 @@ export const customerApi = createApi({
       Partial<Customer>
     >({
       query: (data) => ({
-        url: "/customers/profile",
+        url: "/customer/profile",
         method: "PATCH",
         body: data,
       }),
@@ -66,7 +77,7 @@ export const customerApi = createApi({
 });
 
 export const {
-  useAuthenticateCustomerMutation,
   useGetCustomerProfileQuery,
+  useCreateProfileMutation,
   useUpdateCustomerProfileMutation,
 } = customerApi;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom"; // Add this import
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,7 @@ interface CustomerSignUpProps {
 
 const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate(); // Add navigation hook
   const { error } = useAppSelector(selectCustomerAuth);
 
   const recaptchaRef = useRef<any>(null);
@@ -157,6 +159,9 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
       const firebaseUser = result.user;
       const idToken = await firebaseUser.getIdToken();
 
+      // Log the idToken for debugging
+      console.log("Firebase ID Token:", idToken);
+
       // Save to store
       dispatch(
         loginSuccess({
@@ -178,6 +183,10 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
         })
       );
 
+      // Navigate to customer profile after successful login
+      navigate("/customer-profile");
+
+      // Call the optional callback
       onSignUpSuccess?.();
     } catch (error: any) {
       console.error("OTP verification error:", error);

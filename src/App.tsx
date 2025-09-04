@@ -28,6 +28,7 @@ import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
 import CustomerLogin from "./mainComponents/CustomerSystem/CustomerLogin";
 import CustomerSignUp from "./mainComponents/CustomerSystem/CustomerSignUp";
 import CustomerDash from "./mainComponents/CustomerSystem/CustomerDash";
+import CustomerCreateProfile from "./mainComponents/CustomerSystem/CustomerCreateProfile";
 
 // import TestBike from "./mainComponents/TestBike";
 
@@ -77,6 +78,7 @@ const App: React.FC = () => {
         <Route path='/customer-sign-up' element={<CustomerSignUp />} />
         <Route path='/customer-login' element={<CustomerLogin />} />
         <Route path='/customer-dash' element={<CustomerDash />} />
+        <Route path='/customer-profile' element={<CustomerCreateProfile />} />
 
         {/* Compare Bike  */}
         <Route path='/compare' element={<CompareBike />} />
