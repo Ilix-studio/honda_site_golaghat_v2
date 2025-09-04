@@ -1,48 +1,28 @@
+import { customerBaseQuery } from "@/lib/customerApiConfigs";
+import {
+  CreateProfileRequest,
+  Customer,
+  CustomerAuthResponse,
+  VerifyOTPRequest,
+  VerifyOTPResponse,
+} from "@/types/customer/customer.types";
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery } from "../../../lib/apiConfig";
-
-// Export types to avoid TypeScript errors
-export interface CustomerLoginRequest {
-  idToken: string;
-  phoneNumber: string;
-}
-
-export interface CreateProfileRequest {
-  firstName: string;
-  middleName?: string;
-  lastName: string;
-  email?: string;
-  village: string;
-  postOffice: string;
-  policeStation: string;
-  district: string;
-  state: string;
-}
-
-export interface Customer {
-  id: string;
-  phoneNumber: string;
-  firebaseUid: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  isVerified: boolean;
-}
-
-export interface CustomerAuthResponse {
-  success: boolean;
-  message: string;
-  data: {
-    customer: Customer;
-    token?: string;
-  };
-}
 
 export const customerApi = createApi({
   reducerPath: "customerApi",
-  baseQuery,
+  baseQuery: customerBaseQuery, // Updated to use customerBaseQuery
   tagTypes: ["Customer"],
   endpoints: (builder) => ({
+    // Verify OTP endpoint
+    verifyOTP: builder.mutation<VerifyOTPResponse, VerifyOTPRequest>({
+      query: (data) => ({
+        url: "/customer/verify-otp",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Customer"],
+    }),
+
     // Get customer profile
     getCustomerProfile: builder.query<CustomerAuthResponse, void>({
       query: () => "/customer/profile",
@@ -77,6 +57,7 @@ export const customerApi = createApi({
 });
 
 export const {
+  useVerifyOTPMutation,
   useGetCustomerProfileQuery,
   useCreateProfileMutation,
   useUpdateCustomerProfileMutation,

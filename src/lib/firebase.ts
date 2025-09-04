@@ -18,8 +18,24 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 auth.useDeviceLanguage();
 
-// Add this line to use device language and configure reCAPTCHA
-auth.useDeviceLanguage();
-auth.settings.appVerificationDisabledForTesting = false; // Set to true for testing
+// Configure for development/testing
+if (typeof window !== "undefined") {
+  auth.useDeviceLanguage();
+
+  // For localhost testing - disable app verification
+  if (
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+  ) {
+    auth.settings.appVerificationDisabledForTesting = true;
+
+    // Optional: Connect to Firebase Auth Emulator for testing
+    // if (!auth.emulatorConfig) {
+    //   connectAuthEmulator(auth, 'http://localhost:9099');
+    // }
+  } else {
+    auth.settings.appVerificationDisabledForTesting = false;
+  }
+}
 
 export { auth };

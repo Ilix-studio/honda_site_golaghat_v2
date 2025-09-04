@@ -1,6 +1,7 @@
 import { useCreateProfileMutation } from "@/redux-store/services/customer/customerApi";
 
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 
 interface CreateProfileRequest {
   firstName: string;
@@ -14,7 +15,11 @@ interface CreateProfileRequest {
   state: string;
 }
 
+// Add this near the top of your component to debug
+
 const CustomerCreateProfile: React.FC = () => {
+  const customerAuth = useSelector((state: any) => state.customerAuth);
+  console.log("Customer auth state:", customerAuth);
   const [createProfile, { isLoading, error }] = useCreateProfileMutation();
 
   const [formData, setFormData] = useState<CreateProfileRequest>({

@@ -25,10 +25,11 @@ import AddScooty from "./mainComponents/Admin/Scooty/AddScooty";
 import AddBranch from "./mainComponents/NavMenu/Branches/AddBranch";
 import BranchManager from "./mainComponents/NavMenu/Branches/BranchManager";
 import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
-import CustomerLogin from "./mainComponents/CustomerSystem/CustomerLogin";
+// import CustomerLogin from "./mainComponents/CustomerSystem/CustomerLogin";
 import CustomerSignUp from "./mainComponents/CustomerSystem/CustomerSignUp";
 import CustomerDash from "./mainComponents/CustomerSystem/CustomerDash";
 import CustomerCreateProfile from "./mainComponents/CustomerSystem/CustomerCreateProfile";
+import CustomerMotorsInfo from "./mainComponents/CustomerSystem/MotorInfo/CustomerMotorsInfo";
 
 // import TestBike from "./mainComponents/TestBike";
 
@@ -76,9 +77,10 @@ const App: React.FC = () => {
 
         {/* Customer Login  */}
         <Route path='/customer-sign-up' element={<CustomerSignUp />} />
-        <Route path='/customer-login' element={<CustomerLogin />} />
+        {/* <Route path='/customer-login' element={<CustomerLogin />} /> */}
         <Route path='/customer-dash' element={<CustomerDash />} />
         <Route path='/customer-profile' element={<CustomerCreateProfile />} />
+        <Route path='/customer-motor-info' element={<CustomerMotorsInfo />} />
 
         {/* Compare Bike  */}
         <Route path='/compare' element={<CompareBike />} />

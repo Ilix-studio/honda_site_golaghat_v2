@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom"; // Add this import
+import { useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ import {
   selectCustomerAuth,
 } from "@/redux-store/slices/customer/customerAuthSlice";
 import { setError } from "@/redux-store/slices/authSlice";
+import { useVerifyOTPMutation } from "@/redux-store/services/customer/customerApi";
 
 interface CustomerSignUpProps {
   onSignUpSuccess?: () => void;
@@ -29,8 +30,12 @@ interface CustomerSignUpProps {
 
 const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate(); // Add navigation hook
+  const navigate = useNavigate();
   const { error } = useAppSelector(selectCustomerAuth);
+
+  // RTK Query hook
+  const [verifyOTPMutation, { isLoading: isVerifyingBackend }] =
+    useVerifyOTPMutation();
 
   const recaptchaRef = useRef<any>(null);
   const [step, setStep] = useState<"phone" | "otp">("phone");
@@ -155,20 +160,27 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
     setIsLoading(true);
 
     try {
+      // Step 1: Verify OTP with Firebase
       const result = await confirmationResult.confirm(otp);
       const firebaseUser = result.user;
       const idToken = await firebaseUser.getIdToken();
 
-      // Log the idToken for debugging
       console.log("Firebase ID Token:", idToken);
 
-      // Save to store
+      // Step 2: Verify with backend and link Firebase UID
+      const backendResponse = await verifyOTPMutation({
+        phoneNumber: phoneNumber,
+        idToken: idToken,
+      }).unwrap();
+
+      console.log("Backend verification response:", backendResponse);
+
+      // Step 3: Save to Redux store
       dispatch(
         loginSuccess({
           customer: {
             id: firebaseUser.uid,
-            phoneNumber:
-              firebaseUser.phoneNumber?.replace("+91", "") || phoneNumber,
+            phoneNumber: phoneNumber,
             firebaseUid: firebaseUser.uid,
             isVerified: true,
           },
@@ -183,14 +195,27 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
         })
       );
 
-      // Navigate to customer profile after successful login
-      navigate("/customer-profile");
+      // Navigate to profile page
+      setTimeout(() => {
+        navigate("/customer-profile", { replace: true });
+      }, 100);
 
-      // Call the optional callback
       onSignUpSuccess?.();
     } catch (error: any) {
       console.error("OTP verification error:", error);
-      const errorMessage = "Invalid OTP";
+      let errorMessage = "Invalid OTP";
+
+      // Handle Firebase errors
+      if (error.code === "auth/invalid-verification-code") {
+        errorMessage = "Invalid OTP. Please check the code.";
+      } else if (error.code === "auth/code-expired") {
+        errorMessage = "OTP has expired. Please request a new one.";
+      }
+      // Handle backend errors
+      else if (error.data?.message) {
+        errorMessage = error.data.message;
+      }
+
       dispatch(setError(errorMessage));
       dispatch(addNotification({ type: "error", message: errorMessage }));
     } finally {
@@ -200,6 +225,8 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
 
   const handleResendOtp = async () => {
     setOtp("");
+    setConfirmationResult(null);
+    setOtpTimer(0);
     await handleSendOtp();
   };
 
@@ -310,10 +337,10 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
 
                 <Button
                   onClick={handleVerifyOtp}
-                  disabled={otp.length !== 6 || isLoading}
+                  disabled={otp.length !== 6 || isLoading || isVerifyingBackend}
                   className='w-full h-12 bg-red-600 hover:bg-red-700 text-white font-medium'
                 >
-                  {isLoading && (
+                  {(isLoading || isVerifyingBackend) && (
                     <Loader2 className='h-4 w-4 animate-spin mr-2' />
                   )}
                   Verify OTP
