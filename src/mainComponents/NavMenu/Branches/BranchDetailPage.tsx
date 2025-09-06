@@ -3,8 +3,9 @@ import { useParams } from "react-router-dom";
 
 import { branches, Branches } from "./TwoBranch";
 import { Footer } from "../../Home/Footer";
-import { Header } from "../../Home/Header";
+
 import { ContactSection } from "../../Home/ContactSection";
+import { Header } from "@/mainComponents/Home/Header/Header";
 
 // Define the BranchType interface locally or import from the correct location
 interface BranchType {

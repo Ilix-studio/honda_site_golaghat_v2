@@ -1,8 +1,8 @@
-import { Footer } from "../Home/Footer";
-import { CustomerBikeInfo } from "./CustomerBikeInfo";
-import { CustomerDashHeader } from "./CustomerDashHeader";
+import { Footer } from "../../Home/Footer";
+import { CustomerBikeInfo } from "../CustomerBikeInfo";
+import { CustomerDashHeader } from "../../Home/Header/CustomerDashHeader";
 
-export default function CustomerDash() {
+export default function CustomerMainDash() {
   return (
     <div className='min-h-screen bg-gray-50'>
       <CustomerDashHeader />

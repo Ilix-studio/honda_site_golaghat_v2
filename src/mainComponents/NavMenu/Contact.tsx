@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Header } from "../Home/Header";
+
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { Footer } from "../Home/Footer";
+import { Header } from "../Home/Header/Header";
 
 export function Contact() {
   return (

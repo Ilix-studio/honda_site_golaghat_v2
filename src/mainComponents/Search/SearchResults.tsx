@@ -10,7 +10,7 @@ import { BikeCard } from "../BikeDetails/DetailsUIParts/BikeCard";
 import { NoResults } from "../BikeDetails/DetailsUIParts/NoResults";
 import { Bike } from "@/redux-store/slices/bikesSlice";
 import { useSearchBikesQuery } from "@/redux-store/services/bikeApi";
-import { Header } from "../Home/Header";
+import { Header } from "../Home/Header/Header";
 
 export function SearchResults() {
   const [searchParams, setSearchParams] = useSearchParams();

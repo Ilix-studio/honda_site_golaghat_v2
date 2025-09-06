@@ -18,7 +18,7 @@ import {
   AlertCircle,
   Stamp,
 } from "lucide-react";
-import { Header } from "../Home/Header";
+
 import { Footer } from "../Home/Footer";
 import { formatCurrency } from "../../lib/formatters";
 
@@ -26,6 +26,7 @@ import { formatCurrency } from "../../lib/formatters";
 import { useGetBikeByIdQuery } from "../../redux-store/services/bikeApi";
 import { useAppDispatch } from "../../hooks/redux";
 import { addNotification } from "../../redux-store/slices/uiSlice";
+import { Header } from "../Home/Header/Header";
 
 export default function BikeDetailsPage() {
   const { bikeId } = useParams<{ bikeId: string }>();

@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { Filter, Grid, List } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Header } from "../Home/Header";
+
 import { Footer } from "../Home/Footer";
 import { FilterSidebar } from "./DetailsUIParts/FilterSidebar";
 import { CategoryTabs } from "./DetailsUIParts/CategoryTabs";
@@ -20,6 +20,7 @@ import {
   selectIsFilterSidebarOpen,
 } from "../../redux-store/slices/uiSlice";
 import { useGetBikesQuery } from "../../redux-store/services/bikeApi";
+import { Header } from "../Home/Header/Header";
 
 // Skeleton Components
 const Skeleton = ({ className = "", ...props }) => {

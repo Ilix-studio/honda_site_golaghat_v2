@@ -24,7 +24,7 @@ import { comparisonSections } from "./comparisonSections";
 import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
 import { Bike } from "@/redux-store/slices/bikesSlice";
 import { AddBikeCard } from "./AddBikeCard";
-import { Header } from "@/mainComponents/Home/Header";
+import { Header } from "@/mainComponents/Home/Header/Header";
 
 const CATEGORIES = [
   "all",

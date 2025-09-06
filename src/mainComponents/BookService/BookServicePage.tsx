@@ -1,7 +1,8 @@
 import React from "react";
 import { Footer } from "../Home/Footer";
-import { Header } from "../Home/Header";
+
 import { BookServiceForm } from "./BookServiceForm";
+import { Header } from "../Home/Header/Header";
 
 const BookServicePage: React.FC = () => {
   return (

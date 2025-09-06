@@ -4,8 +4,9 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 import { MapPin, Home, PhoneCall, Frown, Search } from "lucide-react";
-import { Header } from "./Home/Header";
+
 import { Footer } from "./Home/Footer";
+import { Header } from "./Home/Header/Header";
 
 const NotFoundPage = () => {
   const [searchQuery, setSearchQuery] = useState("");

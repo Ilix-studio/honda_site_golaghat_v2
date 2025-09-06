@@ -3,7 +3,7 @@ import { EmiCalculator } from "./mainComponents/Home/EmiCalculator";
 import { FeaturesSection } from "./mainComponents/Home/FeatureSection";
 
 import { Footer } from "./mainComponents/Home/Footer";
-import { Header } from "./mainComponents/Home/Header";
+import { Header } from "./mainComponents/Home/Header/Header";
 
 import HondaCarousel from "./mainComponents/Home/HondaCarousel";
 import HondaCarousel2 from "./mainComponents/Home/HondaCarousel2";

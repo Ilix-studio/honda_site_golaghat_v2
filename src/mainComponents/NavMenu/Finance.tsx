@@ -1,6 +1,3 @@
-// Updated Finance component using the enhanced type-safe hooks
-// src/components/Finance.tsx
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
@@ -25,12 +22,13 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
-import { Header } from "../Home/Header";
+
 import { Footer } from "../Home/Footer";
 import {
   useApplicationStatusCheck,
   useGetApprovedSimpleForm,
 } from "@/hooks/useGetApproved";
+import { Header } from "../Home/Header/Header";
 
 // Import the enhanced hooks
 

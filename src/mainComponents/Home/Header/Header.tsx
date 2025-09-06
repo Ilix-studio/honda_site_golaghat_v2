@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { Key, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Menu, X, ChevronDown } from "lucide-react";
 // import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import {
 } from "@/redux-store/slices/uiSlice";
 import { selectComparisonBikes } from "@/redux-store/slices/comparisonSlice";
 import { useAppSelector, useAppDispatch } from "@/hooks/redux";
-import { branches } from "../NavMenu/Branches/TwoBranch";
+import { branches } from "@/mainComponents/NavMenu/Branches/TwoBranch";
 
 export function Header() {
   const dispatch = useAppDispatch();
@@ -96,15 +96,20 @@ export function Header() {
                       All Branches
                     </Link>
                     <div className='border-t my-1'></div>
-                    {branches.map((branch) => (
-                      <Link
-                        key={branch.id}
-                        to={`/branches/${branch.id}`}
-                        className='px-4 py-2 text-sm hover:bg-muted transition-colors'
-                      >
-                        {branch.name.split(" ").pop()}
-                      </Link>
-                    ))}
+                    {branches.map(
+                      (branch: {
+                        id: Key | null | undefined;
+                        name: string;
+                      }) => (
+                        <Link
+                          key={branch.id}
+                          to={`/branches/${branch.id}`}
+                          className='px-4 py-2 text-sm hover:bg-muted transition-colors'
+                        >
+                          {branch.name.split(" ").pop()}
+                        </Link>
+                      )
+                    )}
                   </div>
                 </div>
               </PopoverContent>
@@ -171,16 +176,18 @@ export function Header() {
                 >
                   All Branches
                 </Link>
-                {branches.map((branch) => (
-                  <Link
-                    key={branch.id}
-                    to={`/branches/${branch.id}`}
-                    className='block text-sm text-muted-foreground hover:text-primary transition-colors'
-                    onClick={closeMobileMenu}
-                  >
-                    {branch.name.split(" ").pop()}
-                  </Link>
-                ))}
+                {branches.map(
+                  (branch: { id: Key | null | undefined; name: string }) => (
+                    <Link
+                      key={branch.id}
+                      to={`/branches/${branch.id}`}
+                      className='block text-sm text-muted-foreground hover:text-primary transition-colors'
+                      onClick={closeMobileMenu}
+                    >
+                      {branch.name.split(" ").pop()}
+                    </Link>
+                  )
+                )}
               </div>
             </div>
 
