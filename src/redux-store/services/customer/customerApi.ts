@@ -3,29 +3,17 @@ import {
   CreateProfileRequest,
   Customer,
   CustomerAuthResponse,
-  VerifyOTPRequest,
-  VerifyOTPResponse,
 } from "@/types/customer/customer.types";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
 export const customerApi = createApi({
   reducerPath: "customerApi",
-  baseQuery: customerBaseQuery, // Updated to use customerBaseQuery
+  baseQuery: customerBaseQuery,
   tagTypes: ["Customer"],
   endpoints: (builder) => ({
-    // Verify OTP endpoint
-    verifyOTP: builder.mutation<VerifyOTPResponse, VerifyOTPRequest>({
-      query: (data) => ({
-        url: "/customer/verify-otp",
-        method: "POST",
-        body: data,
-      }),
-      invalidatesTags: ["Customer"],
-    }),
-
     // Get customer profile
     getCustomerProfile: builder.query<CustomerAuthResponse, void>({
-      query: () => "/customer/profile",
+      query: () => "/customer-profile/profile",
       providesTags: ["Customer"],
     }),
 
@@ -33,7 +21,7 @@ export const customerApi = createApi({
     createProfile: builder.mutation<CustomerAuthResponse, CreateProfileRequest>(
       {
         query: (data) => ({
-          url: "/customer/profile",
+          url: "/customer-profile/create",
           method: "POST",
           body: data,
         }),
@@ -47,18 +35,52 @@ export const customerApi = createApi({
       Partial<Customer>
     >({
       query: (data) => ({
-        url: "/customer/profile",
+        url: "/customer-profile/profile",
         method: "PATCH",
         body: data,
       }),
       invalidatesTags: ["Customer"],
     }),
+
+    // Get customer by ID (for admin or self-access)
+    getCustomerById: builder.query<CustomerAuthResponse, string>({
+      query: (customerId) => `/customer-profile/${customerId}`,
+      providesTags: (_result, _error, customerId) => [
+        { type: "Customer", id: customerId },
+      ],
+    }),
+
+    // Get all customers (admin only)
+    getAllCustomers: builder.query<
+      {
+        success: boolean;
+        data: Customer[];
+        pagination?: {
+          page: number;
+          limit: number;
+          total: number;
+        };
+      },
+      { page?: number; limit?: number; isVerified?: boolean }
+    >({
+      query: (params = {}) => {
+        const searchParams = new URLSearchParams();
+        if (params.page) searchParams.append("page", params.page.toString());
+        if (params.limit) searchParams.append("limit", params.limit.toString());
+        if (params.isVerified !== undefined) {
+          searchParams.append("isVerified", params.isVerified.toString());
+        }
+        return `/customer-profile?${searchParams.toString()}`;
+      },
+      providesTags: ["Customer"],
+    }),
   }),
 });
 
 export const {
-  useVerifyOTPMutation,
   useGetCustomerProfileQuery,
   useCreateProfileMutation,
   useUpdateCustomerProfileMutation,
+  useGetCustomerByIdQuery,
+  useGetAllCustomersQuery,
 } = customerApi;

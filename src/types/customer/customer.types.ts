@@ -34,18 +34,3 @@ export interface CustomerAuthResponse {
     token?: string;
   };
 }
-// Types for verify OTP
-export interface VerifyOTPRequest {
-  phoneNumber: string;
-  idToken: string;
-}
-
-export interface VerifyOTPResponse {
-  success: boolean;
-  message: string;
-  data: {
-    customerId: string;
-    isVerified: boolean;
-    needsProfile: boolean;
-  };
-}

@@ -15,13 +15,27 @@ interface CreateProfileRequest {
   state: string;
 }
 
-// Add this near the top of your component to debug
+interface RootState {
+  customerAuth: {
+    customer: {
+      id: string;
+      phoneNumber: string;
+      firebaseUid: string;
+      isVerified: boolean;
+    } | null;
+    firebaseToken: string | null;
+    isAuthenticated: boolean;
+    isLoading: boolean;
+    error: any;
+  };
+}
 
 const CustomerCreateProfile: React.FC = () => {
-  const customerAuth = useSelector((state: any) => state.customerAuth);
-  console.log("Customer auth state:", customerAuth);
-  const [createProfile, { isLoading, error }] = useCreateProfileMutation();
+  const customerAuth = useSelector((state: RootState) => state.customerAuth);
+  // console.log("Customer auth state:", customerAuth);
+  // console.log("Firebase Token:", customerAuth.firebaseToken);
 
+  const [createProfile, { isLoading, error }] = useCreateProfileMutation();
   const [formData, setFormData] = useState<CreateProfileRequest>({
     firstName: "",
     middleName: "",
@@ -92,6 +106,12 @@ const CustomerCreateProfile: React.FC = () => {
       return;
     }
 
+    // Check if user is authenticated and has token
+    if (!customerAuth.isAuthenticated || !customerAuth.firebaseToken) {
+      console.error("User not authenticated or missing token");
+      return;
+    }
+
     try {
       // Filter out empty optional fields
       const profileData = {
@@ -100,13 +120,51 @@ const CustomerCreateProfile: React.FC = () => {
         email: formData.email?.trim() || undefined,
       };
 
-      await createProfile(profileData).unwrap();
+      console.log("Submitting profile data:", profileData);
+      console.log(
+        "Using token:",
+        customerAuth.firebaseToken.substring(0, 50) + "..."
+      );
+
+      const result = await createProfile(profileData).unwrap();
+      console.log("Profile created successfully:", result);
+
       // Handle success (redirect, show success message, etc.)
-      console.log("Profile created successfully");
+      alert("Profile created successfully!");
     } catch (err) {
       console.error("Failed to create profile:", err);
+
+      // Enhanced error logging
+      if (err && typeof err === "object" && "data" in err) {
+        console.error("Error details:", err.data);
+      }
+      if (err && typeof err === "object" && "status" in err) {
+        console.error("Error status:", err.status);
+      }
     }
   };
+
+  // Show loading or error states for authentication
+  if (customerAuth.isLoading) {
+    return (
+      <div className='max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md'>
+        <div className='flex items-center justify-center'>
+          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
+          <span className='ml-2'>Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!customerAuth.isAuthenticated) {
+    return (
+      <div className='max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md'>
+        <div className='text-center text-red-600'>
+          Please login to create your profile.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -114,6 +172,20 @@ const CustomerCreateProfile: React.FC = () => {
         <h2 className='text-2xl font-bold text-gray-800 mb-6'>
           Create Your Profile
         </h2>
+
+        {/* Debug info - remove in production */}
+        <div className='mb-4 p-3 bg-gray-100 rounded text-xs'>
+          <p>
+            <strong>Customer ID:</strong> {customerAuth.customer?.id}
+          </p>
+          <p>
+            <strong>Phone:</strong> {customerAuth.customer?.phoneNumber}
+          </p>
+          <p>
+            <strong>Token Available:</strong>{" "}
+            {customerAuth.firebaseToken ? "Yes" : "No"}
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit} className='space-y-6'>
           {/* Personal Information */}
@@ -342,6 +414,12 @@ const CustomerCreateProfile: React.FC = () => {
                   ? (error.data as any)?.message || "Failed to create profile"
                   : "An error occurred while creating profile"}
               </p>
+              {/* Additional error details for debugging */}
+              {"status" in error && (
+                <p className='text-xs text-red-500 mt-1'>
+                  Status: {error.status}
+                </p>
+              )}
             </div>
           )}
 
@@ -349,7 +427,7 @@ const CustomerCreateProfile: React.FC = () => {
           <div className='pt-4'>
             <button
               type='submit'
-              disabled={isLoading}
+              disabled={isLoading || !customerAuth.isAuthenticated}
               className='w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200'
             >
               {isLoading ? (
