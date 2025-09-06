@@ -7,6 +7,7 @@ import { Header } from "./mainComponents/Home/Header/Header";
 
 import HondaCarousel from "./mainComponents/Home/HondaCarousel";
 import HondaCarousel2 from "./mainComponents/Home/HondaCarousel2";
+import UnderDevelopment from "./mainComponents/UnderDevelopment";
 
 function Home() {
   return (
@@ -14,6 +15,7 @@ function Home() {
       <Header />
       <main>
         <HondaCarousel />
+        <UnderDevelopment />
         <HondaCarousel2 />
         <EmiCalculator />
         <FeaturesSection />
