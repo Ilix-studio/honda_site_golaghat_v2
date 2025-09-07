@@ -185,7 +185,7 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
 
       // Use setTimeout to ensure state is updated before navigation
       setTimeout(() => {
-        navigate("/customer-profile", { replace: true });
+        navigate("/customer-initialize", { replace: true });
       }, 100);
 
       // Call the optional callback

@@ -31,7 +31,7 @@ const LoginSuperAdmin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessageSA, setErrorMessageSA] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
   const dispatch = useAppDispatch();
@@ -50,10 +50,10 @@ const LoginSuperAdmin = () => {
 
   // Clear error message when user starts typing
   useEffect(() => {
-    if (errorMessage && (email || password)) {
-      setErrorMessage("");
+    if (errorMessageSA && (email || password)) {
+      setErrorMessageSA("");
     }
-  }, [email, password, errorMessage]);
+  }, [email, password, errorMessageSA]);
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -61,21 +61,21 @@ const LoginSuperAdmin = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
+    setErrorMessageSA("");
 
     // Basic validation
     if (!email || !password) {
-      setErrorMessage("Please enter both email and password");
+      setErrorMessageSA("Please enter both email and password");
       return;
     }
 
     if (!email.includes("@")) {
-      setErrorMessage("Please enter a valid email address");
+      setErrorMessageSA("Please enter a valid email address");
       return;
     }
 
     if (password.length < 6) {
-      setErrorMessage("Password must be at least 6 characters");
+      setErrorMessageSA("Password must be at least 6 characters");
       return;
     }
 
@@ -99,11 +99,11 @@ const LoginSuperAdmin = () => {
 
         navigate("/admin/dashboard");
       } else {
-        setErrorMessage(result.message || "Login failed");
+        setErrorMessageSA(result.message || "Login failed");
       }
     } catch (err: any) {
       const errorMsg = err?.data?.message || "Login failed. Please try again.";
-      setErrorMessage(errorMsg);
+      setErrorMessageSA(errorMsg);
 
       dispatch(
         addNotification({
@@ -150,7 +150,7 @@ const LoginSuperAdmin = () => {
           </CardHeader>
 
           <CardContent>
-            {(errorMessage || error) && (
+            {(errorMessageSA || error) && (
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -159,7 +159,7 @@ const LoginSuperAdmin = () => {
                 <AlertCircle className='h-5 w-5 mt-0.5 flex-shrink-0' />
                 <div>
                   <p className='font-medium'>Login Failed</p>
-                  <p className='text-sm'>{errorMessage || error}</p>
+                  <p className='text-sm'>{errorMessageSA || error}</p>
                 </div>
               </motion.div>
             )}
@@ -180,7 +180,7 @@ const LoginSuperAdmin = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className={`transition-all duration-200 ${
-                    errorMessage && !email
+                    errorMessageSA && !email
                       ? "border-red-300 focus:border-red-500 focus:ring-red-200"
                       : "focus:border-red-500 focus:ring-red-200"
                   }`}
@@ -204,7 +204,7 @@ const LoginSuperAdmin = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     className={`pr-10 transition-all duration-200 ${
-                      errorMessage && !password
+                      errorMessageSA && !password
                         ? "border-red-300 focus:border-red-500 focus:ring-red-200"
                         : "focus:border-red-500 focus:ring-red-200"
                     }`}

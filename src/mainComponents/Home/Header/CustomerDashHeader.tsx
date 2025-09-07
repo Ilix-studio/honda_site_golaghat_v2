@@ -43,7 +43,7 @@ export function CustomerDashHeader() {
 
           {/* Navigation Links */}
           <nav className='hidden md:flex items-center space-x-6'>
-            <Link to='/dashboard' className='text-red-600 font-medium'>
+            <Link to='/customer-dash' className='text-red-600 font-medium'>
               Dashboard
             </Link>
             <Link

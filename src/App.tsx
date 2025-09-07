@@ -12,7 +12,7 @@ import NotFoundPage from "./mainComponents/NotFoundPage";
 
 import LoginBranchManager from "./mainComponents/Admin/LoginBranchManager";
 import LoginSuperAdmin from "./mainComponents/Admin/LoginSuperAdmin";
-import AdminDashboard from "./mainComponents/Admin/AdminDashboard";
+import AdminDashboard from "./mainComponents/Admin/AdminDash/AdminDashboard";
 import AddBikes from "./mainComponents/Admin/Bikes/AddBikes";
 import EditBikes from "./mainComponents/Admin/Bikes/EditBikes";
 
@@ -80,6 +80,7 @@ const App: React.FC = () => {
         <Route path='/customer-sign-up' element={<CustomerSignUp />} />
         <Route path='/customer-initialize' element={<InitialDashboard />} />
         <Route path='/customer-profile' element={<CustomerCreateProfile />} />
+
         <Route path='/customer-motor-info' element={<CustomerMotorsInfo />} />
         <Route path='/customer-dash' element={<CustomerDash />} />
 

@@ -8,11 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, X, MapPin, Phone, Clock, Info } from "lucide-react";
+import { Plus, X, MapPin, Phone, Clock, Info } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/hooks/redux";
 import { useCreateBranchMutation } from "@/redux-store/services/branchApi";
 import { addNotification } from "@/redux-store/slices/uiSlice";
+import AdminHeader from "@/mainComponents/Home/Header/AdminHeader";
 
 // Form schema - no 'id' field since it's auto-generated
 const branchSchema = z.object({
@@ -152,331 +153,338 @@ const AddBranch = () => {
   };
 
   return (
-    <div className='min-h-screen bg-gray-50'>
-      <div className='container max-w-4xl px-4 py-8'>
-        {/* Header */}
-        <div className='mb-6'>
-          <Link to='/admin/dashboard'>
-            <Button variant='ghost' className='pl-0'>
-              <ArrowLeft className='h-4 w-4 mr-2' />
-              Back to Dashboard
-            </Button>
-          </Link>
-        </div>
+    <>
+      <AdminHeader />
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle className='flex items-center gap-2'>
-                <MapPin className='h-5 w-5 text-red-600' />
-                Add New Branch
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
-                {/* ID Preview Info */}
-                {previewId && (
-                  <div className='p-4 bg-blue-50 rounded-lg flex items-start gap-2'>
-                    <Info className='h-5 w-5 text-blue-500 mt-0.5' />
-                    <div className='text-sm'>
-                      <p className='font-medium text-blue-800 mb-1'>
-                        Auto-generated Branch ID Preview:
-                      </p>
-                      <p className='text-blue-700 font-mono bg-white px-2 py-1 rounded border'>
-                        {previewId}
-                      </p>
-                      <p className='text-blue-600 text-xs mt-1'>
-                        The final ID will be automatically generated and may
-                        include a number suffix if needed to ensure uniqueness.
-                      </p>
-                    </div>
-                  </div>
-                )}
+      <div className='min-h-screen bg-gray-50'>
+        <div className='container max-w-4xl px-4 py-8'>
+          <p>Create a new dealership location</p>
+          <br />
 
-                {/* Basic Information */}
-                <div className='space-y-4'>
-                  <h3 className='text-lg font-semibold flex items-center gap-2'>
-                    <MapPin className='h-4 w-4' />
-                    Basic Information
-                  </h3>
-
-                  <div className='space-y-2'>
-                    <Label htmlFor='name'>Branch Name *</Label>
-                    <Input
-                      id='name'
-                      placeholder='e.g., Honda Motorcycles Golaghat'
-                      {...register("name")}
-                      className={errors.name ? "border-red-500" : ""}
-                    />
-                    {errors.name && (
-                      <p className='text-red-500 text-sm'>
-                        {errors.name.message}
-                      </p>
-                    )}
-                    <p className='text-xs text-muted-foreground'>
-                      A unique branch ID will be automatically generated from
-                      this name
-                    </p>
-                  </div>
-
-                  <div className='space-y-2'>
-                    <Label htmlFor='address'>Address *</Label>
-                    <Textarea
-                      id='address'
-                      placeholder='Enter complete branch address'
-                      {...register("address")}
-                      className={errors.address ? "border-red-500" : ""}
-                      rows={3}
-                    />
-                    {errors.address && (
-                      <p className='text-red-500 text-sm'>
-                        {errors.address.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Contact Information */}
-                <div className='space-y-4'>
-                  <h3 className='text-lg font-semibold flex items-center gap-2'>
-                    <Phone className='h-4 w-4' />
-                    Contact Information
-                  </h3>
-
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                    <div className='space-y-2'>
-                      <Label htmlFor='phone'>Phone Number *</Label>
-                      <Input
-                        id='phone'
-                        placeholder='e.g., +91 883920-2092122'
-                        {...register("phone")}
-                        className={errors.phone ? "border-red-500" : ""}
-                      />
-                      {errors.phone && (
-                        <p className='text-red-500 text-sm'>
-                          {errors.phone.message}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle className='flex items-center gap-2'>
+                  <MapPin className='h-5 w-5 text-red-600' />
+                  Add New Branch
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
+                  {/* ID Preview Info */}
+                  {previewId && (
+                    <div className='p-4 bg-blue-50 rounded-lg flex items-start gap-2'>
+                      <Info className='h-5 w-5 text-blue-500 mt-0.5' />
+                      <div className='text-sm'>
+                        <p className='font-medium text-blue-800 mb-1'>
+                          Auto-generated Branch ID Preview:
                         </p>
-                      )}
-                    </div>
-
-                    <div className='space-y-2'>
-                      <Label htmlFor='email'>Email Address *</Label>
-                      <Input
-                        id='email'
-                        type='email'
-                        placeholder='e.g., golaghat@hondamotorcycles.com'
-                        {...register("email")}
-                        className={errors.email ? "border-red-500" : ""}
-                      />
-                      {errors.email && (
-                        <p className='text-red-500 text-sm'>
-                          {errors.email.message}
+                        <p className='text-blue-700 font-mono bg-white px-2 py-1 rounded border'>
+                          {previewId}
                         </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Operating Hours */}
-                <div className='space-y-4'>
-                  <h3 className='text-lg font-semibold flex items-center gap-2'>
-                    <Clock className='h-4 w-4' />
-                    Operating Hours
-                  </h3>
-
-                  <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                    <div className='space-y-2'>
-                      <Label htmlFor='weekdayHours'>Monday - Friday *</Label>
-                      <Input
-                        id='weekdayHours'
-                        placeholder='e.g., 9:00 AM - 7:00 PM'
-                        {...register("weekdayHours")}
-                        className={errors.weekdayHours ? "border-red-500" : ""}
-                      />
-                      {errors.weekdayHours && (
-                        <p className='text-red-500 text-sm'>
-                          {errors.weekdayHours.message}
+                        <p className='text-blue-600 text-xs mt-1'>
+                          The final ID will be automatically generated and may
+                          include a number suffix if needed to ensure
+                          uniqueness.
                         </p>
-                      )}
-                    </div>
-
-                    <div className='space-y-2'>
-                      <Label htmlFor='saturdayHours'>Saturday *</Label>
-                      <Input
-                        id='saturdayHours'
-                        placeholder='e.g., 10:00 AM - 5:00 PM'
-                        {...register("saturdayHours")}
-                        className={errors.saturdayHours ? "border-red-500" : ""}
-                      />
-                      {errors.saturdayHours && (
-                        <p className='text-red-500 text-sm'>
-                          {errors.saturdayHours.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className='space-y-2'>
-                      <Label htmlFor='sundayHours'>Sunday *</Label>
-                      <Input
-                        id='sundayHours'
-                        placeholder='e.g., Closed'
-                        {...register("sundayHours")}
-                        className={errors.sundayHours ? "border-red-500" : ""}
-                      />
-                      {errors.sundayHours && (
-                        <p className='text-red-500 text-sm'>
-                          {errors.sundayHours.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Staff Members */}
-                <div className='space-y-4'>
-                  <h3 className='text-lg font-semibold'>
-                    Staff Members (Optional)
-                  </h3>
-
-                  {/* Add Staff Form */}
-                  <div className='p-4 bg-gray-50 rounded-lg'>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
-                      <div className='space-y-2'>
-                        <Label htmlFor='staffName'>Staff Name</Label>
-                        <Input
-                          id='staffName'
-                          placeholder='Enter staff member name'
-                          value={currentStaffName}
-                          onChange={(e) => setCurrentStaffName(e.target.value)}
-                        />
-                      </div>
-                      <div className='space-y-2'>
-                        <Label htmlFor='staffPosition'>Position</Label>
-                        <Input
-                          id='staffPosition'
-                          placeholder='e.g., Branch Manager, Sales Executive'
-                          value={currentStaffPosition}
-                          onChange={(e) =>
-                            setCurrentStaffPosition(e.target.value)
-                          }
-                        />
-                      </div>
-                    </div>
-                    <Button
-                      type='button'
-                      onClick={addStaffMember}
-                      disabled={
-                        !currentStaffName.trim() || !currentStaffPosition.trim()
-                      }
-                      variant='outline'
-                      className='w-full md:w-auto'
-                    >
-                      <Plus className='h-4 w-4 mr-2' />
-                      Add Staff Member
-                    </Button>
-                  </div>
-
-                  {/* Staff List */}
-                  {staff.length > 0 && (
-                    <div className='space-y-2'>
-                      <Label>Added Staff Members</Label>
-                      <div className='space-y-2'>
-                        {staff.map((member, index) => (
-                          <div
-                            key={index}
-                            className='flex items-center justify-between p-3 bg-white border rounded-lg'
-                          >
-                            <div>
-                              <p className='font-medium'>{member.name}</p>
-                              <p className='text-sm text-muted-foreground'>
-                                {member.position}
-                              </p>
-                            </div>
-                            <Button
-                              type='button'
-                              variant='ghost'
-                              size='sm'
-                              onClick={() => removeStaffMember(index)}
-                              className='text-red-600 hover:text-red-700'
-                            >
-                              <X className='h-4 w-4' />
-                            </Button>
-                          </div>
-                        ))}
                       </div>
                     </div>
                   )}
-                </div>
 
-                {/* Preview */}
-                <div className='space-y-4'>
-                  <h3 className='text-lg font-semibold'>Preview</h3>
-                  <div className='p-4 bg-blue-50 rounded-lg'>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
-                      <div>
-                        <p>
-                          <strong>Name:</strong> {watch("name") || "Not set"}
+                  {/* Basic Information */}
+                  <div className='space-y-4'>
+                    <h3 className='text-lg font-semibold flex items-center gap-2'>
+                      <MapPin className='h-4 w-4' />
+                      Basic Information
+                    </h3>
+
+                    <div className='space-y-2'>
+                      <Label htmlFor='name'>Branch Name *</Label>
+                      <Input
+                        id='name'
+                        placeholder='e.g., Honda Motorcycles Golaghat'
+                        {...register("name")}
+                        className={errors.name ? "border-red-500" : ""}
+                      />
+                      {errors.name && (
+                        <p className='text-red-500 text-sm'>
+                          {errors.name.message}
                         </p>
-                        <p>
-                          <strong>Phone:</strong> {watch("phone") || "Not set"}
+                      )}
+                      <p className='text-xs text-muted-foreground'>
+                        A unique branch ID will be automatically generated from
+                        this name
+                      </p>
+                    </div>
+
+                    <div className='space-y-2'>
+                      <Label htmlFor='address'>Address *</Label>
+                      <Textarea
+                        id='address'
+                        placeholder='Enter complete branch address'
+                        {...register("address")}
+                        className={errors.address ? "border-red-500" : ""}
+                        rows={3}
+                      />
+                      {errors.address && (
+                        <p className='text-red-500 text-sm'>
+                          {errors.address.message}
                         </p>
-                        <p>
-                          <strong>Email:</strong> {watch("email") || "Not set"}
-                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Contact Information */}
+                  <div className='space-y-4'>
+                    <h3 className='text-lg font-semibold flex items-center gap-2'>
+                      <Phone className='h-4 w-4' />
+                      Contact Information
+                    </h3>
+
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                      <div className='space-y-2'>
+                        <Label htmlFor='phone'>Phone Number *</Label>
+                        <Input
+                          id='phone'
+                          placeholder='e.g., +91 883920-2092122'
+                          {...register("phone")}
+                          className={errors.phone ? "border-red-500" : ""}
+                        />
+                        {errors.phone && (
+                          <p className='text-red-500 text-sm'>
+                            {errors.phone.message}
+                          </p>
+                        )}
                       </div>
-                      <div>
-                        <p>
-                          <strong>Weekdays:</strong>{" "}
-                          {watch("weekdayHours") || "Not set"}
-                        </p>
-                        <p>
-                          <strong>Saturday:</strong>{" "}
-                          {watch("saturdayHours") || "Not set"}
-                        </p>
-                        <p>
-                          <strong>Sunday:</strong>{" "}
-                          {watch("sundayHours") || "Not set"}
-                        </p>
-                        <p>
-                          <strong>Staff Count:</strong> {staff.length}
-                        </p>
+
+                      <div className='space-y-2'>
+                        <Label htmlFor='email'>Email Address *</Label>
+                        <Input
+                          id='email'
+                          type='email'
+                          placeholder='e.g., golaghat@hondamotorcycles.com'
+                          {...register("email")}
+                          className={errors.email ? "border-red-500" : ""}
+                        />
+                        {errors.email && (
+                          <p className='text-red-500 text-sm'>
+                            {errors.email.message}
+                          </p>
+                        )}
                       </div>
                     </div>
-                    {watch("address") && (
-                      <div className='mt-2'>
-                        <p>
-                          <strong>Address:</strong> {watch("address")}
-                        </p>
+                  </div>
+
+                  {/* Operating Hours */}
+                  <div className='space-y-4'>
+                    <h3 className='text-lg font-semibold flex items-center gap-2'>
+                      <Clock className='h-4 w-4' />
+                      Operating Hours
+                    </h3>
+
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                      <div className='space-y-2'>
+                        <Label htmlFor='weekdayHours'>Monday - Friday *</Label>
+                        <Input
+                          id='weekdayHours'
+                          placeholder='e.g., 9:00 AM - 7:00 PM'
+                          {...register("weekdayHours")}
+                          className={
+                            errors.weekdayHours ? "border-red-500" : ""
+                          }
+                        />
+                        {errors.weekdayHours && (
+                          <p className='text-red-500 text-sm'>
+                            {errors.weekdayHours.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className='space-y-2'>
+                        <Label htmlFor='saturdayHours'>Saturday *</Label>
+                        <Input
+                          id='saturdayHours'
+                          placeholder='e.g., 10:00 AM - 5:00 PM'
+                          {...register("saturdayHours")}
+                          className={
+                            errors.saturdayHours ? "border-red-500" : ""
+                          }
+                        />
+                        {errors.saturdayHours && (
+                          <p className='text-red-500 text-sm'>
+                            {errors.saturdayHours.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className='space-y-2'>
+                        <Label htmlFor='sundayHours'>Sunday *</Label>
+                        <Input
+                          id='sundayHours'
+                          placeholder='e.g., Closed'
+                          {...register("sundayHours")}
+                          className={errors.sundayHours ? "border-red-500" : ""}
+                        />
+                        {errors.sundayHours && (
+                          <p className='text-red-500 text-sm'>
+                            {errors.sundayHours.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Staff Members */}
+                  <div className='space-y-4'>
+                    <h3 className='text-lg font-semibold'>
+                      Staff Members (Optional)
+                    </h3>
+
+                    {/* Add Staff Form */}
+                    <div className='p-4 bg-gray-50 rounded-lg'>
+                      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
+                        <div className='space-y-2'>
+                          <Label htmlFor='staffName'>Staff Name</Label>
+                          <Input
+                            id='staffName'
+                            placeholder='Enter staff member name'
+                            value={currentStaffName}
+                            onChange={(e) =>
+                              setCurrentStaffName(e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className='space-y-2'>
+                          <Label htmlFor='staffPosition'>Position</Label>
+                          <Input
+                            id='staffPosition'
+                            placeholder='e.g., Branch Manager, Sales Executive'
+                            value={currentStaffPosition}
+                            onChange={(e) =>
+                              setCurrentStaffPosition(e.target.value)
+                            }
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        type='button'
+                        onClick={addStaffMember}
+                        disabled={
+                          !currentStaffName.trim() ||
+                          !currentStaffPosition.trim()
+                        }
+                        variant='outline'
+                        className='w-full md:w-auto'
+                      >
+                        <Plus className='h-4 w-4 mr-2' />
+                        Add Staff Member
+                      </Button>
+                    </div>
+
+                    {/* Staff List */}
+                    {staff.length > 0 && (
+                      <div className='space-y-2'>
+                        <Label>Added Staff Members</Label>
+                        <div className='space-y-2'>
+                          {staff.map((member, index) => (
+                            <div
+                              key={index}
+                              className='flex items-center justify-between p-3 bg-white border rounded-lg'
+                            >
+                              <div>
+                                <p className='font-medium'>{member.name}</p>
+                                <p className='text-sm text-muted-foreground'>
+                                  {member.position}
+                                </p>
+                              </div>
+                              <Button
+                                type='button'
+                                variant='ghost'
+                                size='sm'
+                                onClick={() => removeStaffMember(index)}
+                                className='text-red-600 hover:text-red-700'
+                              >
+                                <X className='h-4 w-4' />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
-                </div>
 
-                {/* Form Actions */}
-                <div className='flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t'>
-                  <Link to='/admin/dashboard'>
-                    <Button variant='outline' className='w-full sm:w-auto'>
-                      Cancel
+                  {/* Preview */}
+                  <div className='space-y-4'>
+                    <h3 className='text-lg font-semibold'>Preview</h3>
+                    <div className='p-4 bg-blue-50 rounded-lg'>
+                      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
+                        <div>
+                          <p>
+                            <strong>Name:</strong> {watch("name") || "Not set"}
+                          </p>
+                          <p>
+                            <strong>Phone:</strong>{" "}
+                            {watch("phone") || "Not set"}
+                          </p>
+                          <p>
+                            <strong>Email:</strong>{" "}
+                            {watch("email") || "Not set"}
+                          </p>
+                        </div>
+                        <div>
+                          <p>
+                            <strong>Weekdays:</strong>{" "}
+                            {watch("weekdayHours") || "Not set"}
+                          </p>
+                          <p>
+                            <strong>Saturday:</strong>{" "}
+                            {watch("saturdayHours") || "Not set"}
+                          </p>
+                          <p>
+                            <strong>Sunday:</strong>{" "}
+                            {watch("sundayHours") || "Not set"}
+                          </p>
+                          <p>
+                            <strong>Staff Count:</strong> {staff.length}
+                          </p>
+                        </div>
+                      </div>
+                      {watch("address") && (
+                        <div className='mt-2'>
+                          <p>
+                            <strong>Address:</strong> {watch("address")}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Form Actions */}
+                  <div className='flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t'>
+                    <Link to='/admin/dashboard'>
+                      <Button variant='outline' className='w-full sm:w-auto'>
+                        Cancel
+                      </Button>
+                    </Link>
+                    <Button
+                      type='submit'
+                      disabled={isLoading}
+                      className='w-full sm:w-auto bg-red-600 hover:bg-red-700'
+                    >
+                      {isLoading ? "Creating Branch..." : "Create Branch"}
                     </Button>
-                  </Link>
-                  <Button
-                    type='submit'
-                    disabled={isLoading}
-                    className='w-full sm:w-auto bg-red-600 hover:bg-red-700'
-                  >
-                    {isLoading ? "Creating Branch..." : "Create Branch"}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </motion.div>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
