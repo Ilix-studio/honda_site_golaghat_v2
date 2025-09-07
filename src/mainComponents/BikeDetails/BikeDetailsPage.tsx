@@ -7,13 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   ChevronLeft,
-  Heart,
   Share2,
   Calculator,
-  Calendar,
-  Star,
-  Plus,
-  Minus,
   Loader2,
   AlertCircle,
   Stamp,
@@ -33,7 +28,6 @@ export default function BikeDetailsPage() {
   const dispatch = useAppDispatch();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState("");
-  const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
 
   // Use skipToken when bikeId is undefined to prevent unnecessary API calls
@@ -74,36 +68,15 @@ export default function BikeDetailsPage() {
     }
   };
 
-  const handleAddToWishlist = () => {
-    dispatch(
-      addNotification({
-        type: "success",
-        message: `${bike?.modelName} added to wishlist!`,
-      })
-    );
-  };
-
-  const handleBookTestRide = () => {
-    dispatch(
-      addNotification({
-        type: "info",
-        message: "Test ride booking feature coming soon!",
-      })
-    );
-  };
-
   const handleFinance = () => {
     navigate("/finance");
   };
-  const handleQuantityChange = (change: number) => {
-    setQuantity(Math.max(1, quantity + change));
-  };
 
-  const handleBuyNow = () => {
+  const handleBookNow = () => {
     dispatch(
       addNotification({
         type: "info",
-        message: "Purchase feature coming soon!",
+        message: "Booking feature coming soon!",
       })
     );
   };
@@ -292,21 +265,6 @@ export default function BikeDetailsPage() {
                   </Badge>
                   <Badge variant='outline'>{bike.year}</Badge>
                 </div>
-
-                {/* Rating */}
-                <div className='flex items-center gap-2 mb-4'>
-                  <div className='flex items-center'>
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className='h-4 w-4 fill-yellow-400 text-yellow-400'
-                      />
-                    ))}
-                  </div>
-                  <span className='text-sm text-muted-foreground'>
-                    4.8 (124 reviews)
-                  </span>
-                </div>
               </div>
 
               {/* Specifications */}
@@ -372,60 +330,19 @@ export default function BikeDetailsPage() {
                 </div>
               )}
 
-              {/* Quantity and Actions */}
+              {/* Action Buttons */}
               <div className='space-y-4'>
-                <div className='flex items-center gap-4'>
-                  <span className='font-medium'>Quantity:</span>
-                  <div className='flex items-center border rounded-lg'>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      onClick={() => handleQuantityChange(-1)}
-                      disabled={quantity <= 1}
-                    >
-                      <Minus className='h-4 w-4' />
-                    </Button>
-                    <span className='px-4 py-2 border-x'>{quantity}</span>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      onClick={() => handleQuantityChange(1)}
-                      disabled={!bike.inStock}
-                    >
-                      <Plus className='h-4 w-4' />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className='grid grid-cols-2 gap-4'>
-                  <Button
-                    onClick={handleBookTestRide}
-                    variant='outline'
-                    className='w-full'
-                  >
-                    <Calendar className='h-4 w-4 mr-2' />
-                    Book Test Ride
-                  </Button>
-                  <Button
-                    onClick={handleBuyNow}
-                    disabled={!bike.inStock}
-                    className='w-full'
-                  >
-                    <Calculator className='h-4 w-4 mr-2' />
-                    Buy Now
-                  </Button>
-                </div>
+                <Button
+                  onClick={handleBookNow}
+                  disabled={!bike.inStock}
+                  className='w-full'
+                  size='lg'
+                >
+                  <Calculator className='h-4 w-4 mr-2' />
+                  Book Now
+                </Button>
 
                 <div className='grid grid-cols-2 gap-4'>
-                  <Button
-                    onClick={handleAddToWishlist}
-                    variant='outline'
-                    className='w-full'
-                  >
-                    <Heart className='h-4 w-4 mr-2' />
-                    Add to Wishlist
-                  </Button>
                   <Button
                     onClick={handleShare}
                     variant='outline'
@@ -490,15 +407,12 @@ export default function BikeDetailsPage() {
                 <h3 className='font-semibold mb-4'>Service & Support</h3>
                 <div className='space-y-3'>
                   <div className='flex items-center gap-2'>
-                    <Star className='h-4 w-4 text-yellow-400' />
                     <span className='text-sm'>2 Years Warranty</span>
                   </div>
                   <div className='flex items-center gap-2'>
-                    <Star className='h-4 w-4 text-yellow-400' />
                     <span className='text-sm'>Free Service for 6 months</span>
                   </div>
                   <div className='flex items-center gap-2'>
-                    <Star className='h-4 w-4 text-yellow-400' />
                     <span className='text-sm'>24/7 Roadside Assistance</span>
                   </div>
                   <Link to='/book-service'>

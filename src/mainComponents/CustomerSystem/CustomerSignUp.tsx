@@ -21,13 +21,27 @@ import {
   registrationStarted,
   selectCustomerAuth,
 } from "@/redux-store/slices/customer/customerAuthSlice";
-import { setError } from "@/redux-store/slices/authSlice";
+import {
+  selectAuth,
+  selectIsAdmin,
+  setError,
+} from "@/redux-store/slices/authSlice";
+import { useSelector } from "react-redux";
+import NotFoundPage from "../NotFoundPage";
 
 interface CustomerSignUpProps {
   onSignUpSuccess?: () => void;
 }
 
 const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
+  const { isAuthenticated } = useSelector(selectAuth);
+  const isAdmin = useSelector(selectIsAdmin);
+
+  // Check if user is authenticated admin
+  if (!isAuthenticated || !isAdmin) {
+    return <NotFoundPage />;
+  }
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate(); // Add navigation hook
   const { error } = useAppSelector(selectCustomerAuth);

@@ -2,6 +2,7 @@ import { useCreateProfileMutation } from "@/redux-store/services/customer/custom
 
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { CustomerDashHeader } from "../Home/Header/CustomerDashHeader";
 
 interface CreateProfileRequest {
@@ -32,9 +33,8 @@ interface RootState {
 }
 
 const CustomerCreateProfile: React.FC = () => {
+  const navigate = useNavigate();
   const customerAuth = useSelector((state: RootState) => state.customerAuth);
-  // console.log("Customer auth state:", customerAuth);
-  // console.log("Firebase Token:", customerAuth.firebaseToken);
 
   const [createProfile, { isLoading, error }] = useCreateProfileMutation();
   const [formData, setFormData] = useState<CreateProfileRequest>({
@@ -130,8 +130,10 @@ const CustomerCreateProfile: React.FC = () => {
       const result = await createProfile(profileData).unwrap();
       console.log("Profile created successfully:", result);
 
-      // Handle success (redirect, show success message, etc.)
-      alert("Profile created successfully!");
+      // Navigate back to InitialDashboard with success state
+      navigate("/customer-initialize", {
+        state: { profileCompleted: true },
+      });
     } catch (err) {
       console.error("Failed to create profile:", err);
 
