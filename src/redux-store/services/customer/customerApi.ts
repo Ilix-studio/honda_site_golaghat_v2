@@ -1,10 +1,11 @@
 import { customerBaseQuery } from "@/lib/customerApiConfigs";
+
+import { createApi } from "@reduxjs/toolkit/query/react";
 import {
   CreateProfileRequest,
   Customer,
   CustomerAuthResponse,
 } from "@/types/customer/customer.types";
-import { createApi } from "@reduxjs/toolkit/query/react";
 
 export const customerApi = createApi({
   reducerPath: "customerApi",

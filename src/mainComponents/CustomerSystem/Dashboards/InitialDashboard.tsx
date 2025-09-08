@@ -65,7 +65,7 @@ const InitialDashboard: React.FC = () => {
   };
 
   const onAddMotorcycle = () => {
-    console.log("Navigate to customer-motor-info");
+    navigate("/customer-vehicle-info");
   };
 
   const onCreateService = () => {
@@ -92,8 +92,8 @@ const InitialDashboard: React.FC = () => {
       completed: completionStatus.profile,
     },
     {
-      id: "motorcycle",
-      title: "Add Motorcycle Info",
+      id: "vehicle",
+      title: "Add Vehicle Info",
       buttonText: "Add",
       icon: Bike,
       onClick: onAddMotorcycle,

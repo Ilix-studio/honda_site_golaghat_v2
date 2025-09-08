@@ -29,7 +29,7 @@ import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
 import CustomerSignUp from "./mainComponents/CustomerSystem/CustomerSignUp";
 import CustomerDash from "./mainComponents/CustomerSystem/Dashboards/CustomerMainDash";
 import CustomerCreateProfile from "./mainComponents/CustomerSystem/CustomerCreateProfile";
-import CustomerMotorsInfo from "./mainComponents/CustomerSystem/MotorInfo/CustomerMotorsInfo";
+import CustomerVehicleInfo from "./mainComponents/CustomerSystem/MotorInfo/CustomerVehicleInfo";
 import InitialDashboard from "./mainComponents/CustomerSystem/Dashboards/InitialDashboard";
 
 // import TestBike from "./mainComponents/TestBike";
@@ -81,7 +81,10 @@ const App: React.FC = () => {
         <Route path='/customer-initialize' element={<InitialDashboard />} />
         <Route path='/customer-profile' element={<CustomerCreateProfile />} />
 
-        <Route path='/customer-motor-info' element={<CustomerMotorsInfo />} />
+        <Route
+          path='/customer-vehicle-info'
+          element={<CustomerVehicleInfo />}
+        />
         <Route path='/customer-dash' element={<CustomerDash />} />
 
         {/* Compare Bike  */}
