@@ -31,6 +31,7 @@ import CustomerDash from "./mainComponents/CustomerSystem/Dashboards/CustomerMai
 import CustomerCreateProfile from "./mainComponents/CustomerSystem/CustomerCreateProfile";
 import CustomerVehicleInfo from "./mainComponents/CustomerSystem/MotorInfo/CustomerVehicleInfo";
 import InitialDashboard from "./mainComponents/CustomerSystem/Dashboards/InitialDashboard";
+import CreateServicePacks from "./mainComponents/Admin/ServicePackages/CreateServicePacks";
 
 // import TestBike from "./mainComponents/TestBike";
 
@@ -67,6 +68,12 @@ const App: React.FC = () => {
         {/* Branch Management Routes */}
         <Route path='/admin/addbranch' element={<AddBranch />} />
         <Route path='/admin/managers' element={<BranchManager />} />
+
+        {/* Service Packages Routes */}
+        <Route
+          path='/admin/service-packages'
+          element={<CreateServicePacks />}
+        />
 
         {/* Branches  */}
         <Route path='/branches' element={<BranchesPage />} />
