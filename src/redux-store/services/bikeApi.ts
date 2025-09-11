@@ -28,7 +28,7 @@ export interface CreateBikeRequest {
   category: string;
   year: number;
   price: number;
-  engine: string;
+  engineSize: string;
   power: number;
   transmission: string;
   features?: string[];

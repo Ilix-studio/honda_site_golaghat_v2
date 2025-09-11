@@ -28,6 +28,7 @@ import {
 } from "@/redux-store/slices/authSlice";
 import { useSelector } from "react-redux";
 import NotFoundPage from "../NotFoundPage";
+import { useSaveAuthDataMutation } from "@/redux-store/services/customer/customerLoginApi";
 
 interface CustomerSignUpProps {
   onSignUpSuccess?: () => void;
@@ -41,6 +42,7 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
   if (!isAuthenticated || !isAdmin) {
     return <NotFoundPage />;
   }
+  const [saveAuthData] = useSaveAuthDataMutation();
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate(); // Add navigation hook
@@ -173,6 +175,13 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
       const firebaseUser = result.user;
       const idToken = await firebaseUser.getIdToken();
 
+      // ✅ Save to backend
+      const backendResponse = await saveAuthData({
+        phoneNumber:
+          firebaseUser.phoneNumber?.replace("+91", "") || phoneNumber,
+        firebaseUid: firebaseUser.uid,
+      }).unwrap();
+
       // Log the idToken for debugging
       console.log("Firebase ID Token:", idToken);
 
@@ -180,9 +189,8 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
       dispatch(
         loginSuccess({
           customer: {
-            id: firebaseUser.uid,
-            phoneNumber:
-              firebaseUser.phoneNumber?.replace("+91", "") || phoneNumber,
+            id: backendResponse.data.customer._id,
+            phoneNumber: backendResponse.data.customer.phoneNumber,
             firebaseUid: firebaseUser.uid,
             isVerified: true,
           },

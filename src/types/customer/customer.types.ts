@@ -34,3 +34,20 @@ export interface CustomerAuthResponse {
     token?: string;
   };
 }
+export interface SaveAuthDataRequest {
+  phoneNumber: string;
+  firebaseUid: string;
+}
+
+export interface SaveAuthDataResponse {
+  success: boolean;
+  message: string;
+  data: {
+    customer: {
+      _id: string;
+      phoneNumber: string;
+      isVerified: boolean;
+      profileCompleted: boolean;
+    };
+  };
+}

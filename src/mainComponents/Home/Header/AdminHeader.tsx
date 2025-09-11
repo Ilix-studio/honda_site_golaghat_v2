@@ -113,22 +113,39 @@ const AdminHeader = () => {
 
   const handleLogout = async () => {
     try {
-      await logoutAdmin().unwrap();
-      dispatch(logout());
+      // Show loading state
+      setIsMenuOpen(false);
+
+      const result = await logoutAdmin().unwrap();
+
+      // Clear any additional client-side data
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
       dispatch(
         addNotification({
           type: "success",
-          message: "Logged out successfully",
+          message: result.message || "Logged out successfully",
         })
       );
-      navigate("/");
-    } catch (error) {
+
+      // Force navigation after successful logout
+      navigate("/", { replace: true });
+    } catch (error: any) {
+      // Even on error, clear local state and redirect
+      dispatch(logout());
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
       dispatch(
         addNotification({
           type: "error",
-          message: "Error logging out",
+          message: error?.data?.message || "Error logging out",
         })
       );
+
+      // Still redirect to home
+      navigate("/", { replace: true });
     }
   };
 

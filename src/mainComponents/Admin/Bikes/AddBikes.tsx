@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,39 +21,82 @@ import { useGetBranchesQuery } from "../../../redux-store/services/branchApi";
 import { addNotification } from "../../../redux-store/slices/uiSlice";
 import { useCreateBikeMutation } from "@/redux-store/services/bikeApi";
 
-// Form schema
-const bikeSchema = z.object({
-  modelName: z.string().min(1, "Model name is required"),
-  category: z.enum([
-    "sport",
-    "adventure",
-    "cruiser",
-    "touring",
-    "naked",
-    "electric",
-  ]),
-  year: z
-    .number()
-    .min(2000)
-    .max(new Date().getFullYear() + 1),
-  price: z.number().min(1, "Price must be greater than 0"),
-  engine: z.string().min(1, "Engine details are required"),
-  power: z.number().min(1, "Power is required"),
-  transmission: z.string().min(1, "Transmission details are required"),
-  features: z.array(z.string()).optional(),
-  colors: z.array(z.string()).optional(),
-  images: z.array(z.string()).optional(),
-  inStock: z.boolean().optional(),
-  quantity: z.number().min(0).optional(),
-  branch: z.string().min(1, "Branch is required"),
-});
-
-type BikeFormData = z.infer<typeof bikeSchema>;
+// Form data interface
+interface BikeFormData {
+  modelName: string;
+  category:
+    | "sport"
+    | "adventure"
+    | "cruiser"
+    | "touring"
+    | "naked"
+    | "electric";
+  year: number;
+  price: number;
+  engineSize: string;
+  power: number;
+  transmission: string;
+  features?: string[];
+  colors?: string[];
+  images?: string[];
+  inStock?: boolean;
+  quantity?: number;
+  branch: string;
+}
 
 interface ImageFile {
   file: File;
   preview: string;
 }
+
+// Form validation function
+const validateForm = (data: BikeFormData): Record<string, string> => {
+  const errors: Record<string, string> = {};
+
+  if (!data.modelName?.trim()) {
+    errors.modelName = "Model name is required";
+  }
+
+  if (!data.category) {
+    errors.category = "Category is required";
+  }
+
+  if (
+    !data.year ||
+    data.year < 2000 ||
+    data.year > new Date().getFullYear() + 1
+  ) {
+    errors.year = `Year must be between 2000 and ${
+      new Date().getFullYear() + 1
+    }`;
+  }
+
+  if (!data.price || data.price <= 0) {
+    errors.price = "Price must be greater than 0";
+  }
+
+  if (!data.engineSize?.trim()) {
+    errors.engineSize = "Engine details are required";
+  }
+
+  if (!data.power || data.power <= 0) {
+    errors.power = "Power is required";
+  }
+
+  if (!data.transmission?.trim()) {
+    errors.transmission = "Transmission details are required";
+  }
+
+  if (!data.branch?.trim()) {
+    errors.branch = "Branch is required";
+  }
+
+  if (data.quantity !== undefined && data.quantity < 0) {
+    errors.quantity = "Quantity cannot be negative";
+  }
+
+  return errors;
+};
 
 const AddBikes = () => {
   const dispatch = useAppDispatch();
@@ -64,12 +105,12 @@ const AddBikes = () => {
   const [currentColor, setCurrentColor] = useState("");
   const [selectedImages, setSelectedImages] = useState<ImageFile[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const { data: branchesData } = useGetBranchesQuery();
   const [createBike, { isLoading }] = useCreateBikeMutation();
 
   const form = useForm<BikeFormData>({
-    resolver: zodResolver(bikeSchema),
     defaultValues: {
       features: [],
       colors: [],
@@ -79,13 +120,8 @@ const AddBikes = () => {
     },
   });
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-    setValue,
-  } = form;
+  const { register, handleSubmit, watch, setValue } = form;
+
   const watchedFeatures = watch("features") || [];
   const watchedColors = watch("colors") || [];
 
@@ -261,6 +297,16 @@ const AddBikes = () => {
   };
 
   const onSubmit = async (data: BikeFormData) => {
+    // Clear previous errors
+    setFormErrors({});
+
+    // Validate form
+    const errors = validateForm(data);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
     try {
       // Upload images first
       const imageUrls = await uploadImages();
@@ -333,11 +379,11 @@ const AddBikes = () => {
                   <Input
                     id='modelName'
                     {...register("modelName")}
-                    className={errors.modelName ? "border-red-500" : ""}
+                    className={formErrors.modelName ? "border-red-500" : ""}
                   />
-                  {errors.modelName && (
+                  {formErrors.modelName && (
                     <p className='text-red-500 text-sm'>
-                      {errors.modelName.message}
+                      {formErrors.modelName}
                     </p>
                   )}
                 </div>
@@ -350,7 +396,7 @@ const AddBikes = () => {
                     }
                   >
                     <SelectTrigger
-                      className={errors.category ? "border-red-500" : ""}
+                      className={formErrors.category ? "border-red-500" : ""}
                     >
                       <SelectValue placeholder='Select category' />
                     </SelectTrigger>
@@ -363,9 +409,9 @@ const AddBikes = () => {
                       <SelectItem value='electric'>Electric</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.category && (
+                  {formErrors.category && (
                     <p className='text-red-500 text-sm'>
-                      {errors.category.message}
+                      {formErrors.category}
                     </p>
                   )}
                 </div>
@@ -378,12 +424,10 @@ const AddBikes = () => {
                     id='year'
                     type='number'
                     {...register("year", { valueAsNumber: true })}
-                    className={errors.year ? "border-red-500" : ""}
+                    className={formErrors.year ? "border-red-500" : ""}
                   />
-                  {errors.year && (
-                    <p className='text-red-500 text-sm'>
-                      {errors.year.message}
-                    </p>
+                  {formErrors.year && (
+                    <p className='text-red-500 text-sm'>{formErrors.year}</p>
                   )}
                 </div>
 
@@ -393,12 +437,10 @@ const AddBikes = () => {
                     id='price'
                     type='number'
                     {...register("price", { valueAsNumber: true })}
-                    className={errors.price ? "border-red-500" : ""}
+                    className={formErrors.price ? "border-red-500" : ""}
                   />
-                  {errors.price && (
-                    <p className='text-red-500 text-sm'>
-                      {errors.price.message}
-                    </p>
+                  {formErrors.price && (
+                    <p className='text-red-500 text-sm'>{formErrors.price}</p>
                   )}
                 </div>
 
@@ -408,12 +450,10 @@ const AddBikes = () => {
                     id='power'
                     type='number'
                     {...register("power", { valueAsNumber: true })}
-                    className={errors.power ? "border-red-500" : ""}
+                    className={formErrors.power ? "border-red-500" : ""}
                   />
-                  {errors.power && (
-                    <p className='text-red-500 text-sm'>
-                      {errors.power.message}
-                    </p>
+                  {formErrors.power && (
+                    <p className='text-red-500 text-sm'>{formErrors.power}</p>
                   )}
                 </div>
               </div>
@@ -424,14 +464,12 @@ const AddBikes = () => {
                   <Label htmlFor='engine'>Engine</Label>
                   <Input
                     id='engine'
-                    {...register("engine")}
+                    {...register("engineSize")}
                     placeholder='e.g., 150cc Single Cylinder'
-                    className={errors.engine ? "border-red-500" : ""}
+                    className={formErrors.engine ? "border-red-500" : ""}
                   />
-                  {errors.engine && (
-                    <p className='text-red-500 text-sm'>
-                      {errors.engine.message}
-                    </p>
+                  {formErrors.engine && (
+                    <p className='text-red-500 text-sm'>{formErrors.engine}</p>
                   )}
                 </div>
 
@@ -441,11 +479,11 @@ const AddBikes = () => {
                     id='transmission'
                     {...register("transmission")}
                     placeholder='e.g., 5-Speed Manual'
-                    className={errors.transmission ? "border-red-500" : ""}
+                    className={formErrors.transmission ? "border-red-500" : ""}
                   />
-                  {errors.transmission && (
+                  {formErrors.transmission && (
                     <p className='text-red-500 text-sm'>
-                      {errors.transmission.message}
+                      {formErrors.transmission}
                     </p>
                   )}
                 </div>
@@ -597,14 +635,20 @@ const AddBikes = () => {
                     id='quantity'
                     type='number'
                     {...register("quantity", { valueAsNumber: true })}
+                    className={formErrors.quantity ? "border-red-500" : ""}
                   />
+                  {formErrors.quantity && (
+                    <p className='text-red-500 text-sm'>
+                      {formErrors.quantity}
+                    </p>
+                  )}
                 </div>
 
                 <div className='space-y-2'>
                   <Label htmlFor='branch'>Branch</Label>
                   <Select onValueChange={(value) => setValue("branch", value)}>
                     <SelectTrigger
-                      className={errors.branch ? "border-red-500" : ""}
+                      className={formErrors.branch ? "border-red-500" : ""}
                     >
                       <SelectValue placeholder='Select branch' />
                     </SelectTrigger>
@@ -616,10 +660,8 @@ const AddBikes = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  {errors.branch && (
-                    <p className='text-red-500 text-sm'>
-                      {errors.branch.message}
-                    </p>
+                  {formErrors.branch && (
+                    <p className='text-red-500 text-sm'>{formErrors.branch}</p>
                   )}
                 </div>
               </div>

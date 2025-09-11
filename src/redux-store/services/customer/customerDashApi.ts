@@ -20,8 +20,6 @@ export const customerDashboardApi = createApi({
   tagTypes: ["CustomerDashboard", "Vehicle", "VehicleStats", "ServiceHistory"],
   keepUnusedDataFor: 300, // 5 minutes
   endpoints: (builder) => ({
-    // ===== CUSTOMER ENDPOINTS =====
-
     // Get customer dashboard overview
     getCustomerDashboard: builder.query<CustomerDashboardResponse, void>({
       query: () => "/customer-dashboard",

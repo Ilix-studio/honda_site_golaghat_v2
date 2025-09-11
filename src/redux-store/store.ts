@@ -38,6 +38,7 @@ import { getApprovedApi } from "./services/getApprovedApi";
 import { visitorApi } from "./services/visitorApi";
 //
 import { customerApi } from "./services/customer/customerApi";
+import { customerLoginApi } from "./services/customer/customerLoginApi";
 import { customerDashboardApi } from "./services/customer/customerDashApi";
 
 // Create IndexedDB storage for redux-persist
@@ -83,6 +84,8 @@ const rootReducer = combineReducers({
   [visitorApi.reducerPath]: visitorApi.reducer,
   //new
   [customerApi.reducerPath]: customerApi.reducer,
+  [customerLoginApi.reducerPath]: customerLoginApi.reducer,
+
   [customerDashboardApi.reducerPath]: customerDashboardApi.reducer,
 });
 
@@ -107,6 +110,7 @@ export const store = configureStore({
       getApprovedApi.middleware,
       customerApi.middleware,
       customerDashboardApi.middleware,
+      customerLoginApi.middleware,
       visitorApi.middleware
     ),
 });

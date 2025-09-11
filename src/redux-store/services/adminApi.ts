@@ -58,8 +58,17 @@ export const adminAuthApi = createApi({
         try {
           await queryFulfilled;
           dispatch(logout());
+          // Clear local storage token if you're storing it there
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+
+          // Clear any other auth-related storage
+          sessionStorage.clear();
         } catch (error) {
           console.error("Logout failed:", error);
+          dispatch(logout());
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
         }
       },
     }),
