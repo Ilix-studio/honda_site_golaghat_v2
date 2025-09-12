@@ -128,12 +128,6 @@ export function Header() {
               Contact
             </Link>
           </nav>
-          {/* <div className='flex items-center gap-2'>
-            <Link to='/book-service'>
-              <Button>Book Service</Button>
-            </Link>
-          </div> */}
-          {/* Authorize user like customer can see  */}
         </div>
 
         <button className='md:hidden' onClick={handleMobileMenuToggle}>

@@ -156,26 +156,23 @@ export function ContactSection({ branch }: any) {
   };
 
   // Title and description based on whether a specific branch is selected
-  const title = branch ? `Contact ${branch.name}` : "Contact Us";
-  const description = branch
-    ? `Get in touch with our ${branch.name
-        .split(" ")
-        .pop()} branch for personalized assistance`
-    : "Visit our dealership or get in touch with our team for any inquiries about Honda motorcycles";
+  const title = branch ? `Contact ${branch.name}` : "Connect With Us";
 
   return (
-    <section className='py-16 bg-gray-50'>
+    <section id='contact' className='py-16 bg-gray-50'>
       <div className='container px-4 md:px-6'>
         <motion.div
-          className='text-center mb-12'
+          className='text-center mb-8'
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.5 }}
         >
-          <h2 className='text-3xl font-bold tracking-tight'>{title}</h2>
-          <p className='mt-4 text-lg text-muted-foreground max-w-2xl mx-auto'>
-            {description}
+          <h2 className='text-2xl md:text-3xl font-bold tracking-tight'>
+            {title}
+          </h2>
+          <p className='mt-2 text-muted-foreground max-w-2xl mx-auto'>
+            Discover what makes Honda motorcycles stand out from the crowd
           </p>
         </motion.div>
 
