@@ -1,6 +1,6 @@
 import { Key, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, ArrowLeft } from "lucide-react";
 // import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -53,15 +53,7 @@ export function Header() {
     >
       <div className='container flex items-center justify-between h-16 px-4 md:px-6'>
         <Link to='/' className='flex items-center' onClick={closeMobileMenu}>
-          <motion.div
-            className='text-3xl md:text-1xl lg:text-3xl font-bold bg-gradient-to-r from-red-600 via-red-700 to-red-800 bg-clip-text text-transparent hover:from-red-500 hover:via-red-600 hover:to-red-700 transition-all duration-300'
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            whileHover={{ scale: 1.02 }}
-          >
-            <span className='font-black tracking-tight'>Tsangpool Honda</span>
-          </motion.div>
+          <ArrowLeft />
         </Link>
 
         <div className='hidden md:flex md:items-center md:gap-4'>

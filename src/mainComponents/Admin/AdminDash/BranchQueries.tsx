@@ -2,7 +2,16 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-import { TrendingUp, Plus, Building2, Users } from "lucide-react";
+import {
+  TrendingUp,
+  Plus,
+  Building2,
+  Users,
+  User,
+  Cog,
+  Box,
+  SplinePointer,
+} from "lucide-react";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 import { useGetAllBranchManagersQuery } from "@/redux-store/services/branchManagerApi";
 
@@ -23,6 +32,14 @@ const BranchQueries = () => {
   // Dashboard stats
   const stats = [
     {
+      title: "Register Customer",
+      value: "₹2.5L",
+      icon: User,
+      loading: false,
+      description: "Total Customers",
+      action: { label: "Open Sign-up form", href: "/admin/reports" },
+    },
+    {
       title: "Branches",
       value: branchesData?.count || 0,
       icon: Building2,
@@ -40,14 +57,6 @@ const BranchQueries = () => {
     },
     {
       title: "This Month",
-      value: "₹2.5L",
-      icon: TrendingUp,
-      loading: false,
-      description: "Sales revenue",
-      action: { label: "View Report", href: "/admin/reports" },
-    },
-    {
-      title: "Register Customer",
       value: "₹2.5L",
       icon: TrendingUp,
       loading: false,
@@ -145,14 +154,20 @@ const BranchQueries = () => {
             </Link>
             <Link to='/admin/branches'>
               <Button className='w-full justify-start' variant='outline'>
-                <Building2 className='h-4 w-4 mr-2' />
+                <SplinePointer className='h-4 w-4 mr-2' />
                 Manage Branches
               </Button>
             </Link>
             <Link to='/admin/service-packages'>
               <Button className='w-full justify-start' variant='outline'>
-                <Building2 className='h-4 w-4 mr-2' />
+                <Box className='h-4 w-4 mr-2' />
                 Add Service Packages
+              </Button>
+            </Link>
+            <Link to='/admin'>
+              <Button className='w-full justify-start' variant='outline'>
+                <Cog className='h-4 w-4 mr-2' />
+                Add Value Added Services
               </Button>
             </Link>
           </CardContent>
