@@ -1,5 +1,6 @@
 import React from "react";
-import { Wrench, User, Shield, Award } from "lucide-react";
+import { Wrench, User, Shield } from "lucide-react";
+import { motion } from "framer-motion";
 
 const ServiceDetails: React.FC = () => {
   const serviceFeatures = [
@@ -48,7 +49,7 @@ const ServiceDetails: React.FC = () => {
         </div>
 
         {/* Service Features Grid */}
-        <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12'>
+        <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20'>
           {serviceFeatures.map((feature, index) => (
             <div
               key={index}
@@ -66,25 +67,31 @@ const ServiceDetails: React.FC = () => {
             </div>
           ))}
         </div>
-
-        {/* Value Added Services Section */}
-        <div className='bg-white rounded-2xl shadow-lg p-8'>
-          <div className='flex items-center justify-center mb-6'>
-            <Award className='w-10 h-10 text-red-600 mr-3' />
-            <h2 className='text-2xl font-bold text-gray-800'>
-              Value-Added Services
+      </div>
+      {/* Value Added Services Section */}
+      <div className='bg rounded-2xl  p-8 mb-7'>
+        <div className='flex items-center justify-center mb-6'>
+          <motion.div
+            className='text-center mb-8'
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className='text-2xl md:text-3xl font-bold tracking-tight'>
+              Our Value-Added Services
             </h2>
-          </div>
-          <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-4'>
-            {valueAddedServices.map((service, index) => (
-              <div
-                key={index}
-                className='bg-gray-50 rounded-lg p-4 text-center hover:bg-red-50 transition-colors duration-200'
-              >
-                <span className='text-gray-700 font-medium'>{service}</span>
-              </div>
-            ))}
-          </div>
+          </motion.div>
+        </div>
+        <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-4 '>
+          {valueAddedServices.map((service, index) => (
+            <div
+              key={index}
+              className='bg-gray-50 rounded-lg p-4 border-l-5 text-center hover:bg-red-50 transition-colors duration-200'
+            >
+              <span className='text-gray-700 font-medium'>{service}</span>
+            </div>
+          ))}
         </div>
       </div>
     </section>

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  ChevronLeft,
   ChevronRight,
   Menu,
   X,
@@ -12,6 +11,7 @@ import {
 } from "lucide-react";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Link } from "react-router-dom";
 
 const carouselImages = [
   "https://firebasestorage.googleapis.com/v0/b/tsangpool-honda-otp.firebasestorage.app/o/pexels-deepak-kp-432261610-27491269.jpg?alt=media&token=0cd21446-2b65-452b-aab9-47eac093f051",
@@ -44,13 +44,6 @@ export default function NewUI() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const nextSlide = () =>
-    setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
-  const prevSlide = () =>
-    setCurrentSlide(
-      (prev) => (prev - 1 + carouselImages.length) % carouselImages.length
-    );
-
   return (
     <div className='min-h-screen bg-black overflow-hidden'>
       {/* Futuristic Navigation */}
@@ -75,7 +68,7 @@ export default function NewUI() {
               </div>
               <div>
                 <span className='text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent'>
-                  TsangPool Honda
+                  Tsangpool Honda
                 </span>
                 <div className='text-xs text-red-400 font-medium tracking-wider'>
                   AUTHORIZED DEALER
@@ -278,20 +271,26 @@ export default function NewUI() {
 
             {/* CTA Buttons */}
             <div className='flex flex-col sm:flex-row gap-6 animate-fadeInUp animation-delay-600'>
-              <Button
-                size='lg'
-                className='bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white px-10 py-6 text-lg font-semibold shadow-2xl shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 hover:scale-105'
-              >
-                Explore Models
-                <ChevronRight className='ml-2 h-5 w-5' />
-              </Button>
-              <Button
-                size='lg'
-                variant='outline'
-                className='border-2 border-white/30 text-black hover:bg-white/10 backdrop-blur-sm px-10 py-6 text-lg font-semibold transition-all duration-300 hover:scale-105'
-              >
-                For Finance Details
-              </Button>
+              <Link to='/view-all'>
+                <Button
+                  size='lg'
+                  className='bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white px-10 py-6 text-lg font-semibold shadow-2xl shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 hover:scale-105'
+                >
+                  Explore Models
+                  <ChevronRight className='ml-2 h-5 w-5' />
+                </Button>
+              </Link>
+              <Link to='/finance'>
+                <Button
+                  size='lg'
+                  variant='outline'
+                  className='border-2 border-white/30 text-black hover:text-white hover:bg-white/10 
+             backdrop-blur-sm px-10 py-6 text-lg font-semibold 
+             transition-all duration-300 hover:scale-105'
+                >
+                  For Finance Details
+                </Button>
+              </Link>
             </div>
 
             {/* Stats Row */}
@@ -313,24 +312,6 @@ export default function NewUI() {
             </div>
           </div>
         </div>
-
-        {/* Enhanced Carousel Controls */}
-        <button
-          onClick={prevSlide}
-          className='absolute left-2 top-1/2 -translate-y-1/2 z-20 group'
-        >
-          <div className='bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full p-3 transition-all duration-300 border border-white/20 hover:border-white/40 hover:scale-110'>
-            <ChevronLeft className='w-3 h-3 text-white' />
-          </div>
-        </button>
-        <button
-          onClick={nextSlide}
-          className='absolute right-2 top-1/2 -translate-y-1/2 z-20 group'
-        >
-          <div className='bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full p-3 transition-all duration-300 border border-white/20 hover:border-white/40 hover:scale-110'>
-            <ChevronRight className='w-3 h-3 text-white' />
-          </div>
-        </button>
 
         {/* Progress Indicators */}
         <div className='absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex space-x-3'>

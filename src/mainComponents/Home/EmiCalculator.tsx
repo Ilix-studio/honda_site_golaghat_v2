@@ -11,7 +11,13 @@ import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Calculator, IndianRupee, Calendar, Percent } from "lucide-react";
+import {
+  Calculator,
+  IndianRupee,
+  Calendar,
+  Percent,
+  Building2,
+} from "lucide-react";
 import {
   PieChart,
   Pie,
@@ -20,10 +26,54 @@ import {
   Legend,
   Tooltip,
 } from "recharts";
+import { Link } from "react-router-dom";
 
 interface EmiCalculatorProps {
   selectedBikePrice?: number;
 }
+
+const bankPartners = [
+  {
+    name: "State Bank of India",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/c/cc/SBI-logo.svg",
+    rate: "7.50%",
+  },
+  {
+    name: "HDFC Bank",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/2/28/HDFC_Bank_Logo.svg",
+    rate: "7.75%",
+  },
+  {
+    name: "ICICI Bank",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/1/12/ICICI_Bank_Logo.svg",
+    rate: "7.99%",
+  },
+  {
+    name: "Axis Bank",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Axis_Bank_logo.svg",
+    rate: "8.25%",
+  },
+  {
+    name: "Kotak Mahindra Bank",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/4/41/Kotak_Mahindra_Bank_logo.svg",
+    rate: "8.50%",
+  },
+  {
+    name: "IndusInd Bank",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/IndusInd_Bank_Logo.svg",
+    rate: "8.75%",
+  },
+  {
+    name: "Yes Bank",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/4/47/YES_BANK_Logo.svg",
+    rate: "9.00%",
+  },
+  {
+    name: "Bank of Baroda",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Bank_of_Baroda_logo.svg",
+    rate: "8.30%",
+  },
+];
 
 export function EmiCalculator({
   selectedBikePrice = 1200000,
@@ -38,7 +88,6 @@ export function EmiCalculator({
   const [totalInterest, setTotalInterest] = useState<number>(0);
   const [totalAmount, setTotalAmount] = useState<number>(0);
 
-  // Memoize the calculateEmi function with useCallback
   const calculateEmi = useCallback((): void => {
     const principal = bikePrice - downPayment;
     const ratePerMonth = interestRate / 100 / 12;
@@ -51,7 +100,6 @@ export function EmiCalculator({
       return;
     }
 
-    // EMI calculation formula: P * r * (1+r)^n / ((1+r)^n - 1)
     const emiValue =
       (principal * ratePerMonth * Math.pow(1 + ratePerMonth, numPayments)) /
       (Math.pow(1 + ratePerMonth, numPayments) - 1);
@@ -59,14 +107,12 @@ export function EmiCalculator({
     setEmi(emiValue);
     setTotalAmount(emiValue * numPayments);
     setTotalInterest(emiValue * numPayments - principal);
-  }, [bikePrice, downPayment, loanTerm, interestRate]); // Add all dependencies
+  }, [bikePrice, downPayment, loanTerm, interestRate]);
 
-  // Calculate EMI when inputs change
   useEffect(() => {
     calculateEmi();
-  }, [calculateEmi]); // Now calculateEmi is the only dependency
+  }, [calculateEmi]);
 
-  // Format currency in Indian Rupees
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -76,7 +122,10 @@ export function EmiCalculator({
     }).format(value);
   };
 
-  // Data for pie chart
+  const selectBankRate = (rate: string) => {
+    setInterestRate(parseFloat(rate.replace("%", "")));
+  };
+
   const data = [
     { name: "Principal", value: bikePrice - downPayment },
     { name: "Interest", value: totalInterest },
@@ -103,12 +152,76 @@ export function EmiCalculator({
           </p>
         </motion.div>
 
+        {/* Bank Partners Section */}
+        <motion.div
+          className='mb-12'
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <Card>
+            <CardHeader className='text-center'>
+              <CardTitle className='flex items-center justify-center gap-2'>
+                <Building2 className='h-5 w-5 text-red-600' />
+                Our Bank Partners
+              </CardTitle>
+              <CardDescription>
+                Click on any bank to use their interest rate in the calculator
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4'>
+                {bankPartners.map((bank, index) => (
+                  <motion.div
+                    key={bank.name}
+                    className='flex flex-col items-center p-4 bg-white border border-gray-200 rounded-lg hover:shadow-lg hover:border-red-200 transition-all duration-300 cursor-pointer group'
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.05 }}
+                    whileHover={{ scale: 1.02 }}
+                    onClick={() => selectBankRate(bank.rate)}
+                  >
+                    <div className='w-14 h-14 mb-2 flex items-center justify-center bg-gray-50 rounded-lg group-hover:bg-red-50 transition-colors'>
+                      <img
+                        src={bank.logo}
+                        alt={`${bank.name} logo`}
+                        className='max-w-10 max-h-10 object-contain'
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = "none";
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.innerHTML = `<div class="text-xs font-medium text-gray-600 text-center">${
+                              bank.name.split(" ")[0]
+                            }</div>`;
+                          }
+                        }}
+                      />
+                    </div>
+                    <h3 className='text-xs font-medium text-center mb-1 text-gray-900 leading-tight'>
+                      {bank.name}
+                    </h3>
+                    <div className='text-xs text-center'>
+                      <span className='text-green-600 font-medium block'>
+                        From
+                      </span>
+                      <div className='text-red-600 font-bold'>{bank.rate}</div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
         <motion.div
           className='grid grid-cols-1 lg:grid-cols-2 gap-8'
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
         >
           <Card>
             <CardHeader>
@@ -152,6 +265,7 @@ export function EmiCalculator({
                   />
                 </div>
               </div>
+              <br />
 
               <div className='space-y-2'>
                 <div className='flex justify-between'>
@@ -186,7 +300,7 @@ export function EmiCalculator({
                   />
                 </div>
               </div>
-
+              <br />
               <div className='space-y-2'>
                 <div className='flex justify-between'>
                   <Label
@@ -216,6 +330,7 @@ export function EmiCalculator({
                   />
                 </div>
               </div>
+              <br />
 
               <div className='space-y-2'>
                 <div className='flex justify-between'>
@@ -338,10 +453,9 @@ export function EmiCalculator({
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-
               <div className='flex flex-col gap-2'>
-                <Button className='bg-red-600 hover:bg-red-700'>
-                  Apply for Financing
+                <Button asChild className='bg-red-600 hover:bg-red-700'>
+                  <Link to='/finance'>Apply for Financing</Link>
                 </Button>
                 <Button variant='outline'>Download Payment Schedule</Button>
               </div>
