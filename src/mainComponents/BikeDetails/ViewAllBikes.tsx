@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSearchParams } from "react-router-dom";
-import { Filter, Grid, List } from "lucide-react";
+import { useSearchParams, Link } from "react-router-dom";
+import { Filter, Grid, List, ChevronLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 
 import { Footer } from "../Home/Footer";
 import { FilterSidebar } from "./DetailsUIParts/FilterSidebar";
 import { CategoryTabs } from "./DetailsUIParts/CategoryTabs";
-import { BikeCard } from "./DetailsUIParts/BikeCard";
 import { NoResults } from "./DetailsUIParts/NoResults";
 import { SortSelector } from "./DetailsUIParts/SortSelector";
 import { ActiveFilters } from "./DetailsUIParts/ActiveFilters";
@@ -21,6 +22,8 @@ import {
 } from "../../redux-store/slices/uiSlice";
 import { useGetBikesQuery } from "../../redux-store/services/BikeSystemApi/bikeApi";
 import { Header } from "../Home/Header/Header";
+import { formatCurrency } from "../../lib/formatters";
+import { Bike } from "../../redux-store/slices/BikeSystemSlice/bikesSlice";
 
 // Skeleton Components
 const Skeleton = ({ className = "", ...props }) => {
@@ -32,180 +35,162 @@ const Skeleton = ({ className = "", ...props }) => {
   );
 };
 
-const CardSkeleton = ({ showImage = true, lines = 3 }) => {
-  return (
-    <div className='bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm'>
-      {showImage && <Skeleton className='w-full h-48 mb-4 rounded-md' />}
-      <div className='space-y-3'>
-        <Skeleton className='h-6 w-3/4' />
-        {Array.from({ length: lines }).map((_, i) => (
-          <Skeleton
-            key={i}
-            className={`h-4 ${i === lines - 1 ? "w-2/3" : "w-full"}`}
-          />
-        ))}
-      </div>
-      <div className='flex justify-between items-center mt-4'>
-        <Skeleton className='h-8 w-20' />
-        <Skeleton className='h-9 w-24' />
-      </div>
-    </div>
-  );
-};
+// Enhanced BikeCard Component
+interface BikeCardProps {
+  bike: Bike;
+}
 
-const CategoryTabsSkeleton = () => {
-  return (
-    <div className='flex flex-wrap gap-2 mb-8'>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <Skeleton key={i} className='h-10 w-24' />
-      ))}
-    </div>
-  );
-};
+const BikeCard: React.FC<BikeCardProps> = ({ bike }) => {
+  const getPrimaryImageUrl = (): string => {
+    if (bike?.images && Array.isArray(bike.images) && bike.images.length > 0) {
+      const primaryImage = bike.images.find((img) => img.isPrimary);
+      if (primaryImage?.src) return primaryImage.src;
 
-const FilterSidebarSkeleton = () => {
-  return (
-    <div className='w-full lg:w-80 space-y-6'>
-      <div className='bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4'>
-        {/* Search */}
-        <div className='space-y-2 mb-6'>
-          <Skeleton className='h-4 w-16' />
-          <Skeleton className='h-10 w-full' />
-        </div>
+      const firstImage = bike.images[0];
+      if (firstImage?.src) return firstImage.src;
+    }
+    return "/api/placeholder/400/300";
+  };
 
-        {/* Price Range */}
-        <div className='space-y-2 mb-6'>
-          <Skeleton className='h-4 w-20' />
-          <Skeleton className='h-6 w-full' />
-          <div className='flex justify-between'>
-            <Skeleton className='h-3 w-16' />
-            <Skeleton className='h-3 w-16' />
-          </div>
-        </div>
+  const formatPrice = (): string => {
+    const price =
+      bike?.priceBreakdown?.onRoadPrice ||
+      bike?.priceBreakdown?.exShowroomPrice;
+    if (typeof price !== "number" || isNaN(price)) return "Price on Request";
 
-        {/* Features */}
-        <div className='space-y-2 mb-6'>
-          <Skeleton className='h-4 w-16' />
-          <div className='space-y-2'>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className='flex items-center space-x-2'>
-                <Skeleton className='h-4 w-4' />
-                <Skeleton className='h-4 w-20' />
-              </div>
-            ))}
-          </div>
-        </div>
+    try {
+      return formatCurrency(price);
+    } catch {
+      return `₹${price.toLocaleString("en-IN")}`;
+    }
+  };
 
-        {/* Reset Button */}
-        <Skeleton className='h-9 w-full' />
-      </div>
-    </div>
-  );
-};
-
-const ControlsBarSkeleton = () => {
-  return (
-    <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6'>
-      <div className='flex items-center gap-4'>
-        <Skeleton className='h-9 w-20 lg:hidden' />
-        <div className='flex items-center gap-2'>
-          <Skeleton className='h-8 w-8' />
-          <Skeleton className='h-8 w-8' />
-        </div>
-      </div>
-
-      <div className='flex items-center gap-4'>
-        <Skeleton className='h-4 w-32' />
-        <Skeleton className='h-9 w-32' />
-      </div>
-    </div>
-  );
-};
-
-const BikeGridSkeleton = ({
-  viewMode,
-  count = 12,
-}: {
-  viewMode: "grid" | "list";
-  count?: number;
-}) => {
   return (
     <motion.div
-      key='skeleton-results'
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className={
-        viewMode === "grid"
-          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-          : "space-y-4"
-      }
+      layout
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.2 }}
     >
-      {Array.from({ length: count }).map((_, i) => (
-        <CardSkeleton key={i} />
-      ))}
+      <Card className='group overflow-hidden border hover:shadow-lg transition-all duration-300 h-full'>
+        <div className='relative'>
+          <div className='aspect-video overflow-hidden bg-gray-100'>
+            <img
+              src={getPrimaryImageUrl()}
+              alt={bike.modelName}
+              className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/api/placeholder/400/300";
+              }}
+            />
+          </div>
+
+          {/* Stock Badge */}
+          <div className='absolute top-3 right-3'>
+            <Badge
+              variant={bike.stockAvailable > 0 ? "default" : "destructive"}
+              className='text-xs'
+            >
+              {bike.stockAvailable > 0 ? "In Stock" : "Out of Stock"}
+            </Badge>
+          </div>
+
+          {/* Year Badge */}
+          <div className='absolute top-3 left-3'>
+            <Badge variant='outline' className='bg-white/90 text-xs'>
+              {bike.year}
+            </Badge>
+          </div>
+        </div>
+
+        <CardContent className='p-4'>
+          <div className='space-y-3'>
+            {/* Model Name */}
+            <h3 className='font-bold text-lg line-clamp-2 group-hover:text-primary transition-colors'>
+              {bike.modelName}
+            </h3>
+
+            {/* Price and Category */}
+            <div className='flex justify-between items-center'>
+              <Badge variant='outline' className='capitalize text-xs'>
+                {bike.category}
+              </Badge>
+              <span className='text-lg font-bold text-primary'>
+                {formatPrice()}
+              </span>
+            </div>
+
+            {/* Key Specifications */}
+            <div className='grid grid-cols-2 gap-2 text-sm text-muted-foreground'>
+              <div>
+                <span className='font-medium text-foreground'>Engine:</span>
+                <br />
+                <span>{bike.engineSize || "N/A"}</span>
+              </div>
+              <div>
+                <span className='font-medium text-foreground'>Power:</span>
+                <br />
+                <span>{bike.power} HP</span>
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <Link to={`/bike-details/${bike._id}`} className='block'>
+              <Button
+                className='w-full mt-4'
+                variant={bike.stockAvailable > 0 ? "default" : "outline"}
+                disabled={bike.stockAvailable === 0}
+              >
+                {bike.stockAvailable > 0 ? "View Details" : "Out of Stock"}
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 };
 
-// Add shimmer animation styles
-const shimmerStyles = `
-  @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-`;
-
-export function ViewAllBikes() {
+const ViewAllBikes: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useAppDispatch();
   const isFilterSidebarOpen = useAppSelector(selectIsFilterSidebarOpen);
-  const [searchParams] = useSearchParams();
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  // Filter states
+  // State management
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 2000000]);
-  const [engineSizeRange, setEngineSizeRange] = useState<[number, number]>([
-    0, 2000,
-  ]);
+  const [priceRange, setPriceRange] = useState([0, 2000000]);
+  const [engineSizeRange, setEngineSizeRange] = useState([0, 2000]);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("featured");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  // Initialize search query from URL params
-  useEffect(() => {
-    const searchParam = searchParams.get("search");
-    if (searchParam && searchQuery !== searchParam) {
-      setSearchQuery(searchParam);
-    }
-  }, [searchParams, searchQuery]);
-
-  // Build search filters object - only include non-default values
-  const searchFilters = {
+  // Build query parameters
+  const queryParams = {
+    page: 1,
+    limit: 20,
     ...(selectedCategory !== "all" && { category: selectedCategory }),
     ...(priceRange[0] > 0 && { minPrice: priceRange[0] }),
     ...(priceRange[1] < 2000000 && { maxPrice: priceRange[1] }),
     ...(searchQuery && { search: searchQuery }),
-    ...(selectedFeatures.length > 0 && { features: selectedFeatures }),
     ...(sortBy !== "featured" && { sortBy }),
-    page: 1,
-    limit: 50, // Adjust as needed
+    inStock: true,
   };
 
-  // Use the GET bikes query instead of POST search
   const {
     data: bikesResponse,
     isLoading,
     error,
     refetch,
-  } = useGetBikesQuery(searchFilters);
+  } = useGetBikesQuery(queryParams);
 
-  const filteredBikes = bikesResponse?.data || [];
+  const bikes = bikesResponse?.data?.bikes || [];
+  const totalCount = bikesResponse?.data?.pagination?.total || 0;
 
-  const handleToggleFilter = () => {
-    dispatch(toggleFilterSidebar());
-  };
-
+  // Filter handlers
   const toggleFeature = (feature: string) => {
     setSelectedFeatures((prev) =>
       prev.includes(feature)
@@ -223,44 +208,27 @@ export function ViewAllBikes() {
     setSortBy("featured");
   };
 
-  // Loading state with skeleton
+  // Loading state
   if (isLoading) {
     return (
       <main className='min-h-screen flex flex-col'>
-        <style>{shimmerStyles}</style>
         <Header />
-
         <div className='container pt-28 pb-10 px-4 flex-grow'>
-          {/* Title Skeleton */}
-          <motion.div
-            className='mb-8'
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
+          <div className='mb-8'>
             <Skeleton className='h-8 w-64 mb-4' />
             <Skeleton className='h-4 w-96' />
-          </motion.div>
-
-          {/* Category Tabs Skeleton */}
-          <CategoryTabsSkeleton />
-
-          {/* Content Layout */}
-          <div className='flex flex-col lg:flex-row gap-8'>
-            {/* Sidebar Skeleton */}
-            <FilterSidebarSkeleton />
-
-            {/* Main Content Skeleton */}
-            <div className='flex-1'>
-              {/* Controls Bar Skeleton */}
-              <ControlsBarSkeleton />
-
-              {/* Bike Grid Skeleton */}
-              <BikeGridSkeleton viewMode={viewMode} count={12} />
-            </div>
+          </div>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className='bg-white rounded-lg border p-4'>
+                <Skeleton className='w-full h-48 mb-4' />
+                <Skeleton className='h-6 w-3/4 mb-2' />
+                <Skeleton className='h-4 w-1/2 mb-4' />
+                <Skeleton className='h-10 w-full' />
+              </div>
+            ))}
           </div>
         </div>
-
         <Footer />
       </main>
     );
@@ -288,10 +256,10 @@ export function ViewAllBikes() {
 
   return (
     <main className='min-h-screen flex flex-col'>
-      <style>{shimmerStyles}</style>
       <Header />
 
       <div className='container pt-28 pb-10 px-4 flex-grow'>
+        {/* Page Header */}
         <motion.div
           className='mb-8'
           initial={{ opacity: 0, y: 20 }}
@@ -308,25 +276,35 @@ export function ViewAllBikes() {
         {/* Category Tabs */}
         <CategoryTabs
           selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          className='mb-8'
+          onCategoryChange={setSelectedCategory}
         />
 
-        {/* Filters and Controls */}
+        {/* Content Layout */}
         <div className='flex flex-col lg:flex-row gap-8'>
           {/* Sidebar */}
-          <FilterSidebar
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            priceRange={priceRange}
-            setPriceRange={setPriceRange}
-            engineSizeRange={engineSizeRange}
-            setEngineSizeRange={setEngineSizeRange}
-            selectedFeatures={selectedFeatures}
-            toggleFeature={toggleFeature}
-            resetFilters={resetFilters}
-            showOnMobile={isFilterSidebarOpen}
-          />
+          <AnimatePresence>
+            {isFilterSidebarOpen && (
+              <motion.div
+                initial={{ opacity: 0, x: -300 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -300 }}
+                transition={{ duration: 0.3 }}
+                className='lg:w-80 flex-shrink-0'
+              >
+                {/* <FilterSidebar
+                  priceRange={priceRange}
+                  onPriceRangeChange={setPriceRange}
+                  engineSizeRange={engineSizeRange}
+                  onEngineSizeRangeChange={setEngineSizeRange}
+                  selectedFeatures={selectedFeatures}
+                  onFeatureToggle={toggleFeature}
+                  searchQuery={searchQuery}
+                  onSearchQueryChange={setSearchQuery}
+                  onResetFilters={resetFilters}
+                /> */}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Main Content */}
           <div className='flex-1'>
@@ -335,76 +313,86 @@ export function ViewAllBikes() {
               <div className='flex items-center gap-4'>
                 <Button
                   variant='outline'
-                  onClick={handleToggleFilter}
+                  size='sm'
+                  onClick={() => dispatch(toggleFilterSidebar())}
                   className='lg:hidden'
                 >
                   <Filter className='h-4 w-4 mr-2' />
                   Filters
                 </Button>
 
-                <div className='flex items-center gap-2'>
-                  <Button
-                    variant={viewMode === "grid" ? "default" : "outline"}
-                    size='sm'
-                    onClick={() => setViewMode("grid")}
-                  >
-                    <Grid className='h-4 w-4' />
-                  </Button>
-                  <Button
-                    variant={viewMode === "list" ? "default" : "outline"}
-                    size='sm'
-                    onClick={() => setViewMode("list")}
-                  >
-                    <List className='h-4 w-4' />
-                  </Button>
+                <div className='text-sm text-muted-foreground'>
+                  Showing {bikes.length} of {totalCount} motorcycles
                 </div>
               </div>
 
               <div className='flex items-center gap-4'>
-                <span className='text-sm text-muted-foreground'>
-                  {filteredBikes.length} motorcycles found
-                </span>
-                <SortSelector sortBy={sortBy} setSortBy={setSortBy} />
+                {/* Sort Selector */}
+                <SortSelector value={sortBy} onValueChange={setSortBy} />
+
+                {/* View Mode Toggle */}
+                <div className='flex border rounded-lg overflow-hidden'>
+                  <Button
+                    variant={viewMode === "grid" ? "default" : "ghost"}
+                    size='sm'
+                    onClick={() => setViewMode("grid")}
+                    className='rounded-none'
+                  >
+                    <Grid className='h-4 w-4' />
+                  </Button>
+                  <Button
+                    variant={viewMode === "list" ? "default" : "ghost"}
+                    size='sm'
+                    onClick={() => setViewMode("list")}
+                    className='rounded-none'
+                  >
+                    <List className='h-4 w-4' />
+                  </Button>
+                </div>
               </div>
             </div>
 
             {/* Active Filters */}
             <ActiveFilters
               selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
               priceRange={priceRange}
-              setPriceRange={setPriceRange}
-              engineSizeRange={engineSizeRange}
-              setEngineSizeRange={setEngineSizeRange}
               selectedFeatures={selectedFeatures}
-              toggleFeature={toggleFeature}
               searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
+              onRemoveCategory={() => setSelectedCategory("all")}
+              onRemovePriceRange={() => setPriceRange([0, 2000000])}
+              onRemoveFeature={toggleFeature}
+              onRemoveSearch={() => setSearchQuery("")}
+              onClearAll={resetFilters}
             />
 
             {/* Results */}
-            <AnimatePresence mode='wait'>
-              {filteredBikes.length === 0 ? (
-                <NoResults resetFilters={resetFilters} />
-              ) : (
-                <motion.div
-                  key='results'
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className={
-                    viewMode === "grid"
-                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                      : "space-y-4"
-                  }
-                >
-                  {filteredBikes.map((bike) => (
-                    <BikeCard key={bike.id} bike={bike} />
+            {bikes.length === 0 ? (
+              <NoResults onReset={resetFilters} />
+            ) : (
+              <motion.div
+                layout
+                className={
+                  viewMode === "grid"
+                    ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                    : "space-y-4"
+                }
+              >
+                <AnimatePresence mode='popLayout'>
+                  {bikes.map((bike) => (
+                    <BikeCard key={bike._id} bike={bike} />
                   ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </AnimatePresence>
+              </motion.div>
+            )}
+
+            {/* Load More Button */}
+            {bikes.length > 0 && bikes.length < totalCount && (
+              <div className='text-center mt-8'>
+                <Button variant='outline' size='lg'>
+                  Load More Motorcycles
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -412,4 +400,6 @@ export function ViewAllBikes() {
       <Footer />
     </main>
   );
-}
+};
+
+export default ViewAllBikes;
