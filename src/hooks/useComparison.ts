@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
-import { Bike } from "@/redux-store/slices/bikesSlice";
+import { Bike } from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
 
 interface ComparisonBike extends Bike {
   name: string;

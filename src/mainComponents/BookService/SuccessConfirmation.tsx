@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ServiceFormValues } from "../../lib/form-schema";
-import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
+import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 
 // Define types for service-related data

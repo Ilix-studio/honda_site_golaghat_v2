@@ -8,8 +8,8 @@ import { motion } from "framer-motion";
 import SearchComponent from "./SearchComponent";
 import { BikeCard } from "../BikeDetails/DetailsUIParts/BikeCard";
 import { NoResults } from "../BikeDetails/DetailsUIParts/NoResults";
-import { Bike } from "@/redux-store/slices/bikesSlice";
-import { useSearchBikesQuery } from "@/redux-store/services/bikeApi";
+import { Bike } from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
+import { useSearchBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
 import { Header } from "../Home/Header/Header";
 
 export function SearchResults() {

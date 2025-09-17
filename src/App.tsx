@@ -16,12 +16,11 @@ import AdminDashboard from "./mainComponents/Admin/AdminDash/AdminDashboard";
 import AddBikes from "./mainComponents/Admin/Bikes/AddBikes";
 import EditBikes from "./mainComponents/Admin/Bikes/EditBikes";
 
-import EditScooty from "./mainComponents/Admin/Scooty/EditScooty";
 import Finance from "./mainComponents/NavMenu/Finance";
 import Contact from "./mainComponents/NavMenu/Contact";
 import SearchResults from "./mainComponents/Search/SearchResults";
 import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
-import AddScooty from "./mainComponents/Admin/Scooty/AddScooty";
+
 import AddBranch from "./mainComponents/NavMenu/Branches/AddBranch";
 import BranchManager from "./mainComponents/NavMenu/Branches/BranchManager";
 import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
@@ -29,9 +28,11 @@ import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
 import CustomerSignUp from "./mainComponents/CustomerSystem/CustomerSignUp";
 import CustomerDash from "./mainComponents/CustomerSystem/Dashboards/CustomerMainDash";
 import CustomerCreateProfile from "./mainComponents/CustomerSystem/CustomerCreateProfile";
-import CustomerVehicleInfo from "./mainComponents/CustomerSystem/MotorInfo/CustomerVehicleInfo";
+// import CustomerVehicleInfo from "./mainComponents/CustomerSystem/MotorInfo/CustomerVehicleInfo";
 import InitialDashboard from "./mainComponents/CustomerSystem/Dashboards/InitialDashboard";
 import CreateServicePacks from "./mainComponents/Admin/ServicePackages/CreateServicePacks";
+import AddBikeImage from "./mainComponents/Admin/Bikes/AddBikeImage";
+import EditBikeImage from "./mainComponents/Admin/Bikes/EditBikeImage";
 
 // import TestBike from "./mainComponents/TestBike";
 
@@ -61,9 +62,15 @@ const App: React.FC = () => {
 
         {/* Add && Edit Bikes, scooty  */}
         <Route path='/admin/addbikes' element={<AddBikes />} />
+        <Route
+          path='/admin/addbikes/:bikeId/images'
+          element={<AddBikeImage />}
+        />
         <Route path='/admin/addbikes/edit/:id' element={<EditBikes />} />
-        <Route path='/admin/addScooty' element={<AddScooty />} />
-        <Route path='/admin/addScooty/edit/:bikeId' element={<EditScooty />} />
+        <Route
+          path='/admin/bikes/:bikeId/images/edit'
+          element={<EditBikeImage />}
+        />
 
         {/* Branch Management Routes */}
         <Route path='/admin/addbranch' element={<AddBranch />} />
@@ -88,10 +95,10 @@ const App: React.FC = () => {
         <Route path='/customer-initialize' element={<InitialDashboard />} />
         <Route path='/customer-profile' element={<CustomerCreateProfile />} />
 
-        <Route
+        {/* <Route
           path='/customer-vehicle-info'
           element={<CustomerVehicleInfo />}
-        />
+        /> */}
         <Route path='/customer-dash' element={<CustomerDash />} />
 
         {/* Compare Bike  */}

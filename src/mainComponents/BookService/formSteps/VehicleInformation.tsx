@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ServiceFormValues } from "../../../lib/form-schema";
-import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
+import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
 
 // Define types for bike models
 interface BikeModel {

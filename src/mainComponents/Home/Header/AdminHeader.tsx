@@ -36,8 +36,7 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/admin/dashboard",
     menuItems: [
-      { label: "Add Bikes", href: "/admin/addbikes" },
-      { label: "Add Scooty", href: "/admin/addscooty" },
+      { label: "Add Bikes/Scooty", href: "/admin/addbikes" },
       { label: "Manage Branches", href: "/admin/branches" },
     ],
   },
@@ -48,18 +47,6 @@ const routeConfig: Record<
     backTo: "/admin/dashboard",
     menuItems: [
       { label: "Add Branch", href: "/admin/addbranch" },
-      { label: "Add Scooty", href: "/admin/addscooty" },
-      { label: "Manage Branches", href: "/admin/branches" },
-    ],
-  },
-  "/admin/addscooty": {
-    title: "Add New Scooty",
-    subtitle: "Add scooter to inventory",
-    showBack: true,
-    backTo: "/admin/dashboard",
-    menuItems: [
-      { label: "Add Branch", href: "/admin/addbranch" },
-      { label: "Add Bikes", href: "/admin/addbikes" },
       { label: "Manage Branches", href: "/admin/branches" },
     ],
   },
@@ -70,20 +57,7 @@ const routeConfig: Record<
     backTo: "/admin/dashboard",
     menuItems: [
       { label: "Add Branch", href: "/admin/addbranch" },
-      { label: "Add Bikes", href: "/admin/addbikes" },
-      { label: "Add Scooty", href: "/admin/addscooty" },
-      { label: "Manage Branches", href: "/admin/branches" },
-    ],
-  },
-  "/admin/editscooty": {
-    title: "Edit Scooty",
-    subtitle: "Update scooter details",
-    showBack: true,
-    backTo: "/admin/dashboard",
-    menuItems: [
-      { label: "Add Branch", href: "/admin/addbranch" },
-      { label: "Add Bikes", href: "/admin/addbikes" },
-      { label: "Add Scooty", href: "/admin/addscooty" },
+      { label: "Add Bikes/Scooty", href: "/admin/addbikes" },
       { label: "Manage Branches", href: "/admin/branches" },
     ],
   },

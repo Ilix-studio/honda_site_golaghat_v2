@@ -7,148 +7,293 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
-import { useGetScootiesQuery } from "@/redux-store/services/scootyApi";
-import { Bike, Zap } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
+import { Bike, Zap, Calendar, Star, AlertTriangle, Eye } from "lucide-react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const RecentMotorcycles = () => {
-  const { data: bikesData, isLoading: bikesLoading } = useGetBikesQuery({});
-  const { data: scootiesData, isLoading: scootiesLoading } =
-    useGetScootiesQuery({});
+  // Fetch bikes and scooters with recent filters
+  const {
+    data: bikesData,
+    isLoading: bikesLoading,
+    isError: bikesError,
+  } = useGetBikesQuery({
+    mainCategory: "bike",
+    limit: 5,
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
+
+  const {
+    data: scootiesData,
+    isLoading: scootiesLoading,
+    isError: scootiesError,
+  } = useGetBikesQuery({
+    mainCategory: "scooter",
+    limit: 5,
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
 
   const LoadingSkeleton = () => (
     <div className='space-y-3'>
       {[...Array(3)].map((_, i) => (
-        <div key={i} className='flex items-center space-x-4'>
-          <div className='w-12 h-12 bg-gray-200 animate-pulse rounded'></div>
+        <motion.div
+          key={i}
+          className='flex items-center space-x-4'
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.1 }}
+        >
+          <div className='w-16 h-16 bg-gray-200 animate-pulse rounded-lg'></div>
           <div className='flex-1 space-y-2'>
-            <div className='h-4 bg-gray-200 animate-pulse rounded w-1/2'></div>
+            <div className='h-4 bg-gray-200 animate-pulse rounded w-3/4'></div>
+            <div className='h-3 bg-gray-200 animate-pulse rounded w-1/2'></div>
             <div className='h-3 bg-gray-200 animate-pulse rounded w-1/4'></div>
           </div>
-        </div>
+          <div className='space-y-2'>
+            <div className='h-8 w-16 bg-gray-200 animate-pulse rounded'></div>
+            <div className='h-6 w-12 bg-gray-200 animate-pulse rounded'></div>
+          </div>
+        </motion.div>
       ))}
     </div>
   );
 
+  const formatPrice = (priceBreakdown: any) => {
+    if (priceBreakdown?.onRoadPrice) {
+      return `₹${priceBreakdown.onRoadPrice.toLocaleString()}`;
+    } else if (priceBreakdown?.exShowroomPrice) {
+      return `₹${priceBreakdown.exShowroomPrice.toLocaleString()}`;
+    }
+    return "Price on request";
+  };
+
+  const getStockStatus = (stockAvailable: number) => {
+    if (stockAvailable === 0) {
+      return { text: "Out of Stock", variant: "destructive" as const };
+    } else if (stockAvailable <= 5) {
+      return { text: "Low Stock", variant: "secondary" as const };
+    }
+    return { text: "In Stock", variant: "default" as const };
+  };
+
   interface VehicleListProps {
-    vehicles: { data: any[] } | undefined;
+    vehicles: { data: { bikes: any[] } } | undefined;
     isLoading: boolean;
+    isError: boolean;
     vehicleType: string;
     icon: React.ComponentType<{ className?: string }>;
     editPath: string;
+    addPath: string;
+    imagePath: string;
   }
 
   const VehicleList = ({
     vehicles,
     isLoading,
+    isError,
     vehicleType,
     icon: Icon,
     editPath,
+    addPath,
+    imagePath,
   }: VehicleListProps) => {
     if (isLoading) {
       return <LoadingSkeleton />;
     }
 
-    if (!vehicles?.data?.length) {
+    if (isError) {
       return (
-        <div className='text-center py-6 text-gray-500'>
-          No {vehicleType.toLowerCase()}s available
+        <div className='text-center py-6 text-red-500'>
+          <AlertTriangle className='h-8 w-8 mx-auto mb-2' />
+          <p>Error loading {vehicleType.toLowerCase()}s</p>
+        </div>
+      );
+    }
+
+    if (!vehicles?.data?.bikes?.length) {
+      return (
+        <div className='text-center py-8'>
+          <Icon className='h-12 w-12 mx-auto text-gray-400 mb-3' />
+          <p className='text-gray-500 mb-4'>
+            No {vehicleType.toLowerCase()}s available
+          </p>
+          <Link to={addPath}>
+            <Button size='sm' className='bg-red-600 hover:bg-red-700'>
+              Add First {vehicleType}
+            </Button>
+          </Link>
         </div>
       );
     }
 
     return (
-      <div className='space-y-3'>
-        {vehicles.data.slice(0, 5).map((vehicle) => (
-          <div
-            key={vehicle.id || vehicle._id}
-            className='flex items-center justify-between'
-          >
-            <div className='flex items-center space-x-4'>
-              <div className='w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center'>
-                <Icon className='h-6 w-6 text-gray-600' />
+      <div className='space-y-4'>
+        {vehicles.data.bikes.map((vehicle, index) => {
+          const stockStatus = getStockStatus(vehicle.stockAvailable);
+
+          return (
+            <motion.div
+              key={vehicle._id}
+              className='flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-all duration-200 bg-white'
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <div className='flex items-center space-x-4'>
+                <div className='w-16 h-16 bg-gradient-to-br from-red-50 to-red-100 rounded-lg flex items-center justify-center'>
+                  <Icon className='h-8 w-8 text-red-600' />
+                </div>
+                <div className='flex-1'>
+                  <div className='flex items-center gap-2 mb-1'>
+                    <h3 className='font-semibold text-gray-900'>
+                      {vehicle.modelName}
+                    </h3>
+                    {vehicle.isNewModel && (
+                      <Badge
+                        variant='secondary'
+                        className='text-xs bg-yellow-100 text-yellow-800'
+                      >
+                        <Star className='h-3 w-3 mr-1' />
+                        New
+                      </Badge>
+                    )}
+                  </div>
+                  <div className='flex items-center gap-3 text-sm text-gray-600'>
+                    <span className='capitalize'>{vehicle.category}</span>
+                    <span>•</span>
+                    <span className='flex items-center gap-1'>
+                      <Calendar className='h-3 w-3' />
+                      {vehicle.year}
+                    </span>
+                    <span>•</span>
+                    <span>{vehicle.engineSize}</span>
+                  </div>
+                  <div className='flex items-center gap-2 mt-1'>
+                    <span className='font-medium text-red-600'>
+                      {formatPrice(vehicle.priceBreakdown)}
+                    </span>
+                    <Badge {...stockStatus}>{stockStatus.text}</Badge>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className='font-medium'>{vehicle.modelName}</p>
-                <p className='text-sm text-muted-foreground'>
-                  {vehicle.category} • ₹
-                  {vehicle.price?.toLocaleString() || "Price not available"}
-                </p>
+
+              <div className='flex items-center space-x-2'>
+                <span className='text-sm text-gray-500'>
+                  Stock: {vehicle.stockAvailable}
+                </span>
+                <Link to={`${imagePath}/${vehicle._id}`}>
+                  <Button variant='outline' size='sm'>
+                    <Eye className='h-4 w-4 mr-1' />
+                    Images
+                  </Button>
+                </Link>
+                <Link to={`${editPath}/${vehicle._id}`}>
+                  <Button variant='outline' size='sm'>
+                    Edit
+                  </Button>
+                </Link>
               </div>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <span
-                className={`px-2 py-1 text-xs rounded-full ${
-                  vehicle.inStock
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}
-              >
-                {vehicle.inStock ? "In Stock" : "Out of Stock"}
-              </span>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={() =>
-                  (window.location.href = `${editPath}/${
-                    vehicle._id || vehicle.id
-                  }`)
-                }
-              >
-                Edit
+            </motion.div>
+          );
+        })}
+
+        {vehicles.data.bikes.length >= 5 && (
+          <div className='text-center pt-4'>
+            <Link
+              to={vehicleType === "Bike" ? "/admin/bikes" : "/admin/scooters"}
+            >
+              <Button variant='ghost' size='sm'>
+                View All {vehicleType}s →
               </Button>
-            </div>
+            </Link>
           </div>
-        ))}
+        )}
       </div>
     );
   };
 
   return (
-    <div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Vehicles</CardTitle>
-          <CardDescription>
-            Recently added vehicles to inventory
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue='bikes' className='w-full'>
-            <TabsList className='grid w-full grid-cols-2'>
-              <TabsTrigger value='bikes' className='flex items-center gap-2'>
-                <Bike className='h-4 w-4' />
-                Bikes
-              </TabsTrigger>
-              <TabsTrigger value='scooties' className='flex items-center gap-2'>
-                <Zap className='h-4 w-4' />
-                Scooty
-              </TabsTrigger>
-            </TabsList>
+    <Card className='mt-6'>
+      <CardHeader>
+        <div className='flex items-center justify-between'>
+          <div>
+            <CardTitle className='flex items-center gap-2'>
+              <Bike className='h-5 w-5 text-red-600' />
+              Recent Vehicles
+            </CardTitle>
+            <CardDescription>
+              Recently added vehicles to your Honda dealership inventory
+            </CardDescription>
+          </div>
+          <div className='flex gap-2'>
+            <Link to='/admin/addbikes'>
+              <Button size='sm' className='bg-red-600 hover:bg-red-700'>
+                Add Bike
+              </Button>
+            </Link>
+            <Link to='/admin/addscooties'>
+              <Button size='sm' variant='outline'>
+                Add Scooty
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue='bikes' className='w-full'>
+          <TabsList className='grid w-full grid-cols-2'>
+            <TabsTrigger value='bikes' className='flex items-center gap-2'>
+              <Bike className='h-4 w-4' />
+              Motorcycles
+              {bikesData?.data?.pagination?.total && (
+                <Badge variant='secondary' className='ml-1 text-xs'>
+                  {bikesData.data.pagination.total}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value='scooties' className='flex items-center gap-2'>
+              <Zap className='h-4 w-4' />
+              Scooters
+              {scootiesData?.data?.pagination?.total && (
+                <Badge variant='secondary' className='ml-1 text-xs'>
+                  {scootiesData.data.pagination.total}
+                </Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
 
-            <TabsContent value='bikes' className='mt-4'>
-              <VehicleList
-                vehicles={bikesData}
-                isLoading={bikesLoading}
-                vehicleType='Bike'
-                icon={Bike}
-                editPath='/admin/addbikes/edit'
-              />
-            </TabsContent>
+          <TabsContent value='bikes' className='mt-6'>
+            <VehicleList
+              vehicles={bikesData}
+              isLoading={bikesLoading}
+              isError={bikesError}
+              vehicleType='Bike'
+              icon={Bike}
+              editPath='/admin/editbikes'
+              addPath='/admin/addbikes'
+              imagePath='/admin/bikeimages'
+            />
+          </TabsContent>
 
-            <TabsContent value='scooties' className='mt-4'>
-              <VehicleList
-                vehicles={scootiesData}
-                isLoading={scootiesLoading}
-                vehicleType='Scooty'
-                icon={Zap}
-                editPath='/admin/addscooties/edit'
-              />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-    </div>
+          <TabsContent value='scooties' className='mt-6'>
+            <VehicleList
+              vehicles={scootiesData}
+              isLoading={scootiesLoading}
+              isError={scootiesError}
+              vehicleType='Scooty'
+              icon={Zap}
+              editPath='/admin/editscooties'
+              addPath='/admin/addscooties'
+              imagePath='/admin/scootypimages'
+            />
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 };
 

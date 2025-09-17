@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bike, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
 
 // Import your bike API hook (assuming you have one)
-import { useGetBikesQuery } from "../../redux-store/services/bikeApi";
+import { useGetBikesQuery } from "../../redux-store/services/BikeSystemApi/bikeApi";
 
 interface BikeEnquiryFormProps {
   selectedBike?: any; // Pass from bike details page
