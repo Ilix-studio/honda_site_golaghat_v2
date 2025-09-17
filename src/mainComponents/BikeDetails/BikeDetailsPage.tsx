@@ -18,7 +18,7 @@ import { Footer } from "../Home/Footer";
 import { formatCurrency } from "../../lib/formatters";
 
 // Redux
-import { useGetBikeByIdQuery } from "../../redux-store/services/bikeApi";
+import { useGetBikeByIdQuery } from "../../redux-store/services/BikeSystemApi/bikeApi";
 import { useAppDispatch } from "../../hooks/redux";
 import { addNotification } from "../../redux-store/slices/uiSlice";
 import { Header } from "../Home/Header/Header";

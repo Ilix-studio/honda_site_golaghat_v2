@@ -134,12 +134,7 @@ const BranchQueries = () => {
                 Add New Bikes
               </Button>
             </Link>
-            <Link to='/admin/addScooty'>
-              <Button className='w-full justify-start' variant='outline'>
-                <Bike className='h-4 w-4 mr-2' />
-                Add New Scooty
-              </Button>
-            </Link>
+
             <Link to='/admin/addbranch'>
               <Button className='w-full justify-start' variant='outline'>
                 <Building2 className='h-4 w-4 mr-2' />

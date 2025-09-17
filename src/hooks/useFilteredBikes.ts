@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useGetBikesQuery } from "../redux-store/services/bikeApi";
-import { Bike } from "../redux-store/slices/bikesSlice";
+import { useGetBikesQuery } from "../redux-store/services/BikeSystemApi/bikeApi";
+import { Bike } from "../redux-store/slices/BikeSystemSlice/bikesSlice";
 
 export function useFilteredBikes() {
   const [searchParams, setSearchParams] = useSearchParams();

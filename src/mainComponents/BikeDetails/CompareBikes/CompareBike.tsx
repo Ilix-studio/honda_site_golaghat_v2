@@ -21,8 +21,8 @@ import { BikeComparisonCard } from "./BikeComparisonCard";
 import { formatCurrency } from "@/lib/formatters";
 import { Footer } from "@/mainComponents/Home/Footer";
 import { comparisonSections } from "./comparisonSections";
-import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
-import { Bike } from "@/redux-store/slices/bikesSlice";
+import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
+import { Bike } from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
 import { AddBikeCard } from "./AddBikeCard";
 import { Header } from "@/mainComponents/Home/Header/Header";
 
@@ -34,13 +34,10 @@ const CATEGORIES = [
   "touring",
   "naked",
   "electric",
+  "commuter",
+  "automatic",
+  "gearless",
 ];
-
-interface ComparisonBike extends Bike {
-  name: string;
-  engineSize: number;
-  image: string;
-}
 
 const getViewport = (): "MOBILE" | "TABLET" | "DESKTOP" => {
   const width = window.innerWidth;
@@ -49,6 +46,11 @@ const getViewport = (): "MOBILE" | "TABLET" | "DESKTOP" => {
 
 const getMaxBikes = (viewport: string) => {
   return viewport === "MOBILE" ? 2 : viewport === "TABLET" ? 3 : 4;
+};
+
+// Helper function to get nested object value by string path
+const getNestedValue = (obj: any, path: string): any => {
+  return path.split(".").reduce((curr, key) => curr?.[key], obj);
 };
 
 export default function CompareBike() {
@@ -60,75 +62,51 @@ export default function CompareBike() {
   const [expandedSections, setExpandedSections] = useState({
     basicInfo: true,
     engine: true,
-    dimensions: true,
+    pricing: true,
+    variants: true,
     features: true,
+    availability: true,
   });
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Use proper conditional fetching with skipToken
+  // Fetch bikes data
   const {
     data: bikesResponse,
     isLoading,
     error,
   } = useGetBikesQuery({ limit: 1000 });
 
-  const allBikes: ComparisonBike[] = (bikesResponse?.data || []).map(
-    (bike) => ({
-      ...bike,
-      name: bike.modelName,
-      engineSize: parseInt(bike.engine?.match(/\d+/)?.[0] || "0") || 0,
-      image: bike.images?.[0] || "/placeholder.svg",
-    })
-  );
-
+  const allBikes: Bike[] = bikesResponse?.data?.bikes || [];
   const maxBikes = getMaxBikes(viewport);
 
   // Enhanced handleBikeSelect function
   const handleBikeSelect = (bikeId: string, slotIndex: number): boolean => {
-    console.log("Selecting bike:", {
-      bikeId,
-      slotIndex,
-      currentIds: selectedBikeIds,
-      maxBikes,
-    });
-
-    // Validation
     if (!bikeId || bikeId === "add-bike") {
-      console.warn("Invalid bike selection");
       return false;
     }
 
-    // Check for duplicates
     if (selectedBikeIds.includes(bikeId)) {
-      console.warn("Bike already selected");
       return false;
     }
 
-    // Check slot index bounds
     if (slotIndex >= maxBikes) {
-      console.warn("Maximum bikes reached");
       return false;
     }
 
     setSelectedBikeIds((prev) => {
       const newIds = [...prev];
 
-      // Handle different scenarios
       if (slotIndex >= newIds.length) {
-        // Adding to new slot
         if (newIds.length < maxBikes) {
           newIds.push(bikeId);
         } else {
-          console.warn("Cannot add more bikes");
           return prev;
         }
       } else {
-        // Replacing existing slot
         newIds[slotIndex] = bikeId;
       }
 
-      console.log("New bike IDs:", newIds);
       return newIds;
     });
 
@@ -145,7 +123,7 @@ export default function CompareBike() {
 
   // Load from localStorage on mount
   useEffect(() => {
-    const saved = localStorage.getItem("bike-comparison");
+    const saved = localStorage.getItem("honda-bike-comparison");
     if (saved) {
       try {
         const data = JSON.parse(saved);
@@ -160,7 +138,7 @@ export default function CompareBike() {
   // Save to localStorage when state changes
   useEffect(() => {
     localStorage.setItem(
-      "bike-comparison",
+      "honda-bike-comparison",
       JSON.stringify({
         selectedBikeIds,
         expandedSections,
@@ -190,7 +168,6 @@ export default function CompareBike() {
     const bikeIds = searchParams.getAll("bikes");
     if (bikeIds.length > 0) {
       const validIds = bikeIds.slice(0, maxBikes);
-      // Only set if different from current selection
       if (JSON.stringify(validIds) !== JSON.stringify(selectedBikeIds)) {
         setSelectedBikeIds(validIds);
       }
@@ -214,18 +191,15 @@ export default function CompareBike() {
   );
 
   const selectedBikes = slots.map((id) =>
-    id === "add-bike"
-      ? null
-      : allBikes.find((bike) => bike.id === id || bike._id === id) || null
+    id === "add-bike" ? null : allBikes.find((bike) => bike._id === id) || null
   );
 
   const filteredBikes = allBikes.filter(
     (bike) =>
       (categoryFilter === "all" || bike.category === categoryFilter) &&
       (searchQuery === "" ||
-        bike.modelName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bike.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      !selectedBikeIds.includes(bike.id || bike._id || "")
+        bike.modelName.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      !selectedBikeIds.includes(bike._id)
   );
 
   const toggleSection = (section: keyof typeof expandedSections) => {
@@ -236,12 +210,13 @@ export default function CompareBike() {
   };
 
   // Comparison utilities
-  const findBestValue = (key: keyof ComparisonBike, isHigherBetter = true) => {
+  const findBestValue = (key: string, isHigherBetter = true) => {
     const values = selectedBikes
-      .filter((bike): bike is ComparisonBike => bike !== null)
-      .map((bike) =>
-        typeof bike[key] === "number" ? (bike[key] as number) : 0
-      );
+      .filter((bike): bike is Bike => bike !== null)
+      .map((bike) => {
+        const value = getNestedValue(bike, key);
+        return typeof value === "number" ? value : 0;
+      });
 
     return values.length === 0
       ? 0
@@ -251,25 +226,26 @@ export default function CompareBike() {
   };
 
   const getComparisonIndicator = (
-    bike: ComparisonBike | null,
-    key: keyof ComparisonBike,
+    bike: Bike | null,
+    key: string,
     isHigherBetter = true
   ) => {
     if (!bike) return null;
 
-    const value = typeof bike[key] === "number" ? (bike[key] as number) : 0;
+    const value = getNestedValue(bike, key);
+    const numValue = typeof value === "number" ? value : 0;
     const bestValue = findBestValue(key, isHigherBetter);
     const worstValue = findBestValue(key, !isHigherBetter);
     const validBikes = selectedBikes.filter((b) => b !== null).length;
 
-    if (value === bestValue) {
+    if (numValue === bestValue && numValue > 0) {
       return (
         <span className='text-green-500 flex items-center' title='Best'>
           <TrendingUp className='h-4 w-4' />
         </span>
       );
     }
-    if (validBikes > 1 && value === worstValue) {
+    if (validBikes > 1 && numValue === worstValue && numValue > 0) {
       return (
         <span className='text-red-500 flex items-center' title='Lowest'>
           <TrendingDown className='h-4 w-4' />
@@ -279,10 +255,10 @@ export default function CompareBike() {
     return <Minus className='h-4 w-4 text-gray-300' />;
   };
 
-  const renderSpecValue = (bike: ComparisonBike | null, spec: any) => {
+  const renderSpecValue = (bike: Bike | null, spec: any) => {
     if (!bike) return <span className='text-gray-400'>-</span>;
 
-    const value = bike[spec.key as keyof ComparisonBike];
+    const value = getNestedValue(bike, spec.key);
 
     switch (spec.type) {
       case "price":
@@ -291,16 +267,29 @@ export default function CompareBike() {
       case "hp":
       case "kg":
         return `${value || 0} ${spec.type}`;
+      case "boolean":
+        return (
+          <Badge variant={value ? "default" : "secondary"} className='text-xs'>
+            {value ? "Yes" : "No"}
+          </Badge>
+        );
       case "features":
         return (
           <div className='flex flex-wrap gap-1'>
-            {((value as string[]) || []).map((feature, idx) => (
+            {((value as string[]) || []).slice(0, 3).map((feature, idx) => (
               <Badge key={idx} variant='secondary' className='text-xs'>
                 {feature}
               </Badge>
             ))}
+            {((value as string[]) || []).length > 3 && (
+              <Badge variant='outline' className='text-xs'>
+                +{((value as string[]) || []).length - 3} more
+              </Badge>
+            )}
           </div>
         );
+      case "number":
+        return String(value || 0);
       default:
         return String(value || "");
     }
@@ -326,7 +315,7 @@ export default function CompareBike() {
           <Alert variant='destructive' className='max-w-md'>
             <AlertCircle className='h-4 w-4' />
             <AlertDescription>
-              Failed to load motorcycle data. Please refresh the page.
+              Failed to load Honda vehicle data. Please refresh the page.
             </AlertDescription>
           </Alert>
         </div>
@@ -349,7 +338,7 @@ export default function CompareBike() {
             onClick={() => navigate("/view-all")}
           >
             <ChevronLeft className='h-4 w-4 mr-1' />
-            Back to All Bikes
+            Back to All Vehicles
           </Button>
         </div>
 
@@ -358,9 +347,10 @@ export default function CompareBike() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className='text-3xl font-bold'>Compare Motorcycles</h1>
+          <h1 className='text-3xl font-bold'>Compare Honda Vehicles</h1>
           <p className='text-muted-foreground mt-2'>
-            Select up to {maxBikes} motorcycles to compare side by side
+            Select up to {maxBikes} Honda motorcycles or scooters to compare
+            side by side
           </p>
         </motion.div>
 
@@ -378,7 +368,7 @@ export default function CompareBike() {
           <Button
             onClick={() =>
               navigator.share?.({
-                title: "Honda Motorcycles Comparison",
+                title: "Honda Vehicles Comparison - Tsangpool Honda",
                 url: window.location.href,
               }) || navigator.clipboard.writeText(window.location.href)
             }
@@ -476,44 +466,40 @@ export default function CompareBike() {
                             viewport === "MOBILE"
                               ? "grid-cols-1"
                               : viewport === "TABLET"
-                              ? "grid-cols-3"
-                              : "grid-cols-4"
+                              ? "grid-cols-4"
+                              : "grid-cols-5"
                           }`}
                         >
+                          {/* Mobile header */}
                           <div className='p-4 font-medium bg-gray-50 md:hidden'>
+                            {spec.label}
+                          </div>
+
+                          {/* Desktop label column */}
+                          <div className='hidden md:block p-4 font-medium bg-gray-50 border-r'>
                             {spec.label}
                           </div>
 
                           {selectedBikes.map((bike, index) => (
                             <div
-                              key={`${bike?.id || bike?._id || index}-${
-                                spec.key
-                              }`}
-                              className='p-4 border-t md:border-t-0 md:border-l flex items-center'
+                              key={`${bike?._id || index}-${spec.key}`}
+                              className='p-4 border-t md:border-t-0 md:border-l flex items-center justify-between'
                             >
-                              {index === 0 && (
-                                <div className='hidden md:block font-medium min-w-[120px]'>
-                                  {spec.label}
+                              <div className='flex-1'>
+                                {renderSpecValue(bike, spec)}
+                              </div>
+
+                              {["price", "cc", "hp", "kg", "number"].includes(
+                                spec.type
+                              ) && (
+                                <div className='ml-2'>
+                                  {getComparisonIndicator(
+                                    bike,
+                                    spec.key,
+                                    spec.isHigherBetter !== false
+                                  )}
                                 </div>
                               )}
-
-                              <div className='flex-1 flex justify-between items-center'>
-                                <div className='flex-1'>
-                                  {renderSpecValue(bike, spec)}
-                                </div>
-
-                                {["price", "cc", "hp", "kg"].includes(
-                                  spec.type
-                                ) && (
-                                  <div className='ml-2'>
-                                    {getComparisonIndicator(
-                                      bike,
-                                      spec.key as keyof ComparisonBike,
-                                      spec.isHigherBetter !== false
-                                    )}
-                                  </div>
-                                )}
-                              </div>
                             </div>
                           ))}
                         </div>
@@ -523,6 +509,33 @@ export default function CompareBike() {
                 </div>
               ))}
             </>
+          )}
+
+          {/* Empty state */}
+          {selectedBikes.every((bike) => bike === null) && (
+            <motion.div
+              className='text-center py-16'
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className='bg-gray-50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6'>
+                <AlertCircle className='h-12 w-12 text-gray-400' />
+              </div>
+              <h3 className='text-xl font-semibold mb-2'>
+                No Vehicles Selected
+              </h3>
+              <p className='text-muted-foreground mb-6'>
+                Select Honda motorcycles or scooters from the cards above to
+                start comparing their specifications, features, and pricing.
+              </p>
+              <Button
+                onClick={() => navigate("/view-all")}
+                className='bg-red-600 hover:bg-red-700 text-white'
+              >
+                Browse All Vehicles
+              </Button>
+            </motion.div>
           )}
         </div>
       </div>

@@ -1,4 +1,3 @@
-// src/redux-store/store.ts
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import {
@@ -16,8 +15,10 @@ import createIdbStorage from "redux-persist-indexeddb-storage";
 
 // Import reducers
 import authReducer from "./slices/authSlice";
-import bikesReducer from "./slices/bikesSlice";
-import scootyReducer from "./slices/scootySlice";
+//New
+import bikesReducer from "./slices/BikeSystemSlice/bikesSlice";
+import bikeImageReducer from "./slices/BikeSystemSlice/bikeImageSlice";
+
 import branchReducer from "./slices/branchSlice";
 import comparisonReducer from "./slices/comparisonSlice";
 import uiReducer from "./slices/uiSlice";
@@ -28,8 +29,9 @@ import customerAuthReducer from "./slices/customer/customerAuthSlice";
 
 // Import API services
 import { adminAuthApi } from "./services/adminApi";
-import { bikesApi } from "./services/bikeApi";
-import { scootyApi } from "./services/scootyApi";
+import { bikeApi } from "./services/BikeSystemApi/bikeApi";
+import { bikeImageApi } from "./services/BikeSystemApi/bikeImageApi";
+
 import { branchApi } from "./services/branchApi";
 import { staffApi } from "./services/staffApi";
 import { branchManagerApi } from "./services/branchManagerApi";
@@ -63,8 +65,10 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  //
   bikes: bikesReducer,
-  scooty: scootyReducer,
+  bikeImages: bikeImageReducer,
+
   branch: branchReducer,
   comparison: comparisonReducer,
   ui: uiReducer,
@@ -74,8 +78,10 @@ const rootReducer = combineReducers({
   customerAuth: customerAuthReducer,
   // API services
   [adminAuthApi.reducerPath]: adminAuthApi.reducer,
-  [bikesApi.reducerPath]: bikesApi.reducer,
-  [scootyApi.reducerPath]: scootyApi.reducer,
+  //New
+  [bikeApi.reducerPath]: bikeApi.reducer,
+  [bikeImageApi.reducerPath]: bikeImageApi.reducer,
+  // Need a fix
   [branchApi.reducerPath]: branchApi.reducer,
   [staffApi.reducerPath]: staffApi.reducer,
   [branchManagerApi.reducerPath]: branchManagerApi.reducer,
@@ -85,7 +91,6 @@ const rootReducer = combineReducers({
   //new
   [customerApi.reducerPath]: customerApi.reducer,
   [customerLoginApi.reducerPath]: customerLoginApi.reducer,
-
   [customerDashboardApi.reducerPath]: customerDashboardApi.reducer,
 });
 
@@ -102,8 +107,8 @@ export const store = configureStore({
     }).concat(
       // Add API middleware
       adminAuthApi.middleware,
-      bikesApi.middleware,
-      scootyApi.middleware,
+      bikeApi.middleware,
+      bikeImageApi.middleware,
       branchApi.middleware,
       staffApi.middleware,
       branchManagerApi.middleware,

@@ -11,8 +11,8 @@ import {
   selectBikesFilters,
   selectBikesSortBy,
   selectBikesPagination,
-} from "../redux-store/slices/bikesSlice";
-import { useGetBikesQuery } from "@/redux-store/services/bikeApi";
+} from "../redux-store/slices/BikeSystemSlice/bikesSlice";
+import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
 
 export const useBikes = () => {
   const dispatch = useAppDispatch();

@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatCurrency } from "@/lib/formatters";
-import { Bike } from "@/redux-store/slices/bikesSlice";
+import { Bike } from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
 
 interface AddBikeCardProps {
   onSelect: (bikeId: string) => void;
@@ -51,9 +51,11 @@ export function AddBikeCard({
 
   const filteredBikes = bikes.filter(
     (bike) =>
-      (categoryFilter === "all" || bike.category === categoryFilter) &&
-      (searchQuery === "" ||
-        bike.modelName.toLowerCase().includes(searchQuery.toLowerCase()))
+      ((categoryFilter === "all" || bike.category === categoryFilter) &&
+        (searchQuery === "" ||
+          bike.modelName.toLowerCase().includes(searchQuery.toLowerCase())) &&
+        !bike._id) ||
+      true // Allow all bikes in selection
   );
 
   return (
@@ -64,17 +66,17 @@ export function AddBikeCard({
             <Plus className='h-8 w-8 text-gray-400 group-hover:text-gray-600' />
           </div>
           <h3 className='text-lg font-semibold text-gray-600 mb-2'>
-            Add Motorcycle
+            Add Vehicle
           </h3>
           <p className='text-sm text-gray-500 text-center'>
-            Click to select a motorcycle for comparison
+            Click to select a Honda motorcycle or scooter for comparison
           </p>
         </div>
       </DialogTrigger>
 
       <DialogContent className='max-w-4xl max-h-[80vh] overflow-hidden'>
         <DialogHeader>
-          <DialogTitle>Select a Motorcycle to Compare</DialogTitle>
+          <DialogTitle>Select a Honda Vehicle to Compare</DialogTitle>
         </DialogHeader>
 
         <div className='space-y-4'>
@@ -84,7 +86,7 @@ export function AddBikeCard({
               <div className='relative'>
                 <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
                 <Input
-                  placeholder='Search motorcycles...'
+                  placeholder='Search Honda vehicles...'
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className='pl-10'
@@ -115,25 +117,27 @@ export function AddBikeCard({
             {filteredBikes.length === 0 ? (
               <div className='text-center py-8'>
                 <p className='text-gray-500'>
-                  No motorcycles found matching your criteria.
+                  No Honda vehicles found matching your criteria.
                 </p>
               </div>
             ) : (
               <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                 {filteredBikes.map((bike) => (
                   <div
-                    key={bike.id || bike._id}
-                    onClick={() => handleBikeSelect(bike.id || bike._id || "")}
+                    key={bike._id}
+                    onClick={() => handleBikeSelect(bike._id)}
                     className='border rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow hover:border-red-300'
                   >
                     <div className='aspect-video bg-gray-100 rounded-md mb-3 overflow-hidden'>
                       <img
-                        src={bike.images?.[0] || "/placeholder.svg"}
+                        src={
+                          bike.images?.[0]?.src || "/api/placeholder/300/200"
+                        }
                         alt={bike.modelName}
                         className='w-full h-full object-cover'
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = "/placeholder.svg";
+                          target.src = "/api/placeholder/300/200";
                         }}
                       />
                     </div>
@@ -148,14 +152,32 @@ export function AddBikeCard({
                           {bike.category}
                         </Badge>
                         <span className='text-sm font-medium text-red-600'>
-                          {formatCurrency(bike.price)}
+                          {formatCurrency(
+                            bike.priceBreakdown?.onRoadPrice ||
+                              bike.priceBreakdown?.exShowroomPrice ||
+                              0
+                          )}
                         </span>
                       </div>
 
-                      {bike.engine && (
+                      <div className='flex items-center justify-between'>
+                        <Badge
+                          variant={
+                            bike.mainCategory === "bike" ? "default" : "outline"
+                          }
+                          className='text-xs'
+                        >
+                          {bike.mainCategory}
+                        </Badge>
+                        <span className='text-xs text-gray-600'>
+                          {bike.year}
+                        </span>
+                      </div>
+
+                      {bike.engineSize && (
                         <div className='text-xs text-gray-600'>
-                          <span>{bike.engine}</span>
-                          {bike.power && <span> • {bike.power}hp</span>}
+                          <span>{bike.engineSize}</span>
+                          {bike.power && <span> • {bike.power}HP</span>}
                         </div>
                       )}
 
@@ -163,11 +185,15 @@ export function AddBikeCard({
                       <div className='flex items-center gap-2'>
                         <div
                           className={`w-2 h-2 rounded-full ${
-                            bike.inStock ? "bg-green-500" : "bg-red-500"
+                            bike.stockAvailable > 0
+                              ? "bg-green-500"
+                              : "bg-red-500"
                           }`}
                         />
                         <span className='text-xs text-gray-600'>
-                          {bike.inStock ? "In Stock" : "Out of Stock"}
+                          {bike.stockAvailable > 0
+                            ? "In Stock"
+                            : "Out of Stock"}
                         </span>
                       </div>
                     </div>
@@ -181,7 +207,7 @@ export function AddBikeCard({
           <div className='border-t pt-4'>
             <div className='flex justify-between items-center text-sm text-gray-600'>
               <span>
-                {filteredBikes.length} motorcycle
+                {filteredBikes.length} Honda vehicle
                 {filteredBikes.length !== 1 ? "s" : ""} available
               </span>
               <Button

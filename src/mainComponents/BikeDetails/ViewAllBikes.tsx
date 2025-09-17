@@ -19,7 +19,7 @@ import {
   toggleFilterSidebar,
   selectIsFilterSidebarOpen,
 } from "../../redux-store/slices/uiSlice";
-import { useGetBikesQuery } from "../../redux-store/services/bikeApi";
+import { useGetBikesQuery } from "../../redux-store/services/BikeSystemApi/bikeApi";
 import { Header } from "../Home/Header/Header";
 
 // Skeleton Components
