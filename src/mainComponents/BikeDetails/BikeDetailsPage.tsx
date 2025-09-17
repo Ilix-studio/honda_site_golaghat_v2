@@ -1,98 +1,99 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { skipToken } from "@reduxjs/toolkit/query"; // Import skipToken
+
+import { ChevronLeft, Share2, UserCheck, Calendar, Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  ChevronLeft,
-  Share2,
-  Calculator,
-  Loader2,
-  AlertCircle,
-  Stamp,
-} from "lucide-react";
-
+import { Header } from "../Home/Header/Header";
 import { Footer } from "../Home/Footer";
+
+import { useGetBikeByIdQuery } from "../../redux-store/services/BikeSystemApi/bikeApi";
 import { formatCurrency } from "../../lib/formatters";
 
-// Redux
-import { useGetBikeByIdQuery } from "../../redux-store/services/BikeSystemApi/bikeApi";
-import { useAppDispatch } from "../../hooks/redux";
-import { addNotification } from "../../redux-store/slices/uiSlice";
-import { Header } from "../Home/Header/Header";
-
-export default function BikeDetailsPage() {
+const BikeDetailPage: React.FC = () => {
   const { bikeId } = useParams<{ bikeId: string }>();
-  const dispatch = useAppDispatch();
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectedColor, setSelectedColor] = useState("");
   const navigate = useNavigate();
+  const [selectedVariant, setSelectedVariant] = useState("Standard");
+  const [selectedColor, setSelectedColor] = useState("");
 
-  // Use skipToken when bikeId is undefined to prevent unnecessary API calls
   const {
     data: bikeResponse,
     isLoading,
-    isError,
-  } = useGetBikeByIdQuery(bikeId ?? skipToken);
+    error,
+  } = useGetBikeByIdQuery(bikeId || "");
 
   const bike = bikeResponse?.data;
 
+  // Set initial color when bike data loads
   useEffect(() => {
-    if (bike?.colors && bike.colors.length > 0) {
+    if (bike?.colors && bike.colors.length > 0 && !selectedColor) {
       setSelectedColor(bike.colors[0]);
     }
-  }, [bike]);
+  }, [bike, selectedColor]);
+
+  const handleBookNow = () => {
+    if (bike) {
+      navigate(`/book-service?bikeId=${bike._id}`);
+    }
+  };
 
   const handleShare = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: bike?.modelName || "Honda Motorcycle",
-          text: `Check out this ${bike?.modelName} motorcycle!`,
+          title: bike?.modelName,
+          text: `Check out this ${bike?.modelName}`,
           url: window.location.href,
         });
-      } catch (err) {
-        console.log("Error sharing:", err);
+      } catch (error) {
+        console.log("Error sharing:", error);
       }
     } else {
-      // Fallback to copying URL
-      await navigator.clipboard.writeText(window.location.href);
-      dispatch(
-        addNotification({
-          type: "success",
-          message: "Link copied to clipboard!",
-        })
-      );
+      navigator.clipboard.writeText(window.location.href);
+      alert("Link copied to clipboard!");
     }
   };
 
-  const handleFinance = () => {
-    navigate("/finance");
+  const handleGetApproved = () => {
+    navigate("/finance-application");
   };
 
-  const handleBookNow = () => {
-    dispatch(
-      addNotification({
-        type: "info",
-        message: "Booking feature coming soon!",
-      })
-    );
-  };
-
-  // Handle case when no bikeId is provided
-  if (!bikeId) {
+  if (isLoading) {
     return (
       <>
         <Header />
         <main className='min-h-screen bg-gray-50 pt-20'>
-          <div className='container max-w-4xl px-4 py-8'>
-            <div className='text-center'>
-              <AlertCircle className='h-16 w-16 text-red-500 mx-auto mb-4' />
-              <h1 className='text-3xl font-bold mb-4'>Invalid Bike ID</h1>
+          <div className='container max-w-6xl px-4 py-8'>
+            <div className='animate-pulse'>
+              <div className='h-8 bg-gray-300 rounded w-1/4 mb-6'></div>
+              <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
+                <div className='h-96 bg-gray-300 rounded-lg'></div>
+                <div className='space-y-4'>
+                  <div className='h-8 bg-gray-300 rounded w-3/4'></div>
+                  <div className='h-6 bg-gray-300 rounded w-1/2'></div>
+                  <div className='h-32 bg-gray-300 rounded'></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error || !bike) {
+    return (
+      <>
+        <Header />
+        <main className='min-h-screen bg-gray-50 pt-20'>
+          <div className='container max-w-6xl px-4 py-8'>
+            <div className='text-center py-16'>
+              <h1 className='text-2xl font-bold mb-4'>Bike Not Found</h1>
               <p className='text-muted-foreground mb-6'>
-                No bike ID was provided in the URL.
+                The bike you're looking for doesn't exist or has been removed.
               </p>
               <Link to='/view-all'>
                 <Button>
@@ -108,67 +109,16 @@ export default function BikeDetailsPage() {
     );
   }
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <>
-        <Header />
-        <main className='min-h-screen bg-gray-50 pt-20'>
-          <div className='container max-w-6xl px-4 py-8'>
-            <div className='flex items-center justify-center min-h-[60vh]'>
-              <div className='text-center'>
-                <Loader2 className='h-12 w-12 animate-spin mx-auto mb-4 text-blue-600' />
-                <h2 className='text-xl font-semibold mb-2'>
-                  Loading Bike Details
-                </h2>
-                <p className='text-muted-foreground'>
-                  Please wait while we fetch the information...
-                </p>
-              </div>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
+  const getPrimaryImageUrl = (): string => {
+    if (bike?.images && Array.isArray(bike.images) && bike.images.length > 0) {
+      const primaryImage = bike.images.find((img) => img.isPrimary);
+      if (primaryImage?.src) return primaryImage.src;
 
-  // Error state or bike not found
-  if (isError || !bike) {
-    return (
-      <>
-        <Header />
-        <main className='min-h-screen bg-gray-50 pt-20'>
-          <div className='container max-w-4xl px-4 py-8'>
-            <div className='text-center'>
-              <AlertCircle className='h-16 w-16 text-red-500 mx-auto mb-4' />
-              <h1 className='text-3xl font-bold mb-4'>Bike Not Found</h1>
-              <p className='text-muted-foreground mb-6'>
-                {isError
-                  ? "There was an error loading the bike details. Please try again later."
-                  : "The bike you're looking for doesn't exist or has been removed."}
-              </p>
-              <div className='flex gap-4 justify-center'>
-                <Link to='/view-all'>
-                  <Button>
-                    <ChevronLeft className='h-4 w-4 mr-2' />
-                    Browse All Bikes
-                  </Button>
-                </Link>
-                <Button
-                  variant='outline'
-                  onClick={() => window.location.reload()}
-                >
-                  Try Again
-                </Button>
-              </div>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
+      const firstImage = bike.images[0];
+      if (firstImage?.src) return firstImage.src;
+    }
+    return "/api/placeholder/600/400";
+  };
 
   return (
     <>
@@ -183,7 +133,7 @@ export default function BikeDetailsPage() {
               </Link>
               <span>/</span>
               <Link to='/view-all' className='hover:text-primary'>
-                Motorcycles
+                All Bikes
               </Link>
               <span>/</span>
               <span className='text-foreground font-medium'>
@@ -203,78 +153,100 @@ export default function BikeDetailsPage() {
           </Link>
 
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
-            {/* Image Gallery */}
+            {/* Image Section */}
             <div className='space-y-4'>
               <div className='aspect-video bg-white rounded-lg border overflow-hidden'>
-                {bike.images && bike.images.length > 0 ? (
-                  <img
-                    src={
-                      bike.images[selectedImageIndex] || "/placeholder/600/400"
-                    }
-                    alt={bike.modelName}
-                    className='w-full h-full object-cover'
-                  />
-                ) : (
-                  <div className='w-full h-full flex items-center justify-center bg-gray-100'>
-                    <span className='text-muted-foreground'>
-                      No image available
-                    </span>
-                  </div>
-                )}
+                <img
+                  src={getPrimaryImageUrl()}
+                  alt={bike.modelName}
+                  className='w-full h-full object-cover'
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/api/placeholder/600/400";
+                  }}
+                />
               </div>
 
               {/* Thumbnail Images */}
               {bike.images && bike.images.length > 1 && (
                 <div className='flex gap-2 overflow-x-auto'>
-                  {bike.images.map((image, index) => (
-                    <button
+                  {bike.images.slice(0, 4).map((image, index) => (
+                    <div
                       key={index}
-                      onClick={() => setSelectedImageIndex(index)}
-                      className={`flex-shrink-0 w-20 h-20 border rounded-lg overflow-hidden ${
-                        selectedImageIndex === index
-                          ? "border-primary ring-2 ring-primary/20"
-                          : "border-gray-200"
-                      }`}
+                      className='w-20 h-20 bg-white rounded border flex-shrink-0 overflow-hidden cursor-pointer hover:border-primary'
                     >
                       <img
-                        src={image || "/placeholder/80/80"}
-                        alt={`${bike.modelName} view ${index + 1}`}
+                        src={image.src}
+                        alt={`${bike.modelName} ${index + 1}`}
                         className='w-full h-full object-cover'
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/api/placeholder/80/80";
+                        }}
                       />
-                    </button>
+                    </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Product Details */}
+            {/* Details Section */}
             <div className='space-y-6'>
+              {/* Header */}
               <div>
                 <h1 className='text-3xl font-bold mb-2'>{bike.modelName}</h1>
-                <p className='text-2xl font-bold text-primary mb-4'>
-                  {formatCurrency(bike.price)}
+                <p className='text-2xl font-semibold text-primary mb-4'>
+                  {formatCurrency(
+                    bike.priceBreakdown?.onRoadPrice ||
+                      bike.priceBreakdown?.exShowroomPrice ||
+                      0
+                  )}
                 </p>
-
-                {/* Badges */}
                 <div className='flex gap-2 mb-4'>
-                  <Badge variant='secondary' className='capitalize'>
+                  <Badge variant='outline' className='capitalize'>
                     {bike.category}
                   </Badge>
-                  <Badge variant={bike.inStock ? "default" : "destructive"}>
-                    {bike.inStock ? "In Stock" : "Out of Stock"}
+                  <Badge
+                    variant={
+                      bike.stockAvailable > 0 ? "default" : "destructive"
+                    }
+                  >
+                    {bike.stockAvailable > 0 ? "In Stock" : "Out of Stock"}
                   </Badge>
                   <Badge variant='outline'>{bike.year}</Badge>
                 </div>
               </div>
 
-              {/* Specifications */}
+              {/* Variant Selection */}
+              {bike.variants && bike.variants.length > 0 && (
+                <div>
+                  <h3 className='font-semibold mb-3'>Variant</h3>
+                  <div className='flex gap-2'>
+                    {bike.variants.map((variant) => (
+                      <button
+                        key={variant.name}
+                        onClick={() => setSelectedVariant(variant.name)}
+                        className={`px-4 py-2 border rounded-lg text-sm ${
+                          selectedVariant === variant.name
+                            ? "border-primary bg-primary/5 text-primary"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        {variant.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Key Specifications Card */}
               <Card>
                 <CardContent className='pt-6'>
                   <h3 className='font-semibold mb-4'>Key Specifications</h3>
                   <div className='grid grid-cols-2 gap-4 text-sm'>
                     <div>
                       <span className='text-muted-foreground'>Engine:</span>
-                      <p className='font-medium'>{bike.engine}</p>
+                      <p className='font-medium'>{bike.engineSize || "N/A"}</p>
                     </div>
                     <div>
                       <span className='text-muted-foreground'>Power:</span>
@@ -294,11 +266,11 @@ export default function BikeDetailsPage() {
                 </CardContent>
               </Card>
 
-              {/* Color Selection */}
+              {/* Available Colors */}
               {bike.colors && bike.colors.length > 0 && (
                 <div>
                   <h3 className='font-semibold mb-3'>Available Colors</h3>
-                  <div className='flex gap-2'>
+                  <div className='flex gap-2 flex-wrap'>
                     {bike.colors.map((color) => (
                       <button
                         key={color}
@@ -334,11 +306,11 @@ export default function BikeDetailsPage() {
               <div className='space-y-4'>
                 <Button
                   onClick={handleBookNow}
-                  disabled={!bike.inStock}
+                  disabled={bike.stockAvailable === 0}
                   className='w-full'
                   size='lg'
                 >
-                  <Calculator className='h-4 w-4 mr-2' />
+                  <Calendar className='h-4 w-4 mr-2' />
                   Book Now
                 </Button>
 
@@ -352,29 +324,72 @@ export default function BikeDetailsPage() {
                     Share
                   </Button>
                   <Button
-                    onClick={handleFinance}
+                    onClick={handleGetApproved}
                     variant='outline'
                     className='w-full'
                   >
-                    <Stamp className='h-4 w-4 mr-2' />
+                    <UserCheck className='h-4 w-4 mr-2' />
                     Get Approved
                   </Button>
                 </div>
               </div>
 
               {/* Stock Information */}
-              {bike.quantity !== undefined && (
+              {bike.stockAvailable > 0 && (
                 <div className='p-4 bg-blue-50 rounded-lg'>
                   <p className='text-sm text-blue-800'>
-                    <strong>Stock Available:</strong> {bike.quantity} units
+                    <strong>Stock Available:</strong> {bike.stockAvailable}{" "}
+                    units
                   </p>
                 </div>
               )}
             </div>
           </div>
 
+          {/* Price Breakdown Section */}
+          <Card className='mt-8'>
+            <CardContent className='pt-6'>
+              <h3 className='text-lg font-semibold mb-4'>
+                Honda Shine 100 On Road Price in Golaghat
+              </h3>
+              <div className='space-y-3'>
+                <div className='flex justify-between items-center py-2 border-b'>
+                  <span className='text-muted-foreground'>Ex-showroom</span>
+                  <span className='font-medium'>
+                    {formatCurrency(bike.priceBreakdown?.exShowroomPrice || 0)}
+                  </span>
+                </div>
+                <div className='flex justify-between items-center py-2 border-b'>
+                  <span className='text-muted-foreground'>RTO</span>
+                  <span className='font-medium'>
+                    {formatCurrency(bike.priceBreakdown?.rtoCharges || 0)}
+                  </span>
+                </div>
+                <div className='flex justify-between items-center py-2 border-b'>
+                  <span className='text-muted-foreground'>
+                    Insurance (Comprehensive)
+                  </span>
+                  <span className='font-medium'>
+                    {formatCurrency(
+                      bike.priceBreakdown?.insuranceComprehensive || 0
+                    )}
+                  </span>
+                </div>
+                <div className='flex justify-between items-center py-3 bg-gray-50 px-4 rounded-lg'>
+                  <span className='font-semibold flex items-center gap-2'>
+                    On Road Price in Golaghat
+                    <Info className='h-4 w-4 text-muted-foreground' />
+                  </span>
+                  <span className='text-lg font-bold'>
+                    {formatCurrency(bike.priceBreakdown?.onRoadPrice || 0)}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Additional Information Sections */}
-          <div className='mt-12 grid grid-cols-1 md:grid-cols-2 gap-8'>
+          <div className='mt-8 grid grid-cols-1 md:grid-cols-2 gap-8'>
             {/* Financing Options */}
             <Card>
               <CardContent className='pt-6'>
@@ -383,20 +398,25 @@ export default function BikeDetailsPage() {
                   <div className='flex justify-between'>
                     <span>EMI from:</span>
                     <span className='font-medium'>
-                      {formatCurrency(Math.round(bike.price / 36))}
+                      {formatCurrency(
+                        Math.round((bike.priceBreakdown?.onRoadPrice || 0) / 36)
+                      )}
                     </span>
                   </div>
                   <div className='flex justify-between'>
                     <span>Down Payment:</span>
                     <span className='font-medium'>
-                      {formatCurrency(Math.round(bike.price * 0.2))}
+                      {formatCurrency(
+                        Math.round(
+                          (bike.priceBreakdown?.onRoadPrice || 0) * 0.2
+                        )
+                      )}
                     </span>
                   </div>
-                  <Link to='/finance'>
-                    <Button variant='outline' size='sm' className='w-full mt-4'>
-                      Calculate EMI
-                    </Button>
-                  </Link>
+                  <div className='flex justify-between'>
+                    <span>Interest Rate:</span>
+                    <span className='font-medium'>9.5% onwards</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -404,22 +424,20 @@ export default function BikeDetailsPage() {
             {/* Service Information */}
             <Card>
               <CardContent className='pt-6'>
-                <h3 className='font-semibold mb-4'>Service & Support</h3>
+                <h3 className='font-semibold mb-4'>Service Information</h3>
                 <div className='space-y-3'>
-                  <div className='flex items-center gap-2'>
-                    <span className='text-sm'>2 Years Warranty</span>
+                  <div className='flex justify-between'>
+                    <span>Service Interval:</span>
+                    <span className='font-medium'>6 months / 10,000 km</span>
                   </div>
-                  <div className='flex items-center gap-2'>
-                    <span className='text-sm'>Free Service for 6 months</span>
+                  <div className='flex justify-between'>
+                    <span>Warranty:</span>
+                    <span className='font-medium'>3 years / 30,000 km</span>
                   </div>
-                  <div className='flex items-center gap-2'>
-                    <span className='text-sm'>24/7 Roadside Assistance</span>
+                  <div className='flex justify-between'>
+                    <span>Fuel Norms:</span>
+                    <span className='font-medium'>{bike.fuelNorms}</span>
                   </div>
-                  <Link to='/book-service'>
-                    <Button variant='outline' size='sm' className='w-full mt-4'>
-                      Book Service
-                    </Button>
-                  </Link>
                 </div>
               </CardContent>
             </Card>
@@ -429,4 +447,6 @@ export default function BikeDetailsPage() {
       <Footer />
     </>
   );
-}
+};
+
+export default BikeDetailPage;
