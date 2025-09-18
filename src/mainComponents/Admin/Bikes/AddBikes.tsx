@@ -841,7 +841,7 @@ const AddBikes = () => {
                 <Button
                   type='submit'
                   disabled={isLoading}
-                  className='bg-blue-600 hover:bg-blue-700'
+                  className='bg-red-500 hover:bg-red-700'
                 >
                   {isLoading
                     ? "Creating..."

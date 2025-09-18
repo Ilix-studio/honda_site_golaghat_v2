@@ -1,4 +1,5 @@
 import "./App.css";
+import { Toaster } from "react-hot-toast";
 import Home from "./Home";
 import { Routes, Route, useLocation } from "react-router-dom";
 import BookServicePage from "./mainComponents/BookService/BookServicePage";
@@ -33,6 +34,7 @@ import InitialDashboard from "./mainComponents/CustomerSystem/Dashboards/Initial
 import CreateServicePacks from "./mainComponents/Admin/ServicePackages/CreateServicePacks";
 import AddBikeImage from "./mainComponents/Admin/Bikes/AddBikeImage";
 import EditBikeImage from "./mainComponents/Admin/Bikes/EditBikeImage";
+import { ViewBikeImage } from "./mainComponents/Admin/Bikes/ViewBikeImage";
 
 // import TestBike from "./mainComponents/TestBike";
 
@@ -71,6 +73,7 @@ const App: React.FC = () => {
           path='/admin/bikes/:bikeId/images/edit'
           element={<EditBikeImage />}
         />
+        <Route path='/admin/bikeimages/:id' element={<ViewBikeImage />} />
 
         {/* Branch Management Routes */}
         <Route path='/admin/addbranch' element={<AddBranch />} />
@@ -109,6 +112,7 @@ const App: React.FC = () => {
 
       {/* Global Notification System */}
       <NotificationSystem />
+      <Toaster />
     </>
   );
 };
