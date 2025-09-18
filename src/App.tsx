@@ -6,7 +6,7 @@ import React, { useEffect } from "react";
 
 import BranchesPage from "./mainComponents/NavMenu/Branches/BranchesPage";
 import BranchDetailPage from "./mainComponents/NavMenu/Branches/BranchDetailPage";
-// import { ViewAllBikes } from "./mainComponents/BikeDetails/ViewAllBikes";
+import { ViewAllBikes } from "./mainComponents/BikeDetails/ViewAllBikes";
 import BikeDetailsPage from "./mainComponents/BikeDetails/BikeDetailsPage";
 import NotFoundPage from "./mainComponents/NotFoundPage";
 
@@ -87,7 +87,7 @@ const App: React.FC = () => {
         <Route path='/branches/:id' element={<BranchDetailPage />} />
 
         {/* View Bikes  */}
-        {/* <Route path='/view-all' element={<ViewAllBikes />} /> */}
+        <Route path='/view-all' element={<ViewAllBikes />} />
         <Route path='/bikes/:bikeId' element={<BikeDetailsPage />} />
 
         {/* Customer Login  */}
