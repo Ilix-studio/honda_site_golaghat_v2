@@ -1,37 +1,69 @@
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FormEvent } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import {
+  setFilters,
+  selectBikesFilters,
+} from "../../../redux-store/slices/BikeSystemSlice/bikesSlice";
 
 interface SearchBarProps {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
   placeholder?: string;
+  className?: string;
 }
 
 export function SearchBar({
-  searchQuery,
-  setSearchQuery,
-  placeholder = "Search bikes...",
+  placeholder = "Search bikes by name, features...",
+  className,
 }: SearchBarProps) {
-  const [, setSearchParams] = useSearchParams();
+  const dispatch = useAppDispatch();
+  const filters = useAppSelector(selectBikesFilters);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [localSearchQuery, setLocalSearchQuery] = useState(
+    filters.search || ""
+  );
+
+  // Sync local state with Redux store
+  useEffect(() => {
+    setLocalSearchQuery(filters.search || "");
+  }, [filters.search]);
+
+  // Initialize from URL params
+  useEffect(() => {
+    const searchParam = searchParams.get("search");
+    if (searchParam && searchParam !== filters.search) {
+      dispatch(setFilters({ search: searchParam }));
+    }
+  }, [searchParams, dispatch, filters.search]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    // Update URL search params when form is submitted
-    if (searchQuery) {
+    // Update Redux store
+    dispatch(setFilters({ search: localSearchQuery || undefined }));
+
+    // Update URL search params
+    if (localSearchQuery) {
       setSearchParams((prev) => {
         const newParams = new URLSearchParams(prev);
-        newParams.set("search", searchQuery);
+        newParams.set("search", localSearchQuery);
+        return newParams;
+      });
+    } else {
+      setSearchParams((prev) => {
+        const newParams = new URLSearchParams(prev);
+        newParams.delete("search");
         return newParams;
       });
     }
   };
 
   const clearSearch = () => {
-    setSearchQuery("");
+    setLocalSearchQuery("");
+    dispatch(setFilters({ search: undefined }));
+
     // Remove search param from URL
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);
@@ -41,7 +73,7 @@ export function SearchBar({
   };
 
   return (
-    <div>
+    <div className={className}>
       <Label htmlFor='search' className='text-sm font-medium mb-2 block'>
         Search
       </Label>
@@ -52,13 +84,13 @@ export function SearchBar({
             id='search'
             placeholder={placeholder}
             className='pl-9'
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={localSearchQuery}
+            onChange={(e) => setLocalSearchQuery(e.target.value)}
           />
-          {searchQuery && (
+          {localSearchQuery && (
             <button
               type='button'
-              className='absolute right-2.5 top-2.5'
+              className='absolute right-2.5 top-2.5 hover:text-foreground transition-colors'
               onClick={clearSearch}
             >
               <X className='h-4 w-4 text-muted-foreground' />
