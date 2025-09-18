@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -53,7 +53,6 @@ interface EditImageData {
 const EditBikeImage = () => {
   const { bikeId } = useParams<{ bikeId: string }>();
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
   // State management
   const [selectedImage, setSelectedImage] = useState<File | null>(null);

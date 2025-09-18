@@ -8,12 +8,27 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
-import { Bike, Zap, Calendar, Star, AlertTriangle, Eye } from "lucide-react";
+import {
+  useGetBikesQuery,
+  useDeleteBikeMutation,
+} from "@/redux-store/services/BikeSystemApi/bikeApi";
+import {
+  Zap,
+  Calendar,
+  Star,
+  AlertTriangle,
+  Eye,
+  Bike,
+  Trash2,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 const RecentMotorcycles = () => {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   // Fetch bikes and scooters with recent filters
   const {
     data: bikesData,
@@ -36,6 +51,31 @@ const RecentMotorcycles = () => {
     sortBy: "createdAt",
     sortOrder: "desc",
   });
+
+  // Delete mutation
+  const [deleteBike] = useDeleteBikeMutation();
+
+  const handleDelete = async (vehicleId: string, vehicleName: string) => {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete "${vehicleName}"? This action cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    setDeletingId(vehicleId);
+
+    try {
+      await deleteBike(vehicleId).unwrap();
+      toast.success(`${vehicleName} deleted successfully`);
+    } catch (error: any) {
+      console.error("Delete error:", error);
+      toast.error(error?.data?.error || "Failed to delete vehicle");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const LoadingSkeleton = () => (
     <div className='space-y-3'>
@@ -98,7 +138,6 @@ const RecentMotorcycles = () => {
     vehicleType,
     icon: Icon,
     editPath,
-    addPath,
     imagePath,
   }: VehicleListProps) => {
     if (isLoading) {
@@ -121,7 +160,7 @@ const RecentMotorcycles = () => {
           <p className='text-gray-500 mb-4'>
             No {vehicleType.toLowerCase()}s available
           </p>
-          <Link to={addPath}>
+          <Link to='/admin/addbikes'>
             <Button size='sm' className='bg-red-600 hover:bg-red-700'>
               Add First {vehicleType}
             </Button>
@@ -134,6 +173,7 @@ const RecentMotorcycles = () => {
       <div className='space-y-4'>
         {vehicles.data.bikes.map((vehicle, index) => {
           const stockStatus = getStockStatus(vehicle.stockAvailable);
+          const isDeleting = deletingId === vehicle._id;
 
           return (
             <motion.div
@@ -196,6 +236,20 @@ const RecentMotorcycles = () => {
                     Edit
                   </Button>
                 </Link>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={() => handleDelete(vehicle._id, vehicle.modelName)}
+                  disabled={isDeleting}
+                  className='text-red-600 hover:text-red-700 hover:bg-red-50'
+                >
+                  {isDeleting ? (
+                    <div className='h-4 w-4 animate-spin border-2 border-red-600 border-t-transparent rounded-full mr-1' />
+                  ) : (
+                    <Trash2 className='h-4 w-4 mr-1' />
+                  )}
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </Button>
               </div>
             </motion.div>
           );
@@ -232,12 +286,7 @@ const RecentMotorcycles = () => {
           <div className='flex gap-2'>
             <Link to='/admin/addbikes'>
               <Button size='sm' className='bg-red-600 hover:bg-red-700'>
-                Add Bike
-              </Button>
-            </Link>
-            <Link to='/admin/addscooties'>
-              <Button size='sm' variant='outline'>
-                Add Scooty
+                Add Vehicle
               </Button>
             </Link>
           </div>
@@ -247,7 +296,6 @@ const RecentMotorcycles = () => {
         <Tabs defaultValue='bikes' className='w-full'>
           <TabsList className='grid w-full grid-cols-2'>
             <TabsTrigger value='bikes' className='flex items-center gap-2'>
-              <Bike className='h-4 w-4' />
               Motorcycles
               {bikesData?.data?.pagination?.total && (
                 <Badge variant='secondary' className='ml-1 text-xs'>
@@ -256,7 +304,6 @@ const RecentMotorcycles = () => {
               )}
             </TabsTrigger>
             <TabsTrigger value='scooties' className='flex items-center gap-2'>
-              <Zap className='h-4 w-4' />
               Scooters
               {scootiesData?.data?.pagination?.total && (
                 <Badge variant='secondary' className='ml-1 text-xs'>
@@ -273,7 +320,7 @@ const RecentMotorcycles = () => {
               isError={bikesError}
               vehicleType='Bike'
               icon={Bike}
-              editPath='/admin/editbikes'
+              editPath='/admin/addbikes/edit'
               addPath='/admin/addbikes'
               imagePath='/admin/bikeimages'
             />
@@ -286,7 +333,7 @@ const RecentMotorcycles = () => {
               isError={scootiesError}
               vehicleType='Scooty'
               icon={Zap}
-              editPath='/admin/editscooties'
+              editPath='/admin/addbikes/edit'
               addPath='/admin/addscooties'
               imagePath='/admin/scootypimages'
             />
