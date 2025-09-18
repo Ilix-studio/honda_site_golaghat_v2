@@ -8,12 +8,27 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
-import { Zap, Calendar, Star, AlertTriangle, Eye, Bike } from "lucide-react";
+import {
+  useGetBikesQuery,
+  useDeleteBikeMutation,
+} from "@/redux-store/services/BikeSystemApi/bikeApi";
+import {
+  Zap,
+  Calendar,
+  Star,
+  AlertTriangle,
+  Eye,
+  Bike,
+  Trash2,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 const RecentMotorcycles = () => {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   // Fetch bikes and scooters with recent filters
   const {
     data: bikesData,
@@ -36,6 +51,31 @@ const RecentMotorcycles = () => {
     sortBy: "createdAt",
     sortOrder: "desc",
   });
+
+  // Delete mutation
+  const [deleteBike] = useDeleteBikeMutation();
+
+  const handleDelete = async (vehicleId: string, vehicleName: string) => {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete "${vehicleName}"? This action cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    setDeletingId(vehicleId);
+
+    try {
+      await deleteBike(vehicleId).unwrap();
+      toast.success(`${vehicleName} deleted successfully`);
+    } catch (error: any) {
+      console.error("Delete error:", error);
+      toast.error(error?.data?.error || "Failed to delete vehicle");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const LoadingSkeleton = () => (
     <div className='space-y-3'>
@@ -133,6 +173,7 @@ const RecentMotorcycles = () => {
       <div className='space-y-4'>
         {vehicles.data.bikes.map((vehicle, index) => {
           const stockStatus = getStockStatus(vehicle.stockAvailable);
+          const isDeleting = deletingId === vehicle._id;
 
           return (
             <motion.div
@@ -195,6 +236,20 @@ const RecentMotorcycles = () => {
                     Edit
                   </Button>
                 </Link>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={() => handleDelete(vehicle._id, vehicle.modelName)}
+                  disabled={isDeleting}
+                  className='text-red-600 hover:text-red-700 hover:bg-red-50'
+                >
+                  {isDeleting ? (
+                    <div className='h-4 w-4 animate-spin border-2 border-red-600 border-t-transparent rounded-full mr-1' />
+                  ) : (
+                    <Trash2 className='h-4 w-4 mr-1' />
+                  )}
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </Button>
               </div>
             </motion.div>
           );

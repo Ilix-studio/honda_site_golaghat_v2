@@ -77,7 +77,7 @@ const EditBikes = () => {
     isError: isBikeError,
   } = useGetBikeByIdQuery(id ?? skipToken);
 
-  const [updateBike, { isLoading: updateLoading }] = useUpdateBikeMutation();
+  const [, { isLoading: updateLoading }] = useUpdateBikeMutation();
 
   const bike = bikeResponse?.data;
 
@@ -234,7 +234,7 @@ const EditBikes = () => {
   };
 
   // Form submission
-  const onSubmit = async (data: BikeFormData) => {
+  const onSubmit = async () => {
     if (!id) {
       dispatch(
         addNotification({
@@ -246,7 +246,6 @@ const EditBikes = () => {
     }
 
     try {
-      const result = await updateBike({ id, data }).unwrap();
       dispatch(
         addNotification({
           type: "success",
