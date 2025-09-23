@@ -37,7 +37,7 @@ const BranchQueries = () => {
       icon: User,
       loading: false,
       description: "Total Customers",
-      action: { label: "Open Sign-up form", href: "/admin/reports" },
+      action: { label: "Open Sign-up form", href: "/admin/customer-sign-up" },
     },
     {
       title: "Branches",
@@ -131,7 +131,7 @@ const BranchQueries = () => {
             <Link to='/admin/addbikes'>
               <Button className='w-full justify-start' variant='outline'>
                 <Bike className='h-4 w-4 mr-2' />
-                Add New Bikes
+                Add New Vehicle
               </Button>
             </Link>
 

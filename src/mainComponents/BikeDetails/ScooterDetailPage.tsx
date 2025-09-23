@@ -22,30 +22,30 @@ import { Footer } from "../Home/Footer";
 import { useGetBikeByIdQuery } from "../../redux-store/services/BikeSystemApi/bikeApi";
 import { formatCurrency } from "../../lib/formatters";
 
-const BikeDetailPage: React.FC = () => {
+const ScooterDetailPage: React.FC = () => {
   const { bikeId } = useParams<{ bikeId: string }>();
   const navigate = useNavigate();
   const [selectedVariant, setSelectedVariant] = useState("Standard");
   const [selectedColor, setSelectedColor] = useState("");
 
   const {
-    data: bikeResponse,
+    data: scooterResponse,
     isLoading,
     error,
   } = useGetBikeByIdQuery(bikeId || "");
 
-  const bike = bikeResponse?.data;
+  const scooter = scooterResponse?.data;
 
-  // Set initial color when bike data loads
+  // Set initial color when scooter data loads
   useEffect(() => {
-    if (bike?.colors && bike.colors.length > 0 && !selectedColor) {
-      setSelectedColor(bike.colors[0]);
+    if (scooter?.colors && scooter.colors.length > 0 && !selectedColor) {
+      setSelectedColor(scooter.colors[0]);
     }
-  }, [bike, selectedColor]);
+  }, [scooter, selectedColor]);
 
   const handleBookNow = () => {
-    if (bike) {
-      navigate(`/book-service?bikeId=${bike._id}`);
+    if (scooter) {
+      navigate(`/book-service?bikeId=${scooter._id}`);
     }
   };
 
@@ -53,8 +53,8 @@ const BikeDetailPage: React.FC = () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: bike?.modelName,
-          text: `Check out this ${bike?.modelName} bike`,
+          title: scooter?.modelName,
+          text: `Check out this ${scooter?.modelName} scooter`,
           url: window.location.href,
         });
       } catch (error) {
@@ -67,15 +67,15 @@ const BikeDetailPage: React.FC = () => {
   };
 
   const handleGetApproved = () => {
-    if (bike) {
-      navigate(`/finance?bikeId=${bike._id}&type=bike`);
+    if (scooter) {
+      navigate(`/finance?bikeId=${scooter._id}&type=scooter`);
     }
   };
 
   const getPrimaryImageUrl = () => {
-    if (bike?.images && bike.images.length > 0) {
-      const primaryImage = bike.images.find((img) => img.isPrimary);
-      return primaryImage?.src || bike.images[0]?.src;
+    if (scooter?.images && scooter.images.length > 0) {
+      const primaryImage = scooter.images.find((img) => img.isPrimary);
+      return primaryImage?.src || scooter.images[0]?.src;
     }
     return "/api/placeholder/600/400";
   };
@@ -120,7 +120,7 @@ const BikeDetailPage: React.FC = () => {
   }
 
   // Error state
-  if (error || !bike) {
+  if (error || !scooter) {
     return (
       <>
         <Header />
@@ -128,12 +128,13 @@ const BikeDetailPage: React.FC = () => {
           <Card className='max-w-md'>
             <CardContent className='text-center p-6'>
               <Info className='h-12 w-12 text-gray-400 mx-auto mb-4' />
-              <h2 className='text-xl font-semibold mb-2'>Bike Not Found</h2>
+              <h2 className='text-xl font-semibold mb-2'>Scooter Not Found</h2>
               <p className='text-gray-600 mb-4'>
-                The bike you're looking for doesn't exist or has been removed.
+                The scooter you're looking for doesn't exist or has been
+                removed.
               </p>
-              <Link to='/view-all?type=bike'>
-                <Button>View All Bikes</Button>
+              <Link to='/view-all?type=scooter'>
+                <Button>View All Scooters</Button>
               </Link>
             </CardContent>
           </Card>
@@ -156,12 +157,12 @@ const BikeDetailPage: React.FC = () => {
                 Home
               </Link>
               <span>/</span>
-              <Link to='/view-all?type=bike' className='hover:text-primary'>
-                Bikes
+              <Link to='/view-all?type=scooter' className='hover:text-primary'>
+                Scooters
               </Link>
               <span>/</span>
               <span className='text-gray-900 font-medium'>
-                {bike.modelName}
+                {scooter.modelName}
               </span>
             </nav>
           </div>
@@ -169,10 +170,10 @@ const BikeDetailPage: React.FC = () => {
 
         <div className='container max-w-6xl px-4 py-8'>
           {/* Back Button */}
-          <Link to='/view-all?type=bike'>
+          <Link to='/view-all?type=scooter'>
             <Button variant='outline' className='mb-6'>
               <ChevronLeft className='h-4 w-4 mr-2' />
-              Back to All Bikes
+              Back to All Scooters
             </Button>
           </Link>
 
@@ -182,7 +183,7 @@ const BikeDetailPage: React.FC = () => {
               <div className='aspect-video bg-white rounded-lg border overflow-hidden'>
                 <img
                   src={getPrimaryImageUrl()}
-                  alt={bike.modelName}
+                  alt={scooter.modelName}
                   className='w-full h-full object-cover'
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
@@ -192,16 +193,16 @@ const BikeDetailPage: React.FC = () => {
               </div>
 
               {/* Thumbnail Images */}
-              {bike.images && bike.images.length > 1 && (
+              {scooter.images && scooter.images.length > 1 && (
                 <div className='flex gap-2 overflow-x-auto'>
-                  {bike.images.slice(0, 4).map((image, index) => (
+                  {scooter.images.slice(0, 4).map((image, index) => (
                     <div
                       key={index}
                       className='w-20 h-20 bg-white rounded border flex-shrink-0 overflow-hidden cursor-pointer hover:border-primary'
                     >
                       <img
                         src={image.src}
-                        alt={`${bike.modelName} ${index + 1}`}
+                        alt={`${scooter.modelName} ${index + 1}`}
                         className='w-full h-full object-cover'
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
@@ -214,29 +215,29 @@ const BikeDetailPage: React.FC = () => {
               )}
               <br />
               <div>
-                <h1 className='text-3xl font-bold mb-2'>{bike.modelName}</h1>
+                <h1 className='text-3xl font-bold mb-2'>{scooter.modelName}</h1>
                 <p className='text-2xl font-semibold text-primary mb-4'>
                   {formatCurrency(
-                    bike.priceBreakdown?.onRoadPrice ||
-                      bike.priceBreakdown?.exShowroomPrice ||
+                    scooter.priceBreakdown?.onRoadPrice ||
+                      scooter.priceBreakdown?.exShowroomPrice ||
                       0
                   )}
                 </p>
                 <div className='flex gap-2 mb-4'>
                   <Badge variant='outline' className='capitalize'>
-                    {bike.category}
+                    {scooter.category}
                   </Badge>
                   <Badge
                     variant={
-                      bike.stockAvailable > 0 ? "default" : "destructive"
+                      scooter.stockAvailable > 0 ? "default" : "destructive"
                     }
                   >
-                    {bike.stockAvailable > 0 ? "In Stock" : "Out of Stock"}
+                    {scooter.stockAvailable > 0 ? "In Stock" : "Out of Stock"}
                   </Badge>
-                  {bike.isNewModel && (
+                  {scooter.isNewModel && (
                     <Badge variant='secondary'>New Model</Badge>
                   )}
-                  {bike.fuelNorms === "Electric" && (
+                  {scooter.fuelNorms === "Electric" && (
                     <Badge
                       variant='outline'
                       className='text-green-600 border-green-600'
@@ -247,8 +248,7 @@ const BikeDetailPage: React.FC = () => {
                   )}
                 </div>
               </div>
-
-              {/* Key Specifications */}
+              {/* Key Specifications - Scooter Specific */}
               <Card>
                 <CardContent className='p-4'>
                   <h3 className='font-semibold mb-3'>Key Specifications</h3>
@@ -256,35 +256,35 @@ const BikeDetailPage: React.FC = () => {
                     <div className='flex items-center gap-2'>
                       <Battery className='h-4 w-4 text-gray-500' />
                       <span className='text-gray-600'>Engine:</span>
-                      <span className='font-medium'>{bike.engineSize}</span>
+                      <span className='font-medium'>{scooter.engineSize}</span>
                     </div>
                     <div className='flex items-center gap-2'>
                       <Zap className='h-4 w-4 text-gray-500' />
                       <span className='text-gray-600'>Power:</span>
-                      <span className='font-medium'>{bike.power} HP</span>
+                      <span className='font-medium'>{scooter.power} HP</span>
                     </div>
                     <div className='flex items-center gap-2'>
                       <Fuel className='h-4 w-4 text-gray-500' />
                       <span className='text-gray-600'>Fuel Norms:</span>
-                      <span className='font-medium'>{bike.fuelNorms}</span>
+                      <span className='font-medium'>{scooter.fuelNorms}</span>
                     </div>
                     <div className='flex items-center gap-2'>
                       <Clock className='h-4 w-4 text-gray-500' />
                       <span className='text-gray-600'>Year:</span>
-                      <span className='font-medium'>{bike.year}</span>
+                      <span className='font-medium'>{scooter.year}</span>
                     </div>
-                    {bike.transmission && (
+                    {scooter.transmission && (
                       <>
                         <div className='flex items-center gap-2'>
                           <span className='text-gray-600'>Transmission:</span>
                           <span className='font-medium'>
-                            {bike.transmission}
+                            {scooter.transmission}
                           </span>
                         </div>
                         <div className='flex items-center gap-2'>
                           <span className='text-gray-600'>Stock:</span>
                           <span className='font-medium'>
-                            {bike.stockAvailable} units
+                            {scooter.stockAvailable} units
                           </span>
                         </div>
                       </>
@@ -297,7 +297,7 @@ const BikeDetailPage: React.FC = () => {
             {/* Details Section */}
             <div className='space-y-6'>
               {/* Price Breakdown */}
-              {bike.priceBreakdown && (
+              {scooter.priceBreakdown && (
                 <Card>
                   <CardContent className='p-4'>
                     <h3 className='font-semibold mb-3'>Price Breakdown</h3>
@@ -307,20 +307,22 @@ const BikeDetailPage: React.FC = () => {
                           Ex-Showroom Price:
                         </span>
                         <span className='font-medium'>
-                          {formatCurrency(bike.priceBreakdown.exShowroomPrice)}
+                          {formatCurrency(
+                            scooter.priceBreakdown.exShowroomPrice
+                          )}
                         </span>
                       </div>
                       <div className='flex justify-between'>
                         <span className='text-gray-600'>RTO Charges:</span>
                         <span className='font-medium'>
-                          {formatCurrency(bike.priceBreakdown.rtoCharges)}
+                          {formatCurrency(scooter.priceBreakdown.rtoCharges)}
                         </span>
                       </div>
                       <div className='flex justify-between'>
                         <span className='text-gray-600'>Insurance:</span>
                         <span className='font-medium'>
                           {formatCurrency(
-                            bike.priceBreakdown.insuranceComprehensive
+                            scooter.priceBreakdown.insuranceComprehensive
                           )}
                         </span>
                       </div>
@@ -329,10 +331,10 @@ const BikeDetailPage: React.FC = () => {
                         <span>On-Road Price:</span>
                         <span className='text-primary'>
                           {formatCurrency(
-                            bike.priceBreakdown.onRoadPrice ||
-                              bike.priceBreakdown.exShowroomPrice +
-                                bike.priceBreakdown.rtoCharges +
-                                bike.priceBreakdown.insuranceComprehensive
+                            scooter.priceBreakdown.onRoadPrice ||
+                              scooter.priceBreakdown.exShowroomPrice +
+                                scooter.priceBreakdown.rtoCharges +
+                                scooter.priceBreakdown.insuranceComprehensive
                           )}
                         </span>
                       </div>
@@ -342,11 +344,11 @@ const BikeDetailPage: React.FC = () => {
               )}
 
               {/* Variants Selection */}
-              {bike.variants && bike.variants.length > 0 && (
+              {scooter.variants && scooter.variants.length > 0 && (
                 <div>
                   <h3 className='font-semibold mb-3'>Available Variants</h3>
                   <div className='grid grid-cols-1 gap-2'>
-                    {bike.variants.map((variant, index) => (
+                    {scooter.variants.map((variant, index) => (
                       <button
                         key={index}
                         onClick={() => setSelectedVariant(variant.name)}
@@ -382,11 +384,11 @@ const BikeDetailPage: React.FC = () => {
               )}
 
               {/* Color Selection */}
-              {bike.colors && bike.colors.length > 0 && (
+              {scooter.colors && scooter.colors.length > 0 && (
                 <div>
                   <h3 className='font-semibold mb-3'>Available Colors</h3>
                   <div className='flex flex-wrap gap-2'>
-                    {bike.colors.map((color, index) => (
+                    {scooter.colors.map((color, index) => (
                       <button
                         key={index}
                         onClick={() => setSelectedColor(color)}
@@ -404,11 +406,11 @@ const BikeDetailPage: React.FC = () => {
               )}
 
               {/* Features */}
-              {bike.features && bike.features.length > 0 && (
+              {scooter.features && scooter.features.length > 0 && (
                 <div>
                   <h3 className='font-semibold mb-3'>Features</h3>
                   <div className='flex flex-wrap gap-2'>
-                    {bike.features.map((feature, index) => (
+                    {scooter.features.map((feature, index) => (
                       <Badge key={index} variant='outline'>
                         {feature}
                       </Badge>
@@ -421,7 +423,7 @@ const BikeDetailPage: React.FC = () => {
               <div className='space-y-4'>
                 <Button
                   onClick={handleBookNow}
-                  disabled={bike.stockAvailable === 0}
+                  disabled={scooter.stockAvailable === 0}
                   className='w-full'
                   size='lg'
                 >
@@ -478,13 +480,13 @@ const BikeDetailPage: React.FC = () => {
           <div className='mt-12'>
             <Card>
               <CardContent className='p-6'>
-                <h3 className='text-xl font-semibold mb-4'>Compare Bikes</h3>
+                <h3 className='text-xl font-semibold mb-4'>Compare Scooters</h3>
                 <p className='text-gray-600 mb-4'>
-                  Compare this bike with other models to make the best choice
+                  Compare this scooter with other models to make the best choice
                   for your needs.
                 </p>
-                <Link to={`/compare?bike=${bike._id}`}>
-                  <Button variant='outline'>Compare Bikes</Button>
+                <Link to={`/compare?scooter=${scooter._id}`}>
+                  <Button variant='outline'>Compare Scooters</Button>
                 </Link>
               </CardContent>
             </Card>
@@ -496,4 +498,4 @@ const BikeDetailPage: React.FC = () => {
   );
 };
 
-export default BikeDetailPage;
+export default ScooterDetailPage;

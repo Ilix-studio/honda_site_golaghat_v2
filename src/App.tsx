@@ -35,6 +35,7 @@ import CreateServicePacks from "./mainComponents/Admin/ServicePackages/CreateSer
 import AddBikeImage from "./mainComponents/Admin/Bikes/AddBikeImage";
 import EditBikeImage from "./mainComponents/Admin/Bikes/EditBikeImage";
 import { ViewBikeImage } from "./mainComponents/Admin/Bikes/ViewBikeImage";
+import ScooterDetailPage from "./mainComponents/BikeDetails/ScooterDetailPage";
 
 // import TestBike from "./mainComponents/TestBike";
 
@@ -92,9 +93,10 @@ const App: React.FC = () => {
         {/* View Bikes  */}
         <Route path='/view-all' element={<ViewAllBikes />} />
         <Route path='/bikes/:bikeId' element={<BikeDetailsPage />} />
+        <Route path='/scooters/:bikeId' element={<ScooterDetailPage />} />
 
         {/* Customer Login  */}
-        <Route path='/customer-sign-up' element={<CustomerSignUp />} />
+        <Route path='/admin/customer-sign-up' element={<CustomerSignUp />} />
         <Route path='/customer-initialize' element={<InitialDashboard />} />
         <Route path='/customer-profile' element={<CustomerCreateProfile />} />
 
