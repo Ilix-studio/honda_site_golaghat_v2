@@ -126,7 +126,7 @@ export default function NewUI() {
             <div className='hidden md:flex items-center space-x-5'>
               <Button
                 variant='outline'
-                className='border-red-500/50 text-red-400 hover:bg-red-500/10 hover:border-red-400 
+                className='border-red-500/50 text-red-400 hover:bg-white-500 hover:border-red-400 
              transition-all duration-300 px-10 py-3'
               >
                 <Phone className='h-4 w-4 mr-2' />

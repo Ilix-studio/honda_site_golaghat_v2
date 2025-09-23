@@ -1,5 +1,5 @@
-import { useState } from "react";
-
+// GetApprovedForm.tsx
+import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,56 +14,103 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bike, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
+import {
+  Bike,
+  ArrowRight,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
+import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
+import { Bike as BikeType } from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
 
-// Import your bike API hook (assuming you have one)
-import { useGetBikesQuery } from "../../redux-store/services/BikeSystemApi/bikeApi";
-
-interface BikeEnquiryFormProps {
-  selectedBike?: any; // Pass from bike details page
+interface GetApprovedFormProps {
+  selectedBike?: BikeType;
   onSubmit?: (data: any) => void;
+  className?: string;
 }
 
-export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
+interface FormData {
+  // Personal info
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  employmentType: string;
+  monthlyIncome: string;
+  creditScoreRange: string;
+
+  // Bike enquiry
+  bikeId: string;
+  bikeModel: string;
+  category: string;
+  priceRange: {
+    min: string;
+    max: string;
+  };
+  preferredFeatures: string[];
+  intendedUse: string;
+  previousBikeExperience: string;
+  urgency: string;
+  additionalRequirements: string;
+
+  // Trade-in info
+  hasTradeIn: boolean;
+  currentBikeModel: string;
+  currentBikeYear: string;
+  estimatedValue: string;
+  tradeInCondition: string;
+
+  // Terms
+  termsAccepted: boolean;
+  privacyPolicyAccepted: boolean;
+}
+
+const initialFormData: FormData = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  employmentType: "",
+  monthlyIncome: "",
+  creditScoreRange: "",
+  bikeId: "",
+  bikeModel: "",
+  category: "",
+  priceRange: { min: "", max: "" },
+  preferredFeatures: [],
+  intendedUse: "",
+  previousBikeExperience: "",
+  urgency: "exploring",
+  additionalRequirements: "",
+  hasTradeIn: false,
+  currentBikeModel: "",
+  currentBikeYear: "",
+  estimatedValue: "",
+  tradeInCondition: "",
+  termsAccepted: false,
+  privacyPolicyAccepted: false,
+};
+
+export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
   selectedBike,
   onSubmit,
+  className = "",
 }) => {
   // Form state
-  const [formData, setFormData] = useState({
-    // Personal info
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    employmentType: "",
-    monthlyIncome: "",
-    creditScoreRange: "",
-
-    // Bike enquiry
+  const [formData, setFormData] = useState<FormData>(() => ({
+    ...initialFormData,
     bikeId: selectedBike?._id || "",
     bikeModel: selectedBike?.modelName || "",
     category: selectedBike?.category || "",
     priceRange: {
-      min: selectedBike?.price || "",
-      max: selectedBike?.price || "",
+      min: selectedBike?.priceBreakdown?.exShowroomPrice?.toString() || "",
+      max:
+        selectedBike?.priceBreakdown?.onRoadPrice?.toString() ||
+        selectedBike?.priceBreakdown?.exShowroomPrice?.toString() ||
+        "",
     },
-    preferredFeatures: [] as string[],
-    intendedUse: "",
-    previousBikeExperience: "",
-    urgency: "exploring",
-    additionalRequirements: "",
-
-    // Trade-in info
-    hasTradeIn: false,
-    currentBikeModel: "",
-    currentBikeYear: "",
-    estimatedValue: "",
-    tradeInCondition: "",
-
-    // Terms
-    termsAccepted: false,
-    privacyPolicyAccepted: false,
-  });
+  }));
 
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -71,165 +118,211 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Get available bikes for selection
-  const { data: bikesData } = useGetBikesQuery({
+  const { data: bikesResponse, isLoading: bikesLoading } = useGetBikesQuery({
     limit: 100,
     inStock: true,
   });
 
-  const bikes = bikesData?.data || [];
+  // Extract bikes array safely from response
+  const availableBikes = useMemo(() => {
+    if (!bikesResponse?.data?.bikes) return [];
+    return bikesResponse.data.bikes;
+  }, [bikesResponse]);
 
-  // Available options
-  const categories = [
-    "sport",
-    "adventure",
-    "cruiser",
-    "touring",
-    "naked",
-    "electric",
-  ];
+  // Configuration data
+  const categories = useMemo(
+    () => [
+      "sport",
+      "adventure",
+      "cruiser",
+      "touring",
+      "naked",
+      "electric",
+      "commuter",
+      "automatic",
+      "gearless",
+    ],
+    []
+  );
 
-  const features = [
-    "ABS",
-    "LED Headlights",
-    "Digital Display",
-    "Bluetooth Connectivity",
-    "USB Charging",
-    "Disc Brakes",
-    "Tubeless Tyres",
-    "Electric Start",
-    "Kick Start",
-    "Fuel Injection",
-    "Carburetor",
-    "Single Cylinder",
-    "Twin Cylinder",
-    "Liquid Cooled",
-    "Air Cooled",
-  ];
+  const features = useMemo(
+    () => [
+      "ABS",
+      "LED Headlights",
+      "Digital Display",
+      "Bluetooth Connectivity",
+      "USB Charging",
+      "Disc Brakes",
+      "Tubeless Tyres",
+      "Electric Start",
+      "Kick Start",
+      "Fuel Injection",
+      "Carburetor",
+      "Single Cylinder",
+      "Twin Cylinder",
+      "Liquid Cooled",
+      "Air Cooled",
+    ],
+    []
+  );
 
-  const intendedUses = [
-    { value: "daily-commute", label: "Daily Commute" },
-    { value: "long-touring", label: "Long Distance Touring" },
-    { value: "sport-riding", label: "Sport Riding" },
-    { value: "off-road", label: "Off-road Adventures" },
-    { value: "leisure", label: "Leisure Riding" },
-    { value: "business", label: "Business Use" },
-  ];
+  const intendedUses = useMemo(
+    () => [
+      { value: "daily-commute", label: "Daily Commute" },
+      { value: "long-touring", label: "Long Distance Touring" },
+      { value: "sport-riding", label: "Sport Riding" },
+      { value: "off-road", label: "Off-road Adventures" },
+      { value: "leisure", label: "Leisure Riding" },
+      { value: "business", label: "Business Use" },
+    ],
+    []
+  );
 
-  const experienceLevels = [
-    { value: "first-time", label: "First Time Buyer" },
-    { value: "beginner", label: "Beginner (0-2 years)" },
-    { value: "intermediate", label: "Intermediate (3-5 years)" },
-    { value: "experienced", label: "Experienced (5+ years)" },
-  ];
+  const experienceLevels = useMemo(
+    () => [
+      { value: "first-time", label: "First Time Buyer" },
+      { value: "beginner", label: "Beginner (0-2 years)" },
+      { value: "intermediate", label: "Intermediate (3-5 years)" },
+      { value: "experienced", label: "Experienced (5+ years)" },
+    ],
+    []
+  );
 
-  const urgencyOptions = [
-    { value: "immediate", label: "Immediate (Within 1 week)" },
-    { value: "within-month", label: "Within a month" },
-    { value: "within-3months", label: "Within 3 months" },
-    { value: "exploring", label: "Just exploring options" },
-  ];
+  const urgencyOptions = useMemo(
+    () => [
+      { value: "immediate", label: "Immediate (Within 1 week)" },
+      { value: "within-month", label: "Within a month" },
+      { value: "within-3months", label: "Within 3 months" },
+      { value: "exploring", label: "Just exploring options" },
+    ],
+    []
+  );
 
-  // Handle form field updates
-  const updateField = (field: string, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+  const employmentTypes = useMemo(
+    () => [
+      { value: "salaried", label: "Salaried" },
+      { value: "self-employed", label: "Self-Employed" },
+      { value: "business-owner", label: "Business Owner" },
+      { value: "retired", label: "Retired" },
+      { value: "student", label: "Student" },
+    ],
+    []
+  );
 
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-  };
+  const creditScoreRanges = useMemo(
+    () => [
+      { value: "excellent", label: "Excellent (750+)" },
+      { value: "good", label: "Good (700-749)" },
+      { value: "fair", label: "Fair (650-699)" },
+      { value: "poor", label: "Poor (below 650)" },
+    ],
+    []
+  );
 
-  // Handle nested field updates
-  const updateNestedField = (parent: string, field: string, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [parent]: {
-        ...prev[parent as keyof typeof prev],
-        [field]: value,
-      },
-    }));
-  };
+  // Form handlers
+  const updateField = useCallback(
+    (field: keyof FormData, value: any) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
 
-  // Handle feature selection
-  const toggleFeature = (feature: string) => {
+      // Clear error when user starts typing
+      if (errors[field]) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[field];
+          return newErrors;
+        });
+      }
+    },
+    [errors]
+  );
+
+  const updateNestedField = useCallback(
+    (parent: string, field: string, value: any) => {
+      setFormData((prev) => ({
+        ...prev,
+        [parent]: {
+          ...(prev[parent as keyof FormData] as any),
+          [field]: value,
+        },
+      }));
+    },
+    []
+  );
+
+  const toggleFeature = useCallback((feature: string) => {
     setFormData((prev) => ({
       ...prev,
       preferredFeatures: prev.preferredFeatures.includes(feature)
         ? prev.preferredFeatures.filter((f) => f !== feature)
         : [...prev.preferredFeatures, feature],
     }));
-  };
+  }, []);
 
-  // Handle bike selection
-  const selectBike = (bike: any) => {
+  const selectBike = useCallback((bike: BikeType) => {
     setFormData((prev) => ({
       ...prev,
       bikeId: bike._id,
       bikeModel: bike.modelName,
       category: bike.category,
       priceRange: {
-        min: bike.price,
-        max: bike.price,
+        min: bike.priceBreakdown.exShowroomPrice.toString(),
+        max: (
+          bike.priceBreakdown.onRoadPrice || bike.priceBreakdown.exShowroomPrice
+        ).toString(),
       },
     }));
-  };
+  }, []);
 
-  // Validate current step
-  const validateStep = (step: number): boolean => {
-    const newErrors: Record<string, string> = {};
+  // Validation
+  const validateStep = useCallback(
+    (step: number): boolean => {
+      const newErrors: Record<string, string> = {};
 
-    if (step === 1) {
-      if (!formData.firstName.trim())
-        newErrors.firstName = "First name is required";
-      if (!formData.lastName.trim())
-        newErrors.lastName = "Last name is required";
-      if (!formData.email.trim()) newErrors.email = "Email is required";
-      if (!formData.phone.trim()) newErrors.phone = "Phone is required";
-      if (!formData.employmentType)
-        newErrors.employmentType = "Employment type is required";
-      if (!formData.monthlyIncome)
-        newErrors.monthlyIncome = "Monthly income is required";
-      if (!formData.creditScoreRange)
-        newErrors.creditScoreRange = "Credit score range is required";
-    }
-
-    if (step === 2) {
-      if (!formData.bikeId && !formData.bikeModel.trim()) {
-        newErrors.bikeSelection = "Please select a bike or enter model name";
+      if (step === 1) {
+        if (!formData.firstName.trim())
+          newErrors.firstName = "First name is required";
+        if (!formData.lastName.trim())
+          newErrors.lastName = "Last name is required";
+        if (!formData.email.trim()) newErrors.email = "Email is required";
+        if (!formData.phone.trim()) newErrors.phone = "Phone is required";
+        if (!formData.employmentType)
+          newErrors.employmentType = "Employment type is required";
+        if (!formData.monthlyIncome)
+          newErrors.monthlyIncome = "Monthly income is required";
+        if (!formData.creditScoreRange)
+          newErrors.creditScoreRange = "Credit score range is required";
       }
-      if (!formData.intendedUse)
-        newErrors.intendedUse = "Please specify intended use";
-      if (!formData.previousBikeExperience)
-        newErrors.previousBikeExperience = "Please specify your experience";
-    }
 
-    if (step === 4) {
-      if (!formData.termsAccepted)
-        newErrors.termsAccepted = "Please accept terms and conditions";
-      if (!formData.privacyPolicyAccepted)
-        newErrors.privacyPolicyAccepted = "Please accept privacy policy";
-    }
+      if (step === 2) {
+        if (!formData.bikeId && !formData.bikeModel.trim()) {
+          newErrors.bikeSelection = "Please select a bike or enter model name";
+        }
+        if (!formData.intendedUse)
+          newErrors.intendedUse = "Please specify intended use";
+        if (!formData.previousBikeExperience)
+          newErrors.previousBikeExperience = "Please specify your experience";
+      }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+      if (step === 4) {
+        if (!formData.termsAccepted)
+          newErrors.termsAccepted = "Please accept terms and conditions";
+        if (!formData.privacyPolicyAccepted)
+          newErrors.privacyPolicyAccepted = "Please accept privacy policy";
+      }
 
-  // Handle form submission
-  const handleSubmit = async () => {
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    },
+    [formData]
+  );
+
+  // Form submission
+  const handleSubmit = useCallback(async () => {
     if (!validateStep(4)) return;
 
     setLoading(true);
     try {
-      // Prepare submission data
       const submissionData = {
-        // Personal information
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
@@ -240,7 +333,6 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
         termsAccepted: formData.termsAccepted,
         privacyPolicyAccepted: formData.privacyPolicyAccepted,
 
-        // Bike enquiry
         bikeEnquiry: {
           bikeId: formData.bikeId || undefined,
           bikeModel: formData.bikeModel || undefined,
@@ -274,12 +366,9 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
           : "general-financing",
       };
 
-      // Submit via API (you'll need to implement this)
       const response = await fetch("/api/getapproved/with-bike", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(submissionData),
       });
 
@@ -296,22 +385,23 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [formData, onSubmit, validateStep]);
 
-  // Navigate between steps
-  const nextStep = () => {
+  // Navigation
+  const nextStep = useCallback(() => {
     if (validateStep(currentStep)) {
       setCurrentStep((prev) => Math.min(prev + 1, 4));
     }
-  };
+  }, [currentStep, validateStep]);
 
-  const prevStep = () => {
+  const prevStep = useCallback(() => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
-  };
+  }, []);
 
+  // Success state
   if (submitted) {
     return (
-      <Card className='max-w-2xl mx-auto'>
+      <Card className={`max-w-2xl mx-auto ${className}`}>
         <CardContent className='p-8 text-center'>
           <CheckCircle className='h-16 w-16 text-green-600 mx-auto mb-4' />
           <h2 className='text-2xl font-bold mb-2'>
@@ -331,7 +421,7 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
   }
 
   return (
-    <div className='max-w-4xl mx-auto p-6'>
+    <div className={`max-w-4xl mx-auto p-6 ${className}`}>
       {/* Progress Indicator */}
       <div className='mb-8'>
         <div className='flex items-center justify-between'>
@@ -371,7 +461,7 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
         </div>
       </div>
 
-      {/* Step Content */}
+      {/* Form Content */}
       <Card>
         <CardHeader>
           <CardTitle>
@@ -453,13 +543,11 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
                     <SelectValue placeholder='Select employment type' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='salaried'>Salaried</SelectItem>
-                    <SelectItem value='self-employed'>Self-Employed</SelectItem>
-                    <SelectItem value='business-owner'>
-                      Business Owner
-                    </SelectItem>
-                    <SelectItem value='retired'>Retired</SelectItem>
-                    <SelectItem value='student'>Student</SelectItem>
+                    {employmentTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 {errors.employmentType && (
@@ -497,10 +585,11 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
                     <SelectValue placeholder='Select credit score range' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='excellent'>Excellent (750+)</SelectItem>
-                    <SelectItem value='good'>Good (700-749)</SelectItem>
-                    <SelectItem value='fair'>Fair (650-699)</SelectItem>
-                    <SelectItem value='poor'>Poor (below 650)</SelectItem>
+                    {creditScoreRanges.map((range) => (
+                      <SelectItem key={range.value} value={range.value}>
+                        {range.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 {errors.creditScoreRange && (
@@ -522,7 +611,7 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
                     <div className='flex items-center space-x-4'>
                       {selectedBike.images?.[0] && (
                         <img
-                          src={selectedBike.images[0]}
+                          src={selectedBike.images[0].src}
                           alt={selectedBike.modelName}
                           className='w-16 h-16 object-cover rounded'
                         />
@@ -532,7 +621,8 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
                           {selectedBike.modelName}
                         </h3>
                         <p className='text-sm text-gray-600'>
-                          ₹{selectedBike.price?.toLocaleString()}
+                          ₹
+                          {selectedBike.priceBreakdown.exShowroomPrice?.toLocaleString()}
                         </p>
                         <Badge variant='secondary'>
                           {selectedBike.category}
@@ -554,28 +644,36 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
                       onChange={(e) => updateField("bikeModel", e.target.value)}
                     />
 
-                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-60 overflow-y-auto'>
-                      {bikes.slice(0, 12).map((bike: any) => (
-                        <Card
-                          key={bike._id}
-                          className={`cursor-pointer transition-colors ${
-                            formData.bikeId === bike._id
-                              ? "border-red-500 bg-red-50"
-                              : "hover:bg-gray-50"
-                          }`}
-                          onClick={() => selectBike(bike)}
-                        >
-                          <CardContent className='p-3'>
-                            <div className='text-sm font-medium'>
-                              {bike.modelName}
-                            </div>
-                            <div className='text-xs text-gray-600'>
-                              ₹{bike.price?.toLocaleString()}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
+                    {bikesLoading ? (
+                      <div className='flex items-center justify-center p-8'>
+                        <Loader2 className='h-8 w-8 animate-spin' />
+                        <span className='ml-2'>Loading bikes...</span>
+                      </div>
+                    ) : (
+                      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-60 overflow-y-auto'>
+                        {availableBikes.slice(0, 12).map((bike: BikeType) => (
+                          <Card
+                            key={bike._id}
+                            className={`cursor-pointer transition-colors ${
+                              formData.bikeId === bike._id
+                                ? "border-red-500 bg-red-50"
+                                : "hover:bg-gray-50"
+                            }`}
+                            onClick={() => selectBike(bike)}
+                          >
+                            <CardContent className='p-3'>
+                              <div className='text-sm font-medium'>
+                                {bike.modelName}
+                              </div>
+                              <div className='text-xs text-gray-600'>
+                                ₹
+                                {bike.priceBreakdown.exShowroomPrice?.toLocaleString()}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   {errors.bikeSelection && (
                     <p className='text-red-500 text-sm'>
@@ -609,26 +707,22 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
               <div>
                 <Label>Price Range (₹)</Label>
                 <div className='grid grid-cols-2 gap-4 mt-2'>
-                  <div>
-                    <Input
-                      placeholder='Min price'
-                      type='number'
-                      value={formData.priceRange.min}
-                      onChange={(e) =>
-                        updateNestedField("priceRange", "min", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      placeholder='Max price'
-                      type='number'
-                      value={formData.priceRange.max}
-                      onChange={(e) =>
-                        updateNestedField("priceRange", "max", e.target.value)
-                      }
-                    />
-                  </div>
+                  <Input
+                    placeholder='Min price'
+                    type='number'
+                    value={formData.priceRange.min}
+                    onChange={(e) =>
+                      updateNestedField("priceRange", "min", e.target.value)
+                    }
+                  />
+                  <Input
+                    placeholder='Max price'
+                    type='number'
+                    value={formData.priceRange.max}
+                    onChange={(e) =>
+                      updateNestedField("priceRange", "max", e.target.value)
+                    }
+                  />
                 </div>
               </div>
 
@@ -750,13 +844,13 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
                   id='hasTradeIn'
                   checked={formData.hasTradeIn}
                   onCheckedChange={(checked) =>
-                    updateField("hasTradeIn", checked)
+                    updateField("hasTradeIn", !!checked)
                   }
                 />
                 <Label htmlFor='hasTradeIn'>I have a bike to trade-in</Label>
               </div>
 
-              {formData.hasTradeIn && (
+              {formData.hasTradeIn ? (
                 <div className='space-y-4 pl-6 border-l-2 border-blue-200'>
                   <div>
                     <Label htmlFor='currentBikeModel'>Current Bike Model</Label>
@@ -827,9 +921,7 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
                     </Select>
                   </div>
                 </div>
-              )}
-
-              {!formData.hasTradeIn && (
+              ) : (
                 <div className='text-center py-8 text-gray-500'>
                   <Bike className='h-12 w-12 mx-auto mb-2 opacity-50' />
                   <p>No trade-in? No problem! Continue to the next step.</p>
@@ -906,7 +998,7 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
                     id='terms'
                     checked={formData.termsAccepted}
                     onCheckedChange={(checked) =>
-                      updateField("termsAccepted", checked)
+                      updateField("termsAccepted", !!checked)
                     }
                   />
                   <Label htmlFor='terms' className='text-sm'>
@@ -922,7 +1014,7 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
                     id='privacy'
                     checked={formData.privacyPolicyAccepted}
                     onCheckedChange={(checked) =>
-                      updateField("privacyPolicyAccepted", checked)
+                      updateField("privacyPolicyAccepted", !!checked)
                     }
                   />
                   <Label htmlFor='privacy' className='text-sm'>
@@ -972,7 +1064,14 @@ export const GetApprovedForm: React.FC<BikeEnquiryFormProps> = ({
                 disabled={loading}
                 className='bg-red-600 hover:bg-red-700'
               >
-                {loading ? "Submitting..." : "Submit Application"}
+                {loading ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit Application"
+                )}
               </Button>
             )}
           </div>
