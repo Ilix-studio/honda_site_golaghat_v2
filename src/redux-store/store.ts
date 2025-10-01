@@ -35,13 +35,14 @@ import { bikeImageApi } from "./services/BikeSystemApi/bikeImageApi";
 import { branchApi } from "./services/branchApi";
 import { staffApi } from "./services/staffApi";
 import { branchManagerApi } from "./services/branchManagerApi";
-import { getApprovedApi } from "./services/getApprovedApi";
+
 //
 import { visitorApi } from "./services/visitorApi";
 //
 import { customerApi } from "./services/customer/customerApi";
 import { customerLoginApi } from "./services/customer/customerLoginApi";
-import { customerDashboardApi } from "./services/customer/customerDashApi";
+
+import { getApprovedApi } from "./services/customer/getApprovedApi";
 
 // Create IndexedDB storage for redux-persist
 const idbStorage = createIdbStorage("honda-golaghat-app-madebyilix");
@@ -91,7 +92,6 @@ const rootReducer = combineReducers({
   //new
   [customerApi.reducerPath]: customerApi.reducer,
   [customerLoginApi.reducerPath]: customerLoginApi.reducer,
-  [customerDashboardApi.reducerPath]: customerDashboardApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -114,7 +114,6 @@ export const store = configureStore({
       branchManagerApi.middleware,
       getApprovedApi.middleware,
       customerApi.middleware,
-      customerDashboardApi.middleware,
       customerLoginApi.middleware,
       visitorApi.middleware
     ),

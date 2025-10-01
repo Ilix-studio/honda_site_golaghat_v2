@@ -1,6 +1,6 @@
 // src/redux-store/services/getApprovedApi.ts
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery } from "../../lib/apiConfig";
+import { baseQuery } from "../../../lib/apiConfig";
 import {
   CheckStatusRequest,
   CheckStatusResponse,
