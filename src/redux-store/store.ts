@@ -31,7 +31,7 @@ import customerAuthReducer from "./slices/customer/customerAuthSlice";
 import { adminAuthApi } from "./services/adminApi";
 import { bikeApi } from "./services/BikeSystemApi/bikeApi";
 import { bikeImageApi } from "./services/BikeSystemApi/bikeImageApi";
-
+//
 import { branchApi } from "./services/branchApi";
 import { staffApi } from "./services/staffApi";
 import { branchManagerApi } from "./services/branchManagerApi";
@@ -43,6 +43,11 @@ import { customerApi } from "./services/customer/customerApi";
 import { customerLoginApi } from "./services/customer/customerLoginApi";
 
 import { getApprovedApi } from "./services/customer/getApprovedApi";
+//New
+import { customerVehicleApi } from "./services/BikeSystemApi2/CustomerVehicleApi";
+import { serviceAddonsApi } from "./services/BikeSystemApi2/ServiceAddonApi";
+import { stockConceptApi } from "./services/BikeSystemApi2/StockConceptApi";
+import { vasApi } from "./services/BikeSystemApi2/VASApi";
 
 // Create IndexedDB storage for redux-persist
 const idbStorage = createIdbStorage("honda-golaghat-app-madebyilix");
@@ -92,6 +97,11 @@ const rootReducer = combineReducers({
   //new
   [customerApi.reducerPath]: customerApi.reducer,
   [customerLoginApi.reducerPath]: customerLoginApi.reducer,
+  //New
+  [customerVehicleApi.reducerPath]: customerVehicleApi.reducer,
+  [serviceAddonsApi.reducerPath]: serviceAddonsApi.reducer,
+  [stockConceptApi.reducerPath]: stockConceptApi.reducer,
+  [vasApi.reducerPath]: vasApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -115,7 +125,11 @@ export const store = configureStore({
       getApprovedApi.middleware,
       customerApi.middleware,
       customerLoginApi.middleware,
-      visitorApi.middleware
+      visitorApi.middleware,
+      customerVehicleApi.middleware,
+      serviceAddonsApi.middleware,
+      stockConceptApi.middleware,
+      vasApi.middleware
     ),
 });
 

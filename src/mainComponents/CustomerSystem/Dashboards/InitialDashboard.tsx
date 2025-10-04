@@ -4,11 +4,10 @@ import { Button } from "@/components/ui/button";
 import {
   User,
   Bike,
-  Settings,
-  Plus,
   Check,
   CheckCircle,
   AlertCircle,
+  LogOut,
 } from "lucide-react";
 import { CustomerDashHeader } from "@/mainComponents/Home/Header/CustomerDashHeader";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -68,15 +67,10 @@ const InitialDashboard: React.FC = () => {
     navigate("/customer-vehicle-info");
   };
 
-  const onCreateService = () => {
-    console.log("Navigate to services");
-  };
-
-  const onAddValueService = () => {
-    console.log("Navigate to value services");
-  };
-
   const newUserMark = () => {
+    console.log("Navigate to new user setup");
+  };
+  const customerLogout = () => {
     console.log("Navigate to new user setup");
   };
 
@@ -101,26 +95,7 @@ const InitialDashboard: React.FC = () => {
         "Register motorcycle details, specifications, and maintenance history",
       completed: completionStatus.motorcycle,
     },
-    {
-      id: "services",
-      title: "Services Info",
-      buttonText: "Create",
-      icon: Settings,
-      onClick: onCreateService,
-      description:
-        "Schedule and manage motorcycle service appointments and maintenance",
-      completed: completionStatus.services,
-    },
-    {
-      id: "valueServices",
-      title: "Value Added Services",
-      buttonText: "Add",
-      icon: Plus,
-      onClick: onAddValueService,
-      description:
-        "Explore additional services like insurance, extended warranty, and accessories",
-      completed: completionStatus.valueServices,
-    },
+
     {
       id: "newUserMark",
       title: "New User Mark",
@@ -131,12 +106,21 @@ const InitialDashboard: React.FC = () => {
         "Mark your account setup as complete and unlock additional features",
       completed: completionStatus.newUserMark,
     },
+    {
+      id: "Logout",
+      title: "Logout from here",
+      buttonText: "Complete",
+      icon: LogOut,
+      onClick: customerLogout,
+      description:
+        "Mark your account setup as complete and unlock additional features",
+      completed: completionStatus.customerLogout,
+    },
   ];
 
   return (
     <>
       <CustomerDashHeader />
-
       <div className='min-h-screen bg-gray-50'>
         {/* Dashboard Content */}
         <div className='p-6'>

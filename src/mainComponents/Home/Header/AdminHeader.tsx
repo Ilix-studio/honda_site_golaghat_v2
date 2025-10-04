@@ -132,7 +132,7 @@ const AdminHeader = () => {
   };
 
   return (
-    <header className='bg-white shadow-sm border-b sticky top-0 z-50'>
+    <header className='bg-white shadow-sm  sticky top-0 z-50 border-b-4 border-black-600'>
       <div className='container px-4 py-4'>
         <div className='flex justify-between items-center'>
           {/* Left Section - Title with Back Button */}

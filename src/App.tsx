@@ -31,11 +31,16 @@ import CustomerDash from "./mainComponents/CustomerSystem/Dashboards/CustomerMai
 import CustomerCreateProfile from "./mainComponents/CustomerSystem/CustomerCreateProfile";
 // import CustomerVehicleInfo from "./mainComponents/CustomerSystem/MotorInfo/CustomerVehicleInfo";
 import InitialDashboard from "./mainComponents/CustomerSystem/Dashboards/InitialDashboard";
-import CreateServicePacks from "./mainComponents/Admin/ServicePackages/CreateServicePacks";
+
 import AddBikeImage from "./mainComponents/Admin/Bikes/AddBikeImage";
 import EditBikeImage from "./mainComponents/Admin/Bikes/EditBikeImage";
 import { ViewBikeImage } from "./mainComponents/Admin/Bikes/ViewBikeImage";
 import ScooterDetailPage from "./mainComponents/BikeDetails/ScooterDetailPage";
+import VASForm from "./mainComponents/BikeSystem2/VASForm";
+import ServiceAddonsForm from "./mainComponents/BikeSystem2/ServiceAddonsForm";
+import CustomerVehicleInfo from "./mainComponents/BikeSystem2/CustomerVehicleInfo";
+import StockConceptForm from "./mainComponents/BikeSystem2/StockConceptForm";
+// import DynamicLogin from "./mainComponents/DynamicLoginSystem/DynamicLogin";
 
 // import TestBike from "./mainComponents/TestBike";
 
@@ -43,8 +48,6 @@ import ScooterDetailPage from "./mainComponents/BikeDetails/ScooterDetailPage";
 
 const App: React.FC = () => {
   const location = useLocation();
-
-  // Scroll to top when route changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
@@ -79,12 +82,8 @@ const App: React.FC = () => {
         {/* Branch Management Routes */}
         <Route path='/admin/addbranch' element={<AddBranch />} />
         <Route path='/admin/managers' element={<BranchManager />} />
-
-        {/* Service Packages Routes */}
-        <Route
-          path='/admin/service-packages'
-          element={<CreateServicePacks />}
-        />
+        {/* Compare Bike  */}
+        <Route path='/compare' element={<CompareBike />} />
 
         {/* Branches  */}
         <Route path='/branches' element={<BranchesPage />} />
@@ -99,15 +98,17 @@ const App: React.FC = () => {
         <Route path='/admin/customer-sign-up' element={<CustomerSignUp />} />
         <Route path='/customer-initialize' element={<InitialDashboard />} />
         <Route path='/customer-profile' element={<CustomerCreateProfile />} />
-
-        {/* <Route
+        <Route path='/customer-dash' element={<CustomerDash />} />
+        <Route
           path='/customer-vehicle-info'
           element={<CustomerVehicleInfo />}
-        /> */}
-        <Route path='/customer-dash' element={<CustomerDash />} />
+        />
 
-        {/* Compare Bike  */}
-        <Route path='/compare' element={<CompareBike />} />
+        {/* <Route path='/dynamic-login' element={<DynamicLogin />} /> */}
+        <Route path='/admin/VAS-form' element={<VASForm />} />
+        <Route path='/admin/service-Addons' element={<ServiceAddonsForm />} />
+        <Route path='/admin/stock-concept' element={<StockConceptForm />} />
+
         {/* Not Found  */}
         <Route path='*' element={<NotFoundPage />} />
       </Routes>

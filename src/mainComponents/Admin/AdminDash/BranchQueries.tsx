@@ -33,7 +33,7 @@ const BranchQueries = () => {
   const stats = [
     {
       title: "Register Customer",
-      value: "₹2.5L",
+      value: "1",
       icon: User,
       loading: false,
       description: "Total Customers",
@@ -63,6 +63,27 @@ const BranchQueries = () => {
       description: "Sales revenue",
       action: { label: "View Report", href: "/admin/reports" },
     },
+    {
+      title: "Add Value-Added Services",
+      icon: TrendingUp,
+      loading: false,
+      description: "Add VAS to vehicles",
+      action: { label: "Open VAS Form", href: "/admin/VAS-form" },
+    },
+    {
+      title: "Add Services Add-Ons",
+      icon: TrendingUp,
+      loading: false,
+      description: "Add Services Addons to vehicles",
+      action: { label: "Open Service Form", href: "/admin/service-Addons" },
+    },
+    {
+      title: "Stock-Queries",
+      icon: TrendingUp,
+      loading: false,
+      description: "Total Vehicles in this Branch",
+      action: { label: "Open Form", href: "/admin/stock-concept" },
+    },
   ];
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
@@ -91,7 +112,7 @@ const BranchQueries = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
           >
-            <Card>
+            <Card className='border-l-4 border-red-500'>
               <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                 <CardTitle className='text-sm font-medium'>
                   {stat.title}
