@@ -8,6 +8,7 @@ import {
   Sparkles,
   Phone,
   MapPin,
+  User,
 } from "lucide-react";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -28,6 +29,30 @@ export default function NewUI() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [hasToken, setHasToken] = useState(false);
+
+  // Check for token on component mount and when localStorage changes
+  useEffect(() => {
+    const checkToken = () => {
+      const token = localStorage.getItem("authToken");
+      setHasToken(!!token);
+    };
+
+    checkToken();
+
+    // Listen for storage changes (useful for multiple tabs)
+    window.addEventListener("storage", checkToken);
+
+    // Custom event for same-tab updates
+    window.addEventListener("authChange", checkToken);
+
+    return () => {
+      window.removeEventListener("storage", checkToken);
+      window.removeEventListener("authChange", checkToken);
+    };
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -44,6 +69,25 @@ export default function NewUI() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Show header when scrolling up, hide when scrolling down
+      if (currentScrollY < lastScrollY || currentScrollY < 10) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
   return (
     <div className='min-h-screen bg-black overflow-hidden'>
       {/* Futuristic Navigation */}
@@ -52,6 +96,10 @@ export default function NewUI() {
           isScrolled
             ? "bg-black/90 backdrop-blur-xl border-b border-red-500/20 shadow-2xl shadow-red-500/10"
             : "bg-transparent"
+        } ${
+          isVisible
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-full opacity-0"
         }`}
       >
         <div className='container mx-auto px-6'>
@@ -141,6 +189,19 @@ export default function NewUI() {
                 <MapPin className='h-4 w-4 mr-2' />
                 Visit Us
               </Button>
+
+              {/* Conditional User Button - Only show if token exists */}
+              {hasToken && (
+                <Link to='/dynamic-login'>
+                  <Button
+                    className='bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800
+                   text-white shadow-lg shadow-gray-500/30 hover:shadow-gray-500/50
+                   transition-all duration-300 px-6 py-3'
+                  >
+                    <User className='h-4 w-4' />
+                  </Button>
+                </Link>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -191,6 +252,19 @@ export default function NewUI() {
                   <MapPin className='h-4 w-4 mr-2' />
                   Visit Us
                 </Button>
+
+                {/* Mobile User Button - Only show if token exists */}
+                {hasToken && (
+                  <Link to='/dynamic-login'>
+                    <Button
+                      size='sm'
+                      className='w-full bg-gradient-to-r from-gray-700 to-gray-900 text-white'
+                    >
+                      <User className='h-4 w-4 mr-2' />
+                      My Account
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -274,7 +348,9 @@ export default function NewUI() {
               <Link to='/view-all'>
                 <Button
                   size='lg'
-                  className='bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white px-10 py-6 text-lg font-semibold shadow-2xl shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 hover:scale-105'
+                  className='bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 
+             text-white px-10 py-6 text-lg font-semibold shadow-2xl shadow-red-500/30 hover:shadow-red-500/50 
+             transition-all duration-300 hover:scale-105'
                 >
                   Explore Models
                   <ChevronRight className='ml-2 h-5 w-5' />
