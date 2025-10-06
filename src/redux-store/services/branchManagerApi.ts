@@ -30,6 +30,7 @@ export interface CreateBranchManagerResponse {
   success: boolean;
   message: string;
   data: {
+    [x: string]: string;
     applicationId: string;
     password: string;
     branch: string;
@@ -67,6 +68,16 @@ export const branchManagerApi = createApi({
         }
       },
     }),
+    getAllBranchManagers: builder.query<
+      { success: boolean; count: number; data: any[] },
+      void
+    >({
+      query: () => ({
+        url: "/adminLogin/branch-managers",
+        method: "GET",
+      }),
+      providesTags: ["BranchManager"],
+    }),
     logoutBranchManager: builder.mutation<
       { success: boolean; message: string },
       void
@@ -89,21 +100,11 @@ export const branchManagerApi = createApi({
     }),
     deleteBranchManager: builder.mutation<{ success: boolean }, string>({
       query: (id) => ({
-        url: `/adminLogin/del-branchM`,
+        url: `/adminLogin/del-branchM/${id}`,
         method: "DELETE",
         body: { id },
       }),
       invalidatesTags: ["BranchManager"],
-    }),
-    getAllBranchManagers: builder.query<
-      { success: boolean; count: number; data: any[] },
-      void
-    >({
-      query: () => ({
-        url: "/adminLogin/branch-managers",
-        method: "GET",
-      }),
-      providesTags: ["BranchManager"],
     }),
   }),
 });
