@@ -11,13 +11,13 @@ import {
   Cog,
   Box,
   SplinePointer,
+  ShieldPlus,
 } from "lucide-react";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 import { useGetAllBranchManagersQuery } from "@/redux-store/services/branchManagerApi";
 
 import { CardDescription } from "@/components/ui/card";
 
-import { Bike } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useGetVisitorStatsQuery } from "@/redux-store/services/visitorApi";
 import RecentMotorcycles from "./RecentMotocycles";
@@ -45,7 +45,7 @@ const BranchQueries = () => {
       icon: Building2,
       loading: branchesLoading,
       description: "Service locations",
-      action: { label: "Manage", href: "/admin/addbranch" },
+      action: { label: "Add Branches", href: "/admin/addbranch" },
     },
     {
       title: "Branch Managers",
@@ -83,6 +83,13 @@ const BranchQueries = () => {
       loading: false,
       description: "Total Vehicles in this Branch",
       action: { label: "Open Form", href: "/admin/stock-concept" },
+    },
+    {
+      title: "Accident Safety Feature",
+      icon: ShieldPlus,
+      loading: false,
+      description: "Add Customers for Safety Protocol",
+      action: { label: "Open Form", href: "/admin/safety-feature" },
     },
   ];
   const formatTimeAgo = (dateString: string) => {
@@ -149,41 +156,29 @@ const BranchQueries = () => {
             <CardDescription>Common administrative tasks</CardDescription>
           </CardHeader>
           <CardContent className='space-y-2'>
-            <Link to='/admin/addbikes'>
+            <Link to='/view/all-branches'>
               <Button className='w-full justify-start' variant='outline'>
-                <Bike className='h-4 w-4 mr-2' />
-                Add New Vehicle
+                <Building2 className='h-4 w-4 mr-2' />
+                View All Branches
               </Button>
             </Link>
 
-            <Link to='/admin/addbranch'>
-              <Button className='w-full justify-start' variant='outline'>
-                <Building2 className='h-4 w-4 mr-2' />
-                Add New Branch
-              </Button>
-            </Link>
-            <Link to='/admin/managers'>
-              <Button className='w-full justify-start' variant='outline'>
-                <Users className='h-4 w-4 mr-2' />
-                Create Branch Manager
-              </Button>
-            </Link>
-            <Link to='/admin/branches'>
+            <Link to='/view/stock-concept'>
               <Button className='w-full justify-start' variant='outline'>
                 <SplinePointer className='h-4 w-4 mr-2' />
-                Manage Branches
+                View All Stock Bikes
               </Button>
             </Link>
-            <Link to='/admin/service-packages'>
+            <Link to='/view/service-Addons'>
               <Button className='w-full justify-start' variant='outline'>
                 <Box className='h-4 w-4 mr-2' />
-                Add Service Packages
+                Get Service Packages
               </Button>
             </Link>
-            <Link to='/admin'>
+            <Link to='/view/VAS'>
               <Button className='w-full justify-start' variant='outline'>
                 <Cog className='h-4 w-4 mr-2' />
-                Add Value Added Services
+                Get Value Added Services
               </Button>
             </Link>
           </CardContent>

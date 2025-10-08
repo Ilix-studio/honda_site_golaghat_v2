@@ -10,7 +10,7 @@ export interface Staff {
 export interface Branch {
   _id: string;
   id: string;
-  name: string;
+  branchName: string;
   address: string;
   phone: string;
   email: string;

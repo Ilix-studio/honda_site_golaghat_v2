@@ -23,7 +23,7 @@ import SearchResults from "./mainComponents/Search/SearchResults";
 import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
 
 import AddBranch from "./mainComponents/NavMenu/Branches/AddBranch";
-import BranchManager from "./mainComponents/NavMenu/Branches/BranchManager";
+import BranchManager from "./mainComponents/Admin/BranchM/BranchManager";
 import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
 // import CustomerLogin from "./mainComponents/CustomerSystem/CustomerLogin";
 import CustomerSignUp from "./mainComponents/CustomerSystem/CustomerSignUp";
@@ -40,6 +40,15 @@ import VASForm from "./mainComponents/BikeSystem2/VASForm";
 import ServiceAddonsForm from "./mainComponents/BikeSystem2/ServiceAddonsForm";
 import CustomerVehicleInfo from "./mainComponents/BikeSystem2/CustomerVehicleInfo";
 import StockConceptForm from "./mainComponents/BikeSystem2/StockConceptForm";
+import SafetyFeature from "./mainComponents/SafetyFeature/SaftetyFeature";
+import ViewStockConcept from "./mainComponents/ViewBS2/ViewStockConcept";
+import ViewServiceAddons from "./mainComponents/ViewBS2/ViewServiceAddons";
+import DownloadSafetyfeature from "./mainComponents/ViewBS2/DownloadSafetyfeature";
+import ViewVAS from "./mainComponents/ViewBS2/ViewVAS";
+import ViewAllBranches from "./mainComponents/ViewBS2/ViewAllBranches";
+import IntegrateVAS from "./mainComponents/Admin/IntegrateServices/IntegrateVAS";
+import IntegrateServiceAddons from "./mainComponents/Admin/IntegrateServices/IntegrateServiceAddons";
+import AssignStock from "./mainComponents/Admin/AssignImp/AssignStock";
 // import DynamicLogin from "./mainComponents/DynamicLoginSystem/DynamicLogin";
 
 // import TestBike from "./mainComponents/TestBike";
@@ -63,8 +72,12 @@ const App: React.FC = () => {
 
         {/* Admin Routes */}
         <Route path='/admin/superlogin' element={<LoginSuperAdmin />} />
-        <Route path='/admin/managerlogin' element={<LoginBranchManager />} />
         <Route path='/admin/dashboard' element={<AdminDashboard />} />
+
+        {/* Branch Manager Routes */}
+        <Route path='/admin/managerlogin' element={<LoginBranchManager />} />
+        <Route path='/admin/addbranch' element={<AddBranch />} />
+        <Route path='/admin/managers' element={<BranchManager />} />
 
         {/* Add && Edit Bikes, scooty  */}
         <Route path='/admin/addbikes' element={<AddBikes />} />
@@ -79,9 +92,6 @@ const App: React.FC = () => {
         />
         <Route path='/admin/bikeimages/:id' element={<ViewBikeImage />} />
 
-        {/* Branch Management Routes */}
-        <Route path='/admin/addbranch' element={<AddBranch />} />
-        <Route path='/admin/managers' element={<BranchManager />} />
         {/* Compare Bike  */}
         <Route path='/compare' element={<CompareBike />} />
 
@@ -108,6 +118,29 @@ const App: React.FC = () => {
         <Route path='/admin/VAS-form' element={<VASForm />} />
         <Route path='/admin/service-Addons' element={<ServiceAddonsForm />} />
         <Route path='/admin/stock-concept' element={<StockConceptForm />} />
+        <Route path='/admin/safety-feature' element={<SafetyFeature />} />
+
+        {/* View System */}
+        <Route path='/view/all-branches' element={<ViewAllBranches />} />
+        <Route path='/view/VAS' element={<ViewVAS />} />
+        <Route path='/view/service-Addons' element={<ViewServiceAddons />} />
+        <Route path='/view/stock-concept' element={<ViewStockConcept />} />
+
+        {/* Assign System */}
+        <Route path='/assign/stock-concept/:id' element={<AssignStock />} />
+
+        {/* Safety Feature  */}
+        <Route
+          path='/dowmload/safety-feature-stickers'
+          element={<DownloadSafetyfeature />}
+        />
+
+        {/* Integrate Feature by Phone Number */}
+        <Route path='/integrate/VAS' element={<IntegrateVAS />} />
+        <Route
+          path='/integrate/service-Addons'
+          element={<IntegrateServiceAddons />}
+        />
 
         {/* Not Found  */}
         <Route path='*' element={<NotFoundPage />} />
