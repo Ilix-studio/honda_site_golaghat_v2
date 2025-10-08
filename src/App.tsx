@@ -41,6 +41,13 @@ import ServiceAddonsForm from "./mainComponents/BikeSystem2/ServiceAddonsForm";
 import CustomerVehicleInfo from "./mainComponents/BikeSystem2/CustomerVehicleInfo";
 import StockConceptForm from "./mainComponents/BikeSystem2/StockConceptForm";
 import SafetyFeature from "./mainComponents/SafetyFeature/SaftetyFeature";
+import ViewStockConcept from "./mainComponents/ViewBS2/ViewStockConcept";
+import ViewServiceAddons from "./mainComponents/ViewBS2/ViewServiceAddons";
+import DownloadSafetyfeature from "./mainComponents/ViewBS2/DownloadSafetyfeature";
+import ViewVAS from "./mainComponents/ViewBS2/ViewVAS";
+import ViewAllBranches from "./mainComponents/ViewBS2/ViewAllBranches";
+import IntegrateVAS from "./mainComponents/Admin/IntegrateServices/IntegrateVAS";
+import IntegrateServiceAddons from "./mainComponents/Admin/IntegrateServices/IntegrateServiceAddons";
 // import DynamicLogin from "./mainComponents/DynamicLoginSystem/DynamicLogin";
 
 // import TestBike from "./mainComponents/TestBike";
@@ -111,6 +118,26 @@ const App: React.FC = () => {
         <Route path='/admin/service-Addons' element={<ServiceAddonsForm />} />
         <Route path='/admin/stock-concept' element={<StockConceptForm />} />
         <Route path='/admin/safety-feature' element={<SafetyFeature />} />
+
+        {/* View System */}
+
+        <Route path='/view/all-branches' element={<ViewAllBranches />} />
+        <Route path='/view/VAS' element={<ViewVAS />} />
+        <Route path='/view/service-Addons' element={<ViewServiceAddons />} />
+        <Route path='/view/stock-concept' element={<ViewStockConcept />} />
+
+        {/* Safety Feature  */}
+        <Route
+          path='/dowmload/safety-feature-stickers'
+          element={<DownloadSafetyfeature />}
+        />
+
+        {/* Integrate Feature by Phone Number */}
+        <Route path='/integrate/VAS' element={<IntegrateVAS />} />
+        <Route
+          path='/integrate/service-Addons'
+          element={<IntegrateServiceAddons />}
+        />
 
         {/* Not Found  */}
         <Route path='*' element={<NotFoundPage />} />
