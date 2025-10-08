@@ -48,6 +48,7 @@ import ViewVAS from "./mainComponents/ViewBS2/ViewVAS";
 import ViewAllBranches from "./mainComponents/ViewBS2/ViewAllBranches";
 import IntegrateVAS from "./mainComponents/Admin/IntegrateServices/IntegrateVAS";
 import IntegrateServiceAddons from "./mainComponents/Admin/IntegrateServices/IntegrateServiceAddons";
+import AssignStock from "./mainComponents/Admin/AssignImp/AssignStock";
 // import DynamicLogin from "./mainComponents/DynamicLoginSystem/DynamicLogin";
 
 // import TestBike from "./mainComponents/TestBike";
@@ -120,11 +121,13 @@ const App: React.FC = () => {
         <Route path='/admin/safety-feature' element={<SafetyFeature />} />
 
         {/* View System */}
-
         <Route path='/view/all-branches' element={<ViewAllBranches />} />
         <Route path='/view/VAS' element={<ViewVAS />} />
         <Route path='/view/service-Addons' element={<ViewServiceAddons />} />
         <Route path='/view/stock-concept' element={<ViewStockConcept />} />
+
+        {/* Assign System */}
+        <Route path='/assign/stock-concept/:id' element={<AssignStock />} />
 
         {/* Safety Feature  */}
         <Route
