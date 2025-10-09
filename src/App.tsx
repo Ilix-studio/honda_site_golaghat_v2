@@ -25,7 +25,7 @@ import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
 import AddBranch from "./mainComponents/NavMenu/Branches/AddBranch";
 import BranchManager from "./mainComponents/Admin/BranchM/BranchManager";
 import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
-// import CustomerLogin from "./mainComponents/CustomerSystem/CustomerLogin";
+import CustomerLogin from "./mainComponents/CustomerSystem/CustomerLogin";
 import CustomerSignUp from "./mainComponents/CustomerSystem/CustomerSignUp";
 import CustomerDash from "./mainComponents/CustomerSystem/Dashboards/CustomerMainDash";
 import CustomerCreateProfile from "./mainComponents/CustomerSystem/CustomerCreateProfile";
@@ -106,6 +106,7 @@ const App: React.FC = () => {
 
         {/* Customer Login  */}
         <Route path='/admin/customer-sign-up' element={<CustomerSignUp />} />
+        <Route path='/customer-login' element={<CustomerLogin />} />
         <Route path='/customer-initialize' element={<InitialDashboard />} />
         <Route path='/customer-profile' element={<CustomerCreateProfile />} />
         <Route path='/customer-dash' element={<CustomerDash />} />

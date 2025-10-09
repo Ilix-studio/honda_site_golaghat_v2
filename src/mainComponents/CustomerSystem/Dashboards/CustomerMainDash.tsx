@@ -1,8 +1,36 @@
-import { Footer } from "../../Home/Footer";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { CustomerBikeInfo } from "../CustomerBikeInfo";
 import { CustomerDashHeader } from "../../Home/Header/CustomerDashHeader";
+import { useAppSelector } from "@/hooks/redux";
+import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
+import { Loader2 } from "lucide-react";
 
 export default function CustomerMainDash() {
+  const navigate = useNavigate();
+  const { customer, isAuthenticated, firebaseToken } =
+    useAppSelector(selectCustomerAuth);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated || !customer || !firebaseToken) {
+      navigate("/customer-login", { replace: true });
+    }
+  }, [isAuthenticated, customer, firebaseToken, navigate]);
+
+  // Show loading while checking authentication
+  if (!isAuthenticated || !customer) {
+    return (
+      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
+        <div className='text-center'>
+          <Loader2 className='w-8 h-8 animate-spin text-blue-600 mx-auto mb-4' />
+          <p className='text-gray-600'>Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='min-h-screen bg-gray-50'>
       <CustomerDashHeader />
@@ -12,8 +40,8 @@ export default function CustomerMainDash() {
             Owner Dashboard
           </h1>
           <p className='text-gray-600'>
-            Welcome back! Here's your motorcycle information and service
-            details.
+            Welcome back, {customer.phoneNumber}! Here's your motorcycle
+            information and service details.
           </p>
         </div>
 
@@ -24,7 +52,6 @@ export default function CustomerMainDash() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }
