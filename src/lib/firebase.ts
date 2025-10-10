@@ -1,8 +1,10 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import {
+  getAuth,
+  setPersistence,
+  browserLocalPersistence,
+} from "firebase/auth";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCOLCfkbNXvivcQVujbHOx51697D84BE1g",
   authDomain: "tsangpool-honda-otp.firebaseapp.com",
@@ -16,23 +18,22 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
+
+// Configure auth settings
 auth.useDeviceLanguage();
 
-// Configure for development/testing
-if (typeof window !== "undefined") {
-  auth.useDeviceLanguage();
+// ✅ Set persistence to LOCAL (survives page reloads)
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+  console.error("Error setting persistence:", error);
+});
 
-  // For localhost testing - disable app verification
+// Development settings
+if (typeof window !== "undefined") {
   if (
     window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1"
   ) {
     auth.settings.appVerificationDisabledForTesting = true;
-
-    // Optional: Connect to Firebase Auth Emulator for testing
-    // if (!auth.emulatorConfig) {
-    //   connectAuthEmulator(auth, 'http://localhost:9099');
-    // }
   } else {
     auth.settings.appVerificationDisabledForTesting = false;
   }

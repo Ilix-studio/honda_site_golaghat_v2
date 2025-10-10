@@ -33,7 +33,6 @@ import { bikeApi } from "./services/BikeSystemApi/bikeApi";
 import { bikeImageApi } from "./services/BikeSystemApi/bikeImageApi";
 //
 import { branchApi } from "./services/branchApi";
-import { staffApi } from "./services/staffApi";
 import { branchManagerApi } from "./services/branchManagerApi";
 
 //
@@ -41,10 +40,11 @@ import { visitorApi } from "./services/visitorApi";
 //
 import { customerApi } from "./services/customer/customerApi";
 import { customerLoginApi } from "./services/customer/customerLoginApi";
+import { customerVehicleApi } from "./services/customer/customerVehicleApi";
 
 import { getApprovedApi } from "./services/customer/getApprovedApi";
 //New
-import { customerVehicleApi } from "./services/BikeSystemApi2/CustomerVehicleApi";
+import { adminVehicleApi } from "./services/BikeSystemApi2/AdminVehicleApi";
 import { serviceAddonsApi } from "./services/BikeSystemApi2/ServiceAddonApi";
 import { stockConceptApi } from "./services/BikeSystemApi2/StockConceptApi";
 import { vasApi } from "./services/BikeSystemApi2/VASApi";
@@ -89,7 +89,6 @@ const rootReducer = combineReducers({
   [bikeImageApi.reducerPath]: bikeImageApi.reducer,
   // Need a fix
   [branchApi.reducerPath]: branchApi.reducer,
-  [staffApi.reducerPath]: staffApi.reducer,
   [branchManagerApi.reducerPath]: branchManagerApi.reducer,
   [getApprovedApi.reducerPath]: getApprovedApi.reducer,
   //
@@ -97,8 +96,9 @@ const rootReducer = combineReducers({
   //new
   [customerApi.reducerPath]: customerApi.reducer,
   [customerLoginApi.reducerPath]: customerLoginApi.reducer,
-  //New
   [customerVehicleApi.reducerPath]: customerVehicleApi.reducer,
+  //New
+  [adminVehicleApi.reducerPath]: adminVehicleApi.reducer,
   [serviceAddonsApi.reducerPath]: serviceAddonsApi.reducer,
   [stockConceptApi.reducerPath]: stockConceptApi.reducer,
   [vasApi.reducerPath]: vasApi.reducer,
@@ -120,13 +120,13 @@ export const store = configureStore({
       bikeApi.middleware,
       bikeImageApi.middleware,
       branchApi.middleware,
-      staffApi.middleware,
       branchManagerApi.middleware,
       getApprovedApi.middleware,
       customerApi.middleware,
       customerLoginApi.middleware,
-      visitorApi.middleware,
       customerVehicleApi.middleware,
+      visitorApi.middleware,
+      adminVehicleApi.middleware,
       serviceAddonsApi.middleware,
       stockConceptApi.middleware,
       vasApi.middleware

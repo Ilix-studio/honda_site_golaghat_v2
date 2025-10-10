@@ -58,6 +58,18 @@ const customerAuthSlice = createSlice({
       state.error = null;
     },
 
+    updateFirebaseToken: (state, action: PayloadAction<string>) => {
+      state.firebaseToken = action.payload;
+
+      // Update localStorage
+      const persistedAuth = localStorage.getItem("customerAuth");
+      if (persistedAuth) {
+        const parsedAuth = JSON.parse(persistedAuth);
+        parsedAuth.firebaseToken = action.payload;
+        localStorage.setItem("customerAuth", JSON.stringify(parsedAuth));
+      }
+    },
+
     // Update customer profile
     profileUpdated: (state, action: PayloadAction<Customer>) => {
       state.customer = action.payload;
@@ -93,6 +105,7 @@ const customerAuthSlice = createSlice({
 export const {
   registrationStarted,
   loginSuccess,
+  updateFirebaseToken,
   profileUpdated,
   logout,
   setError,

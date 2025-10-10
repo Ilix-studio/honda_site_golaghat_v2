@@ -11,13 +11,15 @@ import {
   Camera,
   Shield,
   Star,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
-
+import { ReactNode, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useGetMyVehiclesQuery } from "../../redux-store/services/BikeSystemApi2/AdminVehicleApi";
+import { useAppSelector } from "@/hooks/redux";
+import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
 import cbr from "../../assets/cbr-1000-rrr.jpg";
-// import AMC from "../../assets/VAS/AMC.png";
-// import TFS from "../../assets/VAS/TFS.png";
-// import VAS from "../../assets/VAS/VAS.png";
-import { ReactNode } from "react";
 
 // Type definitions
 interface ServiceBadgeProps {
@@ -28,34 +30,32 @@ interface ServiceBadgeProps {
   icon: ReactNode;
 }
 
-// Mock customer motorcycle data
-const customerBike = {
-  id: 1,
-  name: "Honda CB125 Hornet",
-  model: "CB125 Hornet",
-  year: 2023,
-  engineNumber: "CB125E-2301234",
-  chassisNumber: "ME4KC0410P5012345",
-  ownerName: "Ilix Hazarika",
-  numberPlate: "AS05-AB-1234",
-  photo: "/honda-cb125-hornet-motorcycle-yellow-black.png",
-  rtoInfo: {
-    rtoCode: "AS-05",
-    rtoName: "Golaghat, Asaam",
-    registrationDate: "2023-03-15",
-  },
-  fitnessUpTo: "2038-03-14",
-  vehicleAge: "1 year 5 months",
-  color: "Yellow & Black",
-  fuelType: "Petrol",
-  engineCapacity: "124.7cc",
-  mileage: "65 KMPL",
-  transmission: "Manual",
-  status: "Active",
-};
-
 export function CustomerBikeInfo() {
-  const calculateAge = (registrationDate: string) => {
+  const navigate = useNavigate();
+  const { customer, isAuthenticated, firebaseToken } =
+    useAppSelector(selectCustomerAuth);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated || !customer || !firebaseToken) {
+      navigate("/customer-login", { replace: true });
+    }
+  }, [isAuthenticated, customer, firebaseToken, navigate]);
+
+  const {
+    data: vehiclesData,
+    isLoading,
+    error,
+    refetch,
+  } = useGetMyVehiclesQuery(
+    { page: 1, limit: 10 },
+    {
+      skip: !isAuthenticated || !firebaseToken, // Skip query if not authenticated
+    }
+  );
+
+  const calculateAge = (registrationDate?: Date) => {
+    if (!registrationDate) return "Not registered";
     const regDate = new Date(registrationDate);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - regDate.getTime());
@@ -65,6 +65,13 @@ export function CustomerBikeInfo() {
     return `${years} year${years !== 1 ? "s" : ""} ${months} month${
       months !== 1 ? "s" : ""
     }`;
+  };
+
+  const calculateFitnessDate = (registrationDate?: Date) => {
+    if (!registrationDate) return null;
+    const fitnessDate = new Date(registrationDate);
+    fitnessDate.setFullYear(fitnessDate.getFullYear() + 15);
+    return fitnessDate;
   };
 
   const ServiceBadge = ({
@@ -78,49 +85,126 @@ export function CustomerBikeInfo() {
       <div
         className={`flex flex-col items-center justify-center w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full bg-gradient-to-br ${gradient} shadow-xl ${shadowColor} border-2 border-white/20 backdrop-blur-sm transform transition-all duration-300 hover:scale-110 hover:shadow-2xl group-hover:rotate-3`}
       >
-        {/* Shine effect */}
         <div className='absolute inset-0 rounded-full bg-gradient-to-tr from-white/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
-
-        {/* Icon */}
         <div className='text-white mb-1 transform group-hover:scale-110 transition-transform duration-200'>
           {icon}
         </div>
-
-        {/* Text */}
         <div className='text-[7px] sm:text-[8px] lg:text-[9px] font-bold text-center leading-tight px-1 text-white/95 relative z-10'>
           <div className='tracking-wider'>{title}</div>
           <div className='font-semibold opacity-90'>{subtitle}</div>
         </div>
-
-        {/* Pulse ring effect */}
         <div className='absolute inset-0 rounded-full border-2 border-white/30 scale-110 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-500'></div>
       </div>
-
-      {/* Floating particles effect */}
       <div className='absolute -top-1 -right-1 w-2 h-2 bg-white/40 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping'></div>
       <div className='absolute -bottom-1 -left-1 w-1.5 h-1.5 bg-white/30 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping animation-delay-200'></div>
     </div>
   );
 
+  if (isLoading) {
+    return (
+      <div className='flex items-center justify-center min-h-[400px]'>
+        <Loader2 className='w-8 h-8 animate-spin text-blue-600' />
+        <span className='ml-2 text-gray-600'>Loading your vehicles...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    const errorMessage =
+      (error as any)?.data?.message || "Failed to load vehicle information";
+    const isAuthError = (error as any)?.status === 401;
+
+    return (
+      <Card className='border-red-200'>
+        <CardContent className='p-8 text-center'>
+          <AlertCircle className='w-12 h-12 text-red-500 mx-auto mb-4' />
+          <p className='text-red-600 font-semibold mb-2'>
+            {isAuthError ? "Authentication Error" : "Error Loading Vehicles"}
+          </p>
+          <p className='text-gray-600 mb-4'>{errorMessage}</p>
+          {isAuthError ? (
+            <Button
+              onClick={() => navigate("/customer-login")}
+              className='bg-red-600 hover:bg-red-700'
+            >
+              Go to Login
+            </Button>
+          ) : (
+            <Button
+              onClick={() => refetch()}
+              variant='outline'
+              className='border-red-300 hover:bg-red-50'
+            >
+              Try Again
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!vehiclesData?.data || vehiclesData.data.length === 0) {
+    return (
+      <Card>
+        <CardContent className='p-8 text-center'>
+          <div className='mb-4'>
+            <Camera className='w-16 h-16 text-gray-300 mx-auto' />
+          </div>
+          <h3 className='text-xl font-semibold text-gray-900 mb-2'>
+            No Vehicles Found
+          </h3>
+          <p className='text-gray-600 mb-4'>
+            You don't have any vehicles registered yet. Contact your dealer to
+            add your motorcycle.
+          </p>
+          <p className='text-sm text-gray-500'>
+            Customer ID: {customer?.phoneNumber}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Get the first vehicle (or you can loop through all vehicles)
+  const vehicle = vehiclesData.data[0];
+  const stockData = vehicle.stockConcept as any;
+  const fitnessDate = calculateFitnessDate(vehicle.registrationDate);
+
   return (
     <div className='space-y-6'>
+      {/* Vehicle Count Badge */}
+      {vehiclesData.data.length > 1 && (
+        <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
+          <p className='text-sm text-blue-800'>
+            Showing 1 of {vehiclesData.data.length} vehicles.
+            <button className='ml-2 font-semibold hover:underline'>
+              View all vehicles
+            </button>
+          </p>
+        </div>
+      )}
+
       {/* Main Bike Information Card */}
       <Card>
         <CardHeader className='bg-white border-b'>
           <div className='flex items-center justify-between'>
             <div>
               <CardTitle className='text-2xl text-gray-900'>
-                {customerBike.name}
+                {vehicle.modelName}
               </CardTitle>
               <p className='text-gray-600 mt-1'>
-                Registration: {customerBike.numberPlate}
+                Registration: {vehicle.numberPlate || "Not Registered"}
               </p>
             </div>
             <Badge
               variant='outline'
-              className='bg-green-50 text-green-700 border-green-200'
+              className={`${
+                vehicle.isActive
+                  ? "bg-green-50 text-green-700 border-green-200"
+                  : "bg-gray-50 text-gray-700 border-gray-200"
+              }`}
             >
-              {customerBike.status}
+              {vehicle.isActive ? "Active" : "Inactive"}
             </Badge>
           </div>
         </CardHeader>
@@ -130,9 +214,9 @@ export function CustomerBikeInfo() {
             <div className='space-y-4'>
               <div className='relative aspect-video bg-gray-100 rounded-lg overflow-hidden'>
                 <img
-                  src={cbr}
-                  alt={customerBike.name}
-                  className='object-contain'
+                  src={vehicle.motorcyclePhoto || cbr}
+                  alt={vehicle.modelName}
+                  className='object-contain w-full h-full'
                 />
               </div>
               <Button variant='outline' className='w-full bg-transparent'>
@@ -149,7 +233,7 @@ export function CustomerBikeInfo() {
                     Model Year
                   </label>
                   <p className='text-lg font-semibold text-gray-900'>
-                    {customerBike.year}
+                    {stockData?.yearOfManufacture || "N/A"}
                   </p>
                 </div>
                 <div>
@@ -157,7 +241,7 @@ export function CustomerBikeInfo() {
                     Color
                   </label>
                   <p className='text-lg font-semibold text-gray-900'>
-                    {customerBike.color}
+                    {vehicle.color || stockData?.color || "N/A"}
                   </p>
                 </div>
                 <div>
@@ -165,67 +249,77 @@ export function CustomerBikeInfo() {
                     Engine Capacity
                   </label>
                   <p className='text-lg font-semibold text-gray-900'>
-                    {customerBike.engineCapacity}
+                    {stockData?.engineCC ? `${stockData.engineCC}cc` : "N/A"}
                   </p>
                 </div>
                 <div>
                   <label className='text-sm font-medium text-gray-500'>
-                    Mileage
+                    Category
                   </label>
                   <p className='text-lg font-semibold text-gray-900'>
-                    {customerBike.mileage}
+                    {stockData?.category || "N/A"}
                   </p>
                 </div>
               </div>
-              <br />
-              <br />
-              {/* Service Badges */}
-              <div className='grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 gap-1 mt-9'>
-                <div className='flex justify-start p-4 bg-white rounded-lg  transition-colors gap-3'>
-                  <ServiceBadge
-                    title='ANNUAL'
-                    subtitle='MAINTENANCE'
-                    gradient='from-indigo-500 via-white-500 to-red-500'
-                    shadowColor='shadow-indigo-500/25'
-                    icon={<Settings className='w-9 h-9' />}
-                  />
 
-                  <ServiceBadge
-                    title='THREE YEAR FREE'
-                    subtitle='SERVICE'
-                    gradient='from-emerald-400 via-teal-500 to-cyan-500'
-                    shadowColor='shadow-emerald-500/25'
-                    icon={<Shield className='w-9 h-9' />}
-                  />
-
-                  <ServiceBadge
-                    title='VALUE ADDED'
-                    subtitle='SERVICE'
-                    gradient='from-orange-400 via-red-500 to-pink-500'
-                    shadowColor='shadow-red-500/25'
-                    icon={<Star className='w-9 h-9' />}
-                  />
+              {/* Payment Status */}
+              <div className='grid grid-cols-2 gap-4 pt-4'>
+                <div>
+                  <label className='text-sm font-medium text-gray-500'>
+                    Payment Status
+                  </label>
+                  <Badge
+                    variant='outline'
+                    className={`${
+                      vehicle.isPaid
+                        ? "bg-green-50 text-green-700 border-green-200"
+                        : "bg-yellow-50 text-yellow-700 border-yellow-200"
+                    }`}
+                  >
+                    {vehicle.isPaid ? "Paid" : "Pending"}
+                  </Badge>
+                </div>
+                <div>
+                  <label className='text-sm font-medium text-gray-500'>
+                    Finance
+                  </label>
+                  <Badge
+                    variant='outline'
+                    className={`${
+                      vehicle.isFinance
+                        ? "bg-blue-50 text-blue-700 border-blue-200"
+                        : "bg-gray-50 text-gray-700 border-gray-200"
+                    }`}
+                  >
+                    {vehicle.isFinance ? "Financed" : "Cash"}
+                  </Badge>
                 </div>
               </div>
-              {/* <div className='grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 gap-1 mt-9'>
-                <div className='flex justify-start p-4 bg-white rounded-lg  transition-colors'>
-                  <img
-                    src={AMC}
-                    alt='AMC Service'
-                    className='w-full max-w-[100px] h-auto object-contain filter hover:scale-105 transition-transform'
-                  />
-                  <img
-                    src={TFS}
-                    alt='TFS Service'
-                    className='w-full max-w-[100px] h-auto object-contain filter hover:scale-105 transition-transform'
-                  />
-                  <img
-                    src={VAS}
-                    alt='VAS Service'
-                    className='w-full max-w-[100px] h-auto object-contain filter hover:scale-105 transition-transform'
-                  />
-                </div>
-              </div> */}
+
+              {/* Service Badges */}
+              <div className='flex justify-center gap-3 pt-6'>
+                <ServiceBadge
+                  title='ANNUAL'
+                  subtitle='MAINTENANCE'
+                  gradient='from-indigo-500 via-white-500 to-red-500'
+                  shadowColor='shadow-indigo-500/25'
+                  icon={<Settings className='w-9 h-9' />}
+                />
+                <ServiceBadge
+                  title='THREE YEAR FREE'
+                  subtitle='SERVICE'
+                  gradient='from-emerald-400 via-teal-500 to-cyan-500'
+                  shadowColor='shadow-emerald-500/25'
+                  icon={<Shield className='w-9 h-9' />}
+                />
+                <ServiceBadge
+                  title='VALUE ADDED'
+                  subtitle='SERVICE'
+                  gradient='from-orange-400 via-red-500 to-pink-500'
+                  shadowColor='shadow-red-500/25'
+                  icon={<Star className='w-9 h-9' />}
+                />
+              </div>
             </div>
           </div>
         </CardContent>
@@ -248,7 +342,7 @@ export function CustomerBikeInfo() {
                 Engine Number
               </label>
               <p className='text-lg font-mono text-gray-900 bg-gray-50 p-2 rounded border'>
-                {customerBike.engineNumber}
+                {stockData?.engineNumber || "N/A"}
               </p>
             </div>
             <div>
@@ -257,24 +351,31 @@ export function CustomerBikeInfo() {
                 Chassis Number
               </label>
               <p className='text-lg font-mono text-gray-900 bg-gray-50 p-2 rounded border'>
-                {customerBike.chassisNumber}
+                {stockData?.chassisNumber || "N/A"}
               </p>
             </div>
             <div>
               <label className='text-sm font-medium text-gray-500'>
-                Fuel Type
+                Variant
               </label>
               <p className='text-lg font-semibold text-gray-900'>
-                {customerBike.fuelType}
+                {stockData?.variant || "N/A"}
               </p>
             </div>
             <div>
               <label className='text-sm font-medium text-gray-500'>
-                Transmission
+                Insurance
               </label>
-              <p className='text-lg font-semibold text-gray-900'>
-                {customerBike.transmission}
-              </p>
+              <Badge
+                variant='outline'
+                className={`${
+                  vehicle.insurance
+                    ? "bg-green-50 text-green-700 border-green-200"
+                    : "bg-red-50 text-red-700 border-red-200"
+                }`}
+              >
+                {vehicle.insurance ? "Insured" : "Not Insured"}
+              </Badge>
             </div>
           </CardContent>
         </Card>
@@ -293,7 +394,7 @@ export function CustomerBikeInfo() {
                 Registered Owner
               </label>
               <p className='text-lg font-semibold text-gray-900'>
-                {customerBike.ownerName}
+                {vehicle.registeredOwnerName || "N/A"}
               </p>
             </div>
             <div>
@@ -301,7 +402,7 @@ export function CustomerBikeInfo() {
                 Number Plate
               </label>
               <p className='text-xl font-bold text-gray-900 bg-yellow-100 p-2 rounded border-2 border-yellow-300 text-center'>
-                {customerBike.numberPlate}
+                {vehicle.numberPlate || "NOT REGISTERED"}
               </p>
             </div>
             <div>
@@ -310,7 +411,7 @@ export function CustomerBikeInfo() {
                 Vehicle Age
               </label>
               <p className='text-lg font-semibold text-gray-900'>
-                {calculateAge(customerBike.rtoInfo.registrationDate)}
+                {calculateAge(vehicle.registrationDate)}
               </p>
             </div>
           </CardContent>
@@ -333,10 +434,10 @@ export function CustomerBikeInfo() {
                 RTO Office
               </label>
               <p className='text-lg font-semibold text-gray-900'>
-                {customerBike.rtoInfo.rtoName}
+                {vehicle.rtoInfo?.rtoName || "N/A"}
               </p>
               <p className='text-sm text-gray-600'>
-                Code: {customerBike.rtoInfo.rtoCode}
+                Code: {vehicle.rtoInfo?.rtoCode || "N/A"}
               </p>
             </div>
             <div>
@@ -344,13 +445,16 @@ export function CustomerBikeInfo() {
                 Registration Date
               </label>
               <p className='text-lg font-semibold text-gray-900'>
-                {new Date(
-                  customerBike.rtoInfo.registrationDate
-                ).toLocaleDateString("en-IN", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
+                {vehicle.registrationDate
+                  ? new Date(vehicle.registrationDate).toLocaleDateString(
+                      "en-IN",
+                      {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      }
+                    )
+                  : "Not Registered"}
               </p>
             </div>
             <div>
@@ -358,21 +462,22 @@ export function CustomerBikeInfo() {
                 Fitness Valid Until
               </label>
               <p className='text-lg font-semibold text-green-700'>
-                {new Date(customerBike.fitnessUpTo).toLocaleDateString(
-                  "en-IN",
-                  {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  }
-                )}
+                {fitnessDate
+                  ? fitnessDate.toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : "N/A"}
               </p>
-              <Badge
-                variant='outline'
-                className='bg-green-50 text-green-700 border-green-200 mt-1'
-              >
-                Valid
-              </Badge>
+              {fitnessDate && fitnessDate > new Date() && (
+                <Badge
+                  variant='outline'
+                  className='bg-green-50 text-green-700 border-green-200 mt-1'
+                >
+                  Valid
+                </Badge>
+              )}
             </div>
           </div>
         </CardContent>

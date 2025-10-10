@@ -318,8 +318,8 @@ export interface BulkUpdateVehiclesRequest {
 }
 
 // ===================== CUSTOMER VEHICLE API SLICE =====================
-export const customerVehicleApi = createApi({
-  reducerPath: "customerVehicleApi",
+export const adminVehicleApi = createApi({
+  reducerPath: "adminVehicleApi",
   baseQuery,
   tagTypes: ["CustomerVehicle", "VehicleStats", "ServiceHistory"],
   endpoints: (builder) => ({
@@ -337,6 +337,21 @@ export const customerVehicleApi = createApi({
         if (customerId) params.append("customerId", customerId);
 
         return `/customer-vehicles?${params.toString()}`;
+      },
+      providesTags: ["CustomerVehicle"],
+      transformErrorResponse: (response) => handleApiError(response),
+    }),
+
+    // Get my vehicles (authenticated customer)
+    getMyVehicles: builder.query<
+      PopulatedCustomerVehicleListResponse,
+      { page?: number; limit?: number }
+    >({
+      query: ({ page = 1, limit = 10 }) => {
+        const params = new URLSearchParams();
+        params.append("page", page.toString());
+        params.append("limit", limit.toString());
+        return `/customer-vehicles/my-vehicles?${params.toString()}`;
       },
       providesTags: ["CustomerVehicle"],
       transformErrorResponse: (response) => handleApiError(response),
@@ -721,6 +736,7 @@ export const customerVehicleApi = createApi({
 // ===================== EXPORT HOOKS =====================
 export const {
   // Customer/Public hooks
+  useGetMyVehiclesQuery, // Add this
   useGetCustomerVehiclesQuery,
   useGetCustomerVehicleByIdQuery,
   useGetVehicleServiceHistoryQuery,
@@ -748,8 +764,10 @@ export const {
   useImportVehiclesMutation,
   useValidateNumberPlateQuery,
   useSendServiceRemindersMutation,
+  //
+  useLazyGetMyVehiclesQuery, // Add this
   useLazyGetAllCustomerVehiclesQuery,
   useLazyGetVehicleStatsQuery,
   useLazyGetVehiclesDueForServiceQuery,
   useLazyValidateNumberPlateQuery,
-} = customerVehicleApi;
+} = adminVehicleApi;
