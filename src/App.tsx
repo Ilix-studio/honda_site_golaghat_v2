@@ -49,6 +49,9 @@ import ViewAllBranches from "./mainComponents/ViewBS2/ViewAllBranches";
 import IntegrateVAS from "./mainComponents/Admin/IntegrateServices/IntegrateVAS";
 import IntegrateServiceAddons from "./mainComponents/Admin/IntegrateServices/IntegrateServiceAddons";
 import AssignStock from "./mainComponents/Admin/AssignImp/AssignStock";
+import GenerateTags from "./mainComponents/CustomerSystem/GenerateTags";
+import ActivateVAS from "./mainComponents/CustomerSystem/ActivateFeature/ActivateVAS";
+import ActivateAddons from "./mainComponents/CustomerSystem/ActivateFeature/ActivateAddons";
 // import DynamicLogin from "./mainComponents/DynamicLoginSystem/DynamicLogin";
 
 // import TestBike from "./mainComponents/TestBike";
@@ -110,6 +113,7 @@ const App: React.FC = () => {
         <Route path='/customer-initialize' element={<InitialDashboard />} />
         <Route path='/customer-profile' element={<CustomerCreateProfile />} />
         <Route path='/customer-dash' element={<CustomerDash />} />
+        <Route path='/generate-tags' element={<GenerateTags />} />
         <Route
           path='/customer-vehicle-info'
           element={<CustomerVehicleInfo />}
@@ -129,6 +133,8 @@ const App: React.FC = () => {
 
         {/* Assign System */}
         <Route path='/assign/stock-concept/:id' element={<AssignStock />} />
+        <Route path='/select-VAS' element={<ActivateVAS />} />
+        <Route path='/select-addons' element={<ActivateAddons />} />
 
         {/* Safety Feature  */}
         <Route
