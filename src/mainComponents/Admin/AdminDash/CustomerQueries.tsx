@@ -32,22 +32,7 @@ const CustomerQueries = () => {
       description: "Sales revenue",
       action: { label: "View Report", href: "/admin/reports" },
     },
-    {
-      title: "Integrate Value Added Service",
-      value: "3",
-      icon: TrendingUp,
-      loading: false,
-      description: "Sales revenue",
-      action: { label: "View Report", href: "/admin/reports" },
-    },
-    {
-      title: "Integrate Service Addons",
-      value: "3",
-      icon: TrendingUp,
-      loading: false,
-      description: "Sales revenue",
-      action: { label: "View Report", href: "/admin/reports" },
-    },
+
     {
       title: "GPS Integration Request",
       value: "15",
@@ -63,6 +48,14 @@ const CustomerQueries = () => {
       loading: false,
       description: "Sales revenue",
       action: { label: "View Report", href: "/admin/reports" },
+    },
+    {
+      title: "Total Safety-Tags Generated",
+      value: "15",
+      icon: TrendingUp,
+      loading: false,
+      description: "Sales revenue",
+      action: { label: "Token-100", href: "/admin/reports" },
     },
   ];
   // Fetch dashboard data

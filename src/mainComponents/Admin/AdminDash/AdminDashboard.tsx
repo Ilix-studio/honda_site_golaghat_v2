@@ -58,14 +58,14 @@ const AdminDashboard = () => {
                   className='flex items-center gap-2'
                 >
                   <Building2 className='h-4 w-4' />
-                  Branch Queries
+                  Branch Area
                 </TabsTrigger>
                 <TabsTrigger
                   value='customer-queries'
                   className='flex items-center gap-2'
                 >
                   <MessageSquare className='h-4 w-4' />
-                  Customer Queries
+                  Customer Area
                 </TabsTrigger>
               </TabsList>
 

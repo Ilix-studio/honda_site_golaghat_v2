@@ -14,6 +14,9 @@ export interface CreateProfileRequest {
   policeStation: string;
   district: string;
   state: string;
+  bloodGroup: string;
+  familyNumber1: number | null;
+  familyNumber2: number | null;
 }
 
 export interface Customer {

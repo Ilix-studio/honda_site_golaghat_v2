@@ -40,7 +40,7 @@ import VASForm from "./mainComponents/BikeSystem2/VASForm";
 import ServiceAddonsForm from "./mainComponents/BikeSystem2/ServiceAddonsForm";
 import CustomerVehicleInfo from "./mainComponents/BikeSystem2/CustomerVehicleInfo";
 import StockConceptForm from "./mainComponents/BikeSystem2/StockConceptForm";
-import SafetyFeature from "./mainComponents/SafetyFeature/SaftetyFeature";
+
 import ViewStockConcept from "./mainComponents/ViewBS2/ViewStockConcept";
 import ViewServiceAddons from "./mainComponents/ViewBS2/ViewServiceAddons";
 import DownloadSafetyfeature from "./mainComponents/ViewBS2/DownloadSafetyfeature";
@@ -123,7 +123,6 @@ const App: React.FC = () => {
         <Route path='/admin/VAS-form' element={<VASForm />} />
         <Route path='/admin/service-Addons' element={<ServiceAddonsForm />} />
         <Route path='/admin/stock-concept' element={<StockConceptForm />} />
-        <Route path='/admin/safety-feature' element={<SafetyFeature />} />
 
         {/* View System */}
         <Route path='/view/all-branches' element={<ViewAllBranches />} />
