@@ -58,7 +58,7 @@ export default function StockConceptForm() {
     try {
       const result = await createStockItem(formData).unwrap();
       toast.success(result.message || "Stock item created successfully!");
-      navigate("/admin/stock-concept/list");
+      navigate("/view/stock-concept");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to create stock item");
       console.error("Error submitting form:", error);

@@ -90,7 +90,7 @@ export interface CreateStockConceptRequest {
 }
 
 export interface AssignToCustomerRequest {
-  phoneNumber: string;
+  customerId: string;
   salePrice: number;
   invoiceNumber: string;
   paymentStatus?: "Paid" | "Partial" | "Pending";
@@ -100,6 +100,9 @@ export interface AssignToCustomerRequest {
   insurance?: boolean;
   isPaid?: boolean;
   isFinance?: boolean;
+  rtoName?: string;
+  rtoAddress?: string;
+  state?: string;
 }
 
 export interface AssignToCustomerResponse {
@@ -180,8 +183,8 @@ export const stockConceptApi = createApi({
       { id: string; data: AssignToCustomerRequest }
     >({
       query: ({ id, data }) => ({
-        url: `/stock-concept/${id}/assign`,
-        method: "PATCH",
+        url: `/stock-concept/${id}/activate`,
+        method: "POST",
         body: data,
       }),
       invalidatesTags: (_result, _error, { id }) => [
