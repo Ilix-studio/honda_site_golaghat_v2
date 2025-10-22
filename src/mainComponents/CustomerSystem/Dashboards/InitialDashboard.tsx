@@ -7,7 +7,8 @@ import {
   Check,
   CheckCircle,
   AlertCircle,
-  LogOut,
+  Tags,
+  Settings,
 } from "lucide-react";
 import { CustomerDashHeader } from "@/mainComponents/Home/Header/CustomerDashHeader";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -32,9 +33,9 @@ const InitialDashboard: React.FC = () => {
   >({
     profile: false,
     motorcycle: false,
-    services: false,
-    valueServices: false,
-    newUserMark: false,
+    select_VAS: false,
+    select_AddOns: false,
+    generate_tags: false,
   });
 
   // Check for profile completion from navigation state
@@ -66,12 +67,15 @@ const InitialDashboard: React.FC = () => {
   const onAddMotorcycle = () => {
     navigate("/customer-vehicle-info");
   };
-
-  const newUserMark = () => {
-    console.log("Navigate to new user setup");
+  const onGenerateTags = () => {
+    navigate("/generate-tags");
   };
-  const customerLogout = () => {
-    console.log("Navigate to new user setup");
+
+  const onVAS = () => {
+    navigate("/select-VAS");
+  };
+  const onServiceAddons = () => {
+    navigate("/select-addons");
   };
 
   const actionItems: ActionItem[] = [
@@ -97,24 +101,31 @@ const InitialDashboard: React.FC = () => {
     },
 
     {
-      id: "newUserMark",
-      title: "New User Mark",
-      buttonText: "Complete",
+      id: "add-VAS",
+      title: "Select VAS",
+      buttonText: "Select",
       icon: Check,
-      onClick: newUserMark,
-      description:
-        "Mark your account setup as complete and unlock additional features",
-      completed: completionStatus.newUserMark,
+      onClick: onVAS,
+      description: "Unlock Value Added Services",
+      completed: completionStatus.select_VAS,
     },
     {
-      id: "Logout",
-      title: "Logout from here",
-      buttonText: "Complete",
-      icon: LogOut,
-      onClick: customerLogout,
-      description:
-        "Mark your account setup as complete and unlock additional features",
-      completed: completionStatus.customerLogout,
+      id: "add-service-addOns",
+      title: "Select Service-Addons",
+      buttonText: "Select",
+      icon: Settings,
+      onClick: onServiceAddons,
+      description: "Unlock Service Addons",
+      completed: completionStatus.select_AddOns,
+    },
+    {
+      id: "generate-tags",
+      title: "Generate Tags",
+      buttonText: "Generate",
+      icon: Tags,
+      onClick: onGenerateTags,
+      description: "Tsangphool Honda Safety Feature",
+      completed: completionStatus.generate_tags,
     },
   ];
 

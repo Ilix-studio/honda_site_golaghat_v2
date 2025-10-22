@@ -1,9 +1,20 @@
 import { useCreateProfileMutation } from "@/redux-store/services/customer/customerApi";
-
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { CustomerDashHeader } from "../Home/Header/CustomerDashHeader";
+
+// Blood group enum - should match backend
+export enum BloodGroup {
+  A_POSITIVE = "A+",
+  A_NEGATIVE = "A-",
+  B_POSITIVE = "B+",
+  B_NEGATIVE = "B-",
+  AB_POSITIVE = "AB+",
+  AB_NEGATIVE = "AB-",
+  O_POSITIVE = "O+",
+  O_NEGATIVE = "O-",
+}
 
 interface CreateProfileRequest {
   firstName: string;
@@ -15,6 +26,9 @@ interface CreateProfileRequest {
   policeStation: string;
   district: string;
   state: string;
+  bloodGroup: BloodGroup;
+  familyNumber1: number;
+  familyNumber2: number;
 }
 
 interface RootState {
@@ -35,8 +49,8 @@ interface RootState {
 const CustomerCreateProfile: React.FC = () => {
   const navigate = useNavigate();
   const customerAuth = useSelector((state: RootState) => state.customerAuth);
-
   const [createProfile, { isLoading, error }] = useCreateProfileMutation();
+
   const [formData, setFormData] = useState<CreateProfileRequest>({
     firstName: "",
     middleName: "",
@@ -47,53 +61,86 @@ const CustomerCreateProfile: React.FC = () => {
     policeStation: "",
     district: "",
     state: "",
+    bloodGroup: "" as BloodGroup,
+    familyNumber1: 0,
+    familyNumber2: 0,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    if (name === "familyNumber1" || name === "familyNumber2") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value === "" ? 0 : parseInt(value, 10) || 0,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
 
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = "First name is required";
-    }
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "Last name is required";
-    }
-    if (!formData.village.trim()) {
-      newErrors.village = "Village is required";
-    }
-    if (!formData.postOffice.trim()) {
-      newErrors.postOffice = "Post office is required";
-    }
-    if (!formData.policeStation.trim()) {
-      newErrors.policeStation = "Police station is required";
-    }
-    if (!formData.district.trim()) {
-      newErrors.district = "District is required";
-    }
-    if (!formData.state.trim()) {
-      newErrors.state = "State is required";
-    }
+    // Required fields validation
+    const requiredFields = [
+      "firstName",
+      "lastName",
+      "village",
+      "postOffice",
+      "policeStation",
+      "district",
+      "state",
+      "bloodGroup",
+    ];
 
+    requiredFields.forEach((field) => {
+      if (!formData[field as keyof CreateProfileRequest]) {
+        newErrors[field] = `${
+          field.charAt(0).toUpperCase() + field.slice(1)
+        } is required`;
+      }
+    });
+
+    // Email validation (optional)
     if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Please enter a valid email address";
+    }
+
+    // Phone number validation
+    const phoneRegex = /^[6-9]\d{9}$/;
+
+    if (!formData.familyNumber1 || formData.familyNumber1 === 0) {
+      newErrors.familyNumber1 = "Family contact number 1 is required";
+    } else if (!phoneRegex.test(formData.familyNumber1.toString())) {
+      newErrors.familyNumber1 = "Enter valid 10-digit number starting with 6-9";
+    }
+
+    if (!formData.familyNumber2 || formData.familyNumber2 === 0) {
+      newErrors.familyNumber2 = "Family contact number 2 is required";
+    } else if (!phoneRegex.test(formData.familyNumber2.toString())) {
+      newErrors.familyNumber2 = "Enter valid 10-digit number starting with 6-9";
+    }
+
+    // Ensure different phone numbers
+    if (
+      formData.familyNumber1 &&
+      formData.familyNumber2 &&
+      formData.familyNumber1 === formData.familyNumber2
+    ) {
+      newErrors.familyNumber2 = "Family contact numbers must be different";
     }
 
     setErrors(newErrors);
@@ -103,51 +150,29 @@ const CustomerCreateProfile: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
-
-    // Check if user is authenticated and has token
-    if (!customerAuth.isAuthenticated || !customerAuth.firebaseToken) {
-      console.error("User not authenticated or missing token");
+    if (
+      !validateForm() ||
+      !customerAuth.isAuthenticated ||
+      !customerAuth.firebaseToken
+    ) {
       return;
     }
 
     try {
-      // Filter out empty optional fields
       const profileData = {
         ...formData,
         middleName: formData.middleName?.trim() || undefined,
         email: formData.email?.trim() || undefined,
       };
 
-      console.log("Submitting profile data:", profileData);
-      console.log(
-        "Using token:",
-        customerAuth.firebaseToken.substring(0, 50) + "..."
-      );
-
-      const result = await createProfile(profileData).unwrap();
-      console.log("Profile created successfully:", result);
-
-      // Navigate back to InitialDashboard with success state
-      navigate("/customer-initialize", {
-        state: { profileCompleted: true },
-      });
+      await createProfile(profileData).unwrap();
+      navigate("/customer-initialize", { state: { profileCompleted: true } });
     } catch (err) {
       console.error("Failed to create profile:", err);
-
-      // Enhanced error logging
-      if (err && typeof err === "object" && "data" in err) {
-        console.error("Error details:", err.data);
-      }
-      if (err && typeof err === "object" && "status" in err) {
-        console.error("Error status:", err.status);
-      }
     }
   };
 
-  // Show loading or error states for authentication
+  // Loading states
   if (customerAuth.isLoading) {
     return (
       <div className='max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md'>
@@ -177,237 +202,279 @@ const CustomerCreateProfile: React.FC = () => {
           Create Your Profile
         </h2>
 
-        {/* Debug info - remove in production */}
-        <div className='mb-4 p-3 bg-gray-100 rounded text-xs'>
-          <p>
-            <strong>Customer ID:</strong> {customerAuth.customer?.id}
-          </p>
-          <p>
-            <strong>Phone:</strong> {customerAuth.customer?.phoneNumber}
-          </p>
-          <p>
-            <strong>Token Available:</strong>{" "}
-            {customerAuth.firebaseToken ? "Yes" : "No"}
-          </p>
-        </div>
-
         <form onSubmit={handleSubmit} className='space-y-6'>
           {/* Personal Information */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            <div>
-              <label
-                htmlFor='firstName'
-                className='block text-sm font-medium text-gray-700 mb-2'
-              >
-                First Name <span className='text-red-500'>*</span>
-              </label>
-              <input
-                type='text'
-                id='firstName'
-                name='firstName'
-                value={formData.firstName}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.firstName ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder='Enter your first name'
-              />
-              {errors.firstName && (
-                <p className='mt-1 text-sm text-red-600'>{errors.firstName}</p>
-              )}
+          <div>
+            <h3 className='text-lg font-semibold text-gray-800 mb-4'>
+              Personal Information
+            </h3>
+
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  First Name <span className='text-red-500'>*</span>
+                </label>
+                <input
+                  type='text'
+                  name='firstName'
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.firstName ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder='Enter your first name'
+                />
+                {errors.firstName && (
+                  <p className='mt-1 text-sm text-red-600'>
+                    {errors.firstName}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  Middle Name
+                </label>
+                <input
+                  type='text'
+                  name='middleName'
+                  value={formData.middleName}
+                  onChange={handleChange}
+                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  placeholder='Enter your middle name'
+                />
+              </div>
             </div>
 
-            <div>
-              <label
-                htmlFor='middleName'
-                className='block text-sm font-medium text-gray-700 mb-2'
-              >
-                Middle Name
-              </label>
-              <input
-                type='text'
-                id='middleName'
-                name='middleName'
-                value={formData.middleName}
-                onChange={handleChange}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                placeholder='Enter your middle name'
-              />
-            </div>
-          </div>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'>
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  Last Name <span className='text-red-500'>*</span>
+                </label>
+                <input
+                  type='text'
+                  name='lastName'
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.lastName ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder='Enter your last name'
+                />
+                {errors.lastName && (
+                  <p className='mt-1 text-sm text-red-600'>{errors.lastName}</p>
+                )}
+              </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            <div>
-              <label
-                htmlFor='lastName'
-                className='block text-sm font-medium text-gray-700 mb-2'
-              >
-                Last Name <span className='text-red-500'>*</span>
-              </label>
-              <input
-                type='text'
-                id='lastName'
-                name='lastName'
-                value={formData.lastName}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.lastName ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder='Enter your last name'
-              />
-              {errors.lastName && (
-                <p className='mt-1 text-sm text-red-600'>{errors.lastName}</p>
-              )}
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  Email
+                </label>
+                <input
+                  type='email'
+                  name='email'
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder='Enter your email address'
+                />
+                {errors.email && (
+                  <p className='mt-1 text-sm text-red-600'>{errors.email}</p>
+                )}
+              </div>
             </div>
 
-            <div>
-              <label
-                htmlFor='email'
-                className='block text-sm font-medium text-gray-700 mb-2'
-              >
-                Email
-              </label>
-              <input
-                type='email'
-                id='email'
-                name='email'
-                value={formData.email}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.email ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder='Enter your email address'
-              />
-              {errors.email && (
-                <p className='mt-1 text-sm text-red-600'>{errors.email}</p>
-              )}
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mt-4'>
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  Blood Group <span className='text-red-500'>*</span>
+                </label>
+                <select
+                  name='bloodGroup'
+                  value={formData.bloodGroup}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.bloodGroup ? "border-red-500" : "border-gray-300"
+                  }`}
+                >
+                  <option value=''>Select Blood Group</option>
+                  {Object.values(BloodGroup).map((group) => (
+                    <option key={group} value={group}>
+                      {group}
+                    </option>
+                  ))}
+                </select>
+                {errors.bloodGroup && (
+                  <p className='mt-1 text-sm text-red-600'>
+                    {errors.bloodGroup}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  Family Contact 1 <span className='text-red-500'>*</span>
+                </label>
+                <input
+                  type='tel'
+                  name='familyNumber1'
+                  value={
+                    formData.familyNumber1 === 0
+                      ? ""
+                      : formData.familyNumber1.toString()
+                  }
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.familyNumber1 ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder='10-digit number'
+                  maxLength={10}
+                />
+                {errors.familyNumber1 && (
+                  <p className='mt-1 text-sm text-red-600'>
+                    {errors.familyNumber1}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  Family Contact 2 <span className='text-red-500'>*</span>
+                </label>
+                <input
+                  type='tel'
+                  name='familyNumber2'
+                  value={
+                    formData.familyNumber2 === 0
+                      ? ""
+                      : formData.familyNumber2.toString()
+                  }
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.familyNumber2 ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder='10-digit number'
+                  maxLength={10}
+                />
+                {errors.familyNumber2 && (
+                  <p className='mt-1 text-sm text-red-600'>
+                    {errors.familyNumber2}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
           {/* Address Information */}
-          <h3 className='text-lg font-semibold text-gray-800 mt-6 mb-4'>
-            Address Information
-          </h3>
-
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            <div>
-              <label
-                htmlFor='village'
-                className='block text-sm font-medium text-gray-700 mb-2'
-              >
-                Village <span className='text-red-500'>*</span>
-              </label>
-              <input
-                type='text'
-                id='village'
-                name='village'
-                value={formData.village}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.village ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder='Enter your village'
-              />
-              {errors.village && (
-                <p className='mt-1 text-sm text-red-600'>{errors.village}</p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor='postOffice'
-                className='block text-sm font-medium text-gray-700 mb-2'
-              >
-                Post Office <span className='text-red-500'>*</span>
-              </label>
-              <input
-                type='text'
-                id='postOffice'
-                name='postOffice'
-                value={formData.postOffice}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.postOffice ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder='Enter post office'
-              />
-              {errors.postOffice && (
-                <p className='mt-1 text-sm text-red-600'>{errors.postOffice}</p>
-              )}
-            </div>
-          </div>
-
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            <div>
-              <label
-                htmlFor='policeStation'
-                className='block text-sm font-medium text-gray-700 mb-2'
-              >
-                Police Station <span className='text-red-500'>*</span>
-              </label>
-              <input
-                type='text'
-                id='policeStation'
-                name='policeStation'
-                value={formData.policeStation}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.policeStation ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder='Enter police station'
-              />
-              {errors.policeStation && (
-                <p className='mt-1 text-sm text-red-600'>
-                  {errors.policeStation}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor='district'
-                className='block text-sm font-medium text-gray-700 mb-2'
-              >
-                District <span className='text-red-500'>*</span>
-              </label>
-              <input
-                type='text'
-                id='district'
-                name='district'
-                value={formData.district}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.district ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder='Enter district'
-              />
-              {errors.district && (
-                <p className='mt-1 text-sm text-red-600'>{errors.district}</p>
-              )}
-            </div>
-          </div>
-
           <div>
-            <label
-              htmlFor='state'
-              className='block text-sm font-medium text-gray-700 mb-2'
-            >
-              State <span className='text-red-500'>*</span>
-            </label>
-            <input
-              type='text'
-              id='state'
-              name='state'
-              value={formData.state}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.state ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder='Enter state'
-            />
-            {errors.state && (
-              <p className='mt-1 text-sm text-red-600'>{errors.state}</p>
-            )}
+            <h3 className='text-lg font-semibold text-gray-800 mb-4'>
+              Address Information
+            </h3>
+
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  Village <span className='text-red-500'>*</span>
+                </label>
+                <input
+                  type='text'
+                  name='village'
+                  value={formData.village}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.village ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder='Enter your village'
+                />
+                {errors.village && (
+                  <p className='mt-1 text-sm text-red-600'>{errors.village}</p>
+                )}
+              </div>
+
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  Post Office <span className='text-red-500'>*</span>
+                </label>
+                <input
+                  type='text'
+                  name='postOffice'
+                  value={formData.postOffice}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.postOffice ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder='Enter post office'
+                />
+                {errors.postOffice && (
+                  <p className='mt-1 text-sm text-red-600'>
+                    {errors.postOffice}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'>
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  Police Station <span className='text-red-500'>*</span>
+                </label>
+                <input
+                  type='text'
+                  name='policeStation'
+                  value={formData.policeStation}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.policeStation ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder='Enter police station'
+                />
+                {errors.policeStation && (
+                  <p className='mt-1 text-sm text-red-600'>
+                    {errors.policeStation}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  District <span className='text-red-500'>*</span>
+                </label>
+                <input
+                  type='text'
+                  name='district'
+                  value={formData.district}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.district ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder='Enter district'
+                />
+                {errors.district && (
+                  <p className='mt-1 text-sm text-red-600'>{errors.district}</p>
+                )}
+              </div>
+            </div>
+
+            <div className='mt-4'>
+              <label className='block text-sm font-medium text-gray-700 mb-2'>
+                State <span className='text-red-500'>*</span>
+              </label>
+              <input
+                type='text'
+                name='state'
+                value={formData.state}
+                onChange={handleChange}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.state ? "border-red-500" : "border-gray-300"
+                }`}
+                placeholder='Enter state'
+              />
+              {errors.state && (
+                <p className='mt-1 text-sm text-red-600'>{errors.state}</p>
+              )}
+            </div>
           </div>
 
           {/* Error Display */}
@@ -418,12 +485,6 @@ const CustomerCreateProfile: React.FC = () => {
                   ? (error.data as any)?.message || "Failed to create profile"
                   : "An error occurred while creating profile"}
               </p>
-              {/* Additional error details for debugging */}
-              {"status" in error && (
-                <p className='text-xs text-red-500 mt-1'>
-                  Status: {error.status}
-                </p>
-              )}
             </div>
           )}
 

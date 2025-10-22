@@ -11,7 +11,6 @@ import {
   Cog,
   Box,
   SplinePointer,
-  ShieldPlus,
 } from "lucide-react";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 import { useGetAllBranchManagersQuery } from "@/redux-store/services/branchManagerApi";
@@ -83,13 +82,6 @@ const BranchQueries = () => {
       loading: false,
       description: "Total Vehicles in this Branch",
       action: { label: "Open Form", href: "/admin/stock-concept" },
-    },
-    {
-      title: "Accident Safety Feature",
-      icon: ShieldPlus,
-      loading: false,
-      description: "Add Customers for Safety Protocol",
-      action: { label: "Open Form", href: "/admin/safety-feature" },
     },
   ];
   const formatTimeAgo = (dateString: string) => {

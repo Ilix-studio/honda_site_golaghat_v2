@@ -1,242 +1,234 @@
+import {
+  StockConceptFilters,
+  useGetAllStockItemsQuery,
+} from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { CustomerDashHeader } from "../Home/Header/CustomerDashHeader";
 
-export default function CustomerVehicleInfo() {
-  const [formData, setFormData] = useState({
-    engineNo: "",
-    vehicleName: "",
-    rto: "",
-    registrationNo: "",
-    chassisNo: "",
-    model: "",
-    color: "",
-    fuelType: "",
-    purchaseDate: "",
+const CustomerVehicleInfo = () => {
+  const navigate = useNavigate();
+  const [filters, setFilters] = useState<StockConceptFilters>({
+    page: 1,
+    limit: 10,
+    search: "",
+    status: "Available", // Only show available vehicles
   });
 
-  const [searchResult, setSearchResult] = useState(null);
+  const { data, isLoading, error } = useGetAllStockItemsQuery(filters);
 
-  const handleChange = () => {
-    // const { name, value } = e.target;
-    // setFormData(prev => ({ ...prev, [name]: value }));
+  const handleFilterChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+      page: 1, // Reset to first page on filter change
+    }));
   };
 
-  const handleSearch = () => {
-    if (formData.engineNo) {
-      //   setSearchResult({
-      //     // found: true,
-      //     // message: `Searching for Engine No: ${formData.engineNo}`
-      //   });
-    }
+  const handlePageChange = (newPage: number) => {
+    setFilters((prev) => ({ ...prev, page: newPage }));
   };
 
-  const handleSubmit = () => {
-    console.log("Form submitted:", formData);
-    alert("Vehicle information saved!");
-  };
-
-  const handleClear = () => {
-    setFormData({
-      engineNo: "",
-      vehicleName: "",
-      rto: "",
-      registrationNo: "",
-      chassisNo: "",
-      model: "",
-      color: "",
-      fuelType: "",
-      purchaseDate: "",
-    });
-    setSearchResult(null);
-  };
+  if (error) {
+    toast.error("Failed to load stock items");
+  }
 
   return (
-    <div className='min-h-screen bg-gray-50 py-8 px-4'>
-      <div className='max-w-4xl mx-auto'>
-        <div className='bg-white rounded-lg shadow-md p-6'>
-          <h1 className='text-2xl font-bold text-gray-800 mb-6'>
-            Customer Vehicle Information
-          </h1>
-
-          {/* Search Section */}
-          <div className='mb-8 p-4 bg-blue-50 rounded-lg'>
-            <h2 className='text-lg font-semibold text-gray-700 mb-4'>
-              Search Vehicle
-            </h2>
-            <div className='flex gap-3'>
-              <div className='flex-1'>
-                <input
-                  type='text'
-                  name='engineNo'
-                  value={formData.engineNo}
-                  onChange={handleChange}
-                  placeholder='Enter Engine Number'
-                  className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                />
-              </div>
-              <button
-                onClick={handleSearch}
-                className='flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors'
-              >
-                <Search size={20} />
-                Search
-              </button>
-            </div>
-            {/* {searchResult && 
-            // (
-            //   <p className="mt-3 text-sm text-blue-700">{searchResult.message}</p>
-            )
-            } */}
-          </div>
-
-          {/* Vehicle Information Form */}
-          <div className='space-y-6'>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Engine Number *
-                </label>
-                <input
-                  type='text'
-                  name='engineNo'
-                  value={formData.engineNo}
-                  onChange={handleChange}
-                  className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                />
-              </div>
-
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Vehicle Name *
-                </label>
-                <input
-                  type='text'
-                  name='vehicleName'
-                  value={formData.vehicleName}
-                  onChange={handleChange}
-                  placeholder='e.g., Honda City'
-                  className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                />
-              </div>
-
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  RTO Code *
-                </label>
-                <input
-                  type='text'
-                  name='rto'
-                  value={formData.rto}
-                  onChange={handleChange}
-                  placeholder='e.g., MH01'
-                  className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                />
-              </div>
-
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Registration Number
-                </label>
-                <input
-                  type='text'
-                  name='registrationNo'
-                  value={formData.registrationNo}
-                  onChange={handleChange}
-                  placeholder='e.g., MH01AB1234'
-                  className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                />
-              </div>
-
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Chassis Number
-                </label>
-                <input
-                  type='text'
-                  name='chassisNo'
-                  value={formData.chassisNo}
-                  onChange={handleChange}
-                  className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                />
-              </div>
-
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Model/Variant
-                </label>
-                <input
-                  type='text'
-                  name='model'
-                  value={formData.model}
-                  onChange={handleChange}
-                  placeholder='e.g., VX CVT'
-                  className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                />
-              </div>
-
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Color
-                </label>
-                <input
-                  type='text'
-                  name='color'
-                  value={formData.color}
-                  onChange={handleChange}
-                  className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                />
-              </div>
-
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Fuel Type
-                </label>
-                <select
-                  name='fuelType'
-                  value={formData.fuelType}
-                  onChange={handleChange}
-                  className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                >
-                  <option value=''>Select Fuel Type</option>
-                  <option value='petrol'>Petrol</option>
-                  <option value='diesel'>Diesel</option>
-                  <option value='cng'>CNG</option>
-                  <option value='electric'>Electric</option>
-                  <option value='hybrid'>Hybrid</option>
-                </select>
-              </div>
-
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Purchase Date
-                </label>
-                <input
-                  type='date'
-                  name='purchaseDate'
-                  value={formData.purchaseDate}
-                  onChange={handleChange}
-                  className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                />
-              </div>
-            </div>
-
-            <div className='flex gap-4 pt-4'>
-              <button
-                onClick={handleSubmit}
-                className='px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium'
-              >
-                Save Information
-              </button>
-              <button
-                onClick={handleClear}
-                className='px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors font-medium'
-              >
-                Clear Form
-              </button>
-            </div>
-          </div>
+    <>
+      <CustomerDashHeader />
+      <div className='max-w-7xl mx-auto p-6'>
+        {/* Header */}
+        <div className='flex justify-between items-center mb-6'>
+          <h1 className='text-3xl font-bold'>Available Vehicles</h1>
         </div>
+
+        {/* Filters */}
+        <div className='bg-white p-4 rounded-lg shadow-md mb-6'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+            <div>
+              <label className='block text-sm font-medium mb-1'>Search</label>
+              <input
+                type='text'
+                name='search'
+                value={filters.search || ""}
+                onChange={handleFilterChange}
+                placeholder='Search by stock ID, model, engine...'
+                className='w-full px-3 py-2 border border-gray-300 rounded-md'
+              />
+            </div>
+
+            <div>
+              <label className='block text-sm font-medium mb-1'>Category</label>
+              <select
+                name='category'
+                value={filters.category || ""}
+                onChange={handleFilterChange}
+                className='w-full px-3 py-2 border border-gray-300 rounded-md'
+              >
+                <option value=''>All Categories</option>
+                <option value='Bike'>Bike</option>
+                <option value='Scooty'>Scooty</option>
+              </select>
+            </div>
+
+            <div>
+              <label className='block text-sm font-medium mb-1'>Location</label>
+              <select
+                name='location'
+                value={filters.location || ""}
+                onChange={handleFilterChange}
+                className='w-full px-3 py-2 border border-gray-300 rounded-md'
+              >
+                <option value=''>All Locations</option>
+                <option value='Showroom'>Showroom</option>
+                <option value='Warehouse'>Warehouse</option>
+                <option value='Service Center'>Service Center</option>
+                <option value='Customer'>Customer</option>
+              </select>
+            </div>
+          </div>
+
+          <button
+            onClick={() =>
+              setFilters({
+                page: 1,
+                limit: 10,
+                search: "",
+                status: "Available",
+              })
+            }
+            className='mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300'
+          >
+            Clear Filters
+          </button>
+        </div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className='text-center py-8'>
+            <div className='inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
+            <p className='mt-2 text-gray-600'>Loading available vehicles...</p>
+          </div>
+        )}
+
+        {/* Stock Table */}
+        {!isLoading && data && (
+          <>
+            <div className='bg-white rounded-lg shadow-md overflow-hidden'>
+              <div className='overflow-x-auto'>
+                <table className='min-w-full divide-y divide-gray-200'>
+                  <thead className='bg-gray-50'>
+                    <tr>
+                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        Stock ID
+                      </th>
+                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        Model Name
+                      </th>
+                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        Category
+                      </th>
+                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        Engine/Chassis
+                      </th>
+                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        Location
+                      </th>
+                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        Price
+                      </th>
+                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className='bg-white divide-y divide-gray-200'>
+                    {data.data.map((stock) => (
+                      <tr key={stock._id} className='hover:bg-gray-50'>
+                        <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>
+                          {stock.stockId}
+                        </td>
+                        <td className='px-6 py-4 whitespace-nowrap'>
+                          <div className='text-sm font-medium text-gray-900'>
+                            {stock.modelName}
+                          </div>
+                          <div className='text-sm text-gray-500'>
+                            {stock.color} - {stock.variant}
+                          </div>
+                        </td>
+                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                          {stock.category}
+                        </td>
+                        <td className='px-6 py-4 whitespace-nowrap'>
+                          <div className='text-xs text-gray-600'>
+                            <div>E: {stock.engineNumber}</div>
+                            <div>C: {stock.chassisNumber}</div>
+                          </div>
+                        </td>
+                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                          {stock.stockStatus.location}
+                        </td>
+                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                          ₹{stock.priceInfo.onRoadPrice.toLocaleString()}
+                        </td>
+                        <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
+                          <button
+                            onClick={() =>
+                              navigate(`/assign/stock-concept/${stock._id}`)
+                            }
+                            className='px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors'
+                          >
+                            Assign
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Pagination */}
+            <div className='mt-6 flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow-md'>
+              <div className='text-sm text-gray-700'>
+                Showing {data.count} of {data.total} available vehicles
+              </div>
+              <div className='flex gap-2'>
+                <button
+                  onClick={() => handlePageChange(filters.page! - 1)}
+                  disabled={filters.page === 1}
+                  className='px-3 py-1 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50'
+                >
+                  Previous
+                </button>
+                <span className='px-3 py-1 bg-blue-50 text-blue-600 rounded-md'>
+                  Page {filters.page} of {data.pages}
+                </span>
+                <button
+                  onClick={() => handlePageChange(filters.page! + 1)}
+                  disabled={filters.page === data.pages}
+                  className='px-3 py-1 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50'
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && data && data.data.length === 0 && (
+          <div className='bg-white rounded-lg shadow-md p-8 text-center'>
+            <p className='text-gray-500'>No available vehicles found</p>
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
-}
+};
+
+export default CustomerVehicleInfo;
