@@ -1,10 +1,14 @@
 import { lazy } from "react";
 
 // IMMEDIATE ROUTES - No lazy loading for critical routes
-
 // Essential components that should load immediately
 import Home from "../Home";
 import NotFoundPage from "../mainComponents/NotFoundPage";
+import { ViewBikeImage } from "@/mainComponents/Admin/Bikes/ViewBikeImage";
+import CustomerSignUp from "@/mainComponents/CustomerSystem/CustomerSignUp";
+import IntegrateVAS from "@/mainComponents/Admin/IntegrateServices/IntegrateVAS";
+import IntegrateServiceAddons from "@/mainComponents/Admin/IntegrateServices/IntegrateServiceAddons";
+import AssignStock from "@/mainComponents/Admin/AssignImp/AssignStock";
 
 export const immediateRoutes = [
   {
@@ -14,7 +18,6 @@ export const immediateRoutes = [
 ];
 
 // PUBLIC ROUTES - With lazy loading
-
 // Public pages accessible to everyone
 const Finance = lazy(() => import("../mainComponents/NavMenu/Finance"));
 const Contact = lazy(() => import("../mainComponents/NavMenu/Contact"));
@@ -61,7 +64,7 @@ const DownloadSafetyfeature = lazy(
 );
 
 export const publicRoutes = [
-  // Navigation routes
+  // Navigation pages
   { path: "/finance", component: Finance },
   { path: "/contact", component: Contact },
 
@@ -80,8 +83,8 @@ export const publicRoutes = [
   { path: "/search", component: SearchResults },
 
   // Public View System
-  { path: "/view/all-branches", component: ViewAllBranches },
-  { path: "/view/VAS", component: ViewVAS },
+  { path: "/admin/branches/view", component: ViewAllBranches },
+  { path: "/admin/view/vas", component: ViewVAS },
   { path: "/view/service-addons", component: ViewServiceAddons },
   { path: "/view/stock-concept", component: ViewStockConcept },
   {
@@ -122,11 +125,8 @@ const AddBikeImage = lazy(
 const EditBikeImage = lazy(
   () => import("../mainComponents/Admin/Bikes/EditBikeImage")
 );
-const ViewBikeImage = lazy(() =>
-  import("../mainComponents/Admin/Bikes/ViewBikeImage").then((module) => ({
-    default: module.ViewBikeImage,
-  }))
-);
+
+// Customer Management (Admin only)
 
 // Business System Forms
 const VASForm = lazy(() => import("../mainComponents/BikeSystem2/VASForm"));
@@ -138,66 +138,47 @@ const StockConceptForm = lazy(
 );
 
 // Integration Services
-const IntegrateVAS = lazy(
-  () => import("../mainComponents/Admin/IntegrateServices/IntegrateVAS")
-);
-const IntegrateServiceAddons = lazy(
-  () =>
-    import("../mainComponents/Admin/IntegrateServices/IntegrateServiceAddons")
-);
 
 // Assignment System
-const AssignStock = lazy(
-  () => import("../mainComponents/Admin/AssignImp/AssignStock")
-);
 
-// Create admin routes array without direct component references
-const createAdminRoutes = () => {
-  const CustomerSignUpComponent = lazy(async () => {
-    const module = await import(
-      "../mainComponents/CustomerSystem/CustomerSignUp"
-    );
-    return { default: module.default };
-  });
+// Create admin routes array
+const createAdminRoutes = () => [
+  // Authentication
+  { path: "/admin/login", component: LoginSuperAdmin },
+  { path: "/admin/manager-login", component: LoginBranchManager },
 
-  return [
-    // Authentication
-    { path: "/admin/login/super", component: LoginSuperAdmin },
-    { path: "/admin/login/manager", component: LoginBranchManager },
+  // Dashboard
+  { path: "/admin/dashboard", component: AdminDashboard },
 
-    // Dashboard
-    { path: "/admin/dashboard", component: AdminDashboard },
+  // Branch Management (Super Admin Only)
+  { path: "/admin/branches/add", component: AddBranch },
+  { path: "/admin/branches/managers", component: BranchManager },
 
-    // Branch Management
-    { path: "/admin/branches/add", component: AddBranch },
-    { path: "/admin/managers", component: BranchManager },
+  // Bike Management
+  { path: "/admin/bikes/add", component: AddBikes },
+  { path: "/admin/bikes/edit/:id", component: EditBikes },
+  { path: "/admin/bikes/:bikeId/images/add", component: AddBikeImage },
+  { path: "/admin/bikes/:bikeId/images/edit", component: EditBikeImage },
+  { path: "/admin/bikes/images/:id", component: ViewBikeImage },
 
-    // Bike Management
-    { path: "/admin/bikes/add", component: AddBikes },
-    { path: "/admin/bikes/edit/:id", component: EditBikes },
-    { path: "/admin/bikes/:bikeId/images/add", component: AddBikeImage },
-    { path: "/admin/bikes/:bikeId/images/edit", component: EditBikeImage },
-    { path: "/admin/bikes/images/:id", component: ViewBikeImage },
+  // Customer Management
+  { path: "/admin/customers/signup", component: CustomerSignUp },
 
-    // Customer Management
-    { path: "/admin/customers/signup", component: CustomerSignUpComponent },
+  // Business System Forms
+  { path: "/admin/forms/vas", component: VASForm },
+  { path: "/admin/forms/service-addons", component: ServiceAddonsForm },
+  { path: "/admin/forms/stock-concept", component: StockConceptForm },
 
-    // Business System Forms
-    { path: "/admin/forms/vas", component: VASForm },
-    { path: "/admin/forms/service-addons", component: ServiceAddonsForm },
-    { path: "/admin/forms/stock-concept", component: StockConceptForm },
+  // Integration Services
+  { path: "/admin/integrate/vas", component: IntegrateVAS },
+  {
+    path: "/admin/integrate/service-addons",
+    component: IntegrateServiceAddons,
+  },
 
-    // Integration Services
-    { path: "/admin/integrate/vas", component: IntegrateVAS },
-    {
-      path: "/admin/integrate/service-addons",
-      component: IntegrateServiceAddons,
-    },
-
-    // Assignment System
-    { path: "/admin/assign/stock-concept/:id", component: AssignStock },
-  ];
-};
+  // Assignment System
+  { path: "/admin/assign/stock-concept/:id", component: AssignStock },
+];
 
 export const adminRoutes = createAdminRoutes();
 
@@ -233,7 +214,7 @@ const ActivateAddons = lazy(
     import("../mainComponents/CustomerSystem/ActivateFeature/ActivateAddons")
 );
 
-// Create customer routes array without direct component references
+// Create customer routes array
 const createCustomerRoutes = () => {
   const CustomerLoginComponent = lazy(async () => {
     const module = await import(
@@ -248,13 +229,13 @@ const createCustomerRoutes = () => {
     { path: "/customer/profile/create", component: CustomerCreateProfile },
 
     // Dashboard
-    { path: "/customer/dashboard/initial", component: InitialDashboard },
+    { path: "/customer/initialize", component: InitialDashboard },
     { path: "/customer/dashboard", component: CustomerMainDash },
 
     // Vehicle Management
     { path: "/customer/vehicle/info", component: CustomerVehicleInfo },
 
-    // Services
+    // Select Services by Admin
     { path: "/customer/tags/generate", component: GenerateTags },
     { path: "/customer/services/vas", component: ActivateVAS },
     { path: "/customer/services/addons", component: ActivateAddons },
@@ -264,14 +245,12 @@ const createCustomerRoutes = () => {
 export const customerRoutes = createCustomerRoutes();
 
 // FALLBACK ROUTE
-
 export const fallbackRoute = {
   path: "*",
   component: NotFoundPage,
 };
 
 // ROUTE CATEGORIES FOR NAVIGATION LOGIC
-
 export const routeCategories = {
   public: publicRoutes.map((route) => route.path),
   admin: adminRoutes.map((route) => route.path),

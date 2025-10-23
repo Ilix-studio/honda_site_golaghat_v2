@@ -4,6 +4,8 @@ import AdminHeader from "../mainComponents/Home/Header/AdminHeader";
 import { CustomerDashHeader } from "../mainComponents/Home/Header/CustomerDashHeader";
 import { Header } from "../mainComponents/Home/Header/Header";
 import ProtectedRoute from "./ProtectedRoute";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux-store/store";
 
 // LOADING FALLBACK COMPONENT
 const RouteLoadingFallback: React.FC = () => (
@@ -16,6 +18,7 @@ const RouteLoadingFallback: React.FC = () => (
 );
 
 // ROUTE WRAPPER COMPONENTS
+
 // Public route wrapper with public header
 const PublicRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -36,12 +39,40 @@ const AdminRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
   </ProtectedRoute>
 );
 
-// Customer route wrapper with customer header and protection
-const CustomerRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
+// Customer route wrapper with flexible header and protection
+const CustomerRouteWrapper: React.FC<{
+  children: React.ReactNode;
+  adminCanAccess?: boolean;
+  showAdminHeader?: boolean; // Whether to show admin header when admin accesses
+}> = ({ children, adminCanAccess = true, showAdminHeader = true }) => {
+  const authState = useSelector((state: RootState) => state.auth);
+  const isAdmin = authState?.isAuthenticated && authState?.user;
+
+  return (
+    <ProtectedRoute requiredRole='customer' adminCanAccess={adminCanAccess}>
+      {/* Show appropriate header based on user type */}
+      {isAdmin && showAdminHeader ? <AdminHeader /> : <CustomerDashHeader />}
+      {children}
+    </ProtectedRoute>
+  );
+};
+
+// Admin-only customer route wrapper (for administrative tasks)
+const AdminCustomerRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => (
-  <ProtectedRoute requiredRole='customer'>
-    <CustomerDashHeader />
+  <ProtectedRoute requiredRole='admin'>
+    <AdminHeader />
+    {children}
+  </ProtectedRoute>
+);
+
+// Super Admin only route wrapper
+const SuperAdminRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
+  <ProtectedRoute requiredRole='super-admin-only'>
+    <AdminHeader />
     {children}
   </ProtectedRoute>
 );
@@ -97,9 +128,40 @@ export const createAdminRoute = (
 );
 
 /**
- * Create customer route with lazy loading, protection, and customer header
+ * Create customer route with lazy loading, flexible protection, and appropriate header
  */
 export const createCustomerRoute = (
+  path: string,
+  Component: React.ComponentType,
+  options: {
+    adminCanAccess?: boolean;
+    showAdminHeader?: boolean;
+  } = {}
+) => {
+  const { adminCanAccess = true, showAdminHeader = true } = options;
+
+  return (
+    <Route
+      key={path}
+      path={path}
+      element={
+        <Suspense fallback={<RouteLoadingFallback />}>
+          <CustomerRouteWrapper
+            adminCanAccess={adminCanAccess}
+            showAdminHeader={showAdminHeader}
+          >
+            <Component />
+          </CustomerRouteWrapper>
+        </Suspense>
+      }
+    />
+  );
+};
+
+/**
+ * Create admin-only customer route (for administrative tasks like customer signup)
+ */
+export const createAdminCustomerRoute = (
   path: string,
   Component: React.ComponentType
 ) => (
@@ -108,9 +170,29 @@ export const createCustomerRoute = (
     path={path}
     element={
       <Suspense fallback={<RouteLoadingFallback />}>
-        <CustomerRouteWrapper>
+        <AdminCustomerRouteWrapper>
           <Component />
-        </CustomerRouteWrapper>
+        </AdminCustomerRouteWrapper>
+      </Suspense>
+    }
+  />
+);
+
+/**
+ * Create super admin only route
+ */
+export const createSuperAdminRoute = (
+  path: string,
+  Component: React.ComponentType
+) => (
+  <Route
+    key={path}
+    path={path}
+    element={
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <SuperAdminRouteWrapper>
+          <Component />
+        </SuperAdminRouteWrapper>
       </Suspense>
     }
   />
@@ -138,10 +220,15 @@ export const createAuthRoute = (
 
 export const getRouteType = (
   path: string
-): "immediate" | "public" | "admin" | "customer" | "auth" => {
+): "immediate" | "public" | "admin" | "customer" | "auth" | "super-admin" => {
   // Login/auth routes
   if (path.includes("/login") || path.includes("/signup")) {
     return "auth";
+  }
+
+  // Super admin routes (branch management, etc.)
+  if (path.includes("/branches/add") || path.includes("/branches/managers")) {
+    return "super-admin";
   }
 
   // Admin routes
@@ -168,7 +255,11 @@ export const getRouteType = (
  */
 export const createSmartRoute = (
   path: string,
-  Component: React.ComponentType
+  Component: React.ComponentType,
+  options: {
+    adminCanAccess?: boolean;
+    showAdminHeader?: boolean;
+  } = {}
 ) => {
   const routeType = getRouteType(path);
 
@@ -177,10 +268,12 @@ export const createSmartRoute = (
       return createImmediateRoute(path, Component);
     case "public":
       return createPublicRoute(path, Component);
+    case "super-admin":
+      return createSuperAdminRoute(path, Component);
     case "admin":
       return createAdminRoute(path, Component);
     case "customer":
-      return createCustomerRoute(path, Component);
+      return createCustomerRoute(path, Component, options);
     case "auth":
       return createAuthRoute(path, Component);
     default:
@@ -194,26 +287,57 @@ export const createSmartRoute = (
  * Create multiple routes with the same type
  */
 export const createRoutesBatch = (
-  routes: Array<{ path: string; component: React.ComponentType }>,
-  routeType: "immediate" | "public" | "admin" | "customer" | "auth"
+  routes: Array<{
+    path: string;
+    component: React.ComponentType;
+    options?: {
+      adminCanAccess?: boolean;
+      showAdminHeader?: boolean;
+    };
+  }>,
+  routeType:
+    | "immediate"
+    | "public"
+    | "admin"
+    | "customer"
+    | "auth"
+    | "super-admin"
 ) => {
   const creatorMap = {
-    immediate: createImmediateRoute,
-    public: createPublicRoute,
-    admin: createAdminRoute,
-    customer: createCustomerRoute,
-    auth: createAuthRoute,
+    immediate: (path: string, component: React.ComponentType) =>
+      createImmediateRoute(path, component),
+    public: (path: string, component: React.ComponentType) =>
+      createPublicRoute(path, component),
+    admin: (path: string, component: React.ComponentType) =>
+      createAdminRoute(path, component),
+    customer: (path: string, component: React.ComponentType, options?: any) =>
+      createCustomerRoute(path, component, options),
+    auth: (path: string, component: React.ComponentType) =>
+      createAuthRoute(path, component),
+    "super-admin": (path: string, component: React.ComponentType) =>
+      createSuperAdminRoute(path, component),
   };
 
   const creator = creatorMap[routeType];
-  return routes.map(({ path, component }) => creator(path, component));
+  return routes.map(({ path, component, options }) =>
+    creator(path, component, options)
+  );
 };
 
 /**
  * Create routes automatically based on path patterns
  */
 export const createSmartRoutesBatch = (
-  routes: Array<{ path: string; component: React.ComponentType }>
+  routes: Array<{
+    path: string;
+    component: React.ComponentType;
+    options?: {
+      adminCanAccess?: boolean;
+      showAdminHeader?: boolean;
+    };
+  }>
 ) => {
-  return routes.map(({ path, component }) => createSmartRoute(path, component));
+  return routes.map(({ path, component, options }) =>
+    createSmartRoute(path, component, options)
+  );
 };
