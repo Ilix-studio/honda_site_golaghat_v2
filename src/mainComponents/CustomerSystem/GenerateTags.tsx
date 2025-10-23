@@ -44,7 +44,7 @@ const GenerateTags = () => {
             <input
               type='text'
               className='w-full p-2 border rounded'
-              placeholder='e.g., Goaghat'
+              placeholder='e.g., Golaghat'
               value={tagline}
               onChange={(e) => setTagline(e.target.value)}
             />

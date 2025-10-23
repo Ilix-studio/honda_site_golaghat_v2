@@ -46,7 +46,6 @@ import {
   useDeleteBranchManagerMutation,
 } from "../../../redux-store/services/branchManagerApi";
 import { useGetBranchesQuery } from "../../../redux-store/services/branchApi";
-import AdminHeader from "@/mainComponents/Home/Header/AdminHeader";
 
 // Types
 interface BranchManager {
@@ -193,7 +192,6 @@ const BranchManager: React.FC = () => {
 
   return (
     <>
-      <AdminHeader />
       <div className='container py-6'>
         <Card className='shadow-md'>
           <CardHeader className='bg-muted/50'>

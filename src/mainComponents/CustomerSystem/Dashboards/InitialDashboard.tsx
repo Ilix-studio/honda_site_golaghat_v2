@@ -10,8 +10,9 @@ import {
   Tags,
   Settings,
 } from "lucide-react";
-import { CustomerDashHeader } from "@/mainComponents/Home/Header/CustomerDashHeader";
+
 import { useNavigate, useLocation } from "react-router-dom";
+import { CustomerDashHeader } from "@/mainComponents/Home/Header/CustomerDashHeader";
 
 interface ActionItem {
   id: string;
@@ -43,7 +44,7 @@ const InitialDashboard: React.FC = () => {
     if (location.state?.profileCompleted) {
       setCompletionStatus((prev) => ({ ...prev, profile: true }));
       // Clear the navigation state
-      navigate("/customer-initialize", { replace: true });
+      navigate("/customer/dashboard/initial", { replace: true });
     }
   }, [location.state, navigate]);
 
@@ -61,21 +62,21 @@ const InitialDashboard: React.FC = () => {
   };
 
   const onCreateProfile = () => {
-    navigate("/customer-profile");
+    navigate("/customer/profile/create");
   };
 
   const onAddMotorcycle = () => {
-    navigate("/customer-vehicle-info");
+    navigate("/customer/vehicle/info");
   };
   const onGenerateTags = () => {
-    navigate("/generate-tags");
+    navigate("/customer/tags/generate");
   };
 
   const onVAS = () => {
-    navigate("/select-VAS");
+    navigate("/customer/services/vas");
   };
   const onServiceAddons = () => {
-    navigate("/select-addons");
+    navigate("/customer/services/addons");
   };
 
   const actionItems: ActionItem[] = [

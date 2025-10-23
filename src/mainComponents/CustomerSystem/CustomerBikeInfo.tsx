@@ -38,7 +38,7 @@ export function CustomerBikeInfo() {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!isAuthenticated || !customer || !firebaseToken) {
-      navigate("/customer-login", { replace: true });
+      navigate("/customer/login", { replace: true });
     }
   }, [isAuthenticated, customer, firebaseToken, navigate]);
 
@@ -124,7 +124,7 @@ export function CustomerBikeInfo() {
           <p className='text-gray-600 mb-4'>{errorMessage}</p>
           {isAuthError ? (
             <Button
-              onClick={() => navigate("/customer-login")}
+              onClick={() => navigate("/customer/login")}
               className='bg-red-600 hover:bg-red-700'
             >
               Go to Login

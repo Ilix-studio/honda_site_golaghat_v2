@@ -13,7 +13,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/hooks/redux";
 import { useCreateBranchMutation } from "@/redux-store/services/branchApi";
 import { addNotification } from "@/redux-store/slices/uiSlice";
-import AdminHeader from "@/mainComponents/Home/Header/AdminHeader";
 
 // Form schema - no 'id' field since it's auto-generated
 const branchSchema = z.object({
@@ -137,7 +136,7 @@ const AddBranch = () => {
       dispatch(
         addNotification({
           type: "success",
-          message: `Branch "${result.data.name}" created successfully with ID: ${result.data.id}`,
+          message: `Branch "${result.data.branchName}" created successfully with ID: ${result.data.id}`,
         })
       );
 
@@ -154,8 +153,6 @@ const AddBranch = () => {
 
   return (
     <>
-      <AdminHeader />
-
       <div className='min-h-screen bg-gray-50'>
         <div className='container max-w-4xl px-4 py-8'>
           <p>Create a new dealership location</p>

@@ -41,7 +41,7 @@ const routeConfig: Record<
     menuItems?: Array<{ label: string; href: string }>;
   }
 > = {
-  "/customer-dash": {
+  "/customer/dashboard": {
     title: "",
     subtitle: "",
   },
@@ -49,7 +49,7 @@ const routeConfig: Record<
     title: "My Services",
     subtitle: "View and manage your service bookings",
     showBack: true,
-    backTo: "/customer-dash",
+    backTo: "/customer/dashboard",
     menuItems: [
       { label: "Book Service", href: "/book-service" },
       { label: "Service History", href: "/dashboard/service-history" },
@@ -71,7 +71,7 @@ const routeConfig: Record<
     title: "My Documents",
     subtitle: "Access your service records and warranties",
     showBack: true,
-    backTo: "/customer-dash",
+    backTo: "/customer/dashboard",
     menuItems: [
       { label: "Book Service", href: "/book-service" },
       { label: "My Services", href: "/dashboard/services" },
@@ -89,17 +89,17 @@ const routeConfig: Record<
       { label: "Documents", href: "/dashboard/documents" },
     ],
   },
-  "/customer-initialize": {
+  "/customer/dashboard/initial": {
     title: "",
     subtitle: "",
     showBack: true,
-    backTo: "/customer-dash",
+    backTo: "/customer/dashboard",
   },
   "/profile": {
     title: "My Profile",
     subtitle: "Manage your account information",
     showBack: true,
-    backTo: "/customer-dash",
+    backTo: "/customer/dashboard",
   },
 };
 
@@ -193,9 +193,9 @@ export function CustomerDashHeader() {
           {/* Navigation Links - Desktop */}
           <nav className='hidden md:flex items-center space-x-6'>
             <Link
-              to='/customer-dash'
+              to='/customer/dashboard'
               className={`transition-colors ${
-                location.pathname === "/customer-dash"
+                location.pathname === "/customer/dashboard"
                   ? "text-red-600 font-medium"
                   : "text-gray-600 hover:text-red-600"
               }`}
@@ -349,9 +349,9 @@ export function CustomerDashHeader() {
         <div className='px-4 py-2'>
           <div className='flex justify-around'>
             <Link
-              to='/customer-dash'
+              to='/customer/dashboard'
               className={`flex flex-col items-center py-2 ${
-                location.pathname === "/customer-dash"
+                location.pathname === "/customer/dashboard"
                   ? "text-red-600"
                   : "text-gray-600"
               }`}

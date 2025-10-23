@@ -23,7 +23,7 @@ import {
 import { setError } from "@/redux-store/slices/authSlice";
 import { useSaveAuthDataMutation } from "@/redux-store/services/customer/customerLoginApi";
 
-interface CustomerLoginProps {
+export interface CustomerLoginProps {
   onLoginSuccess?: () => void;
 }
 
@@ -191,7 +191,7 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
 
       // Navigate to customer dashboard
       setTimeout(() => {
-        navigate("/customer-dash", { replace: true });
+        navigate("/customer/dashboard", { replace: true });
       }, 100);
 
       // Call the optional callback

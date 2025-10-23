@@ -1,160 +1,139 @@
-import "./App.css";
-import { Toaster } from "react-hot-toast";
-import Home from "./Home";
-import { Routes, Route, useLocation } from "react-router-dom";
-import BookServicePage from "./mainComponents/BookService/BookServicePage";
 import React, { useEffect } from "react";
+import { Routes, useLocation } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import "./App.css";
 
-import BranchesPage from "./mainComponents/NavMenu/Branches/BranchesPage";
-import BranchDetailPage from "./mainComponents/NavMenu/Branches/BranchDetailPage";
-import { ViewAllBikes } from "./mainComponents/BikeDetails/ViewAllBikes";
-import BikeDetailsPage from "./mainComponents/BikeDetails/BikeDetailsPage";
-import NotFoundPage from "./mainComponents/NotFoundPage";
+// Import route configurations
+import {
+  publicRoutes,
+  immediateRoutes,
+  adminRoutes,
+  fallbackRoute,
+  customerRoutes,
+} from "./config/routeConfig";
 
-import LoginBranchManager from "./mainComponents/Admin/LoginBranchManager";
-import LoginSuperAdmin from "./mainComponents/Admin/LoginSuperAdmin";
-import AdminDashboard from "./mainComponents/Admin/AdminDash/AdminDashboard";
-import AddBikes from "./mainComponents/Admin/Bikes/AddBikes";
-import EditBikes from "./mainComponents/Admin/Bikes/EditBikes";
+// Import route helpers
+import {
+  createImmediateRoute,
+  createPublicRoute,
+  createAdminRoute,
+  createCustomerRoute,
+  createAuthRoute,
+} from "./config/routeHelpers";
 
-import Finance from "./mainComponents/NavMenu/Finance";
-import Contact from "./mainComponents/NavMenu/Contact";
-import SearchResults from "./mainComponents/Search/SearchResults";
+// Import global components
 import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
-
-import AddBranch from "./mainComponents/NavMenu/Branches/AddBranch";
-import BranchManager from "./mainComponents/Admin/BranchM/BranchManager";
-import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
-import CustomerLogin from "./mainComponents/CustomerSystem/CustomerLogin";
-import CustomerSignUp from "./mainComponents/CustomerSystem/CustomerSignUp";
-import CustomerDash from "./mainComponents/CustomerSystem/Dashboards/CustomerMainDash";
-import CustomerCreateProfile from "./mainComponents/CustomerSystem/CustomerCreateProfile";
-// import CustomerVehicleInfo from "./mainComponents/CustomerSystem/MotorInfo/CustomerVehicleInfo";
-import InitialDashboard from "./mainComponents/CustomerSystem/Dashboards/InitialDashboard";
-
-import AddBikeImage from "./mainComponents/Admin/Bikes/AddBikeImage";
-import EditBikeImage from "./mainComponents/Admin/Bikes/EditBikeImage";
-import { ViewBikeImage } from "./mainComponents/Admin/Bikes/ViewBikeImage";
-import ScooterDetailPage from "./mainComponents/BikeDetails/ScooterDetailPage";
-import VASForm from "./mainComponents/BikeSystem2/VASForm";
-import ServiceAddonsForm from "./mainComponents/BikeSystem2/ServiceAddonsForm";
-import CustomerVehicleInfo from "./mainComponents/BikeSystem2/CustomerVehicleInfo";
-import StockConceptForm from "./mainComponents/BikeSystem2/StockConceptForm";
-
-import ViewStockConcept from "./mainComponents/ViewBS2/ViewStockConcept";
-import ViewServiceAddons from "./mainComponents/ViewBS2/ViewServiceAddons";
-import DownloadSafetyfeature from "./mainComponents/ViewBS2/DownloadSafetyfeature";
-import ViewVAS from "./mainComponents/ViewBS2/ViewVAS";
-import ViewAllBranches from "./mainComponents/ViewBS2/ViewAllBranches";
-import IntegrateVAS from "./mainComponents/Admin/IntegrateServices/IntegrateVAS";
-import IntegrateServiceAddons from "./mainComponents/Admin/IntegrateServices/IntegrateServiceAddons";
-import AssignStock from "./mainComponents/Admin/AssignImp/AssignStock";
-import GenerateTags from "./mainComponents/CustomerSystem/GenerateTags";
-import ActivateVAS from "./mainComponents/CustomerSystem/ActivateFeature/ActivateVAS";
-import ActivateAddons from "./mainComponents/CustomerSystem/ActivateFeature/ActivateAddons";
-// import DynamicLogin from "./mainComponents/DynamicLoginSystem/DynamicLogin";
-
-// import TestBike from "./mainComponents/TestBike";
-
-// Import Notification System
 
 const App: React.FC = () => {
   const location = useLocation();
+
+  // Scroll to top when route changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
+
   return (
     <>
+      <Toaster
+        position='top-right'
+        reverseOrder={false}
+        gutter={8}
+        containerClassName=''
+        containerStyle={{
+          top: 20,
+          left: 20,
+          bottom: 20,
+          right: 20,
+        }}
+        toastOptions={{
+          // Default options for all toasts
+          duration: 3000,
+          style: {
+            background: "#fff",
+            color: "#363636",
+            border: "1px solid #e5e7eb",
+            borderRadius: "8px",
+            boxShadow:
+              "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+            fontSize: "14px",
+            maxWidth: "420px",
+            padding: "12px 16px",
+            fontFamily: "system-ui, -apple-system, sans-serif",
+          },
+          // Specific styles for different toast types
+          success: {
+            duration: 4000,
+            iconTheme: {
+              primary: "#10b981",
+              secondary: "#fff",
+            },
+            style: {
+              border: "1px solid #10b981",
+              background: "#f0fdf4",
+              color: "#065f46",
+            },
+          },
+          error: {
+            duration: 5000,
+            iconTheme: {
+              primary: "#ef4444",
+              secondary: "#fff",
+            },
+            style: {
+              border: "1px solid #ef4444",
+              background: "#fef2f2",
+              color: "#991b1b",
+            },
+          },
+          loading: {
+            duration: Infinity,
+            style: {
+              border: "1px solid #3b82f6",
+              background: "#eff6ff",
+              color: "#1e40af",
+            },
+          },
+        }}
+      />
+
       <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/finance' element={<Finance />} />
-        <Route path='/contact' element={<Contact />} />
+        {/* IMMEDIATE ROUTES - Critical routes that load immediately */}
+        {immediateRoutes.map(({ path, component }) =>
+          createImmediateRoute(path, component)
+        )}
 
-        <Route path='/book-service' element={<BookServicePage />} />
-        <Route path='/search' element={<SearchResults />} />
+        {/* PUBLIC ROUTES - Lazy loaded public routes with Header */}
+        {publicRoutes.map(({ path, component }) =>
+          createPublicRoute(path, component)
+        )}
 
-        {/* Admin Routes */}
-        <Route path='/admin/superlogin' element={<LoginSuperAdmin />} />
-        <Route path='/admin/dashboard' element={<AdminDashboard />} />
+        {/* ADMIN ROUTES - Protected admin routes with AdminHeader */}
+        {adminRoutes
+          .filter(({ path }) => !path.includes("/login")) // Separate auth routes
+          .map(({ path, component }) => createAdminRoute(path, component))}
 
-        {/* Branch Manager Routes */}
-        <Route path='/admin/managerlogin' element={<LoginBranchManager />} />
-        <Route path='/admin/addbranch' element={<AddBranch />} />
-        <Route path='/admin/managers' element={<BranchManager />} />
+        {/* ADMIN AUTH ROUTES - Login pages without header */}
+        {adminRoutes
+          .filter(({ path }) => path.includes("/login"))
+          .map(({ path, component }) => createAuthRoute(path, component))}
 
-        {/* Add && Edit Bikes, scooty  */}
-        <Route path='/admin/addbikes' element={<AddBikes />} />
-        <Route
-          path='/admin/addbikes/:bikeId/images'
-          element={<AddBikeImage />}
-        />
-        <Route path='/admin/addbikes/edit/:id' element={<EditBikes />} />
-        <Route
-          path='/admin/bikes/:bikeId/images/edit'
-          element={<EditBikeImage />}
-        />
-        <Route path='/admin/bikeimages/:id' element={<ViewBikeImage />} />
+        {/* CUSTOMER ROUTES - Protected customer routes with CustomerHeader */}
+        {customerRoutes
+          .filter(({ path }) => !path.includes("/login"))
+          .map(({ path, component }) => createCustomerRoute(path, component))}
 
-        {/* Compare Bike  */}
-        <Route path='/compare' element={<CompareBike />} />
+        {/* CUSTOMER AUTH ROUTES - Login pages without header */}
+        {customerRoutes
+          .filter(({ path }) => path.includes("/login"))
+          .map(({ path, component }) => createAuthRoute(path, component))}
 
-        {/* Branches  */}
-        <Route path='/branches' element={<BranchesPage />} />
-        <Route path='/branches/:id' element={<BranchDetailPage />} />
+        {/* FALLBACK ROUTE - 404 Not Found */}
 
-        {/* View Bikes  */}
-        <Route path='/view-all' element={<ViewAllBikes />} />
-        <Route path='/bikes/:bikeId' element={<BikeDetailsPage />} />
-        <Route path='/scooters/:bikeId' element={<ScooterDetailPage />} />
-
-        {/* Customer Login  */}
-        <Route path='/admin/customer-sign-up' element={<CustomerSignUp />} />
-        <Route path='/customer-login' element={<CustomerLogin />} />
-        <Route path='/customer-initialize' element={<InitialDashboard />} />
-        <Route path='/customer-profile' element={<CustomerCreateProfile />} />
-        <Route path='/customer-dash' element={<CustomerDash />} />
-        <Route path='/generate-tags' element={<GenerateTags />} />
-        <Route
-          path='/customer-vehicle-info'
-          element={<CustomerVehicleInfo />}
-        />
-
-        {/* <Route path='/dynamic-login' element={<DynamicLogin />} /> */}
-        <Route path='/admin/VAS-form' element={<VASForm />} />
-        <Route path='/admin/service-Addons' element={<ServiceAddonsForm />} />
-        <Route path='/admin/stock-concept' element={<StockConceptForm />} />
-
-        {/* View System */}
-        <Route path='/view/all-branches' element={<ViewAllBranches />} />
-        <Route path='/view/VAS' element={<ViewVAS />} />
-        <Route path='/view/service-Addons' element={<ViewServiceAddons />} />
-        <Route path='/view/stock-concept' element={<ViewStockConcept />} />
-
-        {/* Assign System */}
-        <Route path='/assign/stock-concept/:id' element={<AssignStock />} />
-        <Route path='/select-VAS' element={<ActivateVAS />} />
-        <Route path='/select-addons' element={<ActivateAddons />} />
-
-        {/* Safety Feature  */}
-        <Route
-          path='/dowmload/safety-feature-stickers'
-          element={<DownloadSafetyfeature />}
-        />
-
-        {/* Integrate Feature by Phone Number */}
-        <Route path='/integrate/VAS' element={<IntegrateVAS />} />
-        <Route
-          path='/integrate/service-Addons'
-          element={<IntegrateServiceAddons />}
-        />
-
-        {/* Not Found  */}
-        <Route path='*' element={<NotFoundPage />} />
+        {createImmediateRoute(fallbackRoute.path, fallbackRoute.component)}
       </Routes>
 
       {/* Global Notification System */}
       <NotificationSystem />
-      <Toaster />
     </>
   );
 };

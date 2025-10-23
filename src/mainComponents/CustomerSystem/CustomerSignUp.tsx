@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom"; // Add this import
+import { useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +30,7 @@ import { useSelector } from "react-redux";
 import NotFoundPage from "../NotFoundPage";
 import { useSaveAuthDataMutation } from "@/redux-store/services/customer/customerLoginApi";
 
-interface CustomerSignUpProps {
+export interface CustomerSignUpProps {
   onSignUpSuccess?: () => void;
 }
 
@@ -42,11 +42,14 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
   if (!isAuthenticated || !isAdmin) {
     return <NotFoundPage />;
   }
-  const [saveAuthData] = useSaveAuthDataMutation();
 
+  const [saveAuthData] = useSaveAuthDataMutation();
   const dispatch = useAppDispatch();
-  const navigate = useNavigate(); // Add navigation hook
+  const navigate = useNavigate();
   const { error } = useAppSelector(selectCustomerAuth);
+
+  // Add selector for real-time customer auth state
+  const customerAuthState = useAppSelector(selectCustomerAuth);
 
   const recaptchaRef = useRef<any>(null);
   const [step, setStep] = useState<"phone" | "otp">("phone");
@@ -55,6 +58,19 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [otpTimer, setOtpTimer] = useState(0);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
+
+  // Watch for customer auth state changes and navigate when authenticated
+  useEffect(() => {
+    if (customerAuthState.isAuthenticated && customerAuthState.customer) {
+      console.log("Customer authenticated, navigating to dashboard...");
+      // Use a longer delay to ensure all state is properly updated
+      const timer = setTimeout(() => {
+        navigate("/customer/initialize", { replace: true });
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [customerAuthState.isAuthenticated, customerAuthState.customer, navigate]);
 
   // Initialize reCAPTCHA once on mount
   useEffect(() => {
@@ -175,6 +191,8 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
       const firebaseUser = result.user;
       const idToken = await firebaseUser.getIdToken();
 
+      console.log("OTP verified, saving to backend...");
+
       // ✅ Save to backend
       const backendResponse = await saveAuthData({
         phoneNumber:
@@ -182,10 +200,9 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
         firebaseUid: firebaseUser.uid,
       }).unwrap();
 
-      // Log the idToken for debugging
-      console.log("Firebase ID Token:", idToken);
+      console.log("Backend response:", backendResponse);
 
-      // Save to store
+      // Save to store - this will trigger the useEffect above
       dispatch(
         loginSuccess({
           customer: {
@@ -201,14 +218,14 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
       dispatch(
         addNotification({
           type: "success",
-          message: "Login successful!",
+          message: "Login successful! Redirecting...",
         })
       );
 
-      // Use setTimeout to ensure state is updated before navigation
-      setTimeout(() => {
-        navigate("/customer-initialize", { replace: true });
-      }, 100);
+      console.log("Login success dispatched, waiting for state update...");
+
+      // Note: Navigation is now handled by the useEffect above
+      // that watches for customerAuthState changes
 
       // Call the optional callback
       onSignUpSuccess?.();
@@ -232,11 +249,8 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
 
   const handleResendOtp = async () => {
     setOtp("");
-    setConfirmationResult(null); // Clear the expired confirmation result
-
-    // Reset timer
+    setConfirmationResult(null);
     setOtpTimer(0);
-
     await handleSendOtp();
   };
 

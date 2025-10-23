@@ -16,8 +16,6 @@ import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../../hooks/redux";
 import { selectAuth } from "../../../redux-store/slices/authSlice";
 
-import AdminHeader from "../../Home/Header/AdminHeader";
-
 // Import the new components
 import CustomerQueries from "./CustomerQueries";
 import BranchQueries from "./BranchQueries";
@@ -43,7 +41,6 @@ const AdminDashboard = () => {
 
   return (
     <>
-      <AdminHeader />
       <div className='min-h-screen bg-gray-50'>
         <div className='container px-4 py-8'>
           {user && <p className='text-gray-600'>Welcome back, {user?.name}</p>}

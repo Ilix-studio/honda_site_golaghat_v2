@@ -2,11 +2,12 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { CustomerBikeInfo } from "../CustomerBikeInfo";
-import { CustomerDashHeader } from "../../Home/Header/CustomerDashHeader";
+
 import { useAppSelector } from "@/hooks/redux";
 import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
 import { Loader2 } from "lucide-react";
-import { TokenDebugger } from "@/config/TokenDebugger";
+import { TokenDebugger } from "@/lib/TokenDebugger";
+import { CustomerDashHeader } from "@/mainComponents/Home/Header/CustomerDashHeader";
 
 export default function CustomerMainDash() {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export default function CustomerMainDash() {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!isAuthenticated || !customer || !firebaseToken) {
-      navigate("/customer-login", { replace: true });
+      navigate("/customer/login", { replace: true });
     }
   }, [isAuthenticated, customer, firebaseToken, navigate]);
 

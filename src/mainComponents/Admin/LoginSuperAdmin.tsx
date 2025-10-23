@@ -290,7 +290,7 @@ const LoginSuperAdmin = () => {
             <div className='mt-8 pt-6 border-t border-gray-200'>
               <div className='text-center space-y-4'>
                 <Link
-                  to='/admin/managerlogin'
+                  to='/admin/manager-login'
                   className='inline-flex items-center text-sm font-medium text-gray-600 hover:text-red-600 transition-colors'
                 >
                   Sign in as Branch Manager instead

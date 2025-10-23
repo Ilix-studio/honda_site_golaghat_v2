@@ -36,7 +36,7 @@ const BranchQueries = () => {
       icon: User,
       loading: false,
       description: "Total Customers",
-      action: { label: "Open Sign-up form", href: "/admin/customer-sign-up" },
+      action: { label: "Open Sign-up form", href: "/admin/customers/signup" },
     },
     {
       title: "Branches",
@@ -44,7 +44,7 @@ const BranchQueries = () => {
       icon: Building2,
       loading: branchesLoading,
       description: "Service locations",
-      action: { label: "Add Branches", href: "/admin/addbranch" },
+      action: { label: "Add Branches", href: "/admin/branches/add" },
     },
     {
       title: "Branch Managers",
@@ -52,7 +52,7 @@ const BranchQueries = () => {
       icon: Users,
       loading: managersLoading,
       description: "Active managers",
-      action: { label: "Add Manager", href: "/admin/managers" },
+      action: { label: "Add Manager", href: "/admin/branches/managers" },
     },
     {
       title: "This Month",
@@ -67,21 +67,24 @@ const BranchQueries = () => {
       icon: TrendingUp,
       loading: false,
       description: "Add VAS to vehicles",
-      action: { label: "Open VAS Form", href: "/admin/VAS-form" },
+      action: { label: "Open VAS Form", href: "/admin/forms/vas" },
     },
     {
       title: "Add Services Add-Ons",
       icon: TrendingUp,
       loading: false,
       description: "Add Services Addons to vehicles",
-      action: { label: "Open Service Form", href: "/admin/service-Addons" },
+      action: {
+        label: "Open Service Form",
+        href: "/admin/forms/service-addons",
+      },
     },
     {
       title: "Stock-Queries",
       icon: TrendingUp,
       loading: false,
       description: "Total Vehicles in this Branch",
-      action: { label: "Open Form", href: "/admin/stock-concept" },
+      action: { label: "Open Form", href: "/admin/forms/stock-concept" },
     },
   ];
   const formatTimeAgo = (dateString: string) => {
@@ -148,7 +151,7 @@ const BranchQueries = () => {
             <CardDescription>Common administrative tasks</CardDescription>
           </CardHeader>
           <CardContent className='space-y-2'>
-            <Link to='/view/all-branches'>
+            <Link to='/admin/branches/view'>
               <Button className='w-full justify-start' variant='outline'>
                 <Building2 className='h-4 w-4 mr-2' />
                 View All Branches
@@ -167,7 +170,7 @@ const BranchQueries = () => {
                 Get Service Packages
               </Button>
             </Link>
-            <Link to='/view/VAS'>
+            <Link to='/admin/view/vas'>
               <Button className='w-full justify-start' variant='outline'>
                 <Cog className='h-4 w-4 mr-2' />
                 Get Value Added Services

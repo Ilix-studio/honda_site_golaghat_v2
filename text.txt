@@ -1,77 +1,113 @@
-Create the overview of both frontend and backend of the project and check whether route working or not with the controller and check whether frontend match with backend architecture. 
-
-
-Remove mock data and add Cloudinary to store images from frontend to backend. Super-admin can add branch-manager by creating application-id and password. Super-admin can delete branch-manager forever. Branch-manager can create staff-member as to display their information in contact-details.tsx. Super-admin and branch-manager both can add bikes and scooty in the application. 
-
-
-
-adjust backend model and frontend Usage: The frontend BikeCard and BikeDetailsPage components expect similar properties: name, // Note: modelName in backend category, engineSize, // Note: engine in backend power, weight, // Not directly in backend model year, price, features, isNew, // Not directly in backend model image, // singular, while backend has images array * Field naming differences (modelName vs name, engine vs engineSize) make it modelName and engine * Some frontend fields don't exist in backend (weight, isNew) * Image handling is different (single vs array) Fix all other related issues or give me solutions Frontend Filtering should not effect the backend, it should be client oriented.
- 
-Create the overview of both frontend and backend of the project and check whether route working or not with the controller and missing parts from frontend to implement in backend and check whether frontend match with backend architecture and missing parts from backend to implement in frontend. Remove mock data and add Cloudinary to store images from frontend to backend. Super-admin can add branch-manager by creating application-id and password. Super-admin can delete branch-manager forever. Branch-manager can create staff-member as to display their information in contact-details.tsx. Super-admin and branch-manager both can add bikes and scooty in the application.
-Compare types interface in both frontend and backend. Make it correct. And mark unwanted files. 
-Complete the redux store with slices and services
-use skipToken    <Route path='/admin/addbikes/edit/:id' element={<EditBikes />} /> component
-
-// src/App.tsx
-import { Route, Routes } from "react-router-dom";
-import "./App.css";
-import EnhancedErrorPage from "./ErrorBoundary/EnhancedErrorPage";
-import GlobalErrorBoundary from "./ErrorBoundary/GlobalErrorBoundary";
-import BikeDetailsPage from "./mainComponents/BikeDetails/BikeDetailsPage";
-import CompareBike from "./mainComponents/BikeDetails/CompareBikes/CompareBike";
-import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
-
-
-
-
-// Error Boundary wrapper for individual routes
-const RouteErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => (
- <GlobalErrorBoundary fallback={<EnhancedErrorPage errorType="routeError" />}>
-   {children}
- </GlobalErrorBoundary>
-);
-
-
-const App: React.FC = () => {
- return (
-   <GlobalErrorBoundary>
-     <Routes>
-       {/* Public Routes with Error Boundaries */}
-       <Route
-         path='/bikes/:bikeId'
-         element={
-           <RouteErrorBoundary>
-             <BikeDetailsPage />
-           </RouteErrorBoundary>
-         }
-       />
-
-
-       {/* Compare Bike Route with Error Boundary */}
-       <Route
-         path='/compare'
-         element={
-           <RouteErrorBoundary>
-             <CompareBike />
-           </RouteErrorBoundary>
-         }
-       />
-
-
-       {/* Enhanced 404 Route - Must be last */}
-       <Route
-         path='*'
-         element={<EnhancedErrorPage errorType="notFound" showSearch={true} />}
-       />
-     </Routes>
-
-
-     {/* Global Notification System */}
-     <NotificationSystem />
-   </GlobalErrorBoundary>
- );
-};
-
-
-export default App;
-
+Fast-forward
+ package-lock.json                                           |  62 ++
+ package.json                                                |   3 +
+ src/App.tsx                                                 | 101 ++-
+ src/Home.tsx                                                |  20 +-
+ src/assets/cbr500.jpeg                                      | Bin 8517 -> 0 bytes
+ src/assets/cbr600,.jpg                                      | Bin 59996 -> 0 bytes
+ src/components/ui/progress.tsx                              |  29 +
+ src/config/TokenDebugger.tsx                                |  72 ++
+ src/config/tokenRefreshForCustomer.ts                       |  61 ++
+ src/hooks/useAuth.ts                                        |  22 -
+ src/hooks/useAuthforCustomer.ts                             |  20 +
+ src/hooks/useBikes.ts                                       |  66 --
+ src/hooks/useComparison.ts                                  | 425 -----------
+ src/hooks/useFilteredBikes.ts                               | 167 -----
+ src/hooks/useProtectedRoute.ts                              |  67 --
+ src/hooks/useViewport.ts                                    |  34 -
+ src/index.css                                               |   5 +
+ src/lib/authUtils.ts                                        |  90 +++
+ src/lib/customerApiConfigs.ts                               |  67 +-
+ src/lib/firebase.ts                                         |  25 +-
+ src/mainComponents/Admin/AdminDash/AdminDashboard.tsx       | 334 ++-------
+ src/mainComponents/Admin/AdminDash/BranchQueries.tsx        | 274 ++++++++
+ src/mainComponents/Admin/AdminDash/CustomerQueries.tsx      | 107 +++
+ src/mainComponents/Admin/AdminDash/RecentMotocycles.tsx     | 384 +++++++---
+ src/mainComponents/Admin/AssignImp/AssignStock.tsx          | 431 ++++++++++++
+ src/mainComponents/Admin/Bikes/AddBikeImage.tsx             | 758 ++++++++++++++++++++
+ src/mainComponents/Admin/Bikes/AddBikes.tsx                 | 975 +++++++++++++++-----------
+ src/mainComponents/Admin/Bikes/EditBikeImage.tsx            | 683 ++++++++++++++++++
+ src/mainComponents/Admin/Bikes/EditBikes.tsx                | 864 +++++++++++++++--------
+ src/mainComponents/Admin/Bikes/ViewBikeImage.tsx            | 727 +++++++++++++++++++
+ src/mainComponents/Admin/BranchM/BranchManager.tsx          | 467 ++++++++++++
+ .../Admin/IntegrateServices/IntegrateServiceAddons.tsx      |   9 +
+ src/mainComponents/Admin/IntegrateServices/IntegrateVAS.tsx |   9 +
+ src/mainComponents/Admin/Scooty/AddScooty.tsx               | 386 ----------
+ src/mainComponents/Admin/Scooty/EditScooty.tsx              | 471 -------------
+ .../Admin/ServicePackages/CreateServicePacks.tsx            |   9 -
+ src/mainComponents/BikeDetails/BikeDetailsPage.tsx          | 547 ++++++++-------
+ src/mainComponents/BikeDetails/CompareBikes/AddBikeCard.tsx |  66 +-
+ .../BikeDetails/CompareBikes/BikeComparisonCard.tsx         | 139 ++--
+ src/mainComponents/BikeDetails/CompareBikes/CompareBike.tsx | 195 +++---
+ .../BikeDetails/CompareBikes/comparisonSections.ts          | 107 ++-
+ .../BikeDetails/DetailsUIParts/ActiveFilters.tsx            |  97 ---
+ src/mainComponents/BikeDetails/DetailsUIParts/BikeCard.tsx  | 243 ++++---
+ .../BikeDetails/DetailsUIParts/CategoryTabs.tsx             |  51 +-
+ .../BikeDetails/DetailsUIParts/FilterSidebar.tsx            | 187 ++++-
+ src/mainComponents/BikeDetails/DetailsUIParts/NoResults.tsx |  50 +-
+ src/mainComponents/BikeDetails/DetailsUIParts/SearchBar.tsx |  64 +-
+ .../BikeDetails/DetailsUIParts/SortSelector.tsx             |  59 +-
+ src/mainComponents/BikeDetails/ScooterDetailPage.tsx        | 501 +++++++++++++
+ src/mainComponents/BikeDetails/ViewAllBikes.tsx             | 452 ++++--------
+ src/mainComponents/BikeSystem2/CustomerVehicleInfo.tsx      | 234 +++++++
+ src/mainComponents/BikeSystem2/ServiceAddonsForm.tsx        |   5 +
+ src/mainComponents/BikeSystem2/StockConceptForm.tsx         | 347 +++++++++
+ src/mainComponents/BikeSystem2/VASForm.tsx                  | 726 +++++++++++++++++++
+ src/mainComponents/BookService/SuccessConfirmation.tsx      |   2 +-
+ src/mainComponents/BookService/formSteps/BookingSummary.tsx |   2 +-
+ .../BookService/formSteps/VehicleInformation.tsx            |   2 +-
+ .../CustomerSystem/ActivateFeature/ActivateAddons.tsx       |   9 +
+ .../CustomerSystem/ActivateFeature/ActivateVAS.tsx          |   9 +
+ src/mainComponents/CustomerSystem/CustomerBikeInfo.tsx      | 371 ++++++----
+ src/mainComponents/CustomerSystem/CustomerCreateProfile.tsx | 611 ++++++++--------
+ src/mainComponents/CustomerSystem/CustomerLogin.tsx         | 519 ++++++++++----
+ .../CustomerSystem/Dashboards/CustomerMainDash.tsx          |  37 +-
+ .../CustomerSystem/Dashboards/InitialDashboard.tsx          |  71 +-
+ src/mainComponents/CustomerSystem/GenerateTags.tsx          | 139 ++++
+ .../CustomerSystem/MotorInfo/CustomerVehicleInfo.tsx        | 956 +++++++++++++------------
+ src/mainComponents/DynamicLoginSystem/DynamicLogin.tsx      | 399 +++++++++++
+ src/mainComponents/DynamicLoginSystem/LoginOptions.tsx      | 266 +++++++
+ src/mainComponents/GetApproved/GetApprovedForm.tsx          | 587 +++++++++-------
+ src/mainComponents/Home/AvailableModel.tsx                  | 414 +++++++++++
+ src/mainComponents/Home/ContactSection.tsx                  |  21 +-
+ src/mainComponents/Home/EmiCalculator.tsx                   | 140 +++-
+ src/mainComponents/Home/FeatureSection.tsx                  |  99 ++-
+ src/mainComponents/Home/Footer.tsx                          | 419 ++++++-----
+ src/mainComponents/Home/Header/AdminHeader.tsx              |  32 +-
+ src/mainComponents/Home/Header/Header.tsx                   |  18 +-
+ src/mainComponents/Home/HondaCarousel.tsx                   | 127 ----
+ src/mainComponents/Home/HondaCarousel2.tsx                  | 259 -------
+ src/mainComponents/Home/NewUI.tsx                           | 425 +++++++++++
+ src/mainComponents/Home/ServiceDetails.tsx                  | 101 +++
+ src/mainComponents/NavMenu/Branches/BranchManager.tsx       | 653 -----------------
+ src/mainComponents/Search/SearchResults.tsx                 |   4 +-
+ src/mainComponents/TestBike.tsx                             | 784 ++++++++++-----------
+ src/mainComponents/ViewBS2/DownloadSafetyfeature.tsx        |   9 +
+ src/mainComponents/ViewBS2/ViewAllBranches.tsx              |   9 +
+ src/mainComponents/ViewBS2/ViewServiceAddons.tsx            |   9 +
+ src/mainComponents/ViewBS2/ViewStockConcept.tsx             | 274 ++++++++
+ src/mainComponents/ViewBS2/ViewVAS.tsx                      |   9 +
+ src/redux-store/services/BikeSystemApi/bikeApi.ts           | 208 ++++++
+ src/redux-store/services/BikeSystemApi/bikeImageApi.ts      | 217 ++++++
+ src/redux-store/services/BikeSystemApi2/AdminVehicleApi.ts  | 773 ++++++++++++++++++++
+ src/redux-store/services/BikeSystemApi2/ServiceAddonApi.ts  | 581 +++++++++++++++
+ src/redux-store/services/BikeSystemApi2/StockConceptApi.ts  | 207 ++++++
+ src/redux-store/services/BikeSystemApi2/VASApi.ts           | 532 ++++++++++++++
+ src/redux-store/services/bikeApi.ts                         | 158 -----
+ src/redux-store/services/branchManagerApi.ts                |  23 +-
+ src/redux-store/services/customer/customerDashApi.ts        | 216 ------
+ src/redux-store/services/customer/customerVehicleApi.ts     |  77 ++
+ src/redux-store/services/{ => customer}/getApprovedApi.ts   |   2 +-
+ src/redux-store/services/customer/vehicleInfoApi.ts         |  20 -
+ src/redux-store/services/scootyApi.ts                       |  99 ---
+ src/redux-store/services/staffApi.ts                        |  74 --
+ src/redux-store/slices/BikeSystemSlice/bikeImageSlice.ts    | 524 ++++++++++++++
+ src/redux-store/slices/BikeSystemSlice/bikesSlice.ts        | 454 ++++++++++++
+ src/redux-store/slices/bikesSlice.ts                        | 122 ----
+ src/redux-store/slices/branchSlice.ts                       |   2 +-
+ src/redux-store/slices/customer/customerAuthSlice.ts        |  15 +-
+ src/redux-store/slices/customer/firebaseTokenRefresh.ts     |   0
+ src/redux-store/slices/scootySlice.ts                       |  54 --
+ src/redux-store/store.ts                                    |  56 +-
+ src/types/customer/customer.types.ts                        |   3 +
+ 111 files changed, 16947 insertions(+), 7550 deletions(-)

@@ -728,7 +728,7 @@ const AddBikeImage = () => {
 
         {/* Action Buttons */}
         <div className='flex justify-between items-center mt-8 pt-6 border-t'>
-          <Link to={`/admin/addbikes`}>
+          <Link to={`/admin/bikes/add`}>
             <Button variant='outline'>Add Another Vehicle</Button>
           </Link>
 

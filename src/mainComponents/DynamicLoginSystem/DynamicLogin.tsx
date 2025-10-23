@@ -357,7 +357,7 @@
 //               title: "My Vehicles",
 //               icon: ShoppingCart,
 //               description: "Manage your motorcycles",
-//               link: "/customer-vehicle-info",
+//               link: "/customer/vehicle-info",
 //             },
 //             {
 //               title: "Services",

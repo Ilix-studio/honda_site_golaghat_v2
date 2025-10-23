@@ -30,23 +30,23 @@ const routeConfig: Record<
     title: "Admin Dashboard",
     subtitle: "",
   },
-  "/admin/addbranch": {
+  "/admin/branches/add": {
     title: "Add New Branch",
     subtitle: "",
     showBack: true,
     backTo: "/admin/dashboard",
     menuItems: [
-      { label: "Add Bikes/Scooty", href: "/admin/addbikes" },
+      { label: "Add Bikes/Scooty", href: "/admin/bikes/add" },
       { label: "Manage Branches", href: "/admin/branches" },
     ],
   },
-  "/admin/addbikes": {
+  "/admin/bikes/add": {
     title: "Add New Bike",
     subtitle: "Add motorcycle to inventory",
     showBack: true,
     backTo: "/admin/dashboard",
     menuItems: [
-      { label: "Add Branch", href: "/admin/addbranch" },
+      { label: "Add Branch", href: "/admin/branches/add" },
       { label: "Manage Branches", href: "/admin/branches" },
     ],
   },
@@ -56,8 +56,8 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/admin/dashboard",
     menuItems: [
-      { label: "Add Branch", href: "/admin/addbranch" },
-      { label: "Add Bikes/Scooty", href: "/admin/addbikes" },
+      { label: "Add Branch", href: "/admin/branches/add" },
+      { label: "Add Bikes/Scooty", href: "/admin/bikes/add" },
       { label: "Manage Branches", href: "/admin/branches" },
     ],
   },
@@ -81,7 +81,7 @@ const AdminHeader = () => {
   // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate("/admin/superlogin");
+      navigate("/admin/login");
     }
   }, [isAuthenticated, navigate]);
 

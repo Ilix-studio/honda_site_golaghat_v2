@@ -160,7 +160,7 @@ const RecentMotorcycles = () => {
           <p className='text-gray-500 mb-4'>
             No {vehicleType.toLowerCase()}s available
           </p>
-          <Link to='/admin/addbikes'>
+          <Link to='/admin/bikes/add'>
             <Button size='sm' className='bg-red-600 hover:bg-red-700'>
               Add First {vehicleType}
             </Button>
@@ -284,7 +284,7 @@ const RecentMotorcycles = () => {
             </CardDescription>
           </div>
           <div className='flex gap-2'>
-            <Link to='/admin/addbikes'>
+            <Link to='/admin/bikes/add'>
               <Button size='sm' className='bg-red-600 hover:bg-red-700'>
                 Add Vehicle
               </Button>
@@ -321,7 +321,7 @@ const RecentMotorcycles = () => {
               vehicleType='Bike'
               icon={Bike}
               editPath='/admin/addbikes/edit'
-              addPath='/admin/addbikes'
+              addPath='/admin/bikes/add'
               imagePath='/admin/bikeimages'
             />
           </TabsContent>

@@ -166,7 +166,9 @@ const CustomerCreateProfile: React.FC = () => {
       };
 
       await createProfile(profileData).unwrap();
-      navigate("/customer-initialize", { state: { profileCompleted: true } });
+      navigate("/customer/dashboard/initial", {
+        state: { profileCompleted: true },
+      });
     } catch (err) {
       console.error("Failed to create profile:", err);
     }
