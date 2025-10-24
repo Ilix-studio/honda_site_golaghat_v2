@@ -3,7 +3,7 @@ import { Clock } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { ServiceFormValues } from "../../../lib/form-schema";
 
 // Define types for service data
@@ -13,13 +13,6 @@ interface ServiceType {
   description: string;
   estimatedTime: string;
   price: string;
-}
-
-interface AdditionalService {
-  id: string;
-  name: string;
-  price: string;
-  description?: string;
 }
 
 // Service types data - you might want to move this to a constants file or API
@@ -84,58 +77,6 @@ const serviceTypes: ServiceType[] = [
   },
 ];
 
-// Additional services data
-const additionalServices: AdditionalService[] = [
-  {
-    id: "wash",
-    name: "Bike Wash & Detailing",
-    price: "₹300",
-    description: "Complete exterior wash and detailing",
-  },
-  {
-    id: "brake",
-    name: "Brake Service",
-    price: "₹800",
-    description: "Brake pad replacement and brake fluid change",
-  },
-  {
-    id: "chain",
-    name: "Chain Cleaning & Lubrication",
-    price: "₹200",
-    description: "Chain cleaning, adjustment, and lubrication",
-  },
-  {
-    id: "battery",
-    name: "Battery Check & Service",
-    price: "₹500",
-    description: "Battery testing, cleaning, and replacement if needed",
-  },
-  {
-    id: "suspension",
-    name: "Suspension Service",
-    price: "₹1,200",
-    description: "Suspension inspection and adjustment",
-  },
-  {
-    id: "oil-change",
-    name: "Premium Oil Change",
-    price: "₹800",
-    description: "Premium synthetic oil change",
-  },
-  {
-    id: "filter-replacement",
-    name: "Air Filter Replacement",
-    price: "₹400",
-    description: "Air filter inspection and replacement",
-  },
-  {
-    id: "tune-up",
-    name: "Engine Tune-up",
-    price: "₹1,500",
-    description: "Complete engine tune-up and optimization",
-  },
-];
-
 interface ServiceSelectionProps {
   form: UseFormReturn<ServiceFormValues>;
 }
@@ -152,20 +93,6 @@ export const ServiceSelection = ({ form }: ServiceSelectionProps) => {
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  };
-
-  // Toggle additional service selection
-  const toggleAdditionalService = (serviceId: string) => {
-    const currentServices = watchedValues.additionalServices || [];
-
-    if (currentServices.includes(serviceId)) {
-      setValue(
-        "additionalServices",
-        currentServices.filter((id: string) => id !== serviceId)
-      );
-    } else {
-      setValue("additionalServices", [...currentServices, serviceId]);
-    }
   };
 
   return (
@@ -230,74 +157,6 @@ export const ServiceSelection = ({ form }: ServiceSelectionProps) => {
           <p className='text-red-500 text-sm'>{errors.serviceType.message}</p>
         )}
       </div>
-
-      <div className='space-y-2 pt-4'>
-        <Label>Additional Services (Optional)</Label>
-        <p className='text-sm text-muted-foreground'>
-          Select any additional services you'd like to include with your
-          appointment
-        </p>
-        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2'>
-          {additionalServices.map((service: AdditionalService) => (
-            <div
-              key={service.id}
-              className={`flex items-start gap-2 border rounded-lg p-3 cursor-pointer transition-all ${
-                watchedValues.additionalServices?.includes(service.id)
-                  ? "border-red-600 bg-red-50"
-                  : "hover:border-gray-400"
-              }`}
-              onClick={() => toggleAdditionalService(service.id)}
-            >
-              <Checkbox
-                id={`additional-${service.id}`}
-                checked={watchedValues.additionalServices?.includes(service.id)}
-                onCheckedChange={() => toggleAdditionalService(service.id)}
-                className='mt-1'
-              />
-              <div className='flex-1'>
-                <Label
-                  htmlFor={`additional-${service.id}`}
-                  className='cursor-pointer text-sm font-medium'
-                >
-                  {service.name}
-                </Label>
-                {service.description && (
-                  <p className='text-xs text-muted-foreground mt-0.5'>
-                    {service.description}
-                  </p>
-                )}
-                <p className='text-xs font-medium text-red-600 mt-1'>
-                  {service.price}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {watchedValues.additionalServices &&
-        watchedValues.additionalServices.length > 0 && (
-          <div className='p-4 bg-blue-50 rounded-lg'>
-            <h4 className='text-sm font-medium mb-2'>
-              Selected Additional Services:
-            </h4>
-            <div className='flex flex-wrap gap-2'>
-              {watchedValues.additionalServices.map((serviceId: string) => {
-                const service = additionalServices.find(
-                  (s: AdditionalService) => s.id === serviceId
-                );
-                return service ? (
-                  <span
-                    key={serviceId}
-                    className='text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded'
-                  >
-                    {service.name} - {service.price}
-                  </span>
-                ) : null;
-              })}
-            </div>
-          </div>
-        )}
     </motion.div>
   );
 };

@@ -16,7 +16,7 @@ import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 
 // Define types for service-related data
 interface BikeModel {
-  id: string;
+  _id: string;
   modelName: string;
   category: string;
 }
@@ -31,8 +31,7 @@ interface ServiceType {
 
 interface ServiceLocation {
   _id: string;
-  id: string;
-  name: string;
+  branchName: string;
   address: string;
 }
 
@@ -94,12 +93,13 @@ export function BookingSummary({ form }: BookingSummaryProps) {
   const { data: bikesResponse } = useGetBikesQuery({});
   const { data: branchesResponse } = useGetBranchesQuery();
 
-  const bikeModels = bikesResponse?.data || [];
+  // Extract data from nested response structure
+  const bikeModels = bikesResponse?.data?.bikes || [];
   const serviceLocations = branchesResponse?.data || [];
 
   // Get selected items for summary
   const selectedBike = bikeModels.find(
-    (bike: BikeModel) => bike.id === watchedValues.bikeModel
+    (bike: BikeModel) => bike._id === watchedValues.bikeModel
   );
   const selectedService = serviceTypes.find(
     (service: ServiceType) => service.id === watchedValues.serviceType
@@ -152,9 +152,7 @@ export function BookingSummary({ form }: BookingSummaryProps) {
             <div className='flex justify-between'>
               <span className='text-muted-foreground'>Model:</span>
               <span className='font-medium'>
-                {selectedBike?.modelName ||
-                  selectedBike?.modelName ||
-                  "Not selected"}
+                {selectedBike?.modelName || "Not selected"}
               </span>
             </div>
             <div className='flex justify-between'>
@@ -227,7 +225,7 @@ export function BookingSummary({ form }: BookingSummaryProps) {
             <div className='flex justify-between'>
               <span className='text-muted-foreground'>Service Center:</span>
               <span className='font-medium'>
-                {selectedLocation?.name || "Not selected"}
+                {selectedLocation?.branchName || "Not selected"}
               </span>
             </div>
             <div className='flex justify-between'>

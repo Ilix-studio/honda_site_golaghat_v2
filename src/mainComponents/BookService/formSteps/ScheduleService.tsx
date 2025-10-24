@@ -25,8 +25,7 @@ import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 // Define types
 interface ServiceLocation {
   _id: string;
-  id: string;
-  name: string;
+  branchName: string;
   address: string;
 }
 
@@ -71,8 +70,7 @@ export function ScheduleService({ form }: ScheduleServiceProps) {
   // Find selected location
   const selectedLocation = serviceLocations.find(
     (location: ServiceLocation) =>
-      location._id === watchedValues.serviceLocation ||
-      location.id === watchedValues.serviceLocation
+      location._id === watchedValues.serviceLocation
   );
 
   // Animation variants
@@ -119,11 +117,8 @@ export function ScheduleService({ form }: ScheduleServiceProps) {
           </SelectTrigger>
           <SelectContent>
             {serviceLocations.map((location: ServiceLocation) => (
-              <SelectItem
-                key={location._id || location.id}
-                value={location._id || location.id}
-              >
-                {location.name}
+              <SelectItem key={location._id} value={location._id}>
+                {location.branchName}
               </SelectItem>
             ))}
           </SelectContent>
@@ -137,7 +132,9 @@ export function ScheduleService({ form }: ScheduleServiceProps) {
 
       {selectedLocation && (
         <div className='p-4 bg-gray-50 rounded-lg'>
-          <h4 className='font-medium text-sm mb-1'>{selectedLocation.name}</h4>
+          <h4 className='font-medium text-sm mb-1'>
+            {selectedLocation.branchName}
+          </h4>
           <p className='text-sm text-muted-foreground'>
             {selectedLocation.address}
           </p>

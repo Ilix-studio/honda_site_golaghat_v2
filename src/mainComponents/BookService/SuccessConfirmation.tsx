@@ -19,8 +19,7 @@ import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 
 // Define types for service-related data
 interface BikeModel {
-  id: string;
-  name?: string;
+  _id: string;
   modelName: string;
   category: string;
 }
@@ -35,8 +34,7 @@ interface ServiceType {
 
 interface ServiceLocation {
   _id: string;
-  id: string;
-  name: string;
+  branchName: string;
   address: string;
 }
 
@@ -116,20 +114,20 @@ export function SuccessConfirmation({
   const { data: bikesResponse } = useGetBikesQuery({});
   const { data: branchesResponse } = useGetBranchesQuery();
 
-  const bikeModels = bikesResponse?.data || [];
+  // Extract bikes array from nested response
+  const bikeModels = bikesResponse?.data?.bikes || [];
   const serviceLocations = branchesResponse?.data || [];
 
   // Get selected items for summary
   const selectedBike = bikeModels.find(
-    (bike: BikeModel) => bike.id === watchedValues.bikeModel
+    (bike: BikeModel) => bike._id === watchedValues.bikeModel
   );
   const selectedService = serviceTypes.find(
     (service: ServiceType) => service.id === watchedValues.serviceType
   );
   const selectedLocation = serviceLocations.find(
     (location: ServiceLocation) =>
-      location._id === watchedValues.serviceLocation ||
-      location.id === watchedValues.serviceLocation
+      location._id === watchedValues.serviceLocation
   );
 
   return (
@@ -171,8 +169,8 @@ export function SuccessConfirmation({
           </p>
           <p>
             A service advisor from{" "}
-            {selectedLocation?.name || "our service center"} will contact you
-            shortly to confirm your appointment.
+            {selectedLocation?.branchName || "our service center"} will contact
+            you shortly to confirm your appointment.
           </p>
           <div className='p-4 bg-gray-50 rounded-lg mt-4'>
             <div className='flex justify-between mb-2'>
@@ -184,9 +182,7 @@ export function SuccessConfirmation({
             <div className='flex justify-between mb-2'>
               <span className='text-muted-foreground'>Motorcycle:</span>
               <span className='font-medium'>
-                {selectedBike?.modelName ||
-                  selectedBike?.modelName ||
-                  "Motorcycle"}
+                {selectedBike?.modelName || "Motorcycle"}
               </span>
             </div>
             <div className='flex justify-between mb-2'>

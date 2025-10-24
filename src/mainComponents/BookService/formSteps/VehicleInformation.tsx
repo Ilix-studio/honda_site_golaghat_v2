@@ -17,12 +17,11 @@ import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
 
 // Define types for bike models
 interface BikeModel {
-  id: string;
+  _id: string;
   modelName: string;
-  name?: string;
   category: string;
   year: number;
-  engine: string;
+  engineSize: string;
 }
 
 interface VehicleInformationProps {
@@ -40,7 +39,8 @@ export const VehicleInformation = ({ form }: VehicleInformationProps) => {
 
   // Get bikes data from API
   const { data: bikesResponse, isLoading } = useGetBikesQuery({});
-  const bikeModels: BikeModel[] = bikesResponse?.data || [];
+  // Extract bikes array from nested response structure
+  const bikeModels: BikeModel[] = bikesResponse?.data?.bikes || [];
 
   // Animation variants
   const fadeInUp = {
@@ -78,8 +78,8 @@ export const VehicleInformation = ({ form }: VehicleInformationProps) => {
           </SelectTrigger>
           <SelectContent>
             {bikeModels.map((bike: BikeModel) => (
-              <SelectItem key={bike.id} value={bike.id}>
-                {bike.modelName || bike.name} ({bike.category})
+              <SelectItem key={bike._id} value={bike._id}>
+                {bike.modelName} ({bike.category})
               </SelectItem>
             ))}
             {!isLoading && bikeModels.length === 0 && (
@@ -176,23 +176,23 @@ export const VehicleInformation = ({ form }: VehicleInformationProps) => {
           <h4 className='text-sm font-medium mb-2'>Selected Motorcycle:</h4>
           {(() => {
             const selectedBike = bikeModels.find(
-              (bike: BikeModel) => bike.id === watchedValues.bikeModel
+              (bike: BikeModel) => bike._id === watchedValues.bikeModel
             );
             if (selectedBike) {
               return (
                 <div className='space-y-1'>
                   <p className='text-sm'>
                     <span className='font-medium'>Model:</span>{" "}
-                    {selectedBike.modelName || selectedBike.name}
+                    {selectedBike.modelName}
                   </p>
                   <p className='text-sm'>
                     <span className='font-medium'>Category:</span>{" "}
                     {selectedBike.category}
                   </p>
-                  {selectedBike.engine && (
+                  {selectedBike.engineSize && (
                     <p className='text-sm'>
                       <span className='font-medium'>Engine:</span>{" "}
-                      {selectedBike.engine}
+                      {selectedBike.engineSize}
                     </p>
                   )}
                 </div>

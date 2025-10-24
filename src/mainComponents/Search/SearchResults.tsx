@@ -32,9 +32,9 @@ export function SearchResults() {
     }
   };
 
-  // Build search filters
+  // Build search filters - must include 'query' property for searchBikes
   const searchFilters = {
-    ...(searchQuery.trim() && { search: searchQuery.trim() }),
+    query: searchQuery.trim(), // Required by searchBikes endpoint
     limit: 50,
     page: 1,
   };
@@ -49,7 +49,8 @@ export function SearchResults() {
     skip: !searchQuery.trim(), // Skip the query if no search term
   });
 
-  const searchResults: Bike[] = bikesResponse?.data || [];
+  // Extract bikes array from nested response structure
+  const searchResults: Bike[] = bikesResponse?.data?.bikes || [];
 
   if (error) {
     return (
@@ -117,11 +118,11 @@ export function SearchResults() {
             transition={{ duration: 0.5 }}
           >
             {searchResults.map((bike: Bike) => (
-              <BikeCard key={bike.id} bike={bike} />
+              <BikeCard key={bike._id} bike={bike} />
             ))}
           </motion.div>
         ) : searchQuery.trim() ? (
-          <NoResults resetFilters={() => setSearchParams({})} />
+          <NoResults />
         ) : (
           <div className='text-center py-12 border rounded-lg'>
             <h3 className='text-lg font-medium mb-2'>Start searching</h3>

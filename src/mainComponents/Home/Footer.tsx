@@ -1,12 +1,4 @@
-import {
-  Mail,
-  MapPin,
-  Phone,
-  Eye,
-  Users,
-  TrendingUp,
-  Calendar,
-} from "lucide-react";
+import { Mail, MapPin, Phone, Eye, TrendingUp } from "lucide-react";
 import { useState, useEffect } from "react";
 
 import {
