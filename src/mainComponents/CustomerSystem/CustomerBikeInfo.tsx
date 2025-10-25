@@ -16,7 +16,8 @@ import {
 } from "lucide-react";
 import { ReactNode, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useGetMyVehiclesQuery } from "../../redux-store/services/BikeSystemApi2/AdminVehicleApi";
+// Fixed import - use customer API instead of admin API
+import { useGetMyVehiclesQuery } from "../../redux-store/services/customer/customerVehicleApi";
 import { useAppSelector } from "@/hooks/redux";
 import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
 import cbr from "../../assets/cbr-1000-rrr.jpg";
@@ -219,51 +220,22 @@ export function CustomerBikeInfo() {
                   className='object-contain w-full h-full'
                 />
               </div>
-              <Button variant='outline' className='w-full bg-transparent'>
-                <Camera className='w-4 h-4 mr-2' />
-                Update Photo
-              </Button>
-            </div>
 
-            {/* Basic Information */}
-            <div className='space-y-4'>
+              {/* Vehicle Basic Info */}
               <div className='grid grid-cols-2 gap-4'>
-                <div>
-                  <label className='text-sm font-medium text-gray-500'>
-                    Model Year
-                  </label>
-                  <p className='text-lg font-semibold text-gray-900'>
-                    {stockData?.yearOfManufacture || "N/A"}
-                  </p>
-                </div>
                 <div>
                   <label className='text-sm font-medium text-gray-500'>
                     Color
                   </label>
                   <p className='text-lg font-semibold text-gray-900'>
-                    {vehicle.color || stockData?.color || "N/A"}
+                    {vehicle.color || "N/A"}
                   </p>
                 </div>
                 <div>
                   <label className='text-sm font-medium text-gray-500'>
-                    Engine Capacity
+                    Service Type
                   </label>
-                  <p className='text-lg font-semibold text-gray-900'>
-                    {stockData?.engineCC ? `${stockData.engineCC}cc` : "N/A"}
-                  </p>
                 </div>
-                <div>
-                  <label className='text-sm font-medium text-gray-500'>
-                    Category
-                  </label>
-                  <p className='text-lg font-semibold text-gray-900'>
-                    {stockData?.category || "N/A"}
-                  </p>
-                </div>
-              </div>
-
-              {/* Payment Status */}
-              <div className='grid grid-cols-2 gap-4 pt-4'>
                 <div>
                   <label className='text-sm font-medium text-gray-500'>
                     Payment Status

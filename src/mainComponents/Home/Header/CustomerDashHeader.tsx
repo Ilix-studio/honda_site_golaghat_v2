@@ -24,10 +24,10 @@ import {
 } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
-// Redux imports (add these to your project)
-import { useAppDispatch, useAppSelector } from "@/hooks/redux";
-
-import { logout, selectAuth } from "@/redux-store/slices/authSlice";
+// Redux imports - Using the custom hook for customer authentication
+import { useAppDispatch } from "@/hooks/redux";
+import { useAuthForCustomer } from "@/hooks/useAuthforCustomer";
+import { logout } from "@/redux-store/slices/customer/customerAuthSlice";
 import { addNotification } from "@/redux-store/slices/uiSlice";
 
 // Route configuration for dynamic titles and navigation
@@ -107,7 +107,9 @@ export function CustomerDashHeader() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, user } = useAppSelector(selectAuth);
+
+  // Using the custom hook for customer authentication
+  const { isAuthenticated, customer, firebaseToken } = useAuthForCustomer();
 
   const [notifications] = useState(3); // Mock notification count
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -119,12 +121,12 @@ export function CustomerDashHeader() {
     subtitle: "Tsangpool Honda Service Center",
   };
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated or no firebase token
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login"); // Adjust to your customer login route
+    if (!isAuthenticated || !firebaseToken) {
+      navigate("/customer/login");
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, firebaseToken, navigate]);
 
   const handleLogout = async () => {
     try {
@@ -298,10 +300,14 @@ export function CustomerDashHeader() {
                 <DropdownMenuLabel className='font-normal'>
                   <div className='flex flex-col space-y-1'>
                     <p className='text-sm font-medium leading-none'>
-                      {user?.name || "Customer"}
+                      {customer?.firstName && customer?.lastName
+                        ? `${customer.firstName} ${customer.lastName}`
+                        : customer?.firstName || "Customer"}
                     </p>
                     <p className='text-xs leading-none text-muted-foreground'>
-                      {user?.email || "customer@email.com"}
+                      {customer?.email ||
+                        customer?.phoneNumber ||
+                        "customer@email.com"}
                     </p>
                   </div>
                 </DropdownMenuLabel>
@@ -337,6 +343,7 @@ export function CustomerDashHeader() {
                 >
                   <LogOut className='mr-2 h-4 w-4' />
                   {/* <span>{isLoggingOut ? "Logging out..." : "Log out"}</span> */}
+                  <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

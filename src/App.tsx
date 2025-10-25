@@ -109,22 +109,22 @@ const App: React.FC = () => {
 
         {/* ADMIN ROUTES - Protected admin routes with AdminHeader */}
         {adminRoutes
-          .filter(({ path }) => !path.includes("/login")) // Separate auth routes
+          .filter(({ path }) => !path.includes("/admin/login")) // Separate auth routes
           .map(({ path, component }) => createAdminRoute(path, component))}
 
         {/* ADMIN AUTH ROUTES - Login pages without header */}
         {adminRoutes
-          .filter(({ path }) => path.includes("/login"))
+          .filter(({ path }) => path.includes("/admin/login"))
           .map(({ path, component }) => createAuthRoute(path, component))}
 
         {/* CUSTOMER ROUTES - Protected customer routes with CustomerHeader */}
         {customerRoutes
-          .filter(({ path }) => !path.includes("/login"))
+          .filter(({ path }) => !path.includes("/customer/login"))
           .map(({ path, component }) => createCustomerRoute(path, component))}
 
         {/* CUSTOMER AUTH ROUTES - Login pages without header */}
         {customerRoutes
-          .filter(({ path }) => path.includes("/login"))
+          .filter(({ path }) => path.includes("/customer/login"))
           .map(({ path, component }) => createAuthRoute(path, component))}
 
         {/* FALLBACK ROUTE - 404 Not Found */}

@@ -6,8 +6,6 @@ import { CustomerBikeInfo } from "../CustomerBikeInfo";
 import { useAppSelector } from "@/hooks/redux";
 import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
 import { Loader2 } from "lucide-react";
-
-import { CustomerDashHeader } from "@/mainComponents/Home/Header/CustomerDashHeader";
 import { TokenDebugger } from "@/lib/TokenDebugger";
 
 export default function CustomerMainDash() {
@@ -36,7 +34,6 @@ export default function CustomerMainDash() {
 
   return (
     <div className='min-h-screen bg-gray-50'>
-      <CustomerDashHeader />
       <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-4 py-8'>
         <div className='mb-8'>
           <h1 className='text-3xl font-bold text-gray-900 mb-2'>
