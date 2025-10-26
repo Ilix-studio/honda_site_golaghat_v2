@@ -231,7 +231,7 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
         transition={{ duration: 0.5 }}
         className='w-full max-w-md'
       >
-        <Card className='shadow-xl border-0 bg-white/80 backdrop-blur-sm'>
+        <Card className='shadow-xl border-0 bg-black/80 backdrop-blur-sm'>
           <CardHeader className='space-y-1 pb-6'>
             <div className='flex items-center justify-center mb-4'>
               <div className='w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center'>
