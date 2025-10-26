@@ -14,7 +14,7 @@ export const customerApi = createApi({
   endpoints: (builder) => ({
     // Get customer profile
     getCustomerProfile: builder.query<CustomerAuthResponse, void>({
-      query: () => "/customer-profile/profile",
+      query: () => "/customer-profile/get",
       providesTags: ["Customer"],
     }),
 

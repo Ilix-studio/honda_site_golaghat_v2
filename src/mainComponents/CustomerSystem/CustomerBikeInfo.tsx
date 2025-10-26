@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   Calendar,
   FileText,
-  MapPin,
   Settings,
   User,
   Hash,
@@ -16,8 +15,8 @@ import {
 } from "lucide-react";
 import { ReactNode, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-// Fixed import - use customer API instead of admin API
-import { useGetMyVehiclesQuery } from "../../redux-store/services/customer/customerVehicleApi";
+// Fixed import - use stock customer vehicle API
+import { useGetMyStockVehiclesQuery } from "../../redux-store/services/customer/stockCustomerVehicleApi";
 import { useAppSelector } from "@/hooks/redux";
 import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
 import cbr from "../../assets/cbr-1000-rrr.jpg";
@@ -48,32 +47,9 @@ export function CustomerBikeInfo() {
     isLoading,
     error,
     refetch,
-  } = useGetMyVehiclesQuery(
-    { page: 1, limit: 10 },
-    {
-      skip: !isAuthenticated || !firebaseToken, // Skip query if not authenticated
-    }
-  );
-
-  const calculateAge = (registrationDate?: Date) => {
-    if (!registrationDate) return "Not registered";
-    const regDate = new Date(registrationDate);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - regDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const years = Math.floor(diffDays / 365);
-    const months = Math.floor((diffDays % 365) / 30);
-    return `${years} year${years !== 1 ? "s" : ""} ${months} month${
-      months !== 1 ? "s" : ""
-    }`;
-  };
-
-  const calculateFitnessDate = (registrationDate?: Date) => {
-    if (!registrationDate) return null;
-    const fitnessDate = new Date(registrationDate);
-    fitnessDate.setFullYear(fitnessDate.getFullYear() + 15);
-    return fitnessDate;
-  };
+  } = useGetMyStockVehiclesQuery(undefined, {
+    skip: !isAuthenticated || !firebaseToken, // Skip query if not authenticated
+  });
 
   const ServiceBadge = ({
     title,
@@ -168,8 +144,6 @@ export function CustomerBikeInfo() {
 
   // Get the first vehicle (or you can loop through all vehicles)
   const vehicle = vehiclesData.data[0];
-  const stockData = vehicle.stockConcept as any;
-  const fitnessDate = calculateFitnessDate(vehicle.registrationDate);
 
   return (
     <div className='space-y-6'>
@@ -193,9 +167,7 @@ export function CustomerBikeInfo() {
               <CardTitle className='text-2xl text-gray-900'>
                 {vehicle.modelName}
               </CardTitle>
-              <p className='text-gray-600 mt-1'>
-                Registration: {vehicle.numberPlate || "Not Registered"}
-              </p>
+              <p className='text-gray-600 mt-1'>Stock ID: {vehicle.stockId}</p>
             </div>
             <Badge
               variant='outline'
@@ -215,26 +187,47 @@ export function CustomerBikeInfo() {
             <div className='space-y-4'>
               <div className='relative aspect-video bg-gray-100 rounded-lg overflow-hidden'>
                 <img
-                  src={vehicle.motorcyclePhoto || cbr}
+                  src={cbr}
                   alt={vehicle.modelName}
                   className='object-contain w-full h-full'
                 />
               </div>
+            </div>
 
-              {/* Vehicle Basic Info */}
+            {/* Basic Information */}
+            <div className='space-y-4'>
               <div className='grid grid-cols-2 gap-4'>
+                <div>
+                  <label className='text-sm font-medium text-gray-500'>
+                    Category
+                  </label>
+                  <p className='text-lg font-semibold text-gray-900'>
+                    {vehicle.category}
+                  </p>
+                </div>
+                <div>
+                  <label className='text-sm font-medium text-gray-500'>
+                    Engine CC
+                  </label>
+                  <p className='text-lg font-semibold text-gray-900'>
+                    {vehicle.engineCC}cc
+                  </p>
+                </div>
                 <div>
                   <label className='text-sm font-medium text-gray-500'>
                     Color
                   </label>
                   <p className='text-lg font-semibold text-gray-900'>
-                    {vehicle.color || "N/A"}
+                    {vehicle.color}
                   </p>
                 </div>
                 <div>
                   <label className='text-sm font-medium text-gray-500'>
-                    Service Type
+                    Year
                   </label>
+                  <p className='text-lg font-semibold text-gray-900'>
+                    {vehicle.yearOfManufacture}
+                  </p>
                 </div>
                 <div>
                   <label className='text-sm font-medium text-gray-500'>
@@ -243,28 +236,21 @@ export function CustomerBikeInfo() {
                   <Badge
                     variant='outline'
                     className={`${
-                      vehicle.isPaid
+                      vehicle.salesInfo?.paymentStatus === "Paid"
                         ? "bg-green-50 text-green-700 border-green-200"
                         : "bg-yellow-50 text-yellow-700 border-yellow-200"
                     }`}
                   >
-                    {vehicle.isPaid ? "Paid" : "Pending"}
+                    {vehicle.salesInfo?.paymentStatus || "N/A"}
                   </Badge>
                 </div>
                 <div>
                   <label className='text-sm font-medium text-gray-500'>
-                    Finance
+                    Sale Price
                   </label>
-                  <Badge
-                    variant='outline'
-                    className={`${
-                      vehicle.isFinance
-                        ? "bg-blue-50 text-blue-700 border-blue-200"
-                        : "bg-gray-50 text-gray-700 border-gray-200"
-                    }`}
-                  >
-                    {vehicle.isFinance ? "Financed" : "Cash"}
-                  </Badge>
+                  <p className='text-lg font-semibold text-gray-900'>
+                    ₹{vehicle.salesInfo?.salePrice?.toLocaleString() || "N/A"}
+                  </p>
                 </div>
               </div>
 
@@ -314,7 +300,7 @@ export function CustomerBikeInfo() {
                 Engine Number
               </label>
               <p className='text-lg font-mono text-gray-900 bg-gray-50 p-2 rounded border'>
-                {stockData?.engineNumber || "N/A"}
+                {vehicle.engineNumber || "N/A"}
               </p>
             </div>
             <div>
@@ -323,7 +309,7 @@ export function CustomerBikeInfo() {
                 Chassis Number
               </label>
               <p className='text-lg font-mono text-gray-900 bg-gray-50 p-2 rounded border'>
-                {stockData?.chassisNumber || "N/A"}
+                {vehicle.chassisNumber || "N/A"}
               </p>
             </div>
             <div>
@@ -331,94 +317,60 @@ export function CustomerBikeInfo() {
                 Variant
               </label>
               <p className='text-lg font-semibold text-gray-900'>
-                {stockData?.variant || "N/A"}
+                {vehicle.variant || "N/A"}
               </p>
             </div>
             <div>
               <label className='text-sm font-medium text-gray-500'>
-                Insurance
+                Stock Status
               </label>
               <Badge
                 variant='outline'
                 className={`${
-                  vehicle.insurance
+                  vehicle.stockStatus.status === "Sold"
                     ? "bg-green-50 text-green-700 border-green-200"
-                    : "bg-red-50 text-red-700 border-red-200"
+                    : "bg-gray-50 text-gray-700 border-gray-200"
                 }`}
               >
-                {vehicle.insurance ? "Insured" : "Not Insured"}
+                {vehicle.stockStatus.status}
               </Badge>
             </div>
           </CardContent>
         </Card>
 
-        {/* Owner & Registration Information */}
+        {/* Sales Information */}
         <Card>
           <CardHeader>
             <CardTitle className='flex items-center'>
               <User className='w-5 h-5 mr-2 text-red-600' />
-              Owner Information
+              Sales Information
             </CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
             <div>
               <label className='text-sm font-medium text-gray-500'>
-                Registered Owner
+                Sold To
               </label>
               <p className='text-lg font-semibold text-gray-900'>
-                {vehicle.registeredOwnerName || "N/A"}
+                {vehicle.salesInfo?.soldTo?.phoneNumber || "N/A"}
               </p>
             </div>
             <div>
               <label className='text-sm font-medium text-gray-500'>
-                Number Plate
+                Invoice Number
               </label>
-              <p className='text-xl font-bold text-gray-900 bg-yellow-100 p-2 rounded border-2 border-yellow-300 text-center'>
-                {vehicle.numberPlate || "NOT REGISTERED"}
+              <p className='text-lg font-semibold text-gray-900'>
+                {vehicle.salesInfo?.invoiceNumber || "N/A"}
               </p>
             </div>
             <div>
               <label className='text-sm font-medium text-gray-500 flex items-center'>
                 <Calendar className='w-4 h-4 mr-1' />
-                Vehicle Age
+                Sale Date
               </label>
               <p className='text-lg font-semibold text-gray-900'>
-                {calculateAge(vehicle.registrationDate)}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* RTO & Legal Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className='flex items-center'>
-            <FileText className='w-5 h-5 mr-2 text-red-600' />
-            RTO & Legal Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-            <div>
-              <label className='text-sm font-medium text-gray-500 flex items-center'>
-                <MapPin className='w-4 h-4 mr-1' />
-                RTO Office
-              </label>
-              <p className='text-lg font-semibold text-gray-900'>
-                {vehicle.rtoInfo?.rtoName || "N/A"}
-              </p>
-              <p className='text-sm text-gray-600'>
-                Code: {vehicle.rtoInfo?.rtoCode || "N/A"}
-              </p>
-            </div>
-            <div>
-              <label className='text-sm font-medium text-gray-500'>
-                Registration Date
-              </label>
-              <p className='text-lg font-semibold text-gray-900'>
-                {vehicle.registrationDate
-                  ? new Date(vehicle.registrationDate).toLocaleDateString(
+                {vehicle.salesInfo?.soldDate
+                  ? new Date(vehicle.salesInfo.soldDate).toLocaleDateString(
                       "en-IN",
                       {
                         day: "numeric",
@@ -426,30 +378,54 @@ export function CustomerBikeInfo() {
                         year: "numeric",
                       }
                     )
-                  : "Not Registered"}
+                  : "N/A"}
               </p>
             </div>
             <div>
               <label className='text-sm font-medium text-gray-500'>
-                Fitness Valid Until
+                Sales Person
+              </label>
+              <p className='text-lg font-semibold text-gray-900'>
+                {vehicle.salesInfo?.salesPerson?.name || "N/A"}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Price Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className='flex items-center'>
+            <FileText className='w-5 h-5 mr-2 text-red-600' />
+            Price Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+            <div>
+              <label className='text-sm font-medium text-gray-500'>
+                Ex-Showroom Price
+              </label>
+              <p className='text-lg font-semibold text-gray-900'>
+                ₹{vehicle.priceInfo.exShowroomPrice.toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <label className='text-sm font-medium text-gray-500'>
+                Road Tax
+              </label>
+              <p className='text-lg font-semibold text-gray-900'>
+                ₹{vehicle.priceInfo.roadTax.toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <label className='text-sm font-medium text-gray-500'>
+                On-Road Price
               </label>
               <p className='text-lg font-semibold text-green-700'>
-                {fitnessDate
-                  ? fitnessDate.toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })
-                  : "N/A"}
+                ₹{vehicle.priceInfo.onRoadPrice.toLocaleString()}
               </p>
-              {fitnessDate && fitnessDate > new Date() && (
-                <Badge
-                  variant='outline'
-                  className='bg-green-50 text-green-700 border-green-200 mt-1'
-                >
-                  Valid
-                </Badge>
-              )}
             </div>
           </div>
         </CardContent>
