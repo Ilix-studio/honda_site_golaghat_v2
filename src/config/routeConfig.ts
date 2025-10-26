@@ -213,6 +213,23 @@ const ActivateAddons = lazy(
   () =>
     import("../mainComponents/CustomerSystem/ActivateFeature/ActivateAddons")
 );
+const CustomerServices = lazy(
+  () => import("../mainComponents/CustomerSystem/Head/CustomerServices")
+);
+const CustomerDocuments = lazy(
+  () => import("@/mainComponents/CustomerSystem/Head/CustomerDocuments")
+);
+const CustomerSupport = lazy(
+  () => import("@/mainComponents/CustomerSystem/Head/CustomerSupport")
+);
+
+const CustomerNotification = lazy(
+  () => import("@/mainComponents/CustomerSystem/Head/CustomerNotification")
+);
+
+const CustomerProfileInfo = lazy(
+  () => import("@/mainComponents/CustomerSystem/Head/CustomerProfileInfo")
+);
 
 // Create customer routes array
 const createCustomerRoutes = () => {
@@ -231,6 +248,11 @@ const createCustomerRoutes = () => {
     // Dashboard
     { path: "/customer/initialize", component: InitialDashboard },
     { path: "/customer/dashboard", component: CustomerMainDash },
+    { path: "/customer/profile-info", component: CustomerProfileInfo },
+    { path: "/customer/services", component: CustomerServices },
+    { path: "/customer/documents", component: CustomerDocuments },
+    { path: "/customer/support", component: CustomerSupport },
+    { path: "/customer/notification", component: CustomerNotification },
 
     // Vehicle Management
     { path: "/customer/vehicle/info", component: CustomerVehicleInfo },

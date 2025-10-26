@@ -16,13 +16,11 @@ export const ROUTES = {
     MANAGER_LOGIN: "/admin/manager-login",
     CUSTOMER_SIGNUP: "/admin/customer-signup",
     DASHBOARD: "/admin/dashboard",
-
     BRANCHES: {
       ADD: "/admin/branches/add",
       MANAGERS: "/admin/branches/managers",
       VIEW: "/admin/branches/view",
     },
-
     BIKES: {
       ADD: "/admin/bikes/add",
       EDIT: (id: string) => `/admin/bikes/edit/${id}`,
@@ -32,21 +30,20 @@ export const ROUTES = {
         VIEW: (id: string) => `/admin/bikes/images/${id}`,
       },
     },
-
     FORMS: {
       VAS: "/admin/forms/vas",
       SERVICE_ADDONS: "/admin/forms/service-addons",
       STOCK_CONCEPT: "/admin/forms/stock-concept",
     },
-
     VIEW: {
       VAS: "/admin/view/vas",
       SERVICE_ADDONS: "/admin/view/service-addons",
       STOCK_CONCEPT: "/admin/view/stock-concept",
     },
-
     ASSIGN: {
       STOCK_CONCEPT: (id: string) => `/admin/assign/stock-concept/${id}`,
+      VAS: (id: string) => `/admin/assign/VAS/${id}`,
+      SERVICE_ADDONS: (id: string) => `/admin/assign/SERVICE_ADDONS/${id}`,
     },
 
     INTEGRATE: {
@@ -59,10 +56,16 @@ export const ROUTES = {
     LOGIN: "/customer/login",
     INITIALIZE: "/customer/initialize",
     PROFILE: { CREATE: "/customer/profile/create" },
-    DASHBOARD: "/customer/dashboard",
-    VEHICLE_INFO: "/customer/vehicle-info",
     GENERATE_TAGS: "/customer/generate-tags",
+    //
+    DASHBOARD: "/customer/dashboard",
+    PROFILE_INFO: "/customer/profile-info",
+    SERVICES: "/customer/services",
+    DOCUMENTS: "/customer/documents",
+    SUPPORT: "/customer/support",
+    NOTIFICATION: "/customer/notification",
     BOOK_SERVICE: "/customer/book-service",
+    SERVICE_HISTORY: "/customer/service-history",
   },
 
   DOWNLOAD: { SAFETY_FEATURES: "/download/safety-features" },
@@ -164,29 +167,4 @@ export const safeNavigate = (
 ): void => {
   const { canAccess, redirectTo } = canAccessRoute(path, user);
   navigate(canAccess ? path : redirectTo || ROUTES.HOME);
-};
-
-// Legacy route mappings for backward compatibility
-export const LEGACY_ROUTE_MAP: Record<string, string> = {
-  "/admin/superlogin": ROUTES.ADMIN.LOGIN,
-  "/admin/managerlogin": ROUTES.ADMIN.MANAGER_LOGIN,
-  "/customer-login": ROUTES.CUSTOMER.LOGIN,
-  "/customer-initialize": ROUTES.CUSTOMER.INITIALIZE,
-  "/customer-profile": ROUTES.CUSTOMER.PROFILE.CREATE,
-  "/customer-dash": ROUTES.CUSTOMER.DASHBOARD,
-  "/admin/addbranch": ROUTES.ADMIN.BRANCHES.ADD,
-  "/admin/managers": ROUTES.ADMIN.BRANCHES.MANAGERS,
-  "/admin/addbikes": ROUTES.ADMIN.BIKES.ADD,
-  "/admin/VAS-form": ROUTES.ADMIN.FORMS.VAS,
-  "/admin/service-Addons": ROUTES.ADMIN.FORMS.SERVICE_ADDONS,
-  "/admin/stock-concept": ROUTES.ADMIN.FORMS.STOCK_CONCEPT,
-  "/view/all-branches": ROUTES.ADMIN.BRANCHES.VIEW,
-  "/view/VAS": ROUTES.ADMIN.VIEW.VAS,
-  "/view/service-Addons": ROUTES.ADMIN.VIEW.SERVICE_ADDONS,
-  "/view/stock-concept": ROUTES.ADMIN.VIEW.STOCK_CONCEPT,
-  "/integrate/VAS": ROUTES.ADMIN.INTEGRATE.VAS,
-  "/integrate/service-Addons": ROUTES.ADMIN.INTEGRATE.SERVICE_ADDONS,
-  "/customer-vehicle-info": ROUTES.CUSTOMER.VEHICLE_INFO,
-  "/generate-tags": ROUTES.CUSTOMER.GENERATE_TAGS,
-  "/dowmload/safety-feature-stickers": ROUTES.DOWNLOAD.SAFETY_FEATURES,
 };

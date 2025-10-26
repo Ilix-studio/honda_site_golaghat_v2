@@ -10,8 +10,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import {
-  Bell,
-  Settings,
   User,
   LogOut,
   Home,
@@ -20,7 +18,7 @@ import {
   Phone,
   User2Icon,
   ArrowLeft,
-  Menu,
+  Bell,
 } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
@@ -45,48 +43,48 @@ const routeConfig: Record<
     title: "",
     subtitle: "",
   },
-  "/dashboard/services": {
+  "/customer/services": {
     title: "My Services",
     subtitle: "View and manage your service bookings",
     showBack: true,
     backTo: "/customer/dashboard",
     menuItems: [
-      { label: "Book Service", href: "/book-service" },
-      { label: "Service History", href: "/dashboard/service-history" },
-      { label: "Documents", href: "/dashboard/documents" },
+      { label: "Book Service", href: "/customer/services" },
+      { label: "Service History", href: "/customer/service-history" },
+      { label: "Documents", href: "/customer/documents" },
     ],
   },
-  "/book-service": {
+  "/customer/book-service": {
     title: "Book Service",
     subtitle: "Schedule your motorcycle service",
     showBack: true,
-    backTo: "/dashboard/services",
+    backTo: "/customer/dashboard",
     menuItems: [
-      { label: "My Services", href: "/dashboard/services" },
-      { label: "Service History", href: "/dashboard/service-history" },
-      { label: "Documents", href: "/dashboard/documents" },
+      { label: "My Services", href: "/customer/services" },
+      { label: "Service History", href: "/customer/service-history" },
+      { label: "Documents", href: "/customer/documents" },
     ],
   },
-  "/dashboard/documents": {
+  "/customer/documents": {
     title: "My Documents",
     subtitle: "Access your service records and warranties",
     showBack: true,
     backTo: "/customer/dashboard",
     menuItems: [
-      { label: "Book Service", href: "/book-service" },
-      { label: "My Services", href: "/dashboard/services" },
-      { label: "Service History", href: "/dashboard/service-history" },
+      { label: "Book Service", href: "/customer/book-service" },
+      { label: "My Services", href: "/customer/services" },
+      { label: "Service History", href: "/customer/service-history" },
     ],
   },
-  "/dashboard/service-history": {
+  "/customer/service-history": {
     title: "Service History",
     subtitle: "View your past service records",
     showBack: true,
-    backTo: "/dashboard/services",
+    backTo: "/customer/dashboard",
     menuItems: [
-      { label: "Book Service", href: "/book-service" },
-      { label: "My Services", href: "/dashboard/services" },
-      { label: "Documents", href: "/dashboard/documents" },
+      { label: "Book Service", href: "/customer/book-service" },
+      { label: "My Services", href: "/customer/services" },
+      { label: "Documents", href: "/customer/documents" },
     ],
   },
   "/customer/dashboard/initial": {
@@ -95,7 +93,7 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/customer/dashboard",
   },
-  "/profile": {
+  "/customer/profile-info": {
     title: "My Profile",
     subtitle: "Manage your account information",
     showBack: true,
@@ -112,7 +110,7 @@ export function CustomerDashHeader() {
   const { isAuthenticated, customer, firebaseToken } = useAuthForCustomer();
 
   const [notifications] = useState(3); // Mock notification count
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   // const [logoutCustomer, { isLoading: isLoggingOut }] = useLogoutCustomerMutation();
 
   // Get current route configuration
@@ -155,6 +153,9 @@ export function CustomerDashHeader() {
     } else {
       navigate(-1);
     }
+  };
+  const seeNotification = () => {
+    navigate("/customer/notification");
   };
 
   return (
@@ -205,7 +206,7 @@ export function CustomerDashHeader() {
               Dashboard
             </Link>
             <Link
-              to='/dashboard/services'
+              to='/customer/services'
               className={`transition-colors ${
                 location.pathname === "/dashboard/services"
                   ? "text-red-600 font-medium"
@@ -215,7 +216,7 @@ export function CustomerDashHeader() {
               Services
             </Link>
             <Link
-              to='/dashboard/documents'
+              to='/customer/documents'
               className={`transition-colors ${
                 location.pathname === "/dashboard/documents"
                   ? "text-red-600 font-medium"
@@ -225,7 +226,7 @@ export function CustomerDashHeader() {
               Documents
             </Link>
             <Link
-              to='/contact'
+              to='/customer/support'
               className='text-gray-600 hover:text-red-600 transition-colors'
             >
               Support
@@ -235,7 +236,12 @@ export function CustomerDashHeader() {
           {/* Right Side Actions */}
           <div className='flex items-center space-x-4'>
             {/* Notifications */}
-            <Button variant='ghost' size='sm' className='relative'>
+            <Button
+              variant='ghost'
+              size='sm'
+              className='relative'
+              onClick={seeNotification}
+            >
               <Bell className='h-5 w-5' />
               {notifications > 0 && (
                 <Badge className='absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-red-600'>
@@ -243,33 +249,6 @@ export function CustomerDashHeader() {
                 </Badge>
               )}
             </Button>
-
-            {/* Quick Actions Menu - Desktop */}
-            {currentRoute.menuItems && (
-              <div className='hidden md:flex items-center gap-2'>
-                <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant='outline' size='sm'>
-                      <Menu className='h-4 w-4 mr-2' />
-                      Quick Actions
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align='end' className='w-48'>
-                    {currentRoute.menuItems.map((item, index) => (
-                      <DropdownMenuItem key={index} asChild>
-                        <Link
-                          to={item.href}
-                          className='cursor-pointer'
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          {item.label}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )}
 
             {/* Quick Service Button - Desktop */}
             <div className='hidden sm:flex items-center space-x-2'>
@@ -313,17 +292,14 @@ export function CustomerDashHeader() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to='/profile'>
+                  <Link to='/customer/profile-info'>
                     <User className='mr-2 h-4 w-4' />
                     <span>Profile</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className='mr-2 h-4 w-4' />
-                  <span>Settings</span>
-                </DropdownMenuItem>
+
                 <DropdownMenuItem asChild>
-                  <Link to='/dashboard/documents'>
+                  <Link to='/customer/documents'>
                     <FileText className='mr-2 h-4 w-4' />
                     <span>Documents</span>
                   </Link>
@@ -367,7 +343,7 @@ export function CustomerDashHeader() {
               <span className='text-xs mt-1'>Dashboard</span>
             </Link>
             <Link
-              to='/dashboard/services'
+              to='/customer/services'
               className={`flex flex-col items-center py-2 ${
                 location.pathname === "/dashboard/services"
                   ? "text-red-600"
@@ -378,9 +354,9 @@ export function CustomerDashHeader() {
               <span className='text-xs mt-1'>Services</span>
             </Link>
             <Link
-              to='/dashboard/documents'
+              to='/customer/documents'
               className={`flex flex-col items-center py-2 ${
-                location.pathname === "/dashboard/documents"
+                location.pathname === "/customer/documents"
                   ? "text-red-600"
                   : "text-gray-600"
               }`}
@@ -389,7 +365,7 @@ export function CustomerDashHeader() {
               <span className='text-xs mt-1'>Documents</span>
             </Link>
             <Link
-              to='/contact'
+              to='/customer/support'
               className='flex flex-col items-center py-2 text-gray-600'
             >
               <Phone className='h-5 w-5' />
