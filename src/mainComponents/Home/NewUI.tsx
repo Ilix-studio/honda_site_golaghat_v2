@@ -9,6 +9,7 @@ import {
   Phone,
   MapPin,
   User,
+  ServerCogIcon,
 } from "lucide-react";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -180,15 +181,16 @@ export default function NewUI() {
                 <Phone className='h-4 w-4 mr-2' />
                 Call Now
               </Button>
-
-              <Button
-                className='bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 
+              <Link to='/book-service'>
+                <Button
+                  className='bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 
              text-white shadow-lg shadow-red-500/30 hover:shadow-red-500/50 
              transition-all duration-300 px-10 py-3'
-              >
-                <MapPin className='h-4 w-4 mr-2' />
-                Visit Us
-              </Button>
+                >
+                  <ServerCogIcon className='h-4 w-4 mr-2' />
+                  Book Service
+                </Button>
+              </Link>
 
               {/* Conditional User Button - Only show if token exists */}
               {hasToken && (
@@ -245,26 +247,15 @@ export default function NewUI() {
                   <Phone className='h-4 w-4 mr-2' />
                   Call Now
                 </Button>
-                <Button
-                  size='sm'
-                  className='w-full bg-gradient-to-r from-red-500 to-red-700 text-white'
-                >
-                  <MapPin className='h-4 w-4 mr-2' />
-                  Visit Us
-                </Button>
-
-                {/* Mobile User Button - Only show if token exists */}
-                {hasToken && (
-                  <Link to='/dynamic-login'>
-                    <Button
-                      size='sm'
-                      className='w-full bg-gradient-to-r from-gray-700 to-gray-900 text-white'
-                    >
-                      <User className='h-4 w-4 mr-2' />
-                      My Account
-                    </Button>
-                  </Link>
-                )}
+                <Link to='/book-service'>
+                  <Button
+                    size='sm'
+                    className='w-full bg-gradient-to-r from-red-500 to-red-700 text-white'
+                  >
+                    <MapPin className='h-4 w-4 mr-2' />
+                    Book Service
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -356,7 +347,7 @@ export default function NewUI() {
                   <ChevronRight className='ml-2 h-5 w-5' />
                 </Button>
               </Link>
-              <Link to='/finance'>
+              <Link to='/book-service'>
                 <Button
                   size='lg'
                   variant='outline'
@@ -364,7 +355,7 @@ export default function NewUI() {
              backdrop-blur-sm px-10 py-6 text-lg font-semibold 
              transition-all duration-300 hover:scale-105'
                 >
-                  For Finance Details
+                  Book Service
                 </Button>
               </Link>
             </div>

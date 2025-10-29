@@ -79,7 +79,7 @@ export const publicRoutes = [
   { path: "/compare", component: CompareBike },
 
   // Services
-  { path: "/book-service", component: BookServicePage },
+
   { path: "/search", component: SearchResults },
 
   // Public View System
@@ -261,6 +261,7 @@ const createCustomerRoutes = () => {
     { path: "/customer/tags/generate", component: GenerateTags },
     { path: "/customer/services/vas", component: ActivateVAS },
     { path: "/customer/services/addons", component: ActivateAddons },
+    { path: "/book-service", component: BookServicePage },
   ];
 };
 

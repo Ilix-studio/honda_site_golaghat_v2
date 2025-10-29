@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -231,7 +231,7 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
         transition={{ duration: 0.5 }}
         className='w-full max-w-md'
       >
-        <Card className='shadow-xl border-0 bg-black/80 backdrop-blur-sm'>
+        <Card className='shadow-xl border-1 bg-white/1 backdrop-blur-sm'>
           <CardHeader className='space-y-1 pb-6'>
             <div className='flex items-center justify-center mb-4'>
               <div className='w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center'>
@@ -384,10 +384,11 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
             )}
           </CardContent>
         </Card>
-
-        <p className='text-center text-xs text-gray-500 mt-6'>
-          TsangPool Honda - Secure Customer Portal
-        </p>
+        <Link to='/'>
+          <p className='text-center text-xs text-gray-500 mt-6'>
+            Back to Homepage
+          </p>
+        </Link>
       </motion.div>
     </div>
   );
