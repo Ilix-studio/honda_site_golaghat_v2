@@ -134,9 +134,6 @@ export function CustomerBikeInfo() {
             You don't have any vehicles registered yet. Contact your dealer to
             add your motorcycle.
           </p>
-          <p className='text-sm text-gray-500'>
-            Customer ID: {customer?.phoneNumber}
-          </p>
         </CardContent>
       </Card>
     );

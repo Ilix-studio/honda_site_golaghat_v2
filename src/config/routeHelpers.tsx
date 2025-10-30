@@ -4,8 +4,6 @@ import AdminHeader from "../mainComponents/Home/Header/AdminHeader";
 import { CustomerDashHeader } from "../mainComponents/Home/Header/CustomerDashHeader";
 import { Header } from "../mainComponents/Home/Header/Header";
 import ProtectedRoute from "./ProtectedRoute";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux-store/store";
 
 // LOADING FALLBACK COMPONENT
 const RouteLoadingFallback: React.FC = () => (
@@ -44,14 +42,11 @@ const CustomerRouteWrapper: React.FC<{
   children: React.ReactNode;
   adminCanAccess?: boolean;
   showAdminHeader?: boolean; // Whether to show admin header when admin accesses
-}> = ({ children, adminCanAccess = true, showAdminHeader = true }) => {
-  const authState = useSelector((state: RootState) => state.auth);
-  const isAdmin = authState?.isAuthenticated && authState?.user;
-
+}> = ({ children, adminCanAccess = true }) => {
   return (
     <ProtectedRoute requiredRole='customer' adminCanAccess={adminCanAccess}>
       {/* Show appropriate header based on user type */}
-      {isAdmin && showAdminHeader ? <AdminHeader /> : <CustomerDashHeader />}
+      <CustomerDashHeader />
       {children}
     </ProtectedRoute>
   );
