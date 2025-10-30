@@ -227,8 +227,8 @@ const CustomerNotification = lazy(
   () => import("@/mainComponents/CustomerSystem/Head/CustomerNotification")
 );
 
-const CustomerProfileInfo = lazy(
-  () => import("@/mainComponents/CustomerSystem/Head/CustomerProfileInfo")
+const CustomerProfile = lazy(
+  () => import("@/mainComponents/CustomerSystem/CustomerProfile")
 );
 
 // Create customer routes array
@@ -248,7 +248,7 @@ const createCustomerRoutes = () => {
     // Dashboard
     { path: "/customer/initialize", component: InitialDashboard },
     { path: "/customer/dashboard", component: CustomerMainDash },
-    { path: "/customer/profile-info", component: CustomerProfileInfo },
+    { path: "/customer/profile-info", component: CustomerProfile },
     { path: "/customer/services", component: CustomerServices },
     { path: "/customer/documents", component: CustomerDocuments },
     { path: "/customer/support", component: CustomerSupport },

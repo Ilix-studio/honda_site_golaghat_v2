@@ -3,14 +3,13 @@ import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { Phone, ShieldCheck, Loader2 } from "lucide-react";
+import { ShieldCheck, Loader2 } from "lucide-react";
 import { auth } from "../../lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
@@ -22,6 +21,7 @@ import {
 } from "@/redux-store/slices/customer/customerAuthSlice";
 import { setError } from "@/redux-store/slices/authSlice";
 import { useSaveAuthDataMutation } from "@/redux-store/services/customer/customerLoginApi";
+import PhoneNumberValidation from "./PhoneNoValidation";
 
 export interface CustomerLoginProps {
   onLoginSuccess?: () => void;
@@ -84,21 +84,9 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
     dispatch(clearError());
   }, [step, dispatch]);
 
-  const formatPhoneNumber = (value: string) => {
-    return value.replace(/\D/g, "").slice(0, 10);
-  };
-
-  const handleSendOtp = async () => {
-    if (phoneNumber.length !== 10) {
-      dispatch(
-        addNotification({
-          type: "error",
-          message: "Please enter a valid 10-digit phone number",
-        })
-      );
-      return;
-    }
-
+  // Modified to accept validated phone number from PhoneNumberValidation component
+  const handleSendOtp = async (validatedPhoneNumber: string) => {
+    setPhoneNumber(validatedPhoneNumber);
     setIsLoading(true);
 
     try {
@@ -108,7 +96,7 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
 
       const confirmation = await signInWithPhoneNumber(
         auth,
-        `+91${phoneNumber}`,
+        `+91${validatedPhoneNumber}`,
         recaptchaRef.current
       );
 
@@ -119,7 +107,7 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
       dispatch(
         addNotification({
           type: "success",
-          message: `OTP sent to +91${phoneNumber}`,
+          message: `OTP sent to +91${validatedPhoneNumber}`,
         })
       );
     } catch (error: any) {
@@ -218,7 +206,7 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
     setOtp("");
     setConfirmationResult(null);
     setOtpTimer(0);
-    await handleSendOtp();
+    setStep("phone"); // Go back to phone step for re-validation
   };
 
   return (
@@ -243,66 +231,29 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
             </CardTitle>
             <p className='text-center text-gray-600 text-sm'>
               {step === "phone"
-                ? "Enter your phone number to continue"
+                ? "Enter your registered phone number to continue"
                 : `Enter the 6-digit code sent to +91${phoneNumber}`}
             </p>
           </CardHeader>
 
           <CardContent className='space-y-4'>
             {step === "phone" ? (
-              <>
-                <div className='space-y-2'>
-                  <Label htmlFor='phone' className='text-sm font-medium'>
-                    Phone Number
-                  </Label>
-                  <div className='relative'>
-                    <Phone className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400' />
-                    <Input
-                      id='phone'
-                      type='tel'
-                      placeholder='10-digit mobile number'
-                      value={phoneNumber}
-                      onChange={(e) =>
-                        setPhoneNumber(formatPhoneNumber(e.target.value))
-                      }
-                      className='pl-10 h-12'
-                      maxLength={10}
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <p className='text-xs text-gray-500 mt-1'>
-                    We'll send you a one-time password
-                  </p>
-                </div>
-
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className='p-3 bg-red-50 border border-red-200 rounded-lg'
-                  >
-                    <p className='text-sm text-red-600'>{error}</p>
-                  </motion.div>
-                )}
-
-                <Button
-                  onClick={handleSendOtp}
-                  disabled={phoneNumber.length !== 10 || isLoading}
-                  className='w-full h-12 bg-red-600 hover:bg-red-700 text-white font-medium'
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                      Sending OTP...
-                    </>
-                  ) : (
-                    "Send OTP"
-                  )}
-                </Button>
-              </>
+              <PhoneNumberValidation
+                onSendOtp={handleSendOtp}
+                isLoading={isLoading}
+              />
             ) : (
               <>
                 <div className='space-y-4'>
+                  <div className='text-center space-y-2'>
+                    <p className='text-sm text-gray-600'>
+                      We sent a verification code to
+                    </p>
+                    <p className='font-semibold text-gray-900'>
+                      +91 {phoneNumber}
+                    </p>
+                  </div>
+
                   <div className='space-y-2'>
                     <Label className='text-sm font-medium'>Enter OTP</Label>
                     <div className='flex justify-center'>
