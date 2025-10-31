@@ -26,6 +26,7 @@ import {
   updateContactFormData,
   selectContactFormData,
 } from "@/redux-store/slices/formSlice";
+import { Link } from "react-router-dom";
 
 // Map Component with Error Handling
 interface MapComponentProps {
@@ -202,7 +203,9 @@ export function ContactSection({ branch }: any) {
           >
             <Card className='h-full'>
               <CardHeader>
-                <CardTitle>Get In Touch</CardTitle>
+                <Link to='/admin/dashboard'>
+                  <CardTitle>Get In Touch</CardTitle>
+                </Link>
                 <CardDescription>
                   We're here to help with any questions about our motorcycles,
                   service, or parts

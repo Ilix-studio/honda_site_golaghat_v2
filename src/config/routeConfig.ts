@@ -130,9 +130,7 @@ const EditBikeImage = lazy(
 
 // Business System Forms
 const VASForm = lazy(() => import("../mainComponents/BikeSystem2/VASForm"));
-const ServiceAddonsForm = lazy(
-  () => import("../mainComponents/BikeSystem2/ServiceAddonsForm")
-);
+
 const StockConceptForm = lazy(
   () => import("../mainComponents/BikeSystem2/StockConceptForm")
 );
@@ -166,7 +164,7 @@ const createAdminRoutes = () => [
 
   // Business System Forms
   { path: "/admin/forms/vas", component: VASForm },
-  { path: "/admin/forms/service-addons", component: ServiceAddonsForm },
+
   { path: "/admin/forms/stock-concept", component: StockConceptForm },
 
   // Integration Services

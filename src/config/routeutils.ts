@@ -32,7 +32,6 @@ export const ROUTES = {
     },
     FORMS: {
       VAS: "/admin/forms/vas",
-      SERVICE_ADDONS: "/admin/forms/service-addons",
       STOCK_CONCEPT: "/admin/forms/stock-concept",
     },
     VIEW: {
