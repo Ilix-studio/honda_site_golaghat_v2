@@ -36,7 +36,6 @@ export const ROUTES = {
     },
     VIEW: {
       VAS: "/admin/view/vas",
-      SERVICE_ADDONS: "/admin/view/service-addons",
       STOCK_CONCEPT: "/admin/view/stock-concept",
     },
     ASSIGN: {

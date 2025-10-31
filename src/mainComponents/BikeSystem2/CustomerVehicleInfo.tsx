@@ -5,7 +5,6 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { CustomerDashHeader } from "../Home/Header/CustomerDashHeader";
 
 const CustomerVehicleInfo = () => {
   const navigate = useNavigate();
@@ -39,7 +38,6 @@ const CustomerVehicleInfo = () => {
 
   return (
     <>
-      <CustomerDashHeader />
       <div className='max-w-7xl mx-auto p-6'>
         {/* Header */}
         <div className='flex justify-between items-center mb-6'>
