@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,17 +8,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
+
 import {
   User,
   LogOut,
   Home,
   Wrench,
-  FileText,
   Phone,
   User2Icon,
   ArrowLeft,
-  Bell,
 } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
@@ -36,8 +34,6 @@ export function CustomerDashHeader() {
 
   // Using the custom hook for customer authentication
   const { isAuthenticated, customer, firebaseToken } = useAuthForCustomer();
-
-  const [notifications] = useState(3); // Mock notification count
 
   // const [logoutCustomer, { isLoading: isLoggingOut }] = useLogoutCustomerMutation();
 
@@ -103,7 +99,10 @@ export function CustomerDashHeader() {
               </Button>
             )}
 
-            <Link to='/' className='flex items-center space-x-2'>
+            <Link
+              to='/customer/dashboard'
+              className='flex items-center space-x-2'
+            >
               <span className='font-bold text-xl text-red-500'>
                 Tsangpool Honda
               </span>
@@ -143,16 +142,7 @@ export function CustomerDashHeader() {
             >
               Services
             </Link>
-            <Link
-              to='/customer/documents'
-              className={`transition-colors ${
-                location.pathname === "/dashboard/documents"
-                  ? "text-red-600 font-medium"
-                  : "text-gray-600 hover:text-red-600"
-              }`}
-            >
-              Documents
-            </Link>
+
             <Link
               to='/customer/support'
               className='text-gray-600 hover:text-red-600 transition-colors'
@@ -169,14 +159,7 @@ export function CustomerDashHeader() {
               size='sm'
               className='relative'
               onClick={seeNotification}
-            >
-              <Bell className='h-5 w-5' />
-              {notifications > 0 && (
-                <Badge className='absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-red-600'>
-                  {notifications}
-                </Badge>
-              )}
-            </Button>
+            ></Button>
 
             {/* Quick Service Button - Desktop */}
             <div className='hidden sm:flex items-center space-x-2'>
@@ -226,12 +209,7 @@ export function CustomerDashHeader() {
                   </Link>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem asChild>
-                  <Link to='/customer/documents'>
-                    <FileText className='mr-2 h-4 w-4' />
-                    <span>Documents</span>
-                  </Link>
-                </DropdownMenuItem>
+                <DropdownMenuItem asChild></DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link to='/'>
@@ -281,17 +259,7 @@ export function CustomerDashHeader() {
               <Wrench className='h-5 w-5' />
               <span className='text-xs mt-1'>Services</span>
             </Link>
-            <Link
-              to='/customer/documents'
-              className={`flex flex-col items-center py-2 ${
-                location.pathname === "/customer/documents"
-                  ? "text-red-600"
-                  : "text-gray-600"
-              }`}
-            >
-              <FileText className='h-5 w-5' />
-              <span className='text-xs mt-1'>Documents</span>
-            </Link>
+
             <Link
               to='/customer/support'
               className='flex flex-col items-center py-2 text-gray-600'

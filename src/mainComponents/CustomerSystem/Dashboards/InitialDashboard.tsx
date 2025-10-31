@@ -8,7 +8,6 @@ import {
   CheckCircle,
   AlertCircle,
   Tags,
-  Settings,
 } from "lucide-react";
 
 import { useNavigate, useLocation } from "react-router-dom";
@@ -34,7 +33,6 @@ const InitialDashboard: React.FC = () => {
     profile: false,
     motorcycle: false,
     select_VAS: false,
-    select_AddOns: false,
     generate_tags: false,
   });
 
@@ -74,9 +72,6 @@ const InitialDashboard: React.FC = () => {
   const onVAS = () => {
     navigate("/customer/services/vas");
   };
-  const onServiceAddons = () => {
-    navigate("/customer/services/addons");
-  };
 
   const actionItems: ActionItem[] = [
     {
@@ -109,15 +104,7 @@ const InitialDashboard: React.FC = () => {
       description: "Unlock Value Added Services",
       completed: completionStatus.select_VAS,
     },
-    {
-      id: "add-service-addOns",
-      title: "Select Service-Addons",
-      buttonText: "Select",
-      icon: Settings,
-      onClick: onServiceAddons,
-      description: "Unlock Service Addons",
-      completed: completionStatus.select_AddOns,
-    },
+
     {
       id: "generate-tags",
       title: "Generate Tags",

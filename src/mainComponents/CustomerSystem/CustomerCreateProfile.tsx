@@ -2,7 +2,6 @@ import { useCreateProfileMutation } from "@/redux-store/services/customer/custom
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { CustomerDashHeader } from "../Home/Header/CustomerDashHeader";
 
 // Blood group enum - should match backend
 export enum BloodGroup {
@@ -198,7 +197,6 @@ const CustomerCreateProfile: React.FC = () => {
 
   return (
     <>
-      <CustomerDashHeader />
       <div className='max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md'>
         <h2 className='text-2xl font-bold text-gray-800 mb-6'>
           Create Your Profile

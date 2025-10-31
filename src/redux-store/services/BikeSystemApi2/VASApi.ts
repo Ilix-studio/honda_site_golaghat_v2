@@ -1,60 +1,21 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQuery, handleApiError } from "../../../lib/apiConfig";
 
-// ===================== TYPES & INTERFACES =====================
-
-// Badge Interface
-export interface IBadge {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  color: string;
-  isActive: boolean;
-}
-
 // Value Added Service Interface
 export interface IValueAddedService {
   _id: string;
   serviceName: string;
-  serviceType:
-    | "Extended Warranty"
-    | "Extended Warranty Plus"
-    | "Annual Maintenance Contract"
-    | "Engine Health Assurance"
-    | "Roadside Assistance";
-  description: string;
 
   // Coverage Details
   coverageYears: number;
-  maxEnrollmentPeriod: number; // months
-  vehicleEligibility: {
-    maxEngineCapacity: number; // 250cc
-    categories: string[]; // ["scooter", "motorcycle"]
-  };
 
   // Price Structure
   priceStructure: {
     basePrice: number;
-    pricePerYear: number;
-    engineCapacityMultiplier?: number;
   };
 
   // Benefits
   benefits: string[];
-  coverage: {
-    partsAndLabor: boolean;
-    unlimitedKilometers: boolean;
-    transferable: boolean;
-    panIndiaService: boolean;
-  };
-
-  // Terms
-  terms: string[];
-  exclusions: string[];
-
-  // Badges for customer dashboard
-  badges: IBadge[];
 
   // Admin fields
   isActive: boolean;
@@ -122,29 +83,14 @@ export interface CustomerActiveServicesResponse {
 
 export interface CreateVASRequest {
   serviceName: string;
-  serviceType: IValueAddedService["serviceType"];
-  description: string;
+
   coverageYears: number;
-  maxEnrollmentPeriod: number;
-  vehicleEligibility: {
-    maxEngineCapacity: number;
-    categories: string[];
-  };
+
   priceStructure: {
     basePrice: number;
-    pricePerYear: number;
-    engineCapacityMultiplier?: number;
   };
   benefits: string[];
-  coverage: {
-    partsAndLabor: boolean;
-    unlimitedKilometers: boolean;
-    transferable: boolean;
-    panIndiaService: boolean;
-  };
-  terms: string[];
-  exclusions: string[];
-  badges: Omit<IBadge, "id">[];
+
   applicableBranches: string[];
   validFrom: Date;
   validUntil: Date;
@@ -164,11 +110,10 @@ export interface ActivateServiceRequest {
 export interface VASFilters {
   page?: number;
   limit?: number;
-  serviceType?: IValueAddedService["serviceType"];
+
   isActive?: boolean;
   branchId?: string;
-  maxEngineCapacity?: number;
-  category?: string;
+
   search?: string;
 }
 
@@ -224,14 +169,7 @@ export const vasApi = createApi({
 
         if (filters.page) params.append("page", filters.page.toString());
         if (filters.limit) params.append("limit", filters.limit.toString());
-        if (filters.serviceType)
-          params.append("serviceType", filters.serviceType);
-        if (filters.maxEngineCapacity)
-          params.append(
-            "maxEngineCapacity",
-            filters.maxEngineCapacity.toString()
-          );
-        if (filters.category) params.append("category", filters.category);
+
         if (filters.search) params.append("search", filters.search);
 
         const queryString = params.toString();
@@ -323,17 +261,11 @@ export const vasApi = createApi({
 
         if (filters.page) params.append("page", filters.page.toString());
         if (filters.limit) params.append("limit", filters.limit.toString());
-        if (filters.serviceType)
-          params.append("serviceType", filters.serviceType);
+
         if (filters.isActive !== undefined)
           params.append("isActive", filters.isActive.toString());
         if (filters.branchId) params.append("branchId", filters.branchId);
-        if (filters.maxEngineCapacity)
-          params.append(
-            "maxEngineCapacity",
-            filters.maxEngineCapacity.toString()
-          );
-        if (filters.category) params.append("category", filters.category);
+
         if (filters.search) params.append("search", filters.search);
 
         const queryString = params.toString();
@@ -348,7 +280,7 @@ export const vasApi = createApi({
     // Create new VAS (admin only)
     createVAS: builder.mutation<VASResponse, CreateVASRequest>({
       query: (vasData) => ({
-        url: "/value-added-services/admin/create",
+        url: "/value-added-services",
         method: "POST",
         body: vasData,
       }),

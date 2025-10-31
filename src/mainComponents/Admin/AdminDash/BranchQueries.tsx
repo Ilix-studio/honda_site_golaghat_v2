@@ -9,7 +9,6 @@ import {
   Users,
   User,
   Cog,
-  Box,
   SplinePointer,
 } from "lucide-react";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
@@ -54,14 +53,7 @@ const BranchQueries = () => {
       description: "Active managers",
       action: { label: "Add Manager", href: "/admin/branches/managers" },
     },
-    {
-      title: "This Month",
-      value: "₹2.5L",
-      icon: TrendingUp,
-      loading: false,
-      description: "Sales revenue",
-      action: { label: "View Report", href: "/admin/reports" },
-    },
+
     {
       title: "Add Value-Added Services",
       icon: TrendingUp,
@@ -97,7 +89,7 @@ const BranchQueries = () => {
   return (
     <>
       {/* Stats Grid */}
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8'>
         {stats.map((stat, index) => (
           <motion.div
             key={stat.title}
@@ -155,16 +147,11 @@ const BranchQueries = () => {
                 View All Stock Bikes
               </Button>
             </Link>
-            <Link to='/view/service-Addons'>
-              <Button className='w-full justify-start' variant='outline'>
-                <Box className='h-4 w-4 mr-2' />
-                Get Service Packages
-              </Button>
-            </Link>
+
             <Link to='/admin/view/vas'>
               <Button className='w-full justify-start' variant='outline'>
                 <Cog className='h-4 w-4 mr-2' />
-                Get Value Added Services
+                View Value Added Services
               </Button>
             </Link>
           </CardContent>
@@ -172,36 +159,9 @@ const BranchQueries = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity and Visitor Analytics</CardTitle>
-            <CardDescription>Latest system activities</CardDescription>
+            <CardTitle>Visitor Analytics</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className='space-y-3'>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center space-x-2'>
-                  <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                  <span className='text-sm'>New bike added</span>
-                </div>
-                <span className='text-xs text-muted-foreground'>2 min ago</span>
-              </div>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center space-x-2'>
-                  <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
-                  <span className='text-sm'>Service booked</span>
-                </div>
-                <span className='text-xs text-muted-foreground'>5 min ago</span>
-              </div>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center space-x-2'>
-                  <div className='w-2 h-2 bg-yellow-500 rounded-full'></div>
-                  <span className='text-sm'>Inventory updated</span>
-                </div>
-                <span className='text-xs text-muted-foreground'>
-                  10 min ago
-                </span>
-              </div>
-            </div>
-          </CardContent>
+
           {/* Visitor Analytics Section */}
           {visitorStatsData?.data && (
             <motion.div

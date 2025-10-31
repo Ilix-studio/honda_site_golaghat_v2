@@ -6,8 +6,6 @@ import Home from "../Home";
 import NotFoundPage from "../mainComponents/NotFoundPage";
 import { ViewBikeImage } from "@/mainComponents/Admin/Bikes/ViewBikeImage";
 import CustomerSignUp from "@/mainComponents/CustomerSystem/CustomerSignUp";
-import IntegrateVAS from "@/mainComponents/Admin/IntegrateServices/IntegrateVAS";
-import IntegrateServiceAddons from "@/mainComponents/Admin/IntegrateServices/IntegrateServiceAddons";
 import AssignStock from "@/mainComponents/Admin/AssignImp/AssignStock";
 
 export const immediateRoutes = [
@@ -53,9 +51,7 @@ const ViewAllBranches = lazy(
   () => import("../mainComponents/ViewBS2/ViewAllBranches")
 );
 const ViewVAS = lazy(() => import("../mainComponents/ViewBS2/ViewVAS"));
-const ViewServiceAddons = lazy(
-  () => import("../mainComponents/ViewBS2/ViewServiceAddons")
-);
+
 const ViewStockConcept = lazy(
   () => import("../mainComponents/ViewBS2/ViewStockConcept")
 );
@@ -85,7 +81,7 @@ export const publicRoutes = [
   // Public View System
   { path: "/admin/branches/view", component: ViewAllBranches },
   { path: "/admin/view/vas", component: ViewVAS },
-  { path: "/view/service-addons", component: ViewServiceAddons },
+
   { path: "/view/stock-concept", component: ViewStockConcept },
   {
     path: "/download/safety-feature-stickers",
@@ -167,13 +163,6 @@ const createAdminRoutes = () => [
 
   { path: "/admin/forms/stock-concept", component: StockConceptForm },
 
-  // Integration Services
-  { path: "/admin/integrate/vas", component: IntegrateVAS },
-  {
-    path: "/admin/integrate/service-addons",
-    component: IntegrateServiceAddons,
-  },
-
   // Assignment System
   { path: "/admin/assign/stock-concept/:id", component: AssignStock },
 ];
@@ -207,16 +196,11 @@ const GenerateTags = lazy(
 const ActivateVAS = lazy(
   () => import("../mainComponents/CustomerSystem/ActivateFeature/ActivateVAS")
 );
-const ActivateAddons = lazy(
-  () =>
-    import("../mainComponents/CustomerSystem/ActivateFeature/ActivateAddons")
-);
+
 const CustomerServices = lazy(
   () => import("../mainComponents/CustomerSystem/Head/CustomerServices")
 );
-const CustomerDocuments = lazy(
-  () => import("@/mainComponents/CustomerSystem/Head/CustomerDocuments")
-);
+
 const CustomerSupport = lazy(
   () => import("@/mainComponents/CustomerSystem/Head/CustomerSupport")
 );
@@ -247,7 +231,6 @@ const createCustomerRoutes = () => {
     { path: "/customer/dashboard", component: CustomerMainDash },
     { path: "/customer/profile-info", component: CustomerProfile },
     { path: "/customer/services", component: CustomerServices },
-    { path: "/customer/documents", component: CustomerDocuments },
     { path: "/customer/support", component: CustomerSupport },
     { path: "/customer/notification", component: CustomerNotification },
 
@@ -257,8 +240,7 @@ const createCustomerRoutes = () => {
     // Select Services by Admin
     { path: "/customer/tags/generate", component: GenerateTags },
     { path: "/customer/services/vas", component: ActivateVAS },
-    { path: "/customer/services/addons", component: ActivateAddons },
-    { path: "/book-service", component: BookServicePage },
+    { path: "/customer/book-service", component: BookServicePage },
   ];
 };
 
@@ -287,7 +269,6 @@ export const routeConfig: Record<
     menuItems: [
       { label: "Book Service", href: "/customer/services" },
       { label: "Service History", href: "/customer/service-history" },
-      { label: "Documents", href: "/customer/documents" },
     ],
   },
   "/customer/book-service": {
@@ -298,20 +279,9 @@ export const routeConfig: Record<
     menuItems: [
       { label: "My Services", href: "/customer/services" },
       { label: "Service History", href: "/customer/service-history" },
-      { label: "Documents", href: "/customer/documents" },
     ],
   },
-  "/customer/documents": {
-    title: "My Documents",
-    subtitle: "Access your service records and warranties",
-    showBack: true,
-    backTo: "/customer/dashboard",
-    menuItems: [
-      { label: "Book Service", href: "/customer/book-service" },
-      { label: "My Services", href: "/customer/services" },
-      { label: "Service History", href: "/customer/service-history" },
-    ],
-  },
+
   "/customer/service-history": {
     title: "Service History",
     subtitle: "View your past service records",
@@ -320,7 +290,6 @@ export const routeConfig: Record<
     menuItems: [
       { label: "Book Service", href: "/customer/book-service" },
       { label: "My Services", href: "/customer/services" },
-      { label: "Documents", href: "/customer/documents" },
     ],
   },
   "/customer/dashboard/initial": {
