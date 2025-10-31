@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 
 import { useNavigate, useLocation } from "react-router-dom";
-import { CustomerDashHeader } from "@/mainComponents/Home/Header/CustomerDashHeader";
 
 interface ActionItem {
   id: string;
@@ -132,7 +131,6 @@ const InitialDashboard: React.FC = () => {
 
   return (
     <>
-      <CustomerDashHeader />
       <div className='min-h-screen bg-gray-50'>
         {/* Dashboard Content */}
         <div className='p-6'>

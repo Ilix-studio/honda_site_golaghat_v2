@@ -130,9 +130,7 @@ const EditBikeImage = lazy(
 
 // Business System Forms
 const VASForm = lazy(() => import("../mainComponents/BikeSystem2/VASForm"));
-const ServiceAddonsForm = lazy(
-  () => import("../mainComponents/BikeSystem2/ServiceAddonsForm")
-);
+
 const StockConceptForm = lazy(
   () => import("../mainComponents/BikeSystem2/StockConceptForm")
 );
@@ -166,7 +164,7 @@ const createAdminRoutes = () => [
 
   // Business System Forms
   { path: "/admin/forms/vas", component: VASForm },
-  { path: "/admin/forms/service-addons", component: ServiceAddonsForm },
+
   { path: "/admin/forms/stock-concept", component: StockConceptForm },
 
   // Integration Services
@@ -226,9 +224,8 @@ const CustomerSupport = lazy(
 const CustomerNotification = lazy(
   () => import("@/mainComponents/CustomerSystem/Head/CustomerNotification")
 );
-
-const CustomerProfileInfo = lazy(
-  () => import("@/mainComponents/CustomerSystem/Head/CustomerProfileInfo")
+const CustomerProfile = lazy(
+  () => import("@/mainComponents/CustomerSystem/CustomerProfile")
 );
 
 // Create customer routes array
@@ -248,7 +245,7 @@ const createCustomerRoutes = () => {
     // Dashboard
     { path: "/customer/initialize", component: InitialDashboard },
     { path: "/customer/dashboard", component: CustomerMainDash },
-    { path: "/customer/profile-info", component: CustomerProfileInfo },
+    { path: "/customer/profile-info", component: CustomerProfile },
     { path: "/customer/services", component: CustomerServices },
     { path: "/customer/documents", component: CustomerDocuments },
     { path: "/customer/support", component: CustomerSupport },
@@ -266,6 +263,79 @@ const createCustomerRoutes = () => {
 };
 
 export const customerRoutes = createCustomerRoutes();
+
+// Route configuration for dynamic titles and navigation
+export const routeConfig: Record<
+  string,
+  {
+    title: string;
+    subtitle?: string;
+    showBack?: boolean;
+    backTo?: string;
+    menuItems?: Array<{ label: string; href: string }>;
+  }
+> = {
+  "/customer/dashboard": {
+    title: "",
+    subtitle: "",
+  },
+  "/customer/services": {
+    title: "My Services",
+    subtitle: "View and manage your service bookings",
+    showBack: true,
+    backTo: "/customer/dashboard",
+    menuItems: [
+      { label: "Book Service", href: "/customer/services" },
+      { label: "Service History", href: "/customer/service-history" },
+      { label: "Documents", href: "/customer/documents" },
+    ],
+  },
+  "/customer/book-service": {
+    title: "Book Service",
+    subtitle: "Schedule your motorcycle service",
+    showBack: true,
+    backTo: "/customer/dashboard",
+    menuItems: [
+      { label: "My Services", href: "/customer/services" },
+      { label: "Service History", href: "/customer/service-history" },
+      { label: "Documents", href: "/customer/documents" },
+    ],
+  },
+  "/customer/documents": {
+    title: "My Documents",
+    subtitle: "Access your service records and warranties",
+    showBack: true,
+    backTo: "/customer/dashboard",
+    menuItems: [
+      { label: "Book Service", href: "/customer/book-service" },
+      { label: "My Services", href: "/customer/services" },
+      { label: "Service History", href: "/customer/service-history" },
+    ],
+  },
+  "/customer/service-history": {
+    title: "Service History",
+    subtitle: "View your past service records",
+    showBack: true,
+    backTo: "/customer/dashboard",
+    menuItems: [
+      { label: "Book Service", href: "/customer/book-service" },
+      { label: "My Services", href: "/customer/services" },
+      { label: "Documents", href: "/customer/documents" },
+    ],
+  },
+  "/customer/dashboard/initial": {
+    title: "",
+    subtitle: "",
+    showBack: true,
+    backTo: "/customer/dashboard",
+  },
+  "/customer/profile-info": {
+    title: "My Profile",
+    subtitle: "Manage your account information",
+    showBack: true,
+    backTo: "/customer/dashboard",
+  },
+};
 
 // FALLBACK ROUTE
 export const fallbackRoute = {

@@ -69,16 +69,7 @@ const BranchQueries = () => {
       description: "Add VAS to vehicles",
       action: { label: "Open VAS Form", href: "/admin/forms/vas" },
     },
-    {
-      title: "Add Services Add-Ons",
-      icon: TrendingUp,
-      loading: false,
-      description: "Add Services Addons to vehicles",
-      action: {
-        label: "Open Service Form",
-        href: "/admin/forms/service-addons",
-      },
-    },
+
     {
       title: "Stock-Queries",
       icon: TrendingUp,

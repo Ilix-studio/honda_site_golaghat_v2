@@ -122,7 +122,6 @@ const CustomerProfile: React.FC = () => {
               Please complete your profile to view all information.
             </p>
             <div className='text-sm text-blue-500 space-y-1'>
-              <p>Customer ID: {customer._id}</p>
               <p>Phone: {customer.phoneNumber}</p>
             </div>
           </div>
