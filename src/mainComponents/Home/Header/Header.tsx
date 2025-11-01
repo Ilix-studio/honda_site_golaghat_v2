@@ -205,12 +205,6 @@ export function Header() {
                 </span>
               </Link>
             )}
-
-            {/* <div className='flex flex-col gap-2'>
-              <Link to='/book-service' onClick={closeMobileMenu}>
-                <Button className='w-full'>Book Service</Button>
-              </Link>
-            </div> */}
           </nav>
         </motion.div>
       )}
