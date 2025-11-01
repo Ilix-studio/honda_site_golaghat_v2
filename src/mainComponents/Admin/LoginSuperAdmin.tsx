@@ -48,13 +48,6 @@ const LoginSuperAdmin = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Clear error message when user starts typing
-  useEffect(() => {
-    if (errorMessageSA && (email || password)) {
-      setErrorMessageSA("");
-    }
-  }, [email, password, errorMessageSA]);
-
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
