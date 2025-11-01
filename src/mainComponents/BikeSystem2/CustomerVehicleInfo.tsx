@@ -5,9 +5,12 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useAppDispatch } from "@/hooks/redux";
+import { setVehicleCompleted } from "@/redux-store/slices/setupProgressSlice";
 
 const CustomerVehicleInfo = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [filters, setFilters] = useState<StockConceptFilters>({
     page: 1,
     limit: 10,
@@ -175,9 +178,12 @@ const CustomerVehicleInfo = () => {
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
                           <button
-                            onClick={() =>
-                              navigate(`/assign/stock-concept/${stock._id}`)
-                            }
+                            onClick={() => {
+                              dispatch(setVehicleCompleted(true));
+                              navigate("/customer/initialize", {
+                                state: { vehicleCompleted: true },
+                              });
+                            }}
                             className='px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors'
                           >
                             Assign

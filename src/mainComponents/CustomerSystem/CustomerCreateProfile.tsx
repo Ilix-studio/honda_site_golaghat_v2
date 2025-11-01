@@ -1,4 +1,6 @@
+import { useAppDispatch } from "@/hooks/redux";
 import { useCreateProfileMutation } from "@/redux-store/services/customer/customerApi";
+import { setProfileCompleted } from "@/redux-store/slices/setupProgressSlice";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -47,6 +49,7 @@ interface RootState {
 
 const CustomerCreateProfile: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const customerAuth = useSelector((state: RootState) => state.customerAuth);
   const [createProfile, { isLoading, error }] = useCreateProfileMutation();
 
@@ -165,7 +168,10 @@ const CustomerCreateProfile: React.FC = () => {
       };
 
       await createProfile(profileData).unwrap();
-      navigate("/customer/dashboard/initial", {
+
+      // Mark as completed and navigate back
+      dispatch(setProfileCompleted(true));
+      navigate("/customer/initialize", {
         state: { profileCompleted: true },
       });
     } catch (err) {

@@ -292,12 +292,7 @@ export const routeConfig: Record<
       { label: "My Services", href: "/customer/services" },
     ],
   },
-  "/customer/dashboard/initial": {
-    title: "",
-    subtitle: "",
-    showBack: true,
-    backTo: "/customer/dashboard",
-  },
+
   "/customer/profile-info": {
     title: "My Profile",
     subtitle: "Manage your account information",
