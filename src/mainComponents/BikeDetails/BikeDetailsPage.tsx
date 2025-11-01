@@ -45,7 +45,7 @@ const BikeDetailPage: React.FC = () => {
 
   const handleBookNow = () => {
     if (bike) {
-      navigate(`/book-service?bikeId=${bike._id}`);
+      navigate(`/customer/book-service?bikeId=${bike._id}`);
     }
   };
 
