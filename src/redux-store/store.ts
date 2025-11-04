@@ -26,6 +26,7 @@ import formReducer from "./slices/formSlice";
 import getApprovedReducer from "./slices/getApprovedSlice";
 //new
 import customerAuthReducer from "./slices/customer/customerAuthSlice";
+import { persistedSetupProgressReducer } from "./slices/setupProgressSlice";
 
 // Import API services
 import { adminAuthApi } from "./services/adminApi";
@@ -84,6 +85,7 @@ const rootReducer = combineReducers({
   getApproved: getApprovedReducer,
   //update
   customerAuth: customerAuthReducer,
+  setupProgress: persistedSetupProgressReducer,
   // API services
   [adminAuthApi.reducerPath]: adminAuthApi.reducer,
   //New

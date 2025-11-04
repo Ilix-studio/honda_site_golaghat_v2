@@ -6,7 +6,7 @@ import Home from "../Home";
 import NotFoundPage from "../mainComponents/NotFoundPage";
 import { ViewBikeImage } from "@/mainComponents/Admin/Bikes/ViewBikeImage";
 import CustomerSignUp from "@/mainComponents/CustomerSystem/CustomerSignUp";
-import AssignStock from "@/mainComponents/Admin/AssignImp/AssignStock";
+import AssignStock from "@/mainComponents/CustomerSystem/ActivateFeature/AssignStock";
 
 export const immediateRoutes = [
   {
@@ -205,9 +205,6 @@ const CustomerSupport = lazy(
   () => import("@/mainComponents/CustomerSystem/Head/CustomerSupport")
 );
 
-const CustomerNotification = lazy(
-  () => import("@/mainComponents/CustomerSystem/Head/CustomerNotification")
-);
 const CustomerProfile = lazy(
   () => import("@/mainComponents/CustomerSystem/CustomerProfile")
 );
@@ -232,7 +229,6 @@ const createCustomerRoutes = () => {
     { path: "/customer/profile-info", component: CustomerProfile },
     { path: "/customer/services", component: CustomerServices },
     { path: "/customer/support", component: CustomerSupport },
-    { path: "/customer/notification", component: CustomerNotification },
 
     // Vehicle Management
     { path: "/customer/vehicle/info", component: CustomerVehicleInfo },
@@ -292,12 +288,7 @@ export const routeConfig: Record<
       { label: "My Services", href: "/customer/services" },
     ],
   },
-  "/customer/dashboard/initial": {
-    title: "",
-    subtitle: "",
-    showBack: true,
-    backTo: "/customer/dashboard",
-  },
+
   "/customer/profile-info": {
     title: "My Profile",
     subtitle: "Manage your account information",

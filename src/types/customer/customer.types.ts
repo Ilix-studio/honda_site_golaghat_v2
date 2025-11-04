@@ -21,6 +21,7 @@ export interface CreateProfileRequest {
 
 export interface Customer {
   id: string;
+  _id: string;
   phoneNumber: string;
   firebaseUid: string;
   firstName?: string;
