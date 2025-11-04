@@ -1,21 +1,27 @@
 import {
   StockConceptFilters,
   useGetAllStockItemsQuery,
+  useAssignToCustomerMutation,
 } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { useAppDispatch } from "@/hooks/redux";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { setVehicleCompleted } from "@/redux-store/slices/setupProgressSlice";
+import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
 
 const CustomerVehicleInfo = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { customer, isAuthenticated } = useAppSelector(selectCustomerAuth);
+  const [assignToCustomer, { isLoading: isAssigning }] =
+    useAssignToCustomerMutation();
+
   const [filters, setFilters] = useState<StockConceptFilters>({
     page: 1,
     limit: 10,
     search: "",
-    status: "Available", // Only show available vehicles
+    status: "Available",
   });
 
   const { data, isLoading, error } = useGetAllStockItemsQuery(filters);
@@ -27,12 +33,44 @@ const CustomerVehicleInfo = () => {
     setFilters((prev) => ({
       ...prev,
       [name]: value,
-      page: 1, // Reset to first page on filter change
+      page: 1,
     }));
   };
 
   const handlePageChange = (newPage: number) => {
     setFilters((prev) => ({ ...prev, page: newPage }));
+  };
+
+  const handleAssignVehicle = async (stockId: string, stockData: any) => {
+    try {
+      if (!customer?.id || !isAuthenticated) {
+        toast.error("Customer not authenticated");
+        return;
+      }
+
+      const assignmentData = {
+        customerId: customer.id,
+        salePrice: stockData.priceInfo.onRoadPrice,
+        invoiceNumber: `INV-${Date.now()}`,
+
+        insurance: false,
+        isPaid: false,
+        isFinance: false,
+      };
+
+      await assignToCustomer({
+        id: stockId,
+        data: assignmentData,
+      }).unwrap();
+
+      toast.success("Vehicle assigned successfully!");
+      dispatch(setVehicleCompleted(true));
+      navigate("/customer/initialize", {
+        state: { vehicleCompleted: true },
+      });
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to assign vehicle");
+    }
   };
 
   if (error) {
@@ -178,15 +216,13 @@ const CustomerVehicleInfo = () => {
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
                           <button
-                            onClick={() => {
-                              dispatch(setVehicleCompleted(true));
-                              navigate("/customer/initialize", {
-                                state: { vehicleCompleted: true },
-                              });
-                            }}
-                            className='px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors'
+                            onClick={() =>
+                              handleAssignVehicle(stock._id, stock)
+                            }
+                            disabled={isAssigning || !isAuthenticated}
+                            className='px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                           >
-                            Assign
+                            {isAssigning ? "Assigning..." : "Assign"}
                           </button>
                         </td>
                       </tr>

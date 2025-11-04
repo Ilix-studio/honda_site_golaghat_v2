@@ -2,6 +2,7 @@ import {
   CreateVASRequest,
   useCreateVASMutation,
 } from "@/redux-store/services/BikeSystemApi2/VASApi";
+import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 import React, { useState } from "react";
 
 import { toast } from "react-hot-toast";
@@ -11,6 +12,10 @@ const VASForm: React.FC = () => {
   const navigate = useNavigate();
   const [createVAS, { isLoading }] = useCreateVASMutation();
 
+  // Fetch branches data
+  const { data: branchesData, isLoading: branchesLoading } =
+    useGetBranchesQuery();
+
   const [formData, setFormData] = useState<CreateVASRequest>({
     serviceName: "",
     coverageYears: 1,
@@ -19,8 +24,6 @@ const VASForm: React.FC = () => {
     },
     benefits: [""],
     applicableBranches: [],
-    validFrom: new Date(),
-    validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
   });
 
   const handleInputChange = (
@@ -77,6 +80,32 @@ const VASForm: React.FC = () => {
     }));
   };
 
+  const handleBranchSelection = (branchId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      applicableBranches: prev.applicableBranches.includes(branchId)
+        ? prev.applicableBranches.filter((id) => id !== branchId)
+        : [...prev.applicableBranches, branchId],
+    }));
+  };
+
+  const selectAllBranches = () => {
+    if (branchesData?.data) {
+      const allBranchIds = branchesData.data.map((branch) => branch._id);
+      setFormData((prev) => ({
+        ...prev,
+        applicableBranches: allBranchIds,
+      }));
+    }
+  };
+
+  const clearAllBranches = () => {
+    setFormData((prev) => ({
+      ...prev,
+      applicableBranches: [],
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -101,15 +130,15 @@ const VASForm: React.FC = () => {
       return;
     }
 
-    if (formData.validUntil <= formData.validFrom) {
-      toast.error("Valid until date must be after valid from date");
+    if (formData.applicableBranches.length === 0) {
+      toast.error("Please select at least one applicable branch");
       return;
     }
 
     try {
       await createVAS(formData).unwrap();
       toast.success("VAS created successfully!");
-      navigate("/admin/view/vas"); // Adjust route as needed
+      navigate("/admin/view/vas");
     } catch (err: any) {
       toast.error(err?.data?.message || "Failed to create VAS");
     }
@@ -237,54 +266,71 @@ const VASForm: React.FC = () => {
               </div>
             </section>
 
-            {/* Validity Period */}
+            {/* Applicable Branches */}
             <section>
               <h2 className='text-lg font-semibold text-gray-900 mb-4'>
-                Validity Period
+                Applicable Branches *
               </h2>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    Valid From *
-                  </label>
-                  <input
-                    type='date'
-                    name='validFrom'
-                    value={formData.validFrom.toISOString().split("T")[0]}
-                    onChange={handleInputChange}
-                    className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                    required
-                  />
+              <div className='space-y-4'>
+                <div className='flex items-center space-x-4'>
+                  <button
+                    type='button'
+                    onClick={selectAllBranches}
+                    className='px-4 py-2 text-green-600 hover:text-green-800 border border-green-300 rounded-md hover:bg-green-50'
+                    disabled={branchesLoading}
+                  >
+                    Select All
+                  </button>
+                  <button
+                    type='button'
+                    onClick={clearAllBranches}
+                    className='px-4 py-2 text-orange-600 hover:text-orange-800 border border-orange-300 rounded-md hover:bg-orange-50'
+                  >
+                    Clear All
+                  </button>
+                  <span className='text-sm text-gray-600'>
+                    {formData.applicableBranches.length} branch(es) selected
+                  </span>
                 </div>
 
-                <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    Valid Until *
-                  </label>
-                  <input
-                    type='date'
-                    name='validUntil'
-                    value={formData.validUntil.toISOString().split("T")[0]}
-                    onChange={handleInputChange}
-                    className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                    required
-                  />
-                </div>
-              </div>
-            </section>
+                {branchesLoading ? (
+                  <div className='flex items-center justify-center py-8'>
+                    <div className='text-gray-500'>Loading branches...</div>
+                  </div>
+                ) : (
+                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto border border-gray-200 rounded-md p-4'>
+                    {branchesData?.data?.map((branch) => (
+                      <label
+                        key={branch._id}
+                        className='flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded'
+                      >
+                        <input
+                          type='checkbox'
+                          checked={formData.applicableBranches.includes(
+                            branch._id
+                          )}
+                          onChange={() => handleBranchSelection(branch._id)}
+                          className='rounded border-gray-300 text-blue-600 focus:ring-blue-500'
+                        />
+                        <div className='flex-1'>
+                          <div className='text-sm font-medium text-gray-900'>
+                            {branch.branchName}
+                          </div>
+                          <div className='text-xs text-gray-500'>
+                            {branch.address}
+                          </div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
 
-            {/* Applicable Branches (Optional - will be handled by admin selection) */}
-            <section>
-              <h2 className='text-lg font-semibold text-gray-900 mb-4'>
-                Service Configuration
-              </h2>
-              <div className='bg-blue-50 p-4 rounded-md'>
-                <p className='text-sm text-blue-700'>
-                  <strong>Note:</strong> Applicable branches will be configured
-                  by the system admin after service creation. The service will
-                  be available for all branches by default and can be restricted
-                  later if needed.
-                </p>
+                {!branchesLoading &&
+                  (!branchesData?.data || branchesData.data.length === 0) && (
+                    <div className='text-center py-8 text-gray-500'>
+                      No branches available. Please contact administrator.
+                    </div>
+                  )}
               </div>
             </section>
 

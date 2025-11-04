@@ -37,32 +37,36 @@ const InitialDashboard: React.FC = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
 
-  // Get setup progress from Redux (persisted automatically)
+  // Get setup progress from Redux
   const setupProgress = useAppSelector(selectSetupProgress);
   const completedTasks = useAppSelector(selectCompletedTasks);
   const completionPercentage = useAppSelector(selectCompletionPercentage);
 
-  // Only handle completion from navigation state (when returning from successful operations)
+  // Check for profile completion from navigation state
   useEffect(() => {
     if (location.state?.profileCompleted) {
       dispatch(setProfileCompleted(true));
-      navigate("/customer/initialize", { replace: true });
-    }
-    if (location.state?.vehicleCompleted) {
-      dispatch(setVehicleCompleted(true));
-      navigate("/customer/initialize", { replace: true });
-    }
-    if (location.state?.vasCompleted) {
-      dispatch(setSelectVASCompleted(true));
-      navigate("/customer/initialize", { replace: true });
-    }
-    if (location.state?.tagsCompleted) {
-      dispatch(setGenerateTagsCompleted(true));
+      // Clear the navigation state
       navigate("/customer/initialize", { replace: true });
     }
   }, [location.state, navigate, dispatch]);
+  const handleItemClick = (itemId: string, originalOnClick: () => void) => {
+    // Mark appropriate item as completed when clicked
+    switch (itemId) {
+      case "vehicle":
+        dispatch(setVehicleCompleted(true));
+        break;
+      case "select-vas":
+        dispatch(setSelectVASCompleted(true));
+        break;
+      case "generate-tags":
+        dispatch(setGenerateTagsCompleted(true));
+        break;
+      // Profile completion is handled via API/navigation state
+    }
+    originalOnClick();
+  };
 
-  // Simple navigation - no auto-completion
   const onCreateProfile = () => {
     navigate("/customer/profile/create");
   };
@@ -70,7 +74,6 @@ const InitialDashboard: React.FC = () => {
   const onAddMotorcycle = () => {
     navigate("/customer/vehicle/info");
   };
-
   const onGenerateTags = () => {
     navigate("/customer/tags/generate");
   };
@@ -100,6 +103,7 @@ const InitialDashboard: React.FC = () => {
         "Register motorcycle details, specifications, and maintenance history",
       completed: setupProgress.vehicle,
     },
+
     {
       id: "add-VAS",
       title: "Select VAS",
@@ -109,6 +113,7 @@ const InitialDashboard: React.FC = () => {
       description: "Unlock Value Added Services",
       completed: setupProgress.selectVAS,
     },
+
     {
       id: "generate-tags",
       title: "Generate Tags",
@@ -119,7 +124,6 @@ const InitialDashboard: React.FC = () => {
       completed: setupProgress.generateTags,
     },
   ];
-
   const totalTasks = actionItems.length;
   const isProfileCompleted = setupProgress.profile;
 
@@ -164,7 +168,7 @@ const InitialDashboard: React.FC = () => {
                     <div
                       className='bg-blue-600 h-2 rounded-full transition-all duration-300'
                       style={{
-                        width: `${completionPercentage}%`,
+                        width: `${(completedTasks / totalTasks) * 100}%`,
                       }}
                     />
                   </div>
@@ -232,7 +236,7 @@ const InitialDashboard: React.FC = () => {
                               ? "bg-green-600 hover:bg-green-700 text-white border-green-600"
                               : "border-2 border-gray-800 text-gray-800 hover:bg-gray-50"
                           }`}
-                          onClick={item.onClick}
+                          onClick={() => handleItemClick(item.id, item.onClick)}
                           disabled={isCompleted}
                         >
                           {isCompleted ? "Completed" : item.buttonText}

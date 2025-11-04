@@ -45,12 +45,29 @@ const setupProgressSlice = createSlice({
       state.generateTags = false;
       state.lastUpdated = "";
     },
+    verifyProfileCompletion: (state, action: PayloadAction<boolean>) => {
+      // If database says profile doesn't exist, reset the state
+      if (!action.payload) {
+        state.profile = false;
+        state.lastUpdated = new Date().toISOString();
+      }
+    },
     // Batch update for when loading from API
     updateSetupProgress: (
       state,
       action: PayloadAction<Partial<SetupProgressState>>
     ) => {
       Object.assign(state, action.payload);
+      state.lastUpdated = new Date().toISOString();
+    },
+    // Reset specific step
+    resetStepCompletion: (
+      state,
+      action: PayloadAction<
+        "profile" | "vehicle" | "selectVAS" | "generateTags"
+      >
+    ) => {
+      state[action.payload] = false;
       state.lastUpdated = new Date().toISOString();
     },
   },
@@ -63,6 +80,8 @@ export const {
   setGenerateTagsCompleted,
   resetSetupProgress,
   updateSetupProgress,
+  verifyProfileCompletion,
+  resetStepCompletion,
 } = setupProgressSlice.actions;
 
 // Selectors

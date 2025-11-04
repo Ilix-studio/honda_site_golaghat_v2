@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 // Interface that matches the actual API response
-interface CustomerProfile {
+export interface CustomerProfile {
   _id: string;
   customer: string;
   firstName: string;
@@ -40,7 +40,7 @@ interface CustomerProfile {
   id: string;
 }
 
-interface CustomerData {
+export interface CustomerData {
   _id: string;
   firebaseUid: string;
   phoneNumber: string;
@@ -52,7 +52,7 @@ interface CustomerData {
   profileCompleted: boolean;
 }
 
-interface ApiResponse {
+export interface ApiResponse {
   success: boolean;
   data: CustomerData;
 }
