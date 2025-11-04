@@ -7,7 +7,8 @@ import { useAppSelector } from "@/hooks/redux";
 import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
 import { Loader2 } from "lucide-react";
 import { TokenDebugger } from "@/lib/TokenDebugger";
-import CustomerProfile from "../CustomerProfile";
+
+import CustomerProfileInto from "../CustomerProfileInto";
 
 export default function CustomerMainDash() {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ export default function CustomerMainDash() {
         <div className='grid grid-cols-1 lg:grid-cols-1 gap-8'>
           {/* Main Content */}
           <div className='lg:col-span-2'>
-            <CustomerProfile />
+            <CustomerProfileInto />
             <CustomerBikeInfo />
             <TokenDebugger />
           </div>

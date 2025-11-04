@@ -8,12 +8,10 @@ import {
   User,
   Hash,
   Camera,
-  Shield,
-  Star,
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { ReactNode, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 // Fixed import - use stock customer vehicle API
 import { useGetMyStockVehiclesQuery } from "../../redux-store/services/customer/stockCustomerVehicleApi";
@@ -22,13 +20,13 @@ import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSl
 import cbr from "../../assets/cbr-1000-rrr.jpg";
 
 // Type definitions
-interface ServiceBadgeProps {
-  title: string;
-  subtitle: string;
-  gradient: string;
-  shadowColor: string;
-  icon: ReactNode;
-}
+// interface ServiceBadgeProps {
+//   title: string;
+//   subtitle: string;
+//   gradient: string;
+//   shadowColor: string;
+//   icon: ReactNode;
+// }
 
 export function CustomerBikeInfo() {
   const navigate = useNavigate();
@@ -51,31 +49,31 @@ export function CustomerBikeInfo() {
     skip: !isAuthenticated || !firebaseToken, // Skip query if not authenticated
   });
 
-  const ServiceBadge = ({
-    title,
-    subtitle,
-    gradient,
-    shadowColor,
-    icon,
-  }: ServiceBadgeProps) => (
-    <div className='relative group'>
-      <div
-        className={`flex flex-col items-center justify-center w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full bg-gradient-to-br ${gradient} shadow-xl ${shadowColor} border-2 border-white/20 backdrop-blur-sm transform transition-all duration-300 hover:scale-110 hover:shadow-2xl group-hover:rotate-3`}
-      >
-        <div className='absolute inset-0 rounded-full bg-gradient-to-tr from-white/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
-        <div className='text-white mb-1 transform group-hover:scale-110 transition-transform duration-200'>
-          {icon}
-        </div>
-        <div className='text-[7px] sm:text-[8px] lg:text-[9px] font-bold text-center leading-tight px-1 text-white/95 relative z-10'>
-          <div className='tracking-wider'>{title}</div>
-          <div className='font-semibold opacity-90'>{subtitle}</div>
-        </div>
-        <div className='absolute inset-0 rounded-full border-2 border-white/30 scale-110 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-500'></div>
-      </div>
-      <div className='absolute -top-1 -right-1 w-2 h-2 bg-white/40 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping'></div>
-      <div className='absolute -bottom-1 -left-1 w-1.5 h-1.5 bg-white/30 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping animation-delay-200'></div>
-    </div>
-  );
+  // const ServiceBadge = ({
+  //   title,
+  //   subtitle,
+  //   gradient,
+  //   shadowColor,
+  //   icon,
+  // }: ServiceBadgeProps) => (
+  //   <div className='relative group'>
+  //     <div
+  //       className={`flex flex-col items-center justify-center w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full bg-gradient-to-br ${gradient} shadow-xl ${shadowColor} border-2 border-white/20 backdrop-blur-sm transform transition-all duration-300 hover:scale-110 hover:shadow-2xl group-hover:rotate-3`}
+  //     >
+  //       <div className='absolute inset-0 rounded-full bg-gradient-to-tr from-white/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
+  //       <div className='text-white mb-1 transform group-hover:scale-110 transition-transform duration-200'>
+  //         {icon}
+  //       </div>
+  //       <div className='text-[7px] sm:text-[8px] lg:text-[9px] font-bold text-center leading-tight px-1 text-white/95 relative z-10'>
+  //         <div className='tracking-wider'>{title}</div>
+  //         <div className='font-semibold opacity-90'>{subtitle}</div>
+  //       </div>
+  //       <div className='absolute inset-0 rounded-full border-2 border-white/30 scale-110 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-500'></div>
+  //     </div>
+  //     <div className='absolute -top-1 -right-1 w-2 h-2 bg-white/40 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping'></div>
+  //     <div className='absolute -bottom-1 -left-1 w-1.5 h-1.5 bg-white/30 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping animation-delay-200'></div>
+  //   </div>
+  // );
 
   if (isLoading) {
     return (
@@ -226,21 +224,7 @@ export function CustomerBikeInfo() {
                     {vehicle.yearOfManufacture}
                   </p>
                 </div>
-                <div>
-                  <label className='text-sm font-medium text-gray-500'>
-                    Payment Status
-                  </label>
-                  <Badge
-                    variant='outline'
-                    className={`${
-                      vehicle.salesInfo?.paymentStatus === "Paid"
-                        ? "bg-green-50 text-green-700 border-green-200"
-                        : "bg-yellow-50 text-yellow-700 border-yellow-200"
-                    }`}
-                  >
-                    {vehicle.salesInfo?.paymentStatus || "N/A"}
-                  </Badge>
-                </div>
+
                 <div>
                   <label className='text-sm font-medium text-gray-500'>
                     Sale Price
@@ -252,7 +236,7 @@ export function CustomerBikeInfo() {
               </div>
 
               {/* Service Badges */}
-              <div className='flex justify-center gap-3 pt-6'>
+              {/* <div className='flex justify-center gap-3 pt-6'>
                 <ServiceBadge
                   title='ANNUAL'
                   subtitle='MAINTENANCE'
@@ -274,7 +258,7 @@ export function CustomerBikeInfo() {
                   shadowColor='shadow-red-500/25'
                   icon={<Star className='w-9 h-9' />}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </CardContent>
@@ -346,14 +330,6 @@ export function CustomerBikeInfo() {
           <CardContent className='space-y-4'>
             <div>
               <label className='text-sm font-medium text-gray-500'>
-                Sold To
-              </label>
-              <p className='text-lg font-semibold text-gray-900'>
-                {vehicle.salesInfo?.soldTo?.phoneNumber || "N/A"}
-              </p>
-            </div>
-            <div>
-              <label className='text-sm font-medium text-gray-500'>
                 Invoice Number
               </label>
               <p className='text-lg font-semibold text-gray-900'>
@@ -376,14 +352,6 @@ export function CustomerBikeInfo() {
                       }
                     )
                   : "N/A"}
-              </p>
-            </div>
-            <div>
-              <label className='text-sm font-medium text-gray-500'>
-                Sales Person
-              </label>
-              <p className='text-lg font-semibold text-gray-900'>
-                {vehicle.salesInfo?.salesPerson?.name || "N/A"}
               </p>
             </div>
           </CardContent>
