@@ -63,8 +63,6 @@ const persistConfig = {
   whitelist: ["auth", "customerAuth", "comparison", "ui", "getApproved"],
   blacklist: [
     "adminAuthApi",
-    "bikesApi",
-    "scootyApi",
     "branchApi",
     "staffApi",
     "branchManagerApi",
