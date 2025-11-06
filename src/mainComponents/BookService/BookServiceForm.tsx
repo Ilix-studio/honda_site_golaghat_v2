@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence } from "framer-motion";
-
 import {
   Card,
   CardContent,
@@ -16,69 +15,83 @@ import { ServiceFormValues, serviceFormSchema } from "@/lib/form-schema";
 import { VehicleInformation } from "./formSteps/VehicleInformation";
 import { ServiceSelection } from "./formSteps/ServiceSelection";
 import { ScheduleService } from "./formSteps/ScheduleService";
-import { CustomerInformation } from "./formSteps/CustomerInformation";
 import { AdditionalInformation } from "./formSteps/AdditionalInformation";
-import { BookingSummary } from "./formSteps/BookingSummary";
 import { SuccessConfirmation } from "./SuccessConfirmation";
 import { StepIndicator } from "./StepIndicator";
 import { FormNavigation } from "./FormNavigation";
 
 // Redux
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
-import {
-  selectServiceBookingForm,
-  setServiceBookingStep,
-  updateServiceBookingData,
-  setServiceBookingSubmitting,
-  setServiceBookingSubmitted,
-  resetServiceBookingForm,
-} from "../../redux-store/slices/formSlice";
 import { addNotification } from "../../redux-store/slices/uiSlice";
+import {
+  useCreateServiceBookingMutation,
+  useGetMyServiceStatsQuery,
+} from "@/redux-store/services/customer/ServiceBookCustomerApi";
+import {
+  clearCurrentBooking,
+  nextStep,
+  previousStep,
+  setBookingError,
+  setBookingSuccess,
+  setCreatingBooking,
+  setLastBookingId,
+  updateCurrentBooking,
+} from "@/redux-store/slices/bookingServiceSlice";
 
 export const BookServiceForm: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { currentStep, totalSteps, isSubmitting, isSubmitted, formData } =
-    useAppSelector(selectServiceBookingForm);
 
-  // Convert Redux form data to match Zod schema types
-  const getFormDefaultValues = (): Partial<ServiceFormValues> => {
-    return {
-      bikeModel: formData.bikeModel,
-      year: formData.year,
-      vin: formData.vin,
-      mileage: formData.mileage,
-      registrationNumber: formData.registrationNumber,
-      serviceType: formData.serviceType,
-      additionalServices: formData.additionalServices,
-      serviceLocation: formData.serviceLocation,
-      // Convert string date to Date object for the form
-      date: formData.date ? new Date(formData.date) : undefined,
-      time: formData.time,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      phone: formData.phone,
-      issues: formData.issues,
-      dropOff: formData.dropOff,
-      waitOnsite: formData.waitOnsite,
-      termsAccepted: formData.termsAccepted,
-    };
-  };
+  // Direct state access instead of selectors
+  const serviceBooking = useAppSelector((state: any) => state.serviceBooking);
+  const currentBooking = serviceBooking.currentBooking;
+  const currentStep = serviceBooking.currentStep;
+  const isCreating = serviceBooking.isCreatingBooking;
+  const success = serviceBooking.bookingSuccess;
 
-  // Initialize form with react-hook-form and zod validation
+  // API hooks
+  const [createServiceBooking] = useCreateServiceBookingMutation();
+  const { refetch: refetchStats } = useGetMyServiceStatsQuery();
+
+  const totalSteps = 4;
+
   const form = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceFormSchema),
-    defaultValues: getFormDefaultValues(),
+    defaultValues: {
+      bikeModel: currentBooking?.vehicle,
+      serviceType: currentBooking?.serviceType,
+      serviceLocation: currentBooking?.branch,
+      date: currentBooking?.appointmentDate
+        ? new Date(currentBooking.appointmentDate)
+        : undefined,
+      time: currentBooking?.appointmentTime,
+      termsAccepted: currentBooking?.termsAccepted,
+    },
   });
 
-  // Handle next step
+  // Sync form with Redux state
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      dispatch(
+        updateCurrentBooking({
+          vehicle: value.bikeModel,
+          serviceType: value.serviceType,
+          branch: value.serviceLocation,
+          appointmentDate: value.date?.toISOString(),
+          appointmentTime: value.time,
+          location: value.serviceLocation ? "branch" : undefined,
+          termsAccepted: value.termsAccepted,
+        })
+      );
+    });
+    return () => subscription.unsubscribe();
+  }, [form, dispatch]);
+
   const handleNext = async () => {
     let fieldsToValidate: (keyof ServiceFormValues)[] = [];
 
-    // Determine which fields to validate based on current step
     switch (currentStep) {
       case 1:
-        fieldsToValidate = ["bikeModel", "year", "mileage"];
+        fieldsToValidate = ["bikeModel"];
         break;
       case 2:
         fieldsToValidate = ["serviceType"];
@@ -87,85 +100,69 @@ export const BookServiceForm: React.FC = () => {
         fieldsToValidate = ["serviceLocation", "date", "time"];
         break;
       case 4:
-        fieldsToValidate = ["firstName", "lastName", "email", "phone"];
-        break;
-      case 5:
         fieldsToValidate = ["termsAccepted"];
         break;
     }
 
-    // Validate the fields for the current step
     const isValid = await form.trigger(fieldsToValidate);
-
-    if (isValid) {
-      // Get current form data and convert Date to string for Redux
-      const currentData = form.getValues();
-      const reduxData = {
-        ...currentData,
-        // Convert Date back to string for Redux storage
-        date: currentData.date ? currentData.date.toISOString() : null,
-      };
-
-      dispatch(updateServiceBookingData(reduxData));
-
-      if (currentStep < totalSteps) {
-        dispatch(setServiceBookingStep(currentStep + 1));
-      }
+    if (isValid && currentStep < totalSteps) {
+      dispatch(nextStep());
     }
   };
 
-  // Handle back step
   const handleBack = () => {
-    if (currentStep > 1) {
-      dispatch(setServiceBookingStep(currentStep - 1));
-    }
+    if (currentStep > 1) dispatch(previousStep());
   };
 
-  // Handle form reset
   const handleReset = () => {
-    dispatch(resetServiceBookingForm());
+    dispatch(clearCurrentBooking());
     form.reset();
   };
 
-  // Handle form submission
   const onSubmit = form.handleSubmit(async (data: ServiceFormValues) => {
-    dispatch(setServiceBookingSubmitting(true));
-
-    // Convert Date to string for Redux storage
-    const reduxData = {
-      ...data,
-      date: data.date ? data.date.toISOString() : null,
-    };
-
-    dispatch(updateServiceBookingData(reduxData));
+    dispatch(setCreatingBooking(true));
 
     try {
-      // Here you would make an actual API call
-      // Example: await submitServiceBooking(data);
+      const bookingData = {
+        vehicle: data.bikeModel!,
+        serviceType: data.serviceType!,
+        branch: data.serviceLocation!,
+        appointmentDate: data.date!.toISOString().split("T")[0],
+        appointmentTime: data.time!,
+        location: "branch" as const,
+        specialRequests: data.issues,
+        isDropOff: data.dropOff,
+        willWaitOnsite: data.waitOnsite,
+        termsAccepted: true,
+      };
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const result = await createServiceBooking(bookingData).unwrap();
 
-      dispatch(setServiceBookingSubmitted(true));
+      dispatch(setLastBookingId(result.data.bookingId));
+      dispatch(setBookingSuccess(true));
       dispatch(
         addNotification({
           type: "success",
-          message: "Service booking submitted successfully!",
+          message: `Service booking created successfully! Booking ID: ${result.data.bookingId}`,
         })
       );
-    } catch (error) {
+
+      refetchStats();
+    } catch (error: any) {
+      const errorMessage =
+        error?.data?.message || "Failed to create service booking";
+      dispatch(setBookingError(errorMessage));
       dispatch(
         addNotification({
           type: "error",
-          message: "Failed to submit service booking. Please try again.",
+          message: errorMessage,
         })
       );
     } finally {
-      dispatch(setServiceBookingSubmitting(false));
+      dispatch(setCreatingBooking(false));
     }
   });
 
-  // Render appropriate step component
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
@@ -175,17 +172,13 @@ export const BookServiceForm: React.FC = () => {
       case 3:
         return <ScheduleService form={form} />;
       case 4:
-        return <CustomerInformation form={form} />;
-      case 5:
         return <AdditionalInformation form={form} />;
-      case 6:
-        return <BookingSummary form={form} />;
       default:
         return null;
     }
   };
 
-  if (isSubmitted) {
+  if (success) {
     return <SuccessConfirmation form={form} onReset={handleReset} />;
   }
 
@@ -199,13 +192,11 @@ export const BookServiceForm: React.FC = () => {
           </CardDescription>
           <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
         </CardHeader>
-
         <CardContent>
           <form>
             <AnimatePresence mode='wait'>{renderStepContent()}</AnimatePresence>
           </form>
         </CardContent>
-
         <CardFooter>
           <FormNavigation
             step={currentStep}
@@ -213,7 +204,7 @@ export const BookServiceForm: React.FC = () => {
             handleBack={handleBack}
             handleNext={handleNext}
             handleSubmit={onSubmit}
-            isSubmitting={isSubmitting}
+            isSubmitting={isCreating}
           />
         </CardFooter>
       </Card>

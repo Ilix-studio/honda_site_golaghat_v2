@@ -343,19 +343,19 @@ export const adminVehicleApi = createApi({
     }),
 
     // Get my vehicles (authenticated customer)
-    getMyVehicles: builder.query<
-      PopulatedCustomerVehicleListResponse,
-      { page?: number; limit?: number }
-    >({
-      query: ({ page = 1, limit = 10 }) => {
-        const params = new URLSearchParams();
-        params.append("page", page.toString());
-        params.append("limit", limit.toString());
-        return `/customer-vehicles/my-vehicles?${params.toString()}`;
-      },
-      providesTags: ["CustomerVehicle"],
-      transformErrorResponse: (response) => handleApiError(response),
-    }),
+    // getMyVehicles: builder.query<
+    //   PopulatedCustomerVehicleListResponse,
+    //   { page?: number; limit?: number }
+    // >({
+    //   query: ({ page = 1, limit = 10 }) => {
+    //     const params = new URLSearchParams();
+    //     params.append("page", page.toString());
+    //     params.append("limit", limit.toString());
+    //     return `/customer-vehicles/my-vehicles?${params.toString()}`;
+    //   },
+    //   providesTags: ["CustomerVehicle"],
+    //   transformErrorResponse: (response) => handleApiError(response),
+    // }),
 
     // Get customer vehicle by ID (with populated data)
     getCustomerVehicleById: builder.query<
@@ -736,7 +736,7 @@ export const adminVehicleApi = createApi({
 // ===================== EXPORT HOOKS =====================
 export const {
   // Customer/Public hooks
-  useGetMyVehiclesQuery, // Add this
+  // useGetMyVehiclesQuery, // Add this
   useGetCustomerVehiclesQuery,
   useGetCustomerVehicleByIdQuery,
   useGetVehicleServiceHistoryQuery,
@@ -765,7 +765,7 @@ export const {
   useValidateNumberPlateQuery,
   useSendServiceRemindersMutation,
   //
-  useLazyGetMyVehiclesQuery, // Add this
+  // useLazyGetMyVehiclesQuery, // Add this
   useLazyGetAllCustomerVehiclesQuery,
   useLazyGetVehicleStatsQuery,
   useLazyGetVehiclesDueForServiceQuery,
