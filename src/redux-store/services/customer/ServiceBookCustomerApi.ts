@@ -10,8 +10,8 @@ import {
 } from "@/types/serviceBooking.types";
 
 // Customer API
-export const serviceBookingApi = createApi({
-  reducerPath: "serviceBookingApi",
+export const serviceBookingCustomerApi = createApi({
+  reducerPath: "serviceBookingCustomerApi",
   baseQuery: customerBaseQuery,
   tagTypes: ["ServiceBooking", "BookingStats", "Availability"],
   endpoints: (builder) => ({
@@ -100,4 +100,4 @@ export const {
   useCancelBookingMutation,
   useLazyCheckAvailabilityQuery,
   useLazyGetMyBookingsQuery,
-} = serviceBookingApi;
+} = serviceBookingCustomerApi;

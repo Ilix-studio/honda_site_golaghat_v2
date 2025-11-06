@@ -1,8 +1,7 @@
-// src/components/service-booking/steps/ScheduleService.tsx
-
 import { motion } from "framer-motion";
-import { AlertTriangle, CalendarIcon } from "lucide-react";
+import { AlertTriangle, CalendarIcon, Clock } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,35 +20,13 @@ import { cn } from "../../../lib/utils";
 import { ServiceFormValues } from "../../../lib/form-schema";
 import { formatDate } from "../../../lib/dateUtils";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
+import { useLazyCheckAvailabilityQuery } from "@/redux-store/services/customer/ServiceBookCustomerApi";
 
-// Define types
 interface ServiceLocation {
   _id: string;
   branchName: string;
   address: string;
 }
-
-// Available time slots - you might want to move this to a constants file
-const timeSlots: string[] = [
-  "9:00 AM",
-  "9:30 AM",
-  "10:00 AM",
-  "10:30 AM",
-  "11:00 AM",
-  "11:30 AM",
-  "12:00 PM",
-  "12:30 PM",
-  "1:00 PM",
-  "1:30 PM",
-  "2:00 PM",
-  "2:30 PM",
-  "3:00 PM",
-  "3:30 PM",
-  "4:00 PM",
-  "4:30 PM",
-  "5:00 PM",
-  "5:30 PM",
-];
 
 interface ScheduleServiceProps {
   form: UseFormReturn<ServiceFormValues>;
@@ -63,30 +40,72 @@ export function ScheduleService({ form }: ScheduleServiceProps) {
   } = form;
   const watchedValues = watch();
 
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
+
   // Get service locations from API
   const { data: branchesResponse, isLoading } = useGetBranchesQuery();
   const serviceLocations: ServiceLocation[] = branchesResponse?.data || [];
 
-  // Find selected location
+  // Lazy query for checking availability
+  const [checkAvailability] = useLazyCheckAvailabilityQuery();
+
+  // Check availability when branch and date are selected
+  useEffect(() => {
+    if (watchedValues.serviceLocation && selectedDate) {
+      setCheckingAvailability(true);
+      checkAvailability({
+        branchId: watchedValues.serviceLocation,
+        date: selectedDate.toISOString().split("T")[0],
+      })
+        .unwrap()
+        .then((response) => {
+          setAvailableSlots(response.data.availableSlots);
+        })
+        .catch(() => {
+          setAvailableSlots([]);
+        })
+        .finally(() => {
+          setCheckingAvailability(false);
+        });
+    }
+  }, [watchedValues.serviceLocation, selectedDate, checkAvailability]);
+
   const selectedLocation = serviceLocations.find(
     (location: ServiceLocation) =>
       location._id === watchedValues.serviceLocation
   );
 
-  // Animation variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
-  // Handle date selection (you might want to implement a proper date picker here)
-  const handleDateSelect = () => {
-    // For now, we'll set a date 3 days from now as an example
-    // In a real implementation, you'd use a proper date picker component
-    const futureDate = new Date();
-    futureDate.setDate(futureDate.getDate() + 3);
-    setValue("date", futureDate);
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+    setValue("date", date);
+    setValue("time", ""); // Clear selected time when date changes
   };
+
+  // Generate next 30 days for date selection
+  const getAvailableDates = () => {
+    const dates = [];
+    const today = new Date();
+
+    for (let i = 1; i <= 30; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+
+      // Skip Sundays (assuming service center is closed)
+      if (date.getDay() !== 0) {
+        dates.push(date);
+      }
+    }
+    return dates;
+  };
+
+  const availableDates = getAvailableDates();
 
   return (
     <motion.div
@@ -103,7 +122,10 @@ export function ScheduleService({ form }: ScheduleServiceProps) {
         <Label htmlFor='serviceLocation'>Service Location</Label>
         <Select
           value={watchedValues.serviceLocation}
-          onValueChange={(value) => setValue("serviceLocation", value)}
+          onValueChange={(value) => {
+            setValue("serviceLocation", value);
+            setValue("time", ""); // Clear time when location changes
+          }}
           disabled={isLoading}
         >
           <SelectTrigger
@@ -152,6 +174,7 @@ export function ScheduleService({ form }: ScheduleServiceProps) {
                 !watchedValues.date && "text-muted-foreground",
                 errors.date && "border-red-500"
               )}
+              disabled={!watchedValues.serviceLocation}
             >
               <CalendarIcon className='mr-2 h-4 w-4' />
               {watchedValues.date
@@ -161,21 +184,25 @@ export function ScheduleService({ form }: ScheduleServiceProps) {
           </PopoverTrigger>
           <PopoverContent className='w-auto p-4'>
             <div className='space-y-4'>
-              <h4 className='font-medium'>Select a date</h4>
-              <p className='text-sm text-muted-foreground'>
-                Please call us to schedule your preferred date, or select a
-                sample date below.
-              </p>
-              <Button
-                onClick={handleDateSelect}
-                className='w-full'
-                variant='outline'
-              >
-                Select Date (3 days from now)
-              </Button>
+              <h4 className='font-medium'>Available Dates</h4>
+              <div className='grid grid-cols-3 gap-2 max-h-60 overflow-y-auto'>
+                {availableDates.slice(0, 21).map((date) => (
+                  <Button
+                    key={date.toISOString()}
+                    variant={
+                      selectedDate?.toDateString() === date.toDateString()
+                        ? "default"
+                        : "outline"
+                    }
+                    className='text-xs p-2'
+                    onClick={() => handleDateSelect(date)}
+                  >
+                    {date.getDate()}/{date.getMonth() + 1}
+                  </Button>
+                ))}
+              </div>
               <p className='text-xs text-muted-foreground'>
-                Note: In a production app, this would be a proper date picker
-                component.
+                Service centers are closed on Sundays
               </p>
             </div>
           </PopoverContent>
@@ -186,48 +213,73 @@ export function ScheduleService({ form }: ScheduleServiceProps) {
       </div>
 
       <div className='space-y-2'>
-        <Label>Preferred Time</Label>
+        <Label className='flex items-center gap-2'>
+          Preferred Time
+          {checkingAvailability && (
+            <div className='animate-spin h-4 w-4 border-2 border-red-600 rounded-full border-t-transparent'></div>
+          )}
+        </Label>
         <Select
           value={watchedValues.time}
           onValueChange={(value) => setValue("time", value)}
+          disabled={!selectedDate || checkingAvailability}
         >
           <SelectTrigger className={errors.time ? "border-red-500" : ""}>
-            <SelectValue placeholder='Select a time slot' />
+            <SelectValue
+              placeholder={
+                !selectedDate
+                  ? "Select a date first"
+                  : checkingAvailability
+                  ? "Checking availability..."
+                  : "Select a time slot"
+              }
+            />
           </SelectTrigger>
           <SelectContent>
-            {timeSlots.map((time: string) => (
-              <SelectItem key={time} value={time}>
-                {time}
+            {availableSlots.length === 0 && !checkingAvailability ? (
+              <SelectItem value='none' disabled>
+                No time slots available
               </SelectItem>
-            ))}
+            ) : (
+              availableSlots.map((time: string) => (
+                <SelectItem key={time} value={time}>
+                  <div className='flex items-center gap-2'>
+                    <Clock className='h-4 w-4' />
+                    {time}
+                  </div>
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
         {errors.time && (
           <p className='text-red-500 text-sm'>{errors.time.message}</p>
+        )}
+        {selectedDate && availableSlots.length > 0 && (
+          <p className='text-xs text-green-600'>
+            {availableSlots.length} time slots available for{" "}
+            {formatDate(selectedDate, "PPP")}
+          </p>
         )}
       </div>
 
       <div className='p-4 bg-yellow-50 rounded-lg flex items-start gap-2'>
         <AlertTriangle className='h-5 w-5 text-yellow-500 mt-0.5' />
         <div className='text-sm'>
-          <p className='font-medium mb-1'>Important:</p>
+          <p className='font-medium mb-1'>Booking Guidelines:</p>
           <ul className='space-y-1 text-muted-foreground'>
-            <li>• Service appointments are subject to availability</li>
-            <li>
-              • A service advisor will contact you to confirm your appointment
-              time
-            </li>
+            <li>• Time slots are 20 minutes apart to ensure quality service</li>
+            <li>• Confirmation will be sent via SMS and email</li>
             <li>• Please arrive 15 minutes before your scheduled time</li>
             <li>• Cancellations must be made 24 hours in advance</li>
           </ul>
         </div>
       </div>
 
-      {!serviceLocations.length && !isLoading && (
+      {!isLoading && serviceLocations.length === 0 && (
         <div className='p-4 bg-red-50 rounded-lg'>
           <p className='text-sm text-red-600'>
-            Unable to load service locations. Please try again or contact
-            support.
+            No service locations available. Please contact support.
           </p>
         </div>
       )}

@@ -24,8 +24,11 @@ import comparisonReducer from "./slices/comparisonSlice";
 import uiReducer from "./slices/uiSlice";
 import formReducer from "./slices/formSlice";
 import getApprovedReducer from "./slices/getApprovedSlice";
+//
+import serviceBookingReducer from "./slices/bookingServiceSlice";
 //new
 import customerAuthReducer from "./slices/customer/customerAuthSlice";
+//
 import { persistedSetupProgressReducer } from "./slices/setupProgressSlice";
 
 // Import API services
@@ -51,6 +54,9 @@ import { vasApi } from "./services/BikeSystemApi2/VASApi";
 //New
 import { stockCustomerVehicleApi } from "./services/customer/stockCustomerVehicleApi";
 import { phoneValidationApi } from "./services/customer/phoneValidateApi";
+//
+import { serviceBookingAdminApi } from "./services/BikeSystemApi2/ServiceBookAdminApi";
+import { serviceBookingCustomerApi } from "./services/customer/ServiceBookCustomerApi";
 
 // Create IndexedDB storage for redux-persist
 const idbStorage = createIdbStorage("honda-golaghat-app-madebyilix");
@@ -60,7 +66,14 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage: idbStorage,
-  whitelist: ["auth", "customerAuth", "comparison", "ui", "getApproved"],
+  whitelist: [
+    "auth",
+    "customerAuth",
+    "comparison",
+    "ui",
+    "getApproved",
+    "serviceBooking",
+  ],
   blacklist: [
     "adminAuthApi",
     "branchApi",
@@ -84,6 +97,8 @@ const rootReducer = combineReducers({
   //update
   customerAuth: customerAuthReducer,
   setupProgress: persistedSetupProgressReducer,
+  //
+  serviceBooking: serviceBookingReducer,
   // API services
   [adminAuthApi.reducerPath]: adminAuthApi.reducer,
   //New
@@ -105,6 +120,9 @@ const rootReducer = combineReducers({
   [vasApi.reducerPath]: vasApi.reducer,
   [stockCustomerVehicleApi.reducerPath]: stockCustomerVehicleApi.reducer,
   [phoneValidationApi.reducerPath]: phoneValidationApi.reducer,
+  //New
+  [serviceBookingAdminApi.reducerPath]: serviceBookingAdminApi.reducer,
+  [serviceBookingCustomerApi.reducerPath]: serviceBookingCustomerApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -133,7 +151,9 @@ export const store = configureStore({
       stockConceptApi.middleware,
       vasApi.middleware,
       stockCustomerVehicleApi.middleware,
-      phoneValidationApi.middleware
+      phoneValidationApi.middleware,
+      serviceBookingAdminApi.middleware,
+      serviceBookingCustomerApi.middleware
     ),
 });
 

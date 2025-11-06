@@ -10,19 +10,16 @@ import {
 export const customerVehicleApi = createApi({
   reducerPath: "customerVehicleApi",
   baseQuery: customerBaseQuery, // Uses Firebase token
-  tagTypes: ["CustomerVehicle", "VehicleStats", "ServiceHistory"],
+  tagTypes: [
+    "CustomerVehicle",
+    "VehicleStats",
+    "ServiceHistory",
+    "CustomerStockVehicle",
+  ],
   endpoints: (builder) => ({
     // Get my vehicles (authenticated customer)
-    getMyVehicles: builder.query<
-      PopulatedCustomerVehicleListResponse,
-      { page?: number; limit?: number }
-    >({
-      query: ({ page = 1, limit = 10 }) => {
-        const params = new URLSearchParams();
-        params.append("page", page.toString());
-        params.append("limit", limit.toString());
-        return `/customer-vehicles/my-vehicles?${params.toString()}`;
-      },
+    getMyVehicles: builder.query<PopulatedCustomerVehicleListResponse, void>({
+      query: () => `/customer-vehicles/my-vehicles`,
       providesTags: ["CustomerVehicle"],
       transformErrorResponse: (response) => handleApiError(response),
     }),
