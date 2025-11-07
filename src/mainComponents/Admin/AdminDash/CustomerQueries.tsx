@@ -17,6 +17,17 @@ const CustomerQueries = () => {
       action: { label: "View Report", href: "/admin/reports" },
     },
     {
+      title: "Service Booking",
+      value: "10",
+      icon: TrendingUp,
+      loading: false,
+      description: "Sales revenue",
+      action: {
+        label: "View All Service Booking",
+        href: "/admin/service-bookings",
+      },
+    },
+    {
       title: "Accident Report",
       value: "10",
       icon: TrendingUp,

@@ -131,9 +131,9 @@ const StockConceptForm = lazy(
   () => import("../mainComponents/BikeSystem2/StockConceptForm")
 );
 
-// Integration Services
-
-// Assignment System
+const AdminBookingsManager = lazy(
+  () => import("@/mainComponents/Admin/ServiceBookings/AdminBookingsManager")
+);
 
 // Create admin routes array
 const createAdminRoutes = () => [
@@ -165,6 +165,9 @@ const createAdminRoutes = () => [
 
   // Assignment System
   { path: "/admin/assign/stock-concept/:id", component: AssignStock },
+
+  //Service Booking
+  { path: "/admin/service-bookings", component: AdminBookingsManager },
 ];
 
 export const adminRoutes = createAdminRoutes();
@@ -259,7 +262,7 @@ export const routeConfig: Record<
   },
   "/customer/services": {
     title: "My Services",
-    subtitle: "View and manage your service bookings",
+    subtitle: "Manage your service bookings",
     showBack: true,
     backTo: "/customer/dashboard",
     menuItems: [

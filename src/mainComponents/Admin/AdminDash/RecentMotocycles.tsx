@@ -222,9 +222,6 @@ const RecentMotorcycles = () => {
               </div>
 
               <div className='flex items-center space-x-2'>
-                <span className='text-sm text-gray-500'>
-                  Stock: {vehicle.stockAvailable}
-                </span>
                 <Link to={`${imagePath}/${vehicle._id}`}>
                   <Button variant='outline' size='sm'>
                     <Eye className='h-4 w-4 mr-1' />
