@@ -1,7 +1,9 @@
+import ServiceStatsDisplay from "../BookingService/ServiceStatsDisplay";
+
 const CustomerServices = () => {
   return (
     <div>
-      <h2>Customer Service Details</h2>
+      <ServiceStatsDisplay />
     </div>
   );
 };
