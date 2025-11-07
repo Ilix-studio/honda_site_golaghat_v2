@@ -163,11 +163,6 @@ export function SuccessConfirmation({
         </CardHeader>
         <CardContent className='text-center space-y-4'>
           <p>
-            We've sent a confirmation email to{" "}
-            <span className='font-medium'>{watchedValues.email}</span> with all
-            the details.
-          </p>
-          <p>
             A service advisor from{" "}
             {selectedLocation?.branchName || "our service center"} will contact
             you shortly to confirm your appointment.

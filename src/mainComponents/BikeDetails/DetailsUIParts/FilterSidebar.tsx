@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import {
   Select,
   SelectContent,
@@ -14,7 +14,6 @@ import { Separator } from "@/components/ui/separator";
 import { X } from "lucide-react";
 
 import { formatCurrency } from "../../../lib/formatters";
-import { availableFeatures } from "../../../constants/formOptions";
 
 interface FilterSidebarProps {
   searchQuery: string;
@@ -223,24 +222,7 @@ export function FilterSidebar({
           <Label className='text-sm font-medium mb-3 block'>
             Features ({selectedFeatures.length} selected)
           </Label>
-          <div className='space-y-3 max-h-[250px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100'>
-            {availableFeatures.map((feature) => (
-              <div key={feature} className='flex items-center space-x-3'>
-                <Checkbox
-                  id={`feature-${feature}`}
-                  checked={selectedFeatures.includes(feature)}
-                  onCheckedChange={() => toggleFeature(feature)}
-                  className='data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600'
-                />
-                <label
-                  htmlFor={`feature-${feature}`}
-                  className='text-sm leading-none cursor-pointer flex-1 peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
-                >
-                  {feature}
-                </label>
-              </div>
-            ))}
-          </div>
+          <div className='space-y-3 max-h-[250px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100'></div>
 
           {selectedFeatures.length > 0 && (
             <Button
