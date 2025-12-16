@@ -84,7 +84,7 @@ export const serviceBookingAdminApi = createApi({
     }),
   }),
 });
-
+1
 export const {
   useGetAllBookingsQuery,
   useUpdateBookingStatusMutation,

@@ -67,7 +67,7 @@ const BranchQueries = () => {
       icon: TrendingUp,
       loading: false,
       description: "Total Vehicles in this Branch",
-      action: { label: "Open Form", href: "/admin/forms/stock-concept" },
+      action: { label: "Open Form", href: "/admin/forms/select" },
     },
   ];
   const formatTimeAgo = (dateString: string) => {

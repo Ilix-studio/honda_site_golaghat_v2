@@ -5,8 +5,6 @@ import { lazy } from "react";
 import Home from "../Home";
 import NotFoundPage from "../mainComponents/NotFoundPage";
 import { ViewBikeImage } from "@/mainComponents/Admin/Bikes/ViewBikeImage";
-import CustomerSignUp from "@/mainComponents/CustomerSystem/CustomerSignUp";
-import AssignStock from "@/mainComponents/CustomerSystem/ActivateFeature/AssignStock";
 
 export const immediateRoutes = [
   {
@@ -134,6 +132,22 @@ const StockConceptForm = lazy(
 const AdminBookingsManager = lazy(
   () => import("@/mainComponents/Admin/ServiceBookings/AdminBookingsManager")
 );
+const CustomerSignUp = lazy(
+  () => import("@/mainComponents/CustomerSystem/CustomerSignUp")
+);
+const AssignStock = lazy(
+  () => import("@/mainComponents/CustomerSystem/ActivateFeature/AssignStock")
+);
+const UploadCSVForm = lazy(
+  () => import("@/mainComponents/BikeSsytem3/UploadCSVForm")
+);
+const SelectStockForm = lazy(
+  () => import("@/mainComponents/BikeSsytem3/SelectStockForm")
+);
+
+const GetCSVFiles = lazy(
+  () => import("@/mainComponents/BikeSsytem3/GetCSVFiles")
+);
 
 // Create admin routes array
 const createAdminRoutes = () => [
@@ -161,7 +175,10 @@ const createAdminRoutes = () => [
   // Business System Forms
   { path: "/admin/forms/vas", component: VASForm },
 
+  { path: "/admin/forms/select", component: SelectStockForm },
   { path: "/admin/forms/stock-concept", component: StockConceptForm },
+  { path: "/admin/forms/stock-concept-csv", component: UploadCSVForm },
+  { path: "/admin/get/csv", component: GetCSVFiles },
 
   // Assignment System
   { path: "/admin/assign/stock-concept/:id", component: AssignStock },
