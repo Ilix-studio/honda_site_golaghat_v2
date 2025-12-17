@@ -1,6 +1,6 @@
 // src/components/admin/forms/GetCSVFiles.tsx
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   FileSpreadsheet,
   Search,
@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -35,17 +36,72 @@ import {
   IStockConceptCSV,
 } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 
-const GetCSVFiles = () => {
+export interface GetCSVFilesProps {
+  folderDate?: string;
+}
+
+interface BatchGroup {
+  batchId: string;
+  stocks: IStockConceptCSV[];
+  importTime: string;
+}
+
+const GetCSVFiles = ({ folderDate }: GetCSVFilesProps) => {
   const [filters, setFilters] = useState<CSVStockFilters>({
     page: 1,
-    limit: 20,
+    limit: 100,
   });
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState<string>("all");
 
   const { data, isLoading, error, refetch } = useGetCSVStocksQuery(filters);
 
   const stocks = data?.data || [];
   const pagination = data?.pagination;
+
+  // Filter by folder date if provided
+  const folderFilteredStocks = folderDate
+    ? stocks.filter((stock) => {
+        const stockDate = new Date(stock.csvImportDate).toLocaleDateString(
+          "en-IN",
+          {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }
+        );
+        return stockDate === folderDate;
+      })
+    : stocks;
+
+  // Group stocks by batch
+  const batchGroups: BatchGroup[] = useMemo(() => {
+    const grouped = folderFilteredStocks.reduce((acc, stock) => {
+      const batchId = stock.csvImportBatch;
+      if (!acc[batchId]) {
+        acc[batchId] = {
+          batchId,
+          stocks: [],
+          importTime: stock.csvImportDate,
+        };
+      }
+      acc[batchId].stocks.push(stock);
+      return acc;
+    }, {} as Record<string, BatchGroup>);
+
+    return Object.values(grouped).sort(
+      (a, b) =>
+        new Date(b.importTime).getTime() - new Date(a.importTime).getTime()
+    );
+  }, [folderFilteredStocks]);
+
+  // Filter stocks based on selected batch
+  const batchFilteredStocks =
+    selectedBatch === "all"
+      ? folderFilteredStocks
+      : folderFilteredStocks.filter(
+          (stock) => stock.csvImportBatch === selectedBatch
+        );
 
   const handleFilterChange = (
     key: keyof CSVStockFilters,
@@ -74,7 +130,7 @@ const GetCSVFiles = () => {
     setSearchQuery(value);
   };
 
-  const filteredStocks = stocks.filter((stock) => {
+  const filteredStocks = batchFilteredStocks.filter((stock) => {
     if (!searchQuery) return true;
 
     const query = searchQuery.toLowerCase();
@@ -106,27 +162,71 @@ const GetCSVFiles = () => {
     });
   };
 
+  const formatTime = (dateString: string) => {
+    return new Date(dateString).toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const getBatchLabel = (index: number) => {
+    return `Batch ${index + 1}`;
+  };
+
   if (error) {
     toast.error("Failed to load CSV stock files");
   }
 
   return (
-    <div className='max-w-7xl mx-auto p-6 space-y-6'>
+    <div className={folderDate ? "" : "max-w-7xl mx-auto p-6 space-y-6"}>
       <Card>
-        <CardHeader>
-          <div className='flex items-center justify-between'>
-            <CardTitle className='flex items-center gap-2'>
-              <FileSpreadsheet className='h-5 w-5' />
-              CSV Stock Imports
-            </CardTitle>
-            <Button variant='outline' size='sm' onClick={() => refetch()}>
-              <RefreshCw className='h-4 w-4 mr-2' />
-              Refresh
-            </Button>
-          </div>
-        </CardHeader>
+        {!folderDate && (
+          <CardHeader>
+            <div className='flex items-center justify-between'>
+              <CardTitle className='flex items-center gap-2'>
+                <FileSpreadsheet className='h-5 w-5' />
+                CSV Stock Imports
+              </CardTitle>
+              <Button variant='outline' size='sm' onClick={() => refetch()}>
+                <RefreshCw className='h-4 w-4 mr-2' />
+                Refresh
+              </Button>
+            </div>
+          </CardHeader>
+        )}
 
         <CardContent className='space-y-4'>
+          {/* Batch Tabs - Only show if multiple batches exist */}
+          {batchGroups.length > 1 && (
+            <Tabs value={selectedBatch} onValueChange={setSelectedBatch}>
+              <TabsList className='w-full justify-start overflow-x-auto flex-wrap h-auto'>
+                <TabsTrigger value='all' className='flex items-center gap-2'>
+                  <FileSpreadsheet className='h-3 w-3' />
+                  All Batches
+                  <Badge variant='secondary' className='ml-1'>
+                    {folderFilteredStocks.length}
+                  </Badge>
+                </TabsTrigger>
+                {batchGroups.map((batch, index) => (
+                  <TabsTrigger
+                    key={batch.batchId}
+                    value={batch.batchId}
+                    className='flex items-center gap-2'
+                  >
+                    <FileSpreadsheet className='h-3 w-3' />
+                    {getBatchLabel(index)}
+                    <Badge variant='secondary' className='ml-1'>
+                      {batch.stocks.length}
+                    </Badge>
+                    <span className='text-xs text-muted-foreground ml-2'>
+                      {formatTime(batch.importTime)}
+                    </span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          )}
+
           {/* Filters */}
           <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
             <div className='relative'>
@@ -162,7 +262,7 @@ const GetCSVFiles = () => {
             />
 
             <Select
-              value={filters.limit?.toString() || "20"}
+              value={filters.limit?.toString() || "100"}
               onValueChange={(value) =>
                 handleFilterChange("limit", Number(value))
               }
@@ -174,9 +274,50 @@ const GetCSVFiles = () => {
                 <SelectItem value='10'>10 per page</SelectItem>
                 <SelectItem value='20'>20 per page</SelectItem>
                 <SelectItem value='50'>50 per page</SelectItem>
+                <SelectItem value='100'>100 per page</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {/* Batch Info Alert */}
+          {selectedBatch !== "all" && (
+            <div className='bg-muted/50 rounded-lg p-4 border'>
+              <div className='flex items-center justify-between'>
+                <div className='flex items-center gap-3'>
+                  <FileSpreadsheet className='h-5 w-5 text-primary' />
+                  <div>
+                    <p className='font-medium text-sm'>
+                      {getBatchLabel(
+                        batchGroups.findIndex(
+                          (b) => b.batchId === selectedBatch
+                        )
+                      )}
+                    </p>
+                    <p className='text-xs text-muted-foreground'>
+                      Batch ID: {selectedBatch}
+                    </p>
+                  </div>
+                </div>
+                <div className='text-right'>
+                  <p className='text-xs text-muted-foreground'>
+                    Imported on{" "}
+                    {formatDate(
+                      batchGroups.find((b) => b.batchId === selectedBatch)
+                        ?.importTime || ""
+                    )}{" "}
+                    at{" "}
+                    {formatTime(
+                      batchGroups.find((b) => b.batchId === selectedBatch)
+                        ?.importTime || ""
+                    )}
+                  </p>
+                  <p className='text-sm font-medium mt-1'>
+                    {filteredStocks.length} items
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Loading State */}
           {isLoading && (
@@ -232,42 +373,48 @@ const GetCSVFiles = () => {
                 </Table>
               </div>
 
-              {/* Pagination */}
-              {pagination && pagination.pages > 1 && (
-                <div className='flex items-center justify-between'>
-                  <p className='text-sm text-muted-foreground'>
-                    Showing {filteredStocks.length} of {pagination.total}{" "}
-                    results
-                    {searchQuery && ` (filtered)`}
-                  </p>
-                  <div className='flex items-center gap-2'>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      disabled={filters.page === 1}
-                      onClick={() =>
-                        handleFilterChange("page", (filters.page || 1) - 1)
-                      }
-                    >
-                      Previous
-                    </Button>
-                    <span className='text-sm'>
-                      Page {filters.page} of {pagination.pages}
-                    </span>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      disabled={filters.page === pagination.pages}
-                      onClick={() =>
-                        handleFilterChange("page", (filters.page || 1) + 1)
-                      }
-                    >
-                      Next
-                    </Button>
-                  </div>
-                </div>
-              )}
+              {/* Results Summary */}
+              <div className='flex items-center justify-between'>
+                <p className='text-sm text-muted-foreground'>
+                  Showing {filteredStocks.length}{" "}
+                  {selectedBatch === "all" ? "total" : "in this batch"} results
+                  {searchQuery && ` (filtered by search)`}
+                </p>
+              </div>
             </>
+          )}
+          {/* Pagination */}
+          {pagination && pagination.pages > 1 && (
+            <div className='flex items-center justify-between'>
+              <p className='text-sm text-muted-foreground'>
+                Showing {stocks.length} of {pagination.total} results
+              </p>
+              <div className='flex items-center gap-2'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  disabled={filters.page === 1}
+                  onClick={() =>
+                    handleFilterChange("page", (filters.page || 1) - 1)
+                  }
+                >
+                  Previous
+                </Button>
+                <span className='text-sm'>
+                  Page {filters.page} of {pagination.pages}
+                </span>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  disabled={filters.page === pagination.pages}
+                  onClick={() =>
+                    handleFilterChange("page", (filters.page || 1) + 1)
+                  }
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
           )}
 
           {/* Empty State */}

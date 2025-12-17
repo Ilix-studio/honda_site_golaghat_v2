@@ -27,12 +27,20 @@ const SelectStockForm = () => {
       route: "/admin/forms/stock-concept",
       buttonText: "Add Manually",
     },
+    {
+      id: "view_all",
+      title: "View Stock Data",
+      description: "View All Manual Stock Entry and CSV Stock Import  ",
+      icon: Database,
+      route: "/admin/get/all-stock",
+      buttonText: "View All Stock Entries",
+    },
   ];
 
   return (
     <div className='max-w-4xl mx-auto py-8 px-4'>
       <div className='text-center mb-8'>
-        <h1 className='text-2xl font-bold mb-2'>Add Stock to Inventory</h1>
+        <h1 className='text-2xl font-bold mb-2'>Stock Manager</h1>
         <p className='text-muted-foreground'>
           Choose how you want to add stock items to the system
         </p>

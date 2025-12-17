@@ -149,6 +149,10 @@ const GetCSVFiles = lazy(
   () => import("@/mainComponents/BikeSsytem3/GetCSVFiles")
 );
 
+const GetAllStockFiles = lazy(
+  () => import("@/mainComponents/BikeSsytem3/GetAllStockFiles")
+);
+
 // Create admin routes array
 const createAdminRoutes = () => [
   // Authentication
@@ -178,6 +182,7 @@ const createAdminRoutes = () => [
   { path: "/admin/forms/select", component: SelectStockForm },
   { path: "/admin/forms/stock-concept", component: StockConceptForm },
   { path: "/admin/forms/stock-concept-csv", component: UploadCSVForm },
+  { path: "/admin/get/all-stock", component: GetAllStockFiles },
   { path: "/admin/get/csv", component: GetCSVFiles },
 
   // Assignment System
