@@ -48,6 +48,8 @@ const SearchResults = lazy(
 const ViewAllBranches = lazy(
   () => import("../mainComponents/ViewBS2/ViewAllBranches")
 );
+//
+const SelectVas = lazy(() => import("@/mainComponents/BikeSystem2/SelectVas"));
 const ViewVAS = lazy(() => import("../mainComponents/ViewBS2/ViewVAS"));
 
 const ViewStockConcept = lazy(
@@ -177,9 +179,10 @@ const createAdminRoutes = () => [
   { path: "/admin/customers/signup", component: CustomerSignUp },
 
   // Business System Forms
+  { path: "/admin/vas/select", component: SelectVas },
   { path: "/admin/forms/vas", component: VASForm },
 
-  { path: "/admin/forms/select", component: SelectStockForm },
+  { path: "/admin/stockC/select", component: SelectStockForm },
   { path: "/admin/forms/stock-concept", component: StockConceptForm },
   { path: "/admin/forms/stock-concept-csv", component: UploadCSVForm },
   { path: "/admin/get/all-stock", component: GetAllStockFiles },
