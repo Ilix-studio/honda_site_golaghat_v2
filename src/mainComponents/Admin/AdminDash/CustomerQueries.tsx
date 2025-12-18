@@ -45,22 +45,6 @@ const CustomerQueries = () => {
     },
 
     {
-      title: "GPS Integration Request",
-      value: "15",
-      icon: TrendingUp,
-      loading: false,
-      description: "Sales revenue",
-      action: { label: "View Report", href: "/admin/reports" },
-    },
-    {
-      title: "Integrate GPS Service",
-      value: "15",
-      icon: TrendingUp,
-      loading: false,
-      description: "Sales revenue",
-      action: { label: "View Report", href: "/admin/reports" },
-    },
-    {
       title: "Total Safety-Tags Generated",
       value: "15",
       icon: TrendingUp,

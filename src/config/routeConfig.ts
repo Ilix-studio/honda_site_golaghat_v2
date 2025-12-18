@@ -236,6 +236,12 @@ const CustomerSupport = lazy(
 const CustomerProfile = lazy(
   () => import("@/mainComponents/CustomerSystem/CustomerProfile")
 );
+const ChooseStock = lazy(
+  () => import("@/mainComponents/CustomerSystem/SelectStock/ChooseStock")
+);
+const CustomerCSVStock = lazy(
+  () => import("@/mainComponents/CustomerSystem/SelectStock/CustomerCSVStock")
+);
 
 // Create customer routes array
 const createCustomerRoutes = () => {
@@ -253,13 +259,16 @@ const createCustomerRoutes = () => {
 
     // Dashboard
     { path: "/customer/initialize", component: InitialDashboard },
+    // Vehicle Management
+    { path: "/customer/select/stock", component: ChooseStock },
+    { path: "/customer/assign/csv-stock", component: CustomerCSVStock },
+    { path: "/customer/vehicle/info", component: CustomerVehicleInfo },
+
+    //
     { path: "/customer/dashboard", component: CustomerMainDash },
     { path: "/customer/profile-info", component: CustomerProfile },
     { path: "/customer/services", component: CustomerServices },
     { path: "/customer/support", component: CustomerSupport },
-
-    // Vehicle Management
-    { path: "/customer/vehicle/info", component: CustomerVehicleInfo },
 
     // Select Services by Admin
     { path: "/customer/tags/generate", component: GenerateTags },
