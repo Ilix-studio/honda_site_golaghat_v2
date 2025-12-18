@@ -7,7 +7,6 @@ import {
   Calendar,
   Package,
   RefreshCw,
-  FileSpreadsheet,
   ArrowLeft,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,58 +14,47 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
 
-import {
-  useGetCSVStocksQuery,
-  IStockConceptCSV,
-} from "@/redux-store/services/BikeSystemApi3/csvStockApi";
+import { useGetCSVBatchesQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 import GetCSVFiles from "./GetCSVFiles";
-
-interface GroupedStocks {
-  [date: string]: IStockConceptCSV[];
-}
+import { CSVBatch } from "@/types/customer/stockcsv.types";
 
 const CSVFolder = () => {
-  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [selectedBatch, setSelectedBatch] = useState<CSVBatch | null>(null);
 
-  const { data, isLoading, error, refetch } = useGetCSVStocksQuery({
+  const { data, isLoading, error, refetch } = useGetCSVBatchesQuery({
     page: 1,
-    limit: 1000,
+    limit: 100,
   });
 
-  const stocks = data?.data || [];
+  const batches = data?.data || [];
 
-  const groupStocksByDate = (stocks: IStockConceptCSV[]): GroupedStocks => {
-    return stocks.reduce((acc, stock) => {
-      const date = new Date(stock.csvImportDate).toLocaleDateString("en-IN", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-      acc[date].push(stock);
-      return acc;
-    }, {} as GroupedStocks);
-  };
-
-  const groupedStocks = groupStocksByDate(stocks);
-  const sortedDates = Object.keys(groupedStocks).sort(
-    (a, b) => new Date(b).getTime() - new Date(a).getTime()
+  // Sort batches by import date (newest first)
+  const sortedBatches = [...batches].sort(
+    (a, b) =>
+      new Date(b.importDate).getTime() - new Date(a.importDate).getTime()
   );
 
-  const getBatchCount = (stocks: IStockConceptCSV[]) => {
-    const uniqueBatches = new Set(stocks.map((s) => s.csvImportBatch));
-    return uniqueBatches.size;
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const formatTime = (dateString: string) => {
+    return new Date(dateString).toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   if (error) {
-    toast.error("Failed to load CSV folders");
+    toast.error("Failed to load CSV batches");
   }
 
-  // If a folder is selected, show GetCSVFiles with filtered data
-  if (selectedFolder) {
+  // Show batch files view
+  if (selectedBatch) {
     return (
       <div className='max-w-7xl mx-auto p-6'>
         <Card>
@@ -76,7 +64,7 @@ const CSVFolder = () => {
                 <Button
                   variant='outline'
                   size='sm'
-                  onClick={() => setSelectedFolder(null)}
+                  onClick={() => setSelectedBatch(null)}
                 >
                   <ArrowLeft className='h-4 w-4 mr-2' />
                   Back to Folders
@@ -84,10 +72,11 @@ const CSVFolder = () => {
                 <div>
                   <CardTitle className='flex items-center gap-2'>
                     <FolderOpen className='h-5 w-5 text-yellow-600' />
-                    {selectedFolder}
+                    {selectedBatch.fileName}
                   </CardTitle>
                   <p className='text-sm text-muted-foreground'>
-                    {groupedStocks[selectedFolder]?.length || 0} files
+                    {selectedBatch.totalStocks} stocks • Imported{" "}
+                    {formatDate(selectedBatch.importDate)}
                   </p>
                 </div>
               </div>
@@ -95,13 +84,13 @@ const CSVFolder = () => {
           </CardHeader>
         </Card>
         <div className='mt-6'>
-          <GetCSVFiles folderDate={selectedFolder} />
+          <GetCSVFiles batchId={selectedBatch.batchId} />
         </div>
       </div>
     );
   }
 
-  // Show folder grid view
+  // Show batch folder grid
   return (
     <div className='max-w-7xl mx-auto p-6'>
       <Card>
@@ -119,90 +108,85 @@ const CSVFolder = () => {
         </CardHeader>
 
         <CardContent>
-          {/* Loading State */}
           {isLoading && (
             <div className='text-center py-12'>
               <RefreshCw className='h-8 w-8 animate-spin mx-auto mb-3 text-primary' />
-              <p className='text-muted-foreground'>Loading CSV folders...</p>
+              <p className='text-muted-foreground'>Loading batches...</p>
             </div>
           )}
 
-          {/* Folder Grid */}
-          {!isLoading && sortedDates.length > 0 && (
+          {!isLoading && sortedBatches.length > 0 && (
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
-              {sortedDates.map((date) => {
-                const folderStocks = groupedStocks[date];
-                const batchCount = getBatchCount(folderStocks);
+              {sortedBatches.map((batch) => (
+                <div
+                  key={batch.batchId}
+                  onClick={() => setSelectedBatch(batch)}
+                  className='group cursor-pointer'
+                >
+                  <Card className='h-full transition-all hover:shadow-lg hover:border-primary/50'>
+                    <CardContent className='p-6'>
+                      <div className='flex flex-col items-center text-center space-y-4'>
+                        {/* Folder Icon */}
+                        <div className='relative'>
+                          <Folder className='h-20 w-20 text-blue-400 transition-transform group-hover:scale-110' />
+                          <Badge
+                            variant='secondary'
+                            className='absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center'
+                          >
+                            {batch.totalStocks}
+                          </Badge>
+                        </div>
 
-                return (
-                  <div
-                    key={date}
-                    onClick={() => setSelectedFolder(date)}
-                    className='group cursor-pointer'
-                  >
-                    <Card className='h-full transition-all hover:shadow-lg hover:border-primary/50'>
-                      <CardContent className='p-6'>
-                        <div className='flex flex-col items-center text-center space-y-4'>
-                          {/* Folder Icon */}
-                          <div className='relative'>
-                            <Folder className='h-20 w-20 text-yellow-600 transition-transform group-hover:scale-110' />
-                            <Badge
-                              variant='secondary'
-                              className='absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center'
-                            >
-                              {folderStocks.length}
-                            </Badge>
-                          </div>
-
-                          {/* Folder Info */}
-                          <div className='space-y-2 w-full'>
-                            <h3 className='font-semibold text-sm line-clamp-2'>
-                              {date}
-                            </h3>
-                            <div className='flex items-center justify-center gap-1 text-xs text-muted-foreground'>
-                              <Calendar className='h-3 w-3' />
-                              <span>
-                                {new Date(
-                                  folderStocks[0].csvImportDate
-                                ).toLocaleDateString("en-IN", {
-                                  month: "short",
-                                  day: "numeric",
-                                })}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Stats */}
-                          <div className='flex items-center gap-2 w-full justify-center'>
-                            <Badge variant='outline' className='text-xs'>
-                              <FileSpreadsheet className='h-3 w-3 mr-1' />
-                              {folderStocks.length} files
-                            </Badge>
-                            <Badge variant='outline' className='text-xs'>
-                              {batchCount} batch{batchCount > 1 ? "es" : ""}
-                            </Badge>
-                          </div>
-
-                          {/* Hover Indicator */}
-                          <div className='text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity'>
-                            Click to view files →
+                        {/* Batch Info */}
+                        <div className='space-y-1 w-full'>
+                          <h3 className='font-semibold text-sm line-clamp-2'>
+                            {batch.fileName}
+                          </h3>
+                          <div className='flex items-center justify-center gap-1 text-xs text-muted-foreground'>
+                            <Calendar className='h-3 w-3' />
+                            <span>
+                              {formatDate(batch.importDate)} at{" "}
+                              {formatTime(batch.importDate)}
+                            </span>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                );
-              })}
+
+                        {/* Stats */}
+                        <div className='flex flex-wrap items-center gap-2 w-full justify-center'>
+                          <Badge
+                            variant='outline'
+                            className='text-xs bg-green-50 text-green-700'
+                          >
+                            {batch.availableStocks} available
+                          </Badge>
+                          {batch.soldStocks > 0 && (
+                            <Badge
+                              variant='outline'
+                              className='text-xs bg-blue-50 text-blue-700'
+                            >
+                              {batch.soldStocks} sold
+                            </Badge>
+                          )}
+                        </div>
+
+                        {/* Hover Indicator */}
+                        <div className='text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity'>
+                          Click to view stocks →
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
             </div>
           )}
 
-          {/* Empty State */}
-          {!isLoading && sortedDates.length === 0 && (
+          {!isLoading && sortedBatches.length === 0 && (
             <div className='text-center py-12 border rounded-lg'>
               <Package className='h-12 w-12 mx-auto mb-3 text-muted-foreground' />
               <h3 className='font-semibold mb-1'>No CSV imports found</h3>
               <p className='text-sm text-muted-foreground'>
-                Upload a CSV file to create your first import folder
+                Upload a CSV file to create your first import batch
               </p>
             </div>
           )}

@@ -30,14 +30,15 @@ import {
 } from "@/components/ui/table";
 import toast from "react-hot-toast";
 
+import { useGetCSVStocksQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 import {
-  useGetCSVStocksQuery,
   CSVStockFilters,
   IStockConceptCSV,
-} from "@/redux-store/services/BikeSystemApi3/csvStockApi";
+} from "@/types/customer/stockcsv.types";
 
 export interface GetCSVFilesProps {
   folderDate?: string;
+  batchId?: string;
 }
 
 interface BatchGroup {
@@ -46,7 +47,7 @@ interface BatchGroup {
   importTime: string;
 }
 
-const GetCSVFiles = ({ folderDate }: GetCSVFilesProps) => {
+const GetCSVFiles = ({ folderDate, batchId }: GetCSVFilesProps) => {
   const [filters, setFilters] = useState<CSVStockFilters>({
     page: 1,
     limit: 100,
@@ -54,7 +55,10 @@ const GetCSVFiles = ({ folderDate }: GetCSVFilesProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBatch, setSelectedBatch] = useState<string>("all");
 
-  const { data, isLoading, error, refetch } = useGetCSVStocksQuery(filters);
+  const { data, isLoading, error, refetch } = useGetCSVStocksQuery({
+    ...filters,
+    ...(batchId && { batchId }),
+  });
 
   const stocks = data?.data || [];
   const pagination = data?.pagination;
