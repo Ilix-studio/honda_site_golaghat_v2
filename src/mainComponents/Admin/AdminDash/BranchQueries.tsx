@@ -2,19 +2,9 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-import {
-  TrendingUp,
-  Plus,
-  Building2,
-  Users,
-  User,
-  Cog,
-  SplinePointer,
-} from "lucide-react";
+import { TrendingUp, Plus, Building2, Users, User } from "lucide-react";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 import { useGetAllBranchManagersQuery } from "@/redux-store/services/branchManagerApi";
-
-import { CardDescription } from "@/components/ui/card";
 
 import { Link } from "react-router-dom";
 import { useGetVisitorStatsQuery } from "@/redux-store/services/visitorApi";
@@ -51,7 +41,7 @@ const BranchQueries = () => {
       icon: Users,
       loading: managersLoading,
       description: "Active managers",
-      action: { label: "Add Manager", href: "/admin/branches/managers" },
+      action: { label: "Add Branch Manager", href: "/admin/branches/managers" },
     },
 
     {
@@ -59,7 +49,7 @@ const BranchQueries = () => {
       icon: TrendingUp,
       loading: false,
       description: "Add VAS to vehicles",
-      action: { label: "Open VAS Form", href: "/admin/forms/vas" },
+      action: { label: "Open VAS Manager", href: "/admin/vas/select" },
     },
 
     {
@@ -67,7 +57,7 @@ const BranchQueries = () => {
       icon: TrendingUp,
       loading: false,
       description: "Total Vehicles in this Branch",
-      action: { label: "Open Form", href: "/admin/forms/stock-concept" },
+      action: { label: "Open Stock Manager", href: "/admin/stockC/select" },
     },
   ];
   const formatTimeAgo = (dateString: string) => {
@@ -127,36 +117,7 @@ const BranchQueries = () => {
         ))}
       </div>
       {/* Quick Actions */}
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8'>
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common administrative tasks</CardDescription>
-          </CardHeader>
-          <CardContent className='space-y-2'>
-            <Link to='/admin/branches/view'>
-              <Button className='w-full justify-start' variant='outline'>
-                <Building2 className='h-4 w-4 mr-2' />
-                View All Branches
-              </Button>
-            </Link>
-
-            <Link to='/view/stock-concept'>
-              <Button className='w-full justify-start' variant='outline'>
-                <SplinePointer className='h-4 w-4 mr-2' />
-                View All Stock Bikes
-              </Button>
-            </Link>
-
-            <Link to='/admin/view/vas'>
-              <Button className='w-full justify-start' variant='outline'>
-                <Cog className='h-4 w-4 mr-2' />
-                View Value Added Services
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
+      <div className='grid grid-cols-1 lg:grid-cols-1 gap-6 mb-8'>
         <Card>
           <CardHeader>
             <CardTitle>Visitor Analytics</CardTitle>

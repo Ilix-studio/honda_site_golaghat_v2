@@ -9,7 +9,7 @@ import {
   AlertCircle,
   Tags,
 } from "lucide-react";
-
+import { resetSetupProgress } from "@/redux-store/slices/setupProgressSlice";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import {
@@ -72,8 +72,9 @@ const InitialDashboard: React.FC = () => {
   };
 
   const onAddMotorcycle = () => {
-    navigate("/customer/vehicle/info");
+    navigate("/customer/select/stock");
   };
+
   const onGenerateTags = () => {
     navigate("/customer/tags/generate");
   };
@@ -252,6 +253,21 @@ const InitialDashboard: React.FC = () => {
                         </div>
                       )}
                     </CardContent>
+                    {/* Development: Clear State Button */}
+                    {process.env.NODE_ENV === "development" && (
+                      <div className='mt-4 pt-4 border-t border-dashed border-gray-300'>
+                        <Button
+                          variant='destructive'
+                          size='sm'
+                          onClick={() => {
+                            dispatch(resetSetupProgress());
+                          }}
+                          className='text-xs'
+                        >
+                          🧹 Clear Setup Progress (Dev)
+                        </Button>
+                      </div>
+                    )}
                   </Card>
                 );
               })}

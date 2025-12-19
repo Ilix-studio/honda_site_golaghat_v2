@@ -5,8 +5,6 @@ import { lazy } from "react";
 import Home from "../Home";
 import NotFoundPage from "../mainComponents/NotFoundPage";
 import { ViewBikeImage } from "@/mainComponents/Admin/Bikes/ViewBikeImage";
-import CustomerSignUp from "@/mainComponents/CustomerSystem/CustomerSignUp";
-import AssignStock from "@/mainComponents/CustomerSystem/ActivateFeature/AssignStock";
 
 export const immediateRoutes = [
   {
@@ -50,6 +48,8 @@ const SearchResults = lazy(
 const ViewAllBranches = lazy(
   () => import("../mainComponents/ViewBS2/ViewAllBranches")
 );
+//
+const SelectVas = lazy(() => import("@/mainComponents/BikeSystem2/SelectVas"));
 const ViewVAS = lazy(() => import("../mainComponents/ViewBS2/ViewVAS"));
 
 const ViewStockConcept = lazy(
@@ -134,6 +134,26 @@ const StockConceptForm = lazy(
 const AdminBookingsManager = lazy(
   () => import("@/mainComponents/Admin/ServiceBookings/AdminBookingsManager")
 );
+const CustomerSignUp = lazy(
+  () => import("@/mainComponents/CustomerSystem/CustomerSignUp")
+);
+const AssignStock = lazy(
+  () => import("@/mainComponents/CustomerSystem/ActivateFeature/AssignStock")
+);
+const UploadCSVForm = lazy(
+  () => import("@/mainComponents/BikeSsytem3/UploadCSVForm")
+);
+const SelectStockForm = lazy(
+  () => import("@/mainComponents/BikeSsytem3/SelectStockForm")
+);
+
+const GetCSVFiles = lazy(
+  () => import("@/mainComponents/BikeSsytem3/GetCSVFiles")
+);
+
+const GetAllStockFiles = lazy(
+  () => import("@/mainComponents/BikeSsytem3/GetAllStockFiles")
+);
 
 // Create admin routes array
 const createAdminRoutes = () => [
@@ -159,9 +179,14 @@ const createAdminRoutes = () => [
   { path: "/admin/customers/signup", component: CustomerSignUp },
 
   // Business System Forms
+  { path: "/admin/vas/select", component: SelectVas },
   { path: "/admin/forms/vas", component: VASForm },
 
+  { path: "/admin/stockC/select", component: SelectStockForm },
   { path: "/admin/forms/stock-concept", component: StockConceptForm },
+  { path: "/admin/forms/stock-concept-csv", component: UploadCSVForm },
+  { path: "/admin/get/all-stock", component: GetAllStockFiles },
+  { path: "/admin/get/csv", component: GetCSVFiles },
 
   // Assignment System
   { path: "/admin/assign/stock-concept/:id", component: AssignStock },
@@ -211,6 +236,12 @@ const CustomerSupport = lazy(
 const CustomerProfile = lazy(
   () => import("@/mainComponents/CustomerSystem/CustomerProfile")
 );
+const ChooseStock = lazy(
+  () => import("@/mainComponents/CustomerSystem/SelectStock/ChooseStock")
+);
+const CustomerCSVStock = lazy(
+  () => import("@/mainComponents/CustomerSystem/SelectStock/CustomerCSVStock")
+);
 
 // Create customer routes array
 const createCustomerRoutes = () => {
@@ -228,13 +259,16 @@ const createCustomerRoutes = () => {
 
     // Dashboard
     { path: "/customer/initialize", component: InitialDashboard },
+    // Vehicle Management
+    { path: "/customer/select/stock", component: ChooseStock },
+    { path: "/customer/assign/csv-stock", component: CustomerCSVStock },
+    { path: "/customer/vehicle/info", component: CustomerVehicleInfo },
+
+    //
     { path: "/customer/dashboard", component: CustomerMainDash },
     { path: "/customer/profile-info", component: CustomerProfile },
     { path: "/customer/services", component: CustomerServices },
     { path: "/customer/support", component: CustomerSupport },
-
-    // Vehicle Management
-    { path: "/customer/vehicle/info", component: CustomerVehicleInfo },
 
     // Select Services by Admin
     { path: "/customer/tags/generate", component: GenerateTags },
