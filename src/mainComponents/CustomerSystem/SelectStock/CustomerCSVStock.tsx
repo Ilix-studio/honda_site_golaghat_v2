@@ -130,7 +130,7 @@ const CustomerCSVStock = () => {
                   }}
                 >
                   <ArrowLeft className='h-4 w-4 mr-2' />
-                  Back to Batches
+                  Back to Folder
                 </Button>
                 <div>
                   <CardTitle className='flex items-center gap-2'>

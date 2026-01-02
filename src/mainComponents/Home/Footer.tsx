@@ -9,6 +9,7 @@ import {
 import { motion, AnimatePresence, Variants } from "framer-motion";
 
 export function Footer() {
+  const currentYear = new Date().getFullYear();
   const [visitorTracked, setVisitorTracked] = useState(false);
   const [showVisitorAnimation, setShowVisitorAnimation] = useState(false);
 
@@ -244,8 +245,8 @@ export function Footer() {
         </div>
         <div className='border-t border-border mt-12 pt-8 text-center text-muted-foreground'>
           <p>
-            &copy; 2025 TsangPool Honda. All rights reserved. | Powered by Honda
-            Excellence
+            &copy; {currentYear} TsangPool Honda. All rights reserved. | Powered
+            by Honda Excellence
           </p>
         </div>
         {/* Error handling */}
