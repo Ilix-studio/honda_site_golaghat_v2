@@ -1,5 +1,4 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { customerBaseQuery } from "@/lib/customerApiConfigs";
+import { apiSlice } from "../apiSlice";
 import { handleApiError } from "@/lib/apiConfig";
 
 // ===================== TYPES & INTERFACES =====================
@@ -101,23 +100,23 @@ export interface StockVehicleListResponse {
   message?: string;
 }
 
-// ===================== API DEFINITION =====================
 
-export const stockCustomerVehicleApi = createApi({
-  reducerPath: "stockCustomerVehicleApi",
-  baseQuery: customerBaseQuery, // Uses Firebase token
-  tagTypes: ["CustomerStockVehicle"],
+
+
+
+
+export const stockCustomerVehicleApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // Get my vehicles from stock concept (authenticated customer)
     getMyStockVehicles: builder.query<StockVehicleListResponse, void>({
       query: () => "/stock-concept/my-vehicles",
+      extraOptions: { isCustomer: true },
       providesTags: ["CustomerStockVehicle"],
       transformErrorResponse: (response) => handleApiError(response),
     }),
 
-    // Get stock vehicle by ID (customer/admin access)
     getStockVehicleById: builder.query<StockVehicleResponse, string>({
       query: (vehicleId) => `/stock-concept/${vehicleId}`,
+      extraOptions: { isCustomer: true },
       providesTags: (_result, _error, vehicleId) => [
         { type: "CustomerStockVehicle", id: vehicleId },
       ],
@@ -126,7 +125,6 @@ export const stockCustomerVehicleApi = createApi({
   }),
 });
 
-// Export hooks for customer use
 export const {
   useGetMyStockVehiclesQuery,
   useGetStockVehicleByIdQuery,

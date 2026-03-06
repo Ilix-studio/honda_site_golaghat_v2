@@ -1,6 +1,4 @@
 // src/redux-store/api/bikeApi.ts
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery } from "../../../lib/apiConfig";
 import {
   Bike,
   BikeFormData,
@@ -8,6 +6,7 @@ import {
   GetBikesResponse,
   GetBikeResponse,
 } from "../../slices/BikeSystemSlice/bikesSlice";
+import { apiSlice } from "../apiSlice";
 
 // Helper function to build query string from filters
 const buildQueryString = (filters: BikeFilters): string => {
@@ -44,10 +43,7 @@ export interface DeleteBikeResponse {
   message: string;
 }
 
-export const bikeApi = createApi({
-  reducerPath: "bikeApi",
-  baseQuery,
-  tagTypes: ["Bike", "BikeList"],
+export const bikeApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // GET /api/bikes - Get all bikes with filters
     getBikes: builder.query<GetBikesResponse, BikeFilters>({

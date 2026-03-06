@@ -5,6 +5,7 @@ import { lazy } from "react";
 import Home from "../Home";
 import NotFoundPage from "../mainComponents/NotFoundPage";
 import { ViewBikeImage } from "@/mainComponents/Admin/Bikes/ViewBikeImage";
+import { SimpleBookService } from "@/mainComponents/BookService/SimpleBookService";
 
 export const immediateRoutes = [
   {
@@ -37,9 +38,7 @@ const ScooterDetailPage = lazy(
 const CompareBike = lazy(
   () => import("../mainComponents/BikeDetails/CompareBikes/CompareBike")
 );
-const BookServicePage = lazy(
-  () => import("../mainComponents/BookService/BookServicePage")
-);
+
 const SearchResults = lazy(
   () => import("../mainComponents/Search/SearchResults")
 );
@@ -155,6 +154,17 @@ const GetAllStockFiles = lazy(
   () => import("@/mainComponents/BikeSsytem3/GetAllStockFiles")
 );
 
+const FinanceQueries = lazy(
+  () => import("@/mainComponents/Admin/AdminDash/FinanceEnquiry/FinanceQueries")
+);
+const ViewBikeImages = lazy(
+  () => import("@/mainComponents/Admin/Bikes/ViewBike/ViewBikeImages")
+);
+
+const ViewScootyImages = lazy(
+  () => import("@/mainComponents/Admin/Bikes/ViewBike/ViewScootymages")
+);
+
 // Create admin routes array
 const createAdminRoutes = () => [
   // Authentication
@@ -174,6 +184,8 @@ const createAdminRoutes = () => [
   { path: "/admin/bikes/:bikeId/images/add", component: AddBikeImage },
   { path: "/admin/bikes/:bikeId/images/edit", component: EditBikeImage },
   { path: "/admin/bikes/images/:id", component: ViewBikeImage },
+  { path: "/admin/bikeimages/:bikeId", component: ViewBikeImages },
+  { path: "/admin/scootyimages/:bikeId", component: ViewScootyImages },
 
   // Customer Management
   { path: "/admin/customers/signup", component: CustomerSignUp },
@@ -193,6 +205,8 @@ const createAdminRoutes = () => [
 
   //Service Booking
   { path: "/admin/service-bookings", component: AdminBookingsManager },
+  //Finance Queries
+  { path: "/admin/finanace-query", component: FinanceQueries },
 ];
 
 export const adminRoutes = createAdminRoutes();
@@ -218,9 +232,7 @@ const CustomerVehicleInfo = lazy(
 );
 
 // Customer Services
-const GenerateTags = lazy(
-  () => import("../mainComponents/CustomerSystem/GenerateTags")
-);
+
 const ActivateVAS = lazy(
   () => import("../mainComponents/CustomerSystem/ActivateFeature/ActivateVAS")
 );
@@ -242,6 +254,15 @@ const ChooseStock = lazy(
 const CustomerCSVStock = lazy(
   () => import("@/mainComponents/CustomerSystem/SelectStock/CustomerCSVStock")
 );
+const UseToken = lazy(() => import("@/mainComponents/Scanfleet/UseToken"));
+
+const FirstDash = lazy(
+  () => import("@/mainComponents/CustomerSystem/Dashboards/FirstDash")
+);
+
+const CustomerVehicleDetail = lazy(
+  () => import("@/mainComponents/BikeSystem2/CustomerVehicleDetail")
+);
 
 // Create customer routes array
 const createCustomerRoutes = () => {
@@ -258,11 +279,13 @@ const createCustomerRoutes = () => {
     { path: "/customer/profile/create", component: CustomerCreateProfile },
 
     // Dashboard
+    { path: "/customer/first-dash", component: FirstDash },
     { path: "/customer/initialize", component: InitialDashboard },
     // Vehicle Management
     { path: "/customer/select/stock", component: ChooseStock },
     { path: "/customer/assign/csv-stock", component: CustomerCSVStock },
     { path: "/customer/vehicle/info", component: CustomerVehicleInfo },
+    { path: "/customer/vehicle/:vehicleId", component: CustomerVehicleDetail },
 
     //
     { path: "/customer/dashboard", component: CustomerMainDash },
@@ -271,9 +294,10 @@ const createCustomerRoutes = () => {
     { path: "/customer/support", component: CustomerSupport },
 
     // Select Services by Admin
-    { path: "/customer/tags/generate", component: GenerateTags },
+
     { path: "/customer/services/vas", component: ActivateVAS },
-    { path: "/customer/book-service", component: BookServicePage },
+    { path: "/customer/book-service", component: SimpleBookService },
+    { path: "/customer/attach-stickers", component: UseToken },
   ];
 };
 
@@ -290,23 +314,30 @@ export const routeConfig: Record<
     menuItems?: Array<{ label: string; href: string }>;
   }
 > = {
+  "/customer/first-dash": {
+    title: "Customer Lookup",
+    subtitle: "Search and manage customer vehicles",
+    showBack: true,
+    backTo: "/admin/dashboard",
+  },
   "/customer/dashboard": {
     title: "",
     subtitle: "",
   },
   "/customer/services": {
     title: "My Services",
-    subtitle: "Manage your service bookings",
+    subtitle: "",
     showBack: true,
     backTo: "/customer/dashboard",
     menuItems: [
       { label: "Book Service", href: "/customer/services" },
       { label: "Service History", href: "/customer/service-history" },
+      { label: "Customer Support", href: "/customer/support" },
     ],
   },
   "/customer/book-service": {
     title: "Book Service",
-    subtitle: "Schedule your motorcycle service",
+    subtitle: "",
     showBack: true,
     backTo: "/customer/dashboard",
     menuItems: [
@@ -329,6 +360,12 @@ export const routeConfig: Record<
   "/customer/profile-info": {
     title: "My Profile",
     subtitle: "Manage your account information",
+    showBack: true,
+    backTo: "/customer/dashboard",
+  },
+  "/customer/support": {
+    title: "Customer Support",
+    subtitle: "Support System",
     showBack: true,
     backTo: "/customer/dashboard",
   },

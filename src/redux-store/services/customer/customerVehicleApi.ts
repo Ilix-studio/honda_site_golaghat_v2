@@ -1,25 +1,18 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { customerBaseQuery } from "@/lib/customerApiConfigs";
-import { handleApiError } from "@/lib/apiConfig";
 import {
   PopulatedCustomerVehicleListResponse,
   PopulatedCustomerVehicleResponse,
   ServiceHistoryResponse,
-} from "../BikeSystemApi2/AdminVehicleApi";
+  VehiclesByPhoneResponse,
+} from "@/types/superAd_Cu.types";
+import { apiSlice } from "../apiSlice";
+import { handleApiError } from "@/lib/apiConfig";
 
-export const customerVehicleApi = createApi({
-  reducerPath: "customerVehicleApi",
-  baseQuery: customerBaseQuery, // Uses Firebase token
-  tagTypes: [
-    "CustomerVehicle",
-    "VehicleStats",
-    "ServiceHistory",
-    "CustomerStockVehicle",
-  ],
+export const customerVehicleApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Get my vehicles (authenticated customer)
     getMyVehicles: builder.query<PopulatedCustomerVehicleListResponse, void>({
       query: () => `/customer-vehicles/my-vehicles`,
+      extraOptions: { isCustomer: true },
       providesTags: ["CustomerVehicle"],
       transformErrorResponse: (response) => handleApiError(response),
     }),
@@ -30,6 +23,7 @@ export const customerVehicleApi = createApi({
       string
     >({
       query: (vehicleId) => `/customer-vehicles/${vehicleId}`,
+      extraOptions: { isCustomer: true },
       providesTags: (_result, _error, vehicleId) => [
         { type: "CustomerVehicle", id: vehicleId },
       ],
@@ -39,9 +33,18 @@ export const customerVehicleApi = createApi({
     // Get vehicle service history
     getVehicleServiceHistory: builder.query<ServiceHistoryResponse, string>({
       query: (vehicleId) => `/customer-vehicles/${vehicleId}/service-history`,
+      extraOptions: { isCustomer: true },
       providesTags: (_result, _error, vehicleId) => [
         { type: "ServiceHistory", id: vehicleId },
       ],
+      transformErrorResponse: (response) => handleApiError(response),
+    }),
+
+    // Inside injectEndpoints:
+    getVehiclesByPhone: builder.query<VehiclesByPhoneResponse, string>({
+      query: (phone) => `/customer-vehicles/by-phone/${phone}`,
+      // No isCustomer — this is admin-facing
+      providesTags: ["CustomerVehicle"],
       transformErrorResponse: (response) => handleApiError(response),
     }),
 
@@ -56,6 +59,7 @@ export const customerVehicleApi = createApi({
     >({
       query: ({ vehicleId, serviceType }) =>
         `/customer-vehicles/${vehicleId}/check-eligibility?serviceType=${serviceType}`,
+      extraOptions: { isCustomer: true },
       transformErrorResponse: (response) => handleApiError(response),
     }),
   }),
@@ -67,8 +71,5 @@ export const {
   useGetCustomerVehicleByIdQuery,
   useGetVehicleServiceHistoryQuery,
   useCheckVehicleEligibilityQuery,
-  useLazyGetMyVehiclesQuery,
-  useLazyGetCustomerVehicleByIdQuery,
-  useLazyGetVehicleServiceHistoryQuery,
-  useLazyCheckVehicleEligibilityQuery,
+  useGetVehiclesByPhoneQuery,
 } = customerVehicleApi;

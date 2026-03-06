@@ -5,14 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-import {
   BarChart3,
   Calendar,
   Clock,
@@ -28,9 +20,7 @@ import {
   useUpdateBookingStatusMutation,
 } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
 
-interface AdminBookingsManagerProps {}
-
-const AdminBookingsManager: React.FC<AdminBookingsManagerProps> = () => {
+const AdminBookingsManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"bookings" | "stats">("bookings");
   const [filters, setFilters] = useState({
     status: "",
@@ -49,14 +39,12 @@ const AdminBookingsManager: React.FC<AdminBookingsManagerProps> = () => {
     error: bookingsError,
     refetch: refetchBookings,
   } = useGetAllBookingsQuery(filters);
-
   const {
     data: statsData,
     isLoading: statsLoading,
     error: statsError,
     refetch: refetchStats,
   } = useGetBookingStatsQuery({});
-
   const [updateBookingStatus, { isLoading: isUpdatingStatus }] =
     useUpdateBookingStatusMutation();
 
@@ -65,6 +53,7 @@ const AdminBookingsManager: React.FC<AdminBookingsManagerProps> = () => {
 
   const handleStatusUpdate = useCallback(
     async (bookingId: string, newStatus: string) => {
+      if (!newStatus) return;
       try {
         await updateBookingStatus({
           id: bookingId,
@@ -80,36 +69,29 @@ const AdminBookingsManager: React.FC<AdminBookingsManagerProps> = () => {
   );
 
   const handleFilterChange = useCallback((key: string, value: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: value,
-      page: 1, // Reset to first page when filtering
-    }));
+    setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
   }, []);
 
   const getStatusColor = (status: string) => {
-    const statusColors = {
+    const statusColors: Record<string, string> = {
       pending: "bg-yellow-100 text-yellow-800 border-yellow-300",
       confirmed: "bg-blue-100 text-blue-800 border-blue-300",
       "in-progress": "bg-purple-100 text-purple-800 border-purple-300",
       completed: "bg-green-100 text-green-800 border-green-300",
       cancelled: "bg-red-100 text-red-800 border-red-300",
     };
-    return (
-      statusColors[status as keyof typeof statusColors] ||
-      "bg-gray-100 text-gray-800 border-gray-300"
-    );
+    return statusColors[status] || "bg-gray-100 text-gray-800 border-gray-300";
   };
 
-  const getStatusOptions = (currentStatus: string) => {
-    const statusFlow = {
+  const getStatusOptions = (currentStatus: string): string[] => {
+    const statusFlow: Record<string, string[]> = {
       pending: ["confirmed", "cancelled"],
       confirmed: ["in-progress", "cancelled"],
       "in-progress": ["completed"],
       completed: [],
       cancelled: [],
     };
-    return statusFlow[currentStatus as keyof typeof statusFlow] || [];
+    return statusFlow[currentStatus] || [];
   };
 
   const filteredBookings = bookings.filter(
@@ -117,6 +99,9 @@ const AdminBookingsManager: React.FC<AdminBookingsManagerProps> = () => {
       searchQuery === "" ||
       booking.bookingId.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const selectClass =
+    "w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500";
 
   if (bookingsError || statsError) {
     return (
@@ -132,8 +117,7 @@ const AdminBookingsManager: React.FC<AdminBookingsManagerProps> = () => {
             }}
             className='mt-2'
           >
-            <RefreshCw className='h-4 w-4 mr-2' />
-            Retry
+            <RefreshCw className='h-4 w-4 mr-2' /> Retry
           </Button>
         </CardContent>
       </Card>
@@ -234,7 +218,6 @@ const AdminBookingsManager: React.FC<AdminBookingsManagerProps> = () => {
 
         {/* Bookings Tab */}
         <TabsContent value='bookings' className='mt-6'>
-          {/* Filters and Search */}
           <Card className='mb-6'>
             <CardContent className='p-4'>
               <div className='flex flex-col lg:flex-row gap-4'>
@@ -250,51 +233,39 @@ const AdminBookingsManager: React.FC<AdminBookingsManagerProps> = () => {
                   </div>
                 </div>
                 <div className='flex flex-col sm:flex-row gap-2 lg:gap-4'>
-                  <Select
-                    onValueChange={(value) =>
-                      handleFilterChange("status", value)
+                  <select
+                    className={`${selectClass} sm:w-40`}
+                    value={filters.status}
+                    onChange={(e) =>
+                      handleFilterChange("status", e.target.value)
                     }
                   >
-                    <SelectTrigger className='w-full sm:w-40'>
-                      <SelectValue placeholder='Status' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value=''>All Status</SelectItem>
-                      <SelectItem value='pending'>Pending</SelectItem>
-                      <SelectItem value='confirmed'>Confirmed</SelectItem>
-                      <SelectItem value='in-progress'>In Progress</SelectItem>
-                      <SelectItem value='completed'>Completed</SelectItem>
-                      <SelectItem value='cancelled'>Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    onValueChange={(value) =>
-                      handleFilterChange("serviceType", value)
+                    <option value=''>All Status</option>
+                    <option value='pending'>Pending</option>
+                    <option value='confirmed'>Confirmed</option>
+                    <option value='in-progress'>In Progress</option>
+                    <option value='completed'>Completed</option>
+                    <option value='cancelled'>Cancelled</option>
+                  </select>
+
+                  <select
+                    className={`${selectClass} sm:w-40`}
+                    value={filters.serviceType}
+                    onChange={(e) =>
+                      handleFilterChange("serviceType", e.target.value)
                     }
                   >
-                    <SelectTrigger className='w-full sm:w-40'>
-                      <SelectValue placeholder='Service Type' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value=''>All Services</SelectItem>
-                      <SelectItem value='general-service'>
-                        General Service
-                      </SelectItem>
-                      <SelectItem value='oil-change'>Oil Change</SelectItem>
-                      <SelectItem value='brake-service'>
-                        Brake Service
-                      </SelectItem>
-                      <SelectItem value='battery-service'>
-                        Battery Service
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <option value=''>All Services</option>
+                    <option value='general-service'>General Service</option>
+                    <option value='oil-change'>Oil Change</option>
+                    <option value='brake-service'>Brake Service</option>
+                    <option value='battery-service'>Battery Service</option>
+                  </select>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Bookings List */}
           {bookingsLoading ? (
             <div className='space-y-4'>
               {Array.from({ length: 5 }).map((_, i) => (
@@ -362,13 +333,6 @@ const AdminBookingsManager: React.FC<AdminBookingsManagerProps> = () => {
                             <span>{booking.appointmentTime}</span>
                           </div>
                         </div>
-
-                        {booking.specialRequests && (
-                          <div className='text-sm'>
-                            <span className='font-medium'>Notes:</span>{" "}
-                            {booking.specialRequests}
-                          </div>
-                        )}
                       </div>
 
                       <div className='flex flex-col sm:flex-row items-start sm:items-center gap-3'>
@@ -384,26 +348,25 @@ const AdminBookingsManager: React.FC<AdminBookingsManagerProps> = () => {
                         )}
 
                         {getStatusOptions(booking.status).length > 0 && (
-                          <Select
-                            onValueChange={(value) =>
-                              handleStatusUpdate(booking._id, value)
-                            }
+                          <select
+                            className={`${selectClass} sm:w-40`}
+                            defaultValue=''
                             disabled={isUpdatingStatus}
+                            onChange={(e) => {
+                              if (e.target.value)
+                                handleStatusUpdate(booking._id, e.target.value);
+                            }}
                           >
-                            <SelectTrigger className='w-full sm:w-40'>
-                              <SelectValue placeholder='Update Status' />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {getStatusOptions(booking.status).map(
-                                (status) => (
-                                  <SelectItem key={status} value={status}>
-                                    {status.charAt(0).toUpperCase() +
-                                      status.slice(1)}
-                                  </SelectItem>
-                                )
-                              )}
-                            </SelectContent>
-                          </Select>
+                            <option value='' disabled>
+                              Update Status
+                            </option>
+                            {getStatusOptions(booking.status).map((status) => (
+                              <option key={status} value={status}>
+                                {status.charAt(0).toUpperCase() +
+                                  status.slice(1)}
+                              </option>
+                            ))}
+                          </select>
                         )}
 
                         {booking.status === "completed" && (
@@ -415,7 +378,6 @@ const AdminBookingsManager: React.FC<AdminBookingsManagerProps> = () => {
                 </Card>
               ))}
 
-              {/* Pagination */}
               {bookingsData && bookingsData.totalPages > 1 && (
                 <div className='flex flex-col sm:flex-row justify-between items-center gap-4 mt-6'>
                   <p className='text-sm text-muted-foreground'>

@@ -1,5 +1,4 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery } from "../../lib/apiConfig";
+import { apiSlice } from "./apiSlice";
 import { User, loginSuccess } from "../slices/authSlice";
 
 export interface LoginBranchManagerRequest {
@@ -37,10 +36,7 @@ export interface CreateBranchManagerResponse {
   };
 }
 
-export const branchManagerApi = createApi({
-  reducerPath: "branchManagerApi",
-  baseQuery,
-  tagTypes: ["BranchManager"],
+export const branchManagerApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     loginBranchManager: builder.mutation<
       LoginBranchManagerResponse,

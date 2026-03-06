@@ -18,16 +18,6 @@ export const serviceFormSchema = z.object({
   }),
   date: z.date({ required_error: "Please select a date" }),
   time: z.string({ required_error: "Please select a time" }),
-
-  // Step 4: Additional Information
-  issues: z.string().optional(),
-  dropOff: z.boolean().optional(),
-  waitOnsite: z.boolean().optional(),
-
-  // Terms
-  termsAccepted: z.boolean().refine((val) => val === true, {
-    message: "You must accept the terms and conditions",
-  }),
 });
 
 export type ServiceFormValues = z.infer<typeof serviceFormSchema>;

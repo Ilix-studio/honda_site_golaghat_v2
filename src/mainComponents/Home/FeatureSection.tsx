@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Zap, Shield, Award, Gauge, Clock, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function FeaturesSection() {
   // Animation variants
@@ -115,9 +116,11 @@ export function FeaturesSection() {
             <button className='bg-white text-red-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200'>
               Book Service Now
             </button>
-            <button className='border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-red-600 transition-colors duration-200'>
-              Create Profile
-            </button>
+            <Link to='/finance'>
+              <button className='border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-red-600 transition-colors duration-200'>
+                Do Enquiry!
+              </button>
+            </Link>
           </div>
         </div>
       </section>

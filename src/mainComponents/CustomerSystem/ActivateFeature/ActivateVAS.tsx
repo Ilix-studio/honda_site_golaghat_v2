@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { useAppSelector } from "@/hooks/redux";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 
 import { CheckCircle, User, Shield, Calendar, DollarSign } from "lucide-react";
 import {
@@ -10,6 +10,7 @@ import {
 } from "@/redux-store/services/BikeSystemApi2/VASApi";
 import { formatCurrency } from "@/lib/formatters";
 import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
+import { setSelectVASCompleted } from "@/redux-store/slices/setupProgressSlice";
 
 const ActivateVAS = () => {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ const ActivateVAS = () => {
   const [activatingServiceId, setActivatingServiceId] = useState<string | null>(
     null
   );
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (!customerId || !isAuthenticated) {
@@ -60,7 +62,8 @@ const ActivateVAS = () => {
       }).unwrap();
 
       toast.success(result.message || "VAS activated successfully!");
-      navigate("/customer/dashboard");
+      dispatch(setSelectVASCompleted(true)); 
+      navigate("/customer/initialize");
     } catch (error: any) {
       console.error("Full error object:", error);
 

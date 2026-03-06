@@ -1,6 +1,4 @@
-// Create: src/redux-store/services/customerApi.ts
-import { customerBaseQuery } from "@/lib/customerApiConfigs";
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { apiSlice } from "../apiSlice";
 
 export interface SaveAuthDataRequest {
   phoneNumber: string;
@@ -20,9 +18,7 @@ export interface SaveAuthDataResponse {
   };
 }
 
-export const customerLoginApi = createApi({
-  reducerPath: "customerLoginApi",
-  baseQuery: customerBaseQuery,
+export const customerLoginApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     saveAuthData: builder.mutation<SaveAuthDataResponse, SaveAuthDataRequest>({
       query: (data) => ({
@@ -30,6 +26,7 @@ export const customerLoginApi = createApi({
         method: "POST",
         body: data,
       }),
+      extraOptions: { isCustomer: true },
     }),
   }),
 });

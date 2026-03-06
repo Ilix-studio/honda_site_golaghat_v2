@@ -1,7 +1,5 @@
-// src/redux-store/services/BikeSystemApi3/csvStockApi.ts
-
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery, handleApiError } from "@/lib/apiConfig";
+import { apiSlice } from "../apiSlice";
+import { handleApiError } from "@/lib/apiConfig";
 import {
   AssignStockRequest,
   BatchStockFilters,
@@ -13,10 +11,7 @@ import {
 } from "@/types/customer/stockcsv.types";
 import { UpdateStatusRequest } from "@/types/getApproved.types";
 
-export const csvStockApi = createApi({
-  reducerPath: "csvStockApi",
-  baseQuery,
-  tagTypes: ["CSVStock", "CSVStockList", "CSVBatch"],
+export const csvStockApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // POST /api/csv-stock/import
     importCSVStock: builder.mutation<CSVImportResponse, FormData>({

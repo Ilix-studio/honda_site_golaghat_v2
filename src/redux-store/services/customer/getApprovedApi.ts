@@ -1,6 +1,4 @@
-// src/redux-store/services/getApprovedApi.ts
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery } from "../../../lib/apiConfig";
+import { apiSlice } from "../apiSlice";
 import {
   CheckStatusRequest,
   CheckStatusResponse,
@@ -8,34 +6,29 @@ import {
   GetApplicationByIdResponse,
   GetApplicationsFilters,
   GetApplicationsResponse,
+  GetApplicationsWithBikesFilters,
   GetStatsResponse,
+  GetStatsResponseWithBikes,
   SubmitApplicationRequest,
   SubmitApplicationResponse,
   UpdateStatusRequest,
   UpdateStatusResponse,
 } from "@/types/getApproved.types";
 
-export const getApprovedApi = createApi({
-  reducerPath: "getApprovedApi",
-  baseQuery,
-  tagTypes: ["GetApproved", "GetApprovedStats"],
+export const getApprovedApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // Public endpoints
-
-    // Submit new application
     submitApplication: builder.mutation<
       SubmitApplicationResponse,
       SubmitApplicationRequest
     >({
       query: (applicationData) => ({
-        url: "/getapproved",
+        url: "/getapproved/add",
         method: "POST",
         body: applicationData,
       }),
       invalidatesTags: ["GetApproved", "GetApprovedStats"],
     }),
 
-    // Check application status (public)
     checkApplicationStatus: builder.mutation<
       CheckStatusResponse,
       CheckStatusRequest
@@ -47,25 +40,17 @@ export const getApprovedApi = createApi({
       }),
     }),
 
-    // Get application by ID (can be public with application ID)
     getApplicationById: builder.query<GetApplicationByIdResponse, string>({
-      query: (id) => ({
-        url: `/getapproved/${id}`,
-        method: "GET",
-      }),
+      query: (id) => `/getapproved/${id}`,
       providesTags: (_result, _error, id) => [{ type: "GetApproved", id }],
     }),
 
-    // Protected endpoints (Admin only)
-
-    // Get all applications with filters and pagination
     getAllApplications: builder.query<
       GetApplicationsResponse,
       GetApplicationsFilters
     >({
       query: (filters) => {
         const params = new URLSearchParams();
-
         if (filters.page !== undefined)
           params.append("page", filters.page.toString());
         if (filters.limit !== undefined)
@@ -81,17 +66,37 @@ export const getApprovedApi = createApi({
         if (filters.startDate) params.append("startDate", filters.startDate);
         if (filters.endDate) params.append("endDate", filters.endDate);
         if (filters.branch) params.append("branch", filters.branch);
-
         const queryString = params.toString();
-        return {
-          url: `/getapproved${queryString ? `?${queryString}` : ""}`,
-          method: "GET",
-        };
+        return `/getapproved/all${queryString ? `?${queryString}` : ""}`;
+      },
+      providesTags: ["GetApproved"],
+    }),
+    getApplicationsWithBikes: builder.query<
+      GetStatsResponseWithBikes,
+      GetApplicationsWithBikesFilters
+    >({
+      query: (filters = {}) => {
+        const params = new URLSearchParams();
+        if (filters.page !== undefined)
+          params.append("page", filters.page.toString());
+        if (filters.limit !== undefined)
+          params.append("limit", filters.limit.toString());
+        if (filters.status) params.append("status", filters.status);
+        if (filters.enquiryType)
+          params.append("enquiryType", filters.enquiryType);
+        if (filters.category) params.append("category", filters.category);
+        if (filters.urgency) params.append("urgency", filters.urgency);
+        if (filters.hasTradeIn !== undefined)
+          params.append("hasTradeIn", String(filters.hasTradeIn));
+        if (filters.search) params.append("search", filters.search);
+        if (filters.sortBy) params.append("sortBy", filters.sortBy);
+        if (filters.sortOrder) params.append("sortOrder", filters.sortOrder);
+        const qs = params.toString();
+        return `/getapproved/with-bikes${qs ? `?${qs}` : ""}`;
       },
       providesTags: ["GetApproved"],
     }),
 
-    // Update application status
     updateApplicationStatus: builder.mutation<
       UpdateStatusResponse,
       { id: string; data: UpdateStatusRequest }
@@ -108,7 +113,6 @@ export const getApprovedApi = createApi({
       ],
     }),
 
-    // Delete application (Super-Admin only)
     deleteApplication: builder.mutation<DeleteApplicationResponse, string>({
       query: (id) => ({
         url: `/getapproved/${id}`,
@@ -121,36 +125,26 @@ export const getApprovedApi = createApi({
       ],
     }),
 
-    // Get application statistics
     getApplicationStats: builder.query<GetStatsResponse, void>({
-      query: () => ({
-        url: "/getapproved/stats",
-        method: "GET",
-      }),
+      query: () => "/getapproved/stats",
       providesTags: ["GetApprovedStats"],
     }),
 
-    // Get applications by branch
     getApplicationsByBranch: builder.query<
       GetApplicationsResponse,
       { branchId: string; filters?: Omit<GetApplicationsFilters, "branch"> }
     >({
       query: ({ branchId, filters = {} }) => {
         const params = new URLSearchParams();
-
         if (filters.page !== undefined)
           params.append("page", filters.page.toString());
         if (filters.limit !== undefined)
           params.append("limit", filters.limit.toString());
         if (filters.status) params.append("status", filters.status);
-
         const queryString = params.toString();
-        return {
-          url: `/getapproved/branch/${branchId}${
-            queryString ? `?${queryString}` : ""
-          }`,
-          method: "GET",
-        };
+        return `/getapproved/branch/${branchId}${
+          queryString ? `?${queryString}` : ""
+        }`;
       },
       providesTags: (_result, _error, { branchId }) => [
         { type: "GetApproved", id: `branch-${branchId}` },
@@ -160,25 +154,19 @@ export const getApprovedApi = createApi({
 });
 
 export const {
-  // Public mutations
   useSubmitApplicationMutation,
   useCheckApplicationStatusMutation,
-
-  // Public queries
   useGetApplicationByIdQuery,
-
-  // Protected queries
   useGetAllApplicationsQuery,
   useGetApplicationStatsQuery,
   useGetApplicationsByBranchQuery,
-
-  // Protected mutations
   useUpdateApplicationStatusMutation,
   useDeleteApplicationMutation,
-
-  // Lazy queries for conditional fetching
   useLazyGetAllApplicationsQuery,
   useLazyGetApplicationByIdQuery,
   useLazyGetApplicationStatsQuery,
   useLazyGetApplicationsByBranchQuery,
+  //
+  useGetApplicationsWithBikesQuery,
+  useLazyGetApplicationsWithBikesQuery,
 } = getApprovedApi;

@@ -2,18 +2,13 @@
 export interface ServiceBooking {
   _id: string;
   customer: string;
-  vehicle: string;
+  modelName: string;
   serviceType: string;
   usedServices: string[];
   branch: string;
   appointmentDate: string;
   appointmentTime: string;
   location: "branch" | "home" | "office" | "roadside";
-  specialRequests?: string;
-  serviceOptions: {
-    isDropOff: boolean;
-    willWaitOnsite: boolean;
-  };
   bookingId: string;
   status: "pending" | "confirmed" | "in-progress" | "completed" | "cancelled";
   priority?: "normal" | "urgent";
@@ -23,8 +18,6 @@ export interface ServiceBooking {
   assignedTechnician?: string;
   serviceNotes?: string;
   internalNotes?: string;
-  termsAccepted: boolean;
-  termsAcceptedAt?: string;
   adminNotificationSent: boolean;
   notificationSentAt?: string;
   createdAt: string;
@@ -40,10 +33,6 @@ export interface CreateBookingRequest {
   appointmentDate: string;
   appointmentTime: string;
   location: string;
-  specialRequests?: string;
-  isDropOff?: boolean;
-  willWaitOnsite?: boolean;
-  termsAccepted: boolean;
 }
 
 export interface CreateBookingResponse {
@@ -91,5 +80,13 @@ export interface ServiceStatsResponse {
       freeServicesUsed: number;
       paidServicesUsed: number;
     };
+  };
+}
+// Response type for vehicle info endpoint
+export interface CustomerVehicleInfoResponse {
+  success: boolean;
+  data: {
+    vehicleId: string;
+    modelName: string;
   };
 }

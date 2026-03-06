@@ -1,6 +1,4 @@
-// src/redux-store/services/adminApi.ts
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery } from "../../lib/apiConfig";
+import { apiSlice } from "./apiSlice";
 import { User, loginSuccess, logout } from "../slices/authSlice";
 
 export interface LoginRequest {
@@ -20,9 +18,7 @@ export interface LoginResponse {
   };
 }
 
-export const adminAuthApi = createApi({
-  reducerPath: "adminAuthApi",
-  baseQuery,
+export const adminAuthApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     loginAdmin: builder.mutation<LoginResponse, LoginRequest>({
       query: (credentials) => ({

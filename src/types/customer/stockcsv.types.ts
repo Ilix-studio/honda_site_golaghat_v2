@@ -17,6 +17,13 @@ export interface IStockConceptCSV {
     branchId: string | { _id: string; branchName: string };
     updatedBy: string;
   };
+  priceInfo?: {
+    onRoadPrice?: number;
+    exShowroomPrice?: number;
+    insurancePrice?: number;
+    registrationPrice?: number;
+    otherCharges?: number;
+  };
   salesInfo?: {
     soldTo?: string;
     soldDate?: string;
@@ -93,17 +100,13 @@ export interface UpdateStatusRequest {
 }
 
 export interface AssignStockRequest {
-  stockType: "manual" | "csv";
   customerId: string;
+  stockType?: "csv" | "manual"; // Make optional since endpoint is CSV-specific
   salePrice: number;
   invoiceNumber: string;
-  paymentStatus?: "Paid" | "Partial" | "Pending";
-  registrationDate?: string;
-  numberPlate?: string;
-  registeredOwnerName?: string;
-  insurance?: boolean;
-  isPaid?: boolean;
-  isFinance?: boolean;
+  insurance: boolean;
+  isPaid: boolean;
+  isFinance: boolean;
 }
 
 export interface CSVStockFilters {

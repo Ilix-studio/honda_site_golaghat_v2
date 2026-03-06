@@ -1,3 +1,4 @@
+import { RootState } from "@/redux-store/store";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface Customer {
@@ -114,13 +115,10 @@ export const {
 } = customerAuthSlice.actions;
 
 // Selectors
-export const selectCustomerAuth = (state: {
-  customerAuth: CustomerAuthState;
-}) => state.customerAuth;
-export const selectCustomer = (state: { customerAuth: CustomerAuthState }) =>
-  state.customerAuth.customer;
-export const selectIsAuthenticated = (state: {
-  customerAuth: CustomerAuthState;
-}) => state.customerAuth.isAuthenticated;
+
+export const selectCustomerAuth = (state: RootState) => state.customerAuth;
+export const selectCustomer = (state: RootState) => state.customerAuth.customer;
+export const selectIsAuthenticated = (state: RootState) =>
+  state.customerAuth.isAuthenticated;
 
 export default customerAuthSlice.reducer;

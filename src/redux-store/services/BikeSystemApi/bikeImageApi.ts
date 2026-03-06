@@ -1,7 +1,5 @@
-// src/redux-store/api/bikeImageApi.ts
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery } from "../../../lib/apiConfig";
 import { BikeImage } from "../../slices/BikeSystemSlice/bikeImageSlice";
+import { apiSlice } from "../apiSlice";
 
 // Response interfaces
 export interface GetBikeImagesResponse {
@@ -45,6 +43,9 @@ export interface UpdateImageResponse {
 export interface DeleteImageResponse {
   success: boolean;
   message: string;
+  data: {
+    message: string;
+  }
 }
 
 export interface DeleteAllImagesResponse {
@@ -59,10 +60,7 @@ export interface SetPrimaryImageResponse {
   data: BikeImage;
 }
 
-export const bikeImageApi = createApi({
-  reducerPath: "bikeImageApi",
-  baseQuery,
-  tagTypes: ["BikeImage", "BikeImageList"],
+export const bikeImageApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // GET /api/bike-images/:bikeId - Get all images for a bike
     getBikeImages: builder.query<GetBikeImagesResponse, string>({
