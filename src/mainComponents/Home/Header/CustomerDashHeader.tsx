@@ -1,273 +1,193 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
-import {
-  User,
-  LogOut,
-  Home,
-  Wrench,
-  Phone,
-  User2Icon,
-  ArrowLeft,
-} from "lucide-react";
+import { User, LogOut, Home, Wrench, Phone, ArrowLeft } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-
-// Redux imports - Using the custom hook for customer authentication
 import { useAppDispatch } from "@/hooks/redux";
 import { useAuthForCustomer } from "@/hooks/useAuthforCustomer";
 import { logout } from "@/redux-store/slices/customer/customerAuthSlice";
 import { addNotification } from "@/redux-store/slices/uiSlice";
 import { routeConfig } from "@/config/routeConfig";
+import { useGetCustomerProfileQuery } from "@/redux-store/services/customer/customerApi";
+import { ApiResponse } from "@/mainComponents/CustomerSystem/CustomerProfileInto";
+
+const NAV_LINKS = [
+  { label: "Dashboard", to: "/customer/dashboard" },
+  { label: "Services", to: "/customer/services" },
+  { label: "Support", to: "/customer/support" },
+];
+
+const MOBILE_NAV = [
+  { label: "Dashboard", to: "/customer/dashboard", icon: Home },
+  { label: "Services", to: "/customer/services", icon: Wrench },
+  { label: "Support", to: "/customer/support", icon: Phone },
+];
 
 export function CustomerDashHeader() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated, firebaseToken } = useAuthForCustomer();
+  const { data, isLoading } = useGetCustomerProfileQuery();
+  const apiResponse = data as unknown as ApiResponse;
+  const profile = apiResponse?.data?.profile;
 
-  // Using the custom hook for customer authentication
-  const { isAuthenticated, customer, firebaseToken } = useAuthForCustomer();
-
-  // const [logoutCustomer, { isLoading: isLoggingOut }] = useLogoutCustomerMutation();
-
-  // Get current route configuration
   const currentRoute = routeConfig[location.pathname] || {
     title: "Customer Portal",
     subtitle: "Tsangpool Honda Service Center",
   };
 
-  // Redirect if not authenticated or no firebase token
   useEffect(() => {
-    if (!isAuthenticated || !firebaseToken) {
-      navigate("/customer/login");
-    }
+    if (!isAuthenticated || !firebaseToken) navigate("/customer/login");
   }, [isAuthenticated, firebaseToken, navigate]);
 
   const handleLogout = async () => {
     try {
-      // await logoutCustomer().unwrap();
       dispatch(logout());
       dispatch(
-        addNotification({
-          type: "success",
-          message: "Logged out successfully",
-        })
+        addNotification({ type: "success", message: "Logged out successfully" })
       );
       navigate("/");
-    } catch (error) {
+    } catch {
       dispatch(
-        addNotification({
-          type: "error",
-          message: "Error logging out",
-        })
+        addNotification({ type: "error", message: "Error logging out" })
       );
     }
   };
 
   const handleBack = () => {
-    if (currentRoute.backTo) {
-      navigate(currentRoute.backTo);
-    } else {
-      navigate(-1);
-    }
-  };
-  const seeNotification = () => {
-    navigate("/customer/notification");
+    currentRoute.backTo ? navigate(currentRoute.backTo) : navigate(-1);
   };
 
   return (
-    <header className='bg-white border-b border-gray-200 sticky top-0 z-50'>
+    <header className='sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='flex justify-between items-center h-16'>
-          {/* Left Section - Logo and Title with Back Button */}
-          <div className='flex items-center space-x-4'>
+        <div className='flex items-center justify-between h-15 py-3'>
+          {/* ── Left ── */}
+          <div className='flex items-center gap-3'>
             {currentRoute.showBack && (
-              <Button
-                variant='ghost'
-                size='sm'
+              <button
                 onClick={handleBack}
-                className='pl-0'
+                className='w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors'
               >
-                <ArrowLeft className='h-4 w-4 mr-2' />
-              </Button>
+                <ArrowLeft className='w-4 h-4 text-gray-600' />
+              </button>
             )}
 
-            <Link
-              to='/customer/dashboard'
-              className='flex items-center space-x-2'
-            >
-              <span className='font-bold text-xl text-red-500'>
-                Tsangpool Honda
-              </span>
+            <Link to='/customer/dashboard' className='flex items-center gap-2'>
+              {/* Honda-red wordmark */}
+              <div className='flex items-center gap-1.5'>
+                <div className='w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center shrink-0'>
+                  <span className='text-white text-xs font-black'>H</span>
+                </div>
+                <div className='leading-none'>
+                  <p className='text-sm font-black text-gray-900 tracking-tight'>
+                    Tsangpool
+                  </p>
+                  <p className='text-[10px] font-semibold text-red-500 tracking-widest uppercase'>
+                    Honda
+                  </p>
+                </div>
+              </div>
             </Link>
-            <div className='hidden md:block h-6 w-px bg-gray-300' />
 
-            {/* Dynamic Title */}
-            <div className='hidden md:block'>
-              <h1 className='text-lg font-semibold text-gray-900'>
-                {currentRoute.title}
-              </h1>
-              {currentRoute.subtitle && (
-                <p className='text-sm text-gray-600'>{currentRoute.subtitle}</p>
-              )}
-            </div>
+            {/* route breadcrumb */}
+            {currentRoute.title && (
+              <>
+                <div className='hidden md:block w-px h-5 bg-gray-200' />
+                <div className='hidden md:block'>
+                  <p className='text-sm font-semibold text-gray-900 leading-none'>
+                    {currentRoute.title}
+                  </p>
+                  {currentRoute.subtitle && (
+                    <p className='text-[11px] text-gray-400 mt-0.5'>
+                      {currentRoute.subtitle}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Navigation Links - Desktop */}
-          <nav className='hidden md:flex items-center space-x-6'>
-            <Link
-              to='/customer/dashboard'
-              className={`transition-colors ${
-                location.pathname === "/customer/dashboard"
-                  ? "text-red-600 font-medium"
-                  : "text-gray-600 hover:text-red-600"
-              }`}
-            >
-              Dashboard
-            </Link>
-            <Link
-              to='/customer/services'
-              className={`transition-colors ${
-                location.pathname === "/dashboard/services"
-                  ? "text-red-600 font-medium"
-                  : "text-gray-600 hover:text-red-600"
-              }`}
-            >
-              Services
-            </Link>
-
-            <Link
-              to='/customer/support'
-              className='text-gray-600 hover:text-red-600 transition-colors'
-            >
-              Support
-            </Link>
+          {/* ── Center nav (desktop) ── */}
+          <nav className='hidden md:flex items-center gap-1'>
+            {NAV_LINKS.map(({ label, to }) => {
+              const active = location.pathname === to;
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  className={`relative px-3.5 py-2 rounded-xl text-sm font-medium transition-colors ${
+                    active
+                      ? "text-red-600 bg-red-50"
+                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                  }`}
+                >
+                  {label}
+                  {active && (
+                    <span className='absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-red-500' />
+                  )}
+                </Link>
+              );
+            })}
           </nav>
 
-          {/* Right Side Actions */}
-          <div className='flex items-center space-x-4'>
-            {/* Notifications */}
-            <Button
-              variant='ghost'
-              size='sm'
-              className='relative'
-              onClick={seeNotification}
-            ></Button>
-
-            {/* Quick Service Button - Desktop */}
-            <div className='hidden sm:flex items-center space-x-2'>
+          {/* ── Right ── */}
+          <div className='flex items-center gap-2'>
+            {/* Book Service CTA */}
+            <Link to='/customer/book-service' className='hidden sm:block'>
               <Button
-                variant='outline'
                 size='sm'
-                className='text-red-600 border-red-600 hover:bg-red-50 bg-transparent'
-                asChild
+                className='rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold h-9 px-3.5 border-0'
               >
-                <Link to='/customer/book-service'>
-                  <Wrench className='h-4 w-4 mr-1' />
-                  Book Service
-                </Link>
+                <Wrench className='w-3.5 h-3.5 mr-1.5' />
+                Book Service
               </Button>
+            </Link>
+
+            <div className='flex items-center gap-2'>
+              <button className='flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-gray-100 transition-colors group'>
+                <div className='w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center shrink-0'>
+                  <User className='w-4 h-4 text-red-500' />
+                </div>
+                <div className='hidden sm:block text-left leading-none'>
+                  <p className='text-xs font-semibold text-gray-900 truncate max-w-[80px]'>
+                    {isLoading ? "..." : profile?.firstName ?? "User"}
+                  </p>
+                </div>
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className='flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors'
+              >
+                <LogOut className='w-3.5 h-3.5' />
+                <span className='hidden sm:block'>Logout</span>
+              </button>
             </div>
-
-            {/* User Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant='ghost'
-                  className='relative h-10 w-10 rounded-full bg-gray-200'
-                >
-                  <User2Icon />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className='w-56' align='end' forceMount>
-                <DropdownMenuLabel className='font-normal'>
-                  <div className='flex flex-col space-y-1'>
-                    <p className='text-sm font-medium leading-none'>
-                      {customer?.firstName && customer?.lastName
-                        ? `${customer.firstName} ${customer.lastName}`
-                        : customer?.firstName || "Customer"}
-                    </p>
-                    <p className='text-xs leading-none text-muted-foreground'>
-                      {customer?.email ||
-                        customer?.phoneNumber ||
-                        "customer@email.com"}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to='/customer/profile-info'>
-                    <User className='mr-2 h-4 w-4' />
-                    <span>Profile</span>
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem asChild></DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to='/'>
-                    <Home className='mr-2 h-4 w-4' />
-                    <span>Back to Website</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className='text-red-600'
-                  onClick={handleLogout}
-                  // disabled={isLoggingOut}
-                >
-                  <LogOut className='mr-2 h-4 w-4' />
-                  {/* <span>{isLoggingOut ? "Logging out..." : "Log out"}</span> */}
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </div>
       </div>
 
-      {/* Mobile Navigation */}
-      <div className='md:hidden border-t border-gray-200 bg-gray-50'>
-        <div className='px-4 py-2'>
-          <div className='flex justify-around'>
-            <Link
-              to='/customer/dashboard'
-              className={`flex flex-col items-center py-2 ${
-                location.pathname === "/customer/dashboard"
-                  ? "text-red-600"
-                  : "text-gray-600"
-              }`}
-            >
-              <Home className='h-5 w-5' />
-              <span className='text-xs mt-1'>Dashboard</span>
-            </Link>
-            <Link
-              to='/customer/services'
-              className={`flex flex-col items-center py-2 ${
-                location.pathname === "/dashboard/services"
-                  ? "text-red-600"
-                  : "text-gray-600"
-              }`}
-            >
-              <Wrench className='h-5 w-5' />
-              <span className='text-xs mt-1'>Services</span>
-            </Link>
-
-            <Link
-              to='/customer/support'
-              className='flex flex-col items-center py-2 text-gray-600'
-            >
-              <Phone className='h-5 w-5' />
-              <span className='text-xs mt-1'>Support</span>
-            </Link>
-          </div>
+      {/* ── Mobile bottom nav ── */}
+      <div className='md:hidden border-t border-gray-100 bg-white'>
+        <div className='flex justify-around px-4 py-1'>
+          {MOBILE_NAV.map(({ label, to, icon: Icon }) => {
+            const active = location.pathname === to;
+            return (
+              <Link
+                key={to}
+                to={to}
+                className={`flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-colors ${
+                  active ? "text-red-600" : "text-gray-400 hover:text-gray-700"
+                }`}
+              >
+                <Icon className='w-5 h-5' />
+                <span className='text-[10px] font-semibold'>{label}</span>
+                {active && <span className='w-1 h-1 rounded-full bg-red-500' />}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </header>

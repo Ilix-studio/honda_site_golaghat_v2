@@ -1,12 +1,8 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery } from "@/lib/apiConfig";
+import { apiSlice } from "../apiSlice";
 import { BookingsResponse, ServiceBooking } from "@/types/serviceBooking.types";
 
 // Admin API
-export const serviceBookingAdminApi = createApi({
-  reducerPath: "serviceBookingAdminApi",
-  baseQuery: baseQuery,
-  tagTypes: ["AdminBooking", "AdminStats", "UpcomingAppointments"],
+export const serviceBookingAdminApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllBookings: builder.query<
       BookingsResponse,
@@ -51,7 +47,12 @@ export const serviceBookingAdminApi = createApi({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ["AdminBooking", "AdminStats"],
+      invalidatesTags: (_result, _error, { id }) => [
+        "AdminBooking",
+        "AdminStats",
+        "ServiceBooking", // add this
+        { type: "ServiceBooking", id }, // add this
+      ],
     }),
 
     getBookingStats: builder.query<
@@ -84,7 +85,7 @@ export const serviceBookingAdminApi = createApi({
     }),
   }),
 });
-1
+1;
 export const {
   useGetAllBookingsQuery,
   useUpdateBookingStatusMutation,

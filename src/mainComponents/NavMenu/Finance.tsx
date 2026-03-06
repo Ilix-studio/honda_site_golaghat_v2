@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -10,11 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-
 import {
   Calculator,
   FileText,
@@ -24,53 +22,89 @@ import {
 } from "lucide-react";
 
 import { Footer } from "../Home/Footer";
-import { useGetApprovedSimpleForm } from "@/hooks/useGetApproved";
 import { Header } from "../Home/Header/Header";
 
+import type { SubmitApplicationRequest } from "@/types/getApproved.types";
+import { useSubmitApplicationMutation } from "@/redux-store/services/customer/getApprovedApi";
+import { FormData, validate } from "@/lib/financeformUtils";
+
+type FormErrors = Partial<Record<keyof FormData, string>>;
+
+const initialForm: FormData = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  employmentType: "",
+  monthlyIncome: "",
+  creditScoreRange: "",
+  termsAccepted: false,
+  privacyPolicyAccepted: false,
+};
+
 export function Finance() {
-  // Use the simple form hook for basic financing
-  const {
-    form,
-    errors,
-    loading,
-    success,
-    error: submitError,
-    updateField,
-    handleSubmit,
+  const [form, setForm] = useState<FormData>(initialForm);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [success, setSuccess] = useState(false);
 
-    clearMessages,
-    validation,
-  } = useGetApprovedSimpleForm();
+  const [submitApplication, { isLoading, error: mutationError }] =
+    useSubmitApplicationMutation();
 
-  // Clear messages when component unmounts
-  useEffect(() => {
-    return () => {
-      clearMessages();
-    };
-  }, [clearMessages]);
+  const updateField = <K extends keyof FormData>(
+    field: K,
+    value: FormData[K]
+  ) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    // Clear field error on change
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
 
-  // Handle form submission
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const validationErrors = validate(form);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
     try {
-      const result = await handleSubmit();
-      if (result) {
-        console.log(
-          "Application submitted successfully:",
-          result.data.applicationId
-        );
-      }
-    } catch (err: any) {
-      console.error("Submission failed:", err);
+      await submitApplication({
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        phone: form.phone,
+        employmentType:
+          form.employmentType as SubmitApplicationRequest["employmentType"],
+        monthlyIncome: parseFloat(form.monthlyIncome),
+        creditScoreRange:
+          form.creditScoreRange as SubmitApplicationRequest["creditScoreRange"],
+        termsAccepted: form.termsAccepted,
+        privacyPolicyAccepted: form.privacyPolicyAccepted,
+      }).unwrap();
+
+      setSuccess(true);
+      setForm(initialForm);
+      setErrors({});
+    } catch {
+      // error surfaced via mutationError
     }
   };
+
+  const submitError =
+    mutationError && "data" in mutationError
+      ? (mutationError.data as { message?: string })?.message ??
+        "Submission failed"
+      : mutationError
+      ? "Network error. Please try again."
+      : null;
+
+  const isFormValid = Object.keys(validate(form)).length === 0;
 
   return (
     <main className='min-h-screen flex flex-col'>
       <Header />
 
       <div className='container pt-28 pb-10 px-4 flex-grow'>
-        {/* Hero Section */}
         <motion.div
           className='text-center mb-16'
           initial={{ opacity: 0, y: 20 }}
@@ -87,11 +121,9 @@ export function Finance() {
           </p>
         </motion.div>
 
-        {/* Application Form */}
         <div className='mb-16'>
           <h2 className='text-2xl font-bold mb-6'>Get Pre-Approved Today</h2>
 
-          {/* Success Message */}
           {success && (
             <Alert className='mb-6 border-green-200 bg-green-50'>
               <CheckCircle className='h-4 w-4 text-green-600' />
@@ -104,7 +136,6 @@ export function Finance() {
             </Alert>
           )}
 
-          {/* Error Message */}
           {submitError && (
             <Alert className='mb-6 border-red-200 bg-red-50'>
               <AlertCircle className='h-4 w-4 text-red-600' />
@@ -193,7 +224,10 @@ export function Finance() {
                 <Select
                   value={form.employmentType}
                   onValueChange={(value) =>
-                    updateField("employmentType", value)
+                    updateField(
+                      "employmentType",
+                      value as SubmitApplicationRequest["employmentType"]
+                    )
                   }
                 >
                   <SelectTrigger
@@ -244,7 +278,10 @@ export function Finance() {
                 <Select
                   value={form.creditScoreRange}
                   onValueChange={(value) =>
-                    updateField("creditScoreRange", value)
+                    updateField(
+                      "creditScoreRange",
+                      value as SubmitApplicationRequest["creditScoreRange"]
+                    )
                   }
                 >
                   <SelectTrigger
@@ -266,14 +303,13 @@ export function Finance() {
                 )}
               </div>
 
-              {/* Terms and Privacy Checkboxes */}
               <div className='space-y-3'>
                 <div className='flex items-center space-x-2'>
                   <Checkbox
                     id='terms'
                     checked={form.termsAccepted}
                     onCheckedChange={(checked) =>
-                      updateField("termsAccepted", checked)
+                      updateField("termsAccepted", checked as boolean)
                     }
                   />
                   <Label htmlFor='terms' className='text-sm'>
@@ -289,7 +325,7 @@ export function Finance() {
                     id='privacy'
                     checked={form.privacyPolicyAccepted}
                     onCheckedChange={(checked) =>
-                      updateField("privacyPolicyAccepted", checked)
+                      updateField("privacyPolicyAccepted", checked as boolean)
                     }
                   />
                   <Label htmlFor='privacy' className='text-sm'>
@@ -306,61 +342,48 @@ export function Finance() {
               <Button
                 type='submit'
                 className='w-full bg-red-600 hover:bg-red-700'
-                disabled={loading || !validation.isValid}
+                disabled={isLoading || !isFormValid}
               >
-                {loading ? "Submitting..." : "Submit Application"}
+                {isLoading ? "Submitting..." : "Submit Application"}
               </Button>
             </form>
 
             <div className='bg-gray-50 p-6 rounded-lg'>
               <h3 className='text-lg font-semibold mb-4'>What to Expect</h3>
               <ul className='space-y-3 mb-6'>
-                <li className='flex items-start'>
-                  <div className='h-6 w-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center mr-2 mt-0.5'>
-                    1
-                  </div>
-                  <div>
-                    <strong className='block'>Submit Application</strong>
-                    <span className='text-muted-foreground'>
-                      Fill out the form with your details
-                    </span>
-                  </div>
-                </li>
-                <li className='flex items-start'>
-                  <div className='h-6 w-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center mr-2 mt-0.5'>
-                    2
-                  </div>
-                  <div>
-                    <strong className='block'>Quick Review</strong>
-                    <span className='text-muted-foreground'>
-                      Our finance team will review your application
-                    </span>
-                  </div>
-                </li>
-                <li className='flex items-start'>
-                  <div className='h-6 w-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center mr-2 mt-0.5'>
-                    3
-                  </div>
-                  <div>
-                    <strong className='block'>Get Pre-Approved</strong>
-                    <span className='text-muted-foreground'>
-                      Receive your pre-approval within 24 hours
-                    </span>
-                  </div>
-                </li>
-                <li className='flex items-start'>
-                  <div className='h-6 w-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center mr-2 mt-0.5'>
-                    4
-                  </div>
-                  <div>
-                    <strong className='block'>Choose Your Bike</strong>
-                    <span className='text-muted-foreground'>
-                      Visit our showroom to select your motorcycle
-                    </span>
-                  </div>
-                </li>
+                {[
+                  {
+                    step: 1,
+                    title: "Submit Application",
+                    desc: "Fill out the form with your details",
+                  },
+                  {
+                    step: 2,
+                    title: "Quick Review",
+                    desc: "Our finance team will review your application",
+                  },
+                  {
+                    step: 3,
+                    title: "Get Pre-Approved",
+                    desc: "Receive your pre-approval within 24 hours",
+                  },
+                  {
+                    step: 4,
+                    title: "Choose Your Bike",
+                    desc: "Visit our showroom to select your motorcycle",
+                  },
+                ].map(({ step, title, desc }) => (
+                  <li key={step} className='flex items-start'>
+                    <div className='h-6 w-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center mr-2 mt-0.5'>
+                      {step}
+                    </div>
+                    <div>
+                      <strong className='block'>{title}</strong>
+                      <span className='text-muted-foreground'>{desc}</span>
+                    </div>
+                  </li>
+                ))}
               </ul>
-
               <p className='text-xs text-center text-muted-foreground'>
                 Your information will be handled securely and used only for
                 processing your financing application.
@@ -371,53 +394,40 @@ export function Finance() {
 
         {/* Benefits Section */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-8 mb-16'>
-          <motion.div
-            className='p-6 border rounded-lg shadow-sm'
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            <div className='h-12 w-12 bg-red-100 rounded-full flex items-center justify-center mb-4'>
-              <Calculator className='h-6 w-6 text-red-600' />
-            </div>
-            <h3 className='text-xl font-semibold mb-2'>Competitive Rates</h3>
-            <p className='text-muted-foreground'>
-              Our finance partners offer some of the best rates in the industry,
-              starting from just 5.99% APR.
-            </p>
-          </motion.div>
-
-          <motion.div
-            className='p-6 border rounded-lg shadow-sm'
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <div className='h-12 w-12 bg-red-100 rounded-full flex items-center justify-center mb-4'>
-              <FileText className='h-6 w-6 text-red-600' />
-            </div>
-            <h3 className='text-xl font-semibold mb-2'>Quick Approvals</h3>
-            <p className='text-muted-foreground'>
-              Get pre-approved in minutes with our streamlined application
-              process and minimal documentation.
-            </p>
-          </motion.div>
-
-          <motion.div
-            className='p-6 border rounded-lg shadow-sm'
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <div className='h-12 w-12 bg-red-100 rounded-full flex items-center justify-center mb-4'>
-              <Wallet className='h-6 w-6 text-red-600' />
-            </div>
-            <h3 className='text-xl font-semibold mb-2'>Flexible Terms</h3>
-            <p className='text-muted-foreground'>
-              Choose from various tenure options ranging from 12 to 84 months to
-              suit your financial situation.
-            </p>
-          </motion.div>
+          {[
+            {
+              icon: Calculator,
+              title: "Competitive Rates",
+              desc: "Our finance partners offer some of the best rates in the industry, starting from just 5.99% APR.",
+              delay: 0.1,
+            },
+            {
+              icon: FileText,
+              title: "Quick Approvals",
+              desc: "Get pre-approved in minutes with our streamlined application process and minimal documentation.",
+              delay: 0.2,
+            },
+            {
+              icon: Wallet,
+              title: "Flexible Terms",
+              desc: "Choose from various tenure options ranging from 12 to 84 months to suit your financial situation.",
+              delay: 0.3,
+            },
+          ].map(({ icon: Icon, title, desc, delay }) => (
+            <motion.div
+              key={title}
+              className='p-6 border rounded-lg shadow-sm'
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay }}
+            >
+              <div className='h-12 w-12 bg-red-100 rounded-full flex items-center justify-center mb-4'>
+                <Icon className='h-6 w-6 text-red-600' />
+              </div>
+              <h3 className='text-xl font-semibold mb-2'>{title}</h3>
+              <p className='text-muted-foreground'>{desc}</p>
+            </motion.div>
+          ))}
         </div>
 
         {/* FAQ Section */}
@@ -427,73 +437,46 @@ export function Finance() {
           </h2>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
             <div className='space-y-6'>
-              <div>
-                <h3 className='text-lg font-semibold mb-2'>
-                  What documents do I need to apply?
-                </h3>
-                <p className='text-muted-foreground'>
-                  You'll need proof of identity (Aadhaar/PAN), address proof,
-                  income proof (salary slips or IT returns), and bank statements
-                  for the last 3 months.
-                </p>
-              </div>
-
-              <div>
-                <h3 className='text-lg font-semibold mb-2'>
-                  How long does the approval process take?
-                </h3>
-                <p className='text-muted-foreground'>
-                  Pre-approval typically takes 24 hours, while final approval
-                  can take 2-3 business days depending on documentation
-                  verification.
-                </p>
-              </div>
-
-              <div>
-                <h3 className='text-lg font-semibold mb-2'>
-                  Can I pay off my loan early?
-                </h3>
-                <p className='text-muted-foreground'>
-                  Yes, you can make partial or full prepayments after 6 months.
-                  A nominal foreclosure charge of 2-5% may apply depending on
-                  the lender.
-                </p>
-              </div>
+              {[
+                {
+                  q: "What documents do I need to apply?",
+                  a: "You'll need proof of identity (Aadhaar/PAN), address proof, income proof (salary slips or IT returns), and bank statements for the last 3 months.",
+                },
+                {
+                  q: "How long does the approval process take?",
+                  a: "Pre-approval typically takes 24 hours, while final approval can take 2-3 business days depending on documentation verification.",
+                },
+                {
+                  q: "Can I pay off my loan early?",
+                  a: "Yes, you can make partial or full prepayments after 6 months. A nominal foreclosure charge of 2-5% may apply depending on the lender.",
+                },
+              ].map(({ q, a }) => (
+                <div key={q}>
+                  <h3 className='text-lg font-semibold mb-2'>{q}</h3>
+                  <p className='text-muted-foreground'>{a}</p>
+                </div>
+              ))}
             </div>
-
             <div className='space-y-6'>
-              <div>
-                <h3 className='text-lg font-semibold mb-2'>
-                  What credit score do I need to qualify?
-                </h3>
-                <p className='text-muted-foreground'>
-                  A credit score of 700+ will get you the best rates. However,
-                  we work with multiple lenders who can accommodate scores as
-                  low as 650.
-                </p>
-              </div>
-
-              <div>
-                <h3 className='text-lg font-semibold mb-2'>
-                  Is insurance included in the financing?
-                </h3>
-                <p className='text-muted-foreground'>
-                  Yes, you can choose to include the cost of comprehensive
-                  insurance in your loan amount. This helps reduce your upfront
-                  costs.
-                </p>
-              </div>
-
-              <div>
-                <h3 className='text-lg font-semibold mb-2'>
-                  Do you offer zero down payment options?
-                </h3>
-                <p className='text-muted-foreground'>
-                  Yes, qualified applicants with excellent credit scores can
-                  avail of zero down payment options on select motorcycle
-                  models.
-                </p>
-              </div>
+              {[
+                {
+                  q: "What credit score do I need to qualify?",
+                  a: "A credit score of 700+ will get you the best rates. However, we work with multiple lenders who can accommodate scores as low as 650.",
+                },
+                {
+                  q: "Is insurance included in the financing?",
+                  a: "Yes, you can choose to include the cost of comprehensive insurance in your loan amount. This helps reduce your upfront costs.",
+                },
+                {
+                  q: "Do you offer zero down payment options?",
+                  a: "Yes, qualified applicants with excellent credit scores can avail of zero down payment options on select motorcycle models.",
+                },
+              ].map(({ q, a }) => (
+                <div key={q}>
+                  <h3 className='text-lg font-semibold mb-2'>{q}</h3>
+                  <p className='text-muted-foreground'>{a}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>

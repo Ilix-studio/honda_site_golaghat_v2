@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   User,
@@ -7,20 +6,23 @@ import {
   Check,
   CheckCircle,
   AlertCircle,
-  Tags,
+  ArrowRight,
+  Plus,
 } from "lucide-react";
-import { resetSetupProgress } from "@/redux-store/slices/setupProgressSlice";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { motion, AnimatePresence } from "framer-motion";
 import {
+  resetSetupProgress,
   selectSetupProgress,
   selectCompletedTasks,
-  selectCompletionPercentage,
   setProfileCompleted,
   setVehicleCompleted,
   setSelectVASCompleted,
-  setGenerateTagsCompleted,
 } from "@/redux-store/slices/setupProgressSlice";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { useGetCustomerProfileQuery } from "@/redux-store/services/customer/customerApi";
+import { useGetMyVehiclesQuery } from "@/redux-store/services/customer/customerVehicleApi";
+import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
 
 interface ActionItem {
   id: string;
@@ -30,6 +32,7 @@ interface ActionItem {
   onClick: () => void;
   description: string;
   completed?: boolean;
+  accent: string;
 }
 
 const InitialDashboard: React.FC = () => {
@@ -37,245 +40,326 @@ const InitialDashboard: React.FC = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
 
-  // Get setup progress from Redux
+  const { customer: isAuthenticated } = useAppSelector(selectCustomerAuth);
   const setupProgress = useAppSelector(selectSetupProgress);
   const completedTasks = useAppSelector(selectCompletedTasks);
-  const completionPercentage = useAppSelector(selectCompletionPercentage);
 
-  // Check for profile completion from navigation state
+  const {
+    data: profileData,
+    isSuccess: profileLoaded,
+    isError: profileError,
+  } = useGetCustomerProfileQuery(undefined, { skip: !isAuthenticated });
+
+  const { data: vehicleData, isSuccess: vehiclesLoaded } =
+    useGetMyVehiclesQuery(undefined, { skip: !isAuthenticated });
+
+  useEffect(() => {
+    if (profileLoaded) dispatch(setProfileCompleted(!!profileData?.data));
+    if (profileError) dispatch(setProfileCompleted(false));
+  }, [profileLoaded, profileError, profileData, dispatch]);
+
+  useEffect(() => {
+    if (vehiclesLoaded) {
+      dispatch(
+        setVehicleCompleted(
+          Array.isArray(vehicleData?.data) && vehicleData.data.length > 0
+        )
+      );
+    }
+  }, [vehiclesLoaded, vehicleData, dispatch]);
+
+  useEffect(() => {
+    if (vehiclesLoaded && vehicleData?.data) {
+      const hasActiveVAS =
+        Array.isArray(vehicleData.data) &&
+        vehicleData.data.some((v: any) =>
+          v.activeValueAddedServices?.some((s: any) => s.isActive)
+        );
+      dispatch(setSelectVASCompleted(hasActiveVAS));
+    }
+  }, [vehiclesLoaded, vehicleData, dispatch]);
+
   useEffect(() => {
     if (location.state?.profileCompleted) {
       dispatch(setProfileCompleted(true));
-      // Clear the navigation state
       navigate("/customer/initialize", { replace: true });
     }
   }, [location.state, navigate, dispatch]);
+
   const handleItemClick = (itemId: string, originalOnClick: () => void) => {
-    // Mark appropriate item as completed when clicked
-    switch (itemId) {
-      case "vehicle":
-        dispatch(setVehicleCompleted(true));
-        break;
-      case "select-vas":
-        dispatch(setSelectVASCompleted(true));
-        break;
-      case "generate-tags":
-        dispatch(setGenerateTagsCompleted(true));
-        break;
-      // Profile completion is handled via API/navigation state
-    }
+    if (itemId === "vehicle") dispatch(setVehicleCompleted(true));
+    if (itemId === "add-VAS") dispatch(setSelectVASCompleted(true));
     originalOnClick();
-  };
-
-  const onCreateProfile = () => {
-    navigate("/customer/profile/create");
-  };
-
-  const onAddMotorcycle = () => {
-    navigate("/customer/select/stock");
-  };
-
-  const onGenerateTags = () => {
-    navigate("/customer/tags/generate");
-  };
-
-  const onVAS = () => {
-    navigate("/customer/services/vas");
   };
 
   const actionItems: ActionItem[] = [
     {
       id: "profile",
-      title: "Create Customer Profile",
-      buttonText: "Create",
+      title: "Create Profile",
+      buttonText: "Get Started",
       icon: User,
-      onClick: onCreateProfile,
-      description:
-        "Set up a new customer profile with personal information and preferences",
+      onClick: () => navigate("/customer/profile/create"),
+      description: "Set up your personal information and preferences",
       completed: setupProgress.profile,
+      accent: "#3b82f6",
     },
     {
       id: "vehicle",
-      title: "Add Vehicle Info",
-      buttonText: "Add",
+      title: "Add Vehicle",
+      buttonText: "Add Now",
       icon: Bike,
-      onClick: onAddMotorcycle,
-      description:
-        "Register motorcycle details, specifications, and maintenance history",
+      onClick: () => navigate("/customer/select/stock"),
+      description: "Register your motorcycle details and specifications",
       completed: setupProgress.vehicle,
+      accent: "#f97316",
     },
-
     {
       id: "add-VAS",
       title: "Select VAS",
-      buttonText: "Select",
+      buttonText: "Choose Services",
       icon: Check,
-      onClick: onVAS,
-      description: "Unlock Value Added Services",
+      onClick: () => navigate("/customer/services/vas"),
+      description: "Unlock Value Added Services for your vehicle",
       completed: setupProgress.selectVAS,
-    },
-
-    {
-      id: "generate-tags",
-      title: "Generate Tags",
-      buttonText: "Generate",
-      icon: Tags,
-      onClick: onGenerateTags,
-      description: "Tsangphool Honda Safety Feature",
-      completed: setupProgress.generateTags,
+      accent: "#10b981",
     },
   ];
+
   const totalTasks = actionItems.length;
-  const isProfileCompleted = setupProgress.profile;
+  const progressPercent = Math.round((completedTasks / totalTasks) * 100);
+  const allDone = completedTasks === totalTasks;
 
   return (
-    <>
-      <div className='min-h-screen bg-gray-50'>
-        {/* Dashboard Content */}
-        <div className='p-6'>
-          <div className='max-w-7xl mx-auto'>
-            {/* Progress Overview */}
-            <div className='mb-8'>
-              <div className='bg-white rounded-lg shadow-sm border p-6'>
-                <h2 className='text-xl font-semibold text-gray-900 mb-4'>
-                  Setup Progress
-                </h2>
-                <div className='flex items-center space-x-4'>
-                  <div className='flex items-center space-x-2'>
-                    {isProfileCompleted ? (
-                      <CheckCircle className='h-5 w-5 text-green-500' />
-                    ) : (
-                      <AlertCircle className='h-5 w-5 text-yellow-500' />
-                    )}
-                    <span
-                      className={`font-medium ${
-                        isProfileCompleted
-                          ? "text-green-700"
-                          : "text-yellow-700"
-                      }`}
-                    >
-                      Profile: {isProfileCompleted ? "Complete" : "Incomplete"}
-                    </span>
-                  </div>
-                  <div className='text-gray-400'>•</div>
-                  <div className='text-gray-600'>
-                    {completedTasks} of {totalTasks} steps completed
-                  </div>
-                </div>
+    <div className='min-h-screen bg-gray-50'>
+      <div className='px-4 sm:px-6 py-8 max-w-3xl mx-auto space-y-6'>
+        {/* Progress header card */}
+        <motion.div
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className='relative overflow-hidden bg-white border border-gray-100 rounded-2xl shadow-sm p-6'
+        >
+          {/* background accent */}
+          <div
+            className='absolute inset-0 opacity-[0.03] pointer-events-none'
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(0deg,#000 0,#000 1px,transparent 1px,transparent 20px),repeating-linear-gradient(90deg,#000 0,#000 1px,transparent 1px,transparent 20px)",
+            }}
+          />
 
-                {/* Progress Bar */}
-                <div className='mt-4'>
-                  <div className='w-full bg-gray-200 rounded-full h-2'>
-                    <div
-                      className='bg-blue-600 h-2 rounded-full transition-all duration-300'
-                      style={{
-                        width: `${(completedTasks / totalTasks) * 100}%`,
-                      }}
-                    />
-                  </div>
-                  <p className='text-sm text-gray-500 mt-2'>
-                    {completionPercentage}% Complete
-                  </p>
-                </div>
-              </div>
+          <div className='relative flex items-start justify-between gap-4 mb-5'>
+            <div>
+              <h2 className='text-base font-black text-gray-900 uppercase tracking-widest'>
+                Setup Progress
+              </h2>
+              <p className='text-xs text-gray-400 mt-0.5'>
+                Complete all steps to activate your account
+              </p>
             </div>
-
-            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-              {actionItems.map((item) => {
-                const IconComponent = item.icon;
-                const isCompleted = item.completed;
-
-                return (
-                  <Card
-                    key={item.id}
-                    className={`border transition-all duration-200 ${
-                      isCompleted
-                        ? "border-green-300 bg-green-50"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
-                  >
-                    <CardHeader className='pb-3 relative'>
-                      {/* Success indicator */}
-                      {isCompleted && (
-                        <div className='absolute top-4 right-4'>
-                          <CheckCircle className='h-6 w-6 text-green-600' />
-                        </div>
-                      )}
-
-                      <div className='h-24 flex flex-col items-center justify-center space-y-2'>
-                        <IconComponent
-                          className={`h-8 w-8 ${
-                            isCompleted ? "text-green-600" : "text-gray-600"
-                          }`}
-                        />
-                        <h2
-                          className={`text-xl font-medium text-center ${
-                            isCompleted ? "text-green-800" : "text-gray-900"
-                          }`}
-                        >
-                          {item.title}
-                        </h2>
-                      </div>
-                    </CardHeader>
-
-                    <CardContent className='pt-0 space-y-4'>
-                      {/* Description */}
-                      <p
-                        className={`text-sm text-center px-2 ${
-                          isCompleted ? "text-green-700" : "text-gray-600"
-                        }`}
-                      >
-                        {item.description}
-                      </p>
-
-                      {/* Button */}
-                      <div className='flex justify-center'>
-                        <Button
-                          variant={isCompleted ? "default" : "outline"}
-                          className={`px-8 py-2 transition-all ${
-                            isCompleted
-                              ? "bg-green-600 hover:bg-green-700 text-white border-green-600"
-                              : "border-2 border-gray-800 text-gray-800 hover:bg-gray-50"
-                          }`}
-                          onClick={() => handleItemClick(item.id, item.onClick)}
-                          disabled={isCompleted}
-                        >
-                          {isCompleted ? "Completed" : item.buttonText}
-                        </Button>
-                      </div>
-
-                      {/* Status text */}
-                      {isCompleted && (
-                        <div className='text-center'>
-                          <span className='text-sm text-green-700 font-medium'>
-                            ✓ Task Completed
-                          </span>
-                        </div>
-                      )}
-                    </CardContent>
-                    {/* Development: Clear State Button */}
-                    {process.env.NODE_ENV === "development" && (
-                      <div className='mt-4 pt-4 border-t border-dashed border-gray-300'>
-                        <Button
-                          variant='destructive'
-                          size='sm'
-                          onClick={() => {
-                            dispatch(resetSetupProgress());
-                          }}
-                          className='text-xs'
-                        >
-                          🧹 Clear Setup Progress (Dev)
-                        </Button>
-                      </div>
-                    )}
-                  </Card>
-                );
-              })}
+            <div className='flex items-center gap-2 shrink-0'>
+              {setupProgress.profile ? (
+                <span className='flex items-center gap-1.5 text-xs font-semibold text-green-700 bg-green-50 px-2.5 py-1 rounded-full'>
+                  <CheckCircle className='w-3.5 h-3.5' /> Profile Complete
+                </span>
+              ) : (
+                <span className='flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full'>
+                  <AlertCircle className='w-3.5 h-3.5' /> Profile Pending
+                </span>
+              )}
             </div>
           </div>
+
+          {/* progress bar */}
+          <div className='relative'>
+            <div className='flex justify-between text-xs text-gray-400 mb-1.5'>
+              <span>
+                {completedTasks} of {totalTasks} steps
+              </span>
+              <span className='font-bold text-gray-700'>
+                {progressPercent}%
+              </span>
+            </div>
+            <div className='w-full bg-gray-100 rounded-full h-2 overflow-hidden'>
+              <motion.div
+                className='h-full rounded-full bg-gradient-to-r from-blue-500 via-orange-400 to-emerald-500'
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercent}%` }}
+                transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+              />
+            </div>
+
+            {/* step markers */}
+            <div className='flex justify-between mt-2'>
+              {actionItems.map((item) => (
+                <div key={item.id} className='flex items-center gap-1'>
+                  <div
+                    className='w-2 h-2 rounded-full transition-colors duration-300'
+                    style={{
+                      background: item.completed ? item.accent : "#e5e7eb",
+                    }}
+                  />
+                  <span className='text-[10px] text-gray-400 hidden sm:inline'>
+                    {item.title}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Step cards */}
+        <div className='space-y-3'>
+          {actionItems.map((item, index) => {
+            const Icon = item.icon;
+            const done = item.completed;
+
+            return (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: 0.1 + index * 0.08,
+                  duration: 0.35,
+                  ease: "easeOut",
+                }}
+                className={`relative overflow-hidden flex items-center gap-4 bg-white border rounded-2xl p-4 transition-all duration-200 ${
+                  done
+                    ? "border-gray-100 opacity-75"
+                    : "border-gray-100 hover:border-gray-200 hover:shadow-sm"
+                }`}
+              >
+                {/* left accent bar */}
+                <div
+                  className='absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl'
+                  style={{ background: done ? "#d1fae5" : item.accent }}
+                />
+
+                {/* step number / icon */}
+                <div
+                  className='w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ml-2'
+                  style={{ background: done ? "#f0fdf4" : `${item.accent}15` }}
+                >
+                  {done ? (
+                    <CheckCircle className='w-5 h-5 text-emerald-500' />
+                  ) : (
+                    <Icon className='w-5 h-5' />
+                  )}
+                </div>
+
+                {/* text */}
+                <div className='flex-1 min-w-0'>
+                  <div className='flex items-center gap-2'>
+                    <p
+                      className={`font-bold text-sm ${
+                        done ? "text-gray-400 line-through" : "text-gray-900"
+                      }`}
+                    >
+                      {item.title}
+                    </p>
+                    {done && (
+                      <span className='text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full'>
+                        Done
+                      </span>
+                    )}
+                  </div>
+                  <p className='text-xs text-gray-400 mt-0.5'>
+                    {item.description}
+                  </p>
+                </div>
+
+                {/* action */}
+                <div className='shrink-0'>
+                  {done ? (
+                    <div className='w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center'>
+                      <Check className='w-4 h-4 text-emerald-500' />
+                    </div>
+                  ) : (
+                    <Button
+                      size='sm'
+                      onClick={() => handleItemClick(item.id, item.onClick)}
+                      className='rounded-xl h-8 px-3 text-xs font-semibold text-white border-0'
+                      style={{ background: item.accent }}
+                    >
+                      {item.buttonText}
+                      <ArrowRight className='w-3 h-3 ml-1' />
+                    </Button>
+                  )}
+                </div>
+
+                {/* dev reset */}
+                {process.env.NODE_ENV === "development" && (
+                  <Button
+                    variant='destructive'
+                    size='sm'
+                    onClick={() => dispatch(resetSetupProgress())}
+                    className='absolute bottom-1 right-1 text-[10px] h-5 px-1.5 opacity-30 hover:opacity-100'
+                  >
+                    reset
+                  </Button>
+                )}
+              </motion.div>
+            );
+          })}
         </div>
+
+        {/* All done CTA */}
+        <AnimatePresence>
+          {allDone && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className='relative overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-6 text-white'
+            >
+              <div
+                className='absolute inset-0 opacity-10 pointer-events-none'
+                style={{
+                  backgroundImage:
+                    "repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 1px,transparent 12px)",
+                }}
+              />
+              <div className='relative'>
+                <div className='flex items-center gap-2 mb-1'>
+                  <CheckCircle className='w-5 h-5' />
+                  <h3 className='font-black text-sm uppercase tracking-widest'>
+                    All Set!
+                  </h3>
+                </div>
+                <p className='text-sm text-emerald-100 mb-4'>
+                  Your account is fully configured. What would you like to do
+                  next?
+                </p>
+                <div className='flex flex-wrap gap-2'>
+                  <Button
+                    size='sm'
+                    onClick={() =>
+                      navigate("/customer/select/stock", { replace: true })
+                    }
+                    className='rounded-xl bg-white text-emerald-700 hover:bg-emerald-50 text-xs font-bold h-9'
+                  >
+                    <Plus className='w-3.5 h-3.5 mr-1.5' />
+                    Add Another Vehicle
+                  </Button>
+                  <Button
+                    size='sm'
+                    onClick={() =>
+                      navigate("/customer/first-dash", { replace: true })
+                    }
+                    className='rounded-xl bg-emerald-400 hover:bg-emerald-300 text-white text-xs font-bold h-9 border-0'
+                  >
+                    Go to Dashboard
+                    <ArrowRight className='w-3.5 h-3.5 ml-1.5' />
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </>
+    </div>
   );
 };
 

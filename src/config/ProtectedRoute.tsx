@@ -17,11 +17,17 @@ interface ProtectedRouteProps {
 
 // Define paths that only admins should access even in customer routes
 const ADMIN_ONLY_CUSTOMER_PATHS = [
-  "/customer/profile/create", // Admin creates customer profiles
-  "/customer/services/assign", // Admin assigns services
-  "/customer/vehicle/assign", // Admin assigns vehicles
-  "/customer/tags/generate", // Admin generates tags for customers
-  "/customer/services/activate", // Admin activates services
+  "/customer/first-dash",
+  "/customer/initialize",
+  "/customer/select/stock",
+  "/customer/vehicle/info",
+  "/customer/assign/csv-stock",
+  "/customer/profile/create",
+  "/customer/assign/csv-stock",
+  "/customer/services/vas",
+  "/customer/attach-stickers",
+  // Admin assigns services
+  // Admin assigns vehicles
 ];
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({

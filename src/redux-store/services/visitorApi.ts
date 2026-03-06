@@ -1,5 +1,5 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery, handleApiError } from "../../lib/apiConfig";
+import { apiSlice } from "./apiSlice";
+import { handleApiError } from "../../lib/apiConfig";
 
 // Define interfaces for visitor API responses
 export interface VisitorCountResponse {
@@ -37,10 +37,7 @@ export interface VisitorResetResponse {
 }
 
 // Create the Visitor API slice
-export const visitorApi = createApi({
-  reducerPath: "visitorApi",
-  baseQuery,
-  tagTypes: ["VisitorCount", "VisitorStats"],
+export const visitorApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // PUBLIC ENDPOINTS
 

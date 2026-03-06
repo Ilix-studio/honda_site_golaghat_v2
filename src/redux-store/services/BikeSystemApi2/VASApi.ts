@@ -1,7 +1,8 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery, handleApiError } from "../../../lib/apiConfig";
+import { apiSlice } from "../apiSlice";
+import { handleApiError } from "../../../lib/apiConfig";
 
-// Value Added Service Interface - Updated to match backend
+// ===================== TYPES & INTERFACES =====================
+
 export interface IValueAddedService {
   _id: string;
   serviceName: string;
@@ -19,7 +20,6 @@ export interface IValueAddedService {
   updatedAt: Date;
 }
 
-// Customer Active Services Model - Updated to match backend structure
 export interface ICustomerActiveService {
   _id?: string;
   serviceId: string;
@@ -30,7 +30,6 @@ export interface ICustomerActiveService {
   isActive: boolean;
 }
 
-// Response type for backend pagination structure
 export interface BackendPaginationResponse<T> {
   success: boolean;
   count: number;
@@ -41,7 +40,6 @@ export interface BackendPaginationResponse<T> {
   message?: string;
 }
 
-// Request/Response Types
 export interface VASResponse {
   success: boolean;
   data: IValueAddedService;
@@ -50,12 +48,6 @@ export interface VASResponse {
 
 export interface VASListResponse
   extends BackendPaginationResponse<IValueAddedService> {}
-
-export interface CustomerActiveServiceResponse {
-  success: boolean;
-  data: ICustomerActiveService;
-  message?: string;
-}
 
 export interface CustomerActiveServicesResponse {
   success: boolean;
@@ -87,21 +79,22 @@ export interface UpdateVASRequest extends Partial<CreateVASRequest> {
 export interface VASFilters {
   page?: number;
   limit?: number;
-  serviceType?: string; // Added to match backend controller
+  serviceType?: string;
   isActive?: boolean;
   branchId?: string;
   search?: string;
 }
 
 export interface PriceCalculationRequest {
-  vehicleId: string; // Changed to match backend route
+  serviceId: string;
+  vehicleId: string;
   selectedYears: number;
 }
 
 export interface PriceCalculationResponse {
   success: boolean;
   data: {
-    customer: string;
+    service: string;
     vehicle: string;
     selectedYears: number;
     calculatedPrice: number;
@@ -110,14 +103,9 @@ export interface PriceCalculationResponse {
 }
 
 // ===================== VAS API SLICE =====================
-export const vasApi = createApi({
-  reducerPath: "vasApi",
-  baseQuery,
-  tagTypes: ["VAS", "CustomerActiveService", "VASStats"],
+export const vasApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // ===== PUBLIC/MIXED ROUTES =====
-
-    // Get services by type - matches backend route
     getServicesByType: builder.query<VASListResponse, string>({
       query: (serviceType) => `/value-added-services/types/${serviceType}`,
       providesTags: ["VAS"],
@@ -125,18 +113,16 @@ export const vasApi = createApi({
     }),
 
     // ===== CUSTOMER ROUTES =====
-
-    // Get customer's active services - matches backend route
     getCustomerActiveServices: builder.query<
       CustomerActiveServicesResponse,
       void
     >({
       query: () => "/value-added-services/my-services",
+      extraOptions: { isCustomer: true },
       providesTags: ["CustomerActiveService"],
       transformErrorResponse: (response) => handleApiError(response),
     }),
 
-    // Calculate price for a service - matches backend route
     calculateVASPrice: builder.mutation<
       PriceCalculationResponse,
       PriceCalculationRequest
@@ -150,23 +136,19 @@ export const vasApi = createApi({
     }),
 
     // ===== ADMIN ROUTES =====
-
-    // Create new VAS (admin only) - matches backend route
     createVAS: builder.mutation<VASResponse, CreateVASRequest>({
       query: (vasData) => ({
         url: "/value-added-services",
         method: "POST",
         body: vasData,
       }),
-      invalidatesTags: ["VAS", "VASStats"],
+      invalidatesTags: ["VAS"],
       transformErrorResponse: (response) => handleApiError(response),
     }),
 
-    // Get all VAS (admin) - matches backend route
     getAllVAS: builder.query<VASListResponse, VASFilters>({
       query: (filters = {}) => {
         const params = new URLSearchParams();
-
         if (filters.page) params.append("page", filters.page.toString());
         if (filters.limit) params.append("limit", filters.limit.toString());
         if (filters.serviceType)
@@ -183,21 +165,31 @@ export const vasApi = createApi({
       transformErrorResponse: (response) => handleApiError(response),
     }),
 
-    // Get customers with active VAS - matches backend route
-    getCustomersWithActiveVAS: builder.query<any, void>({
-      query: () => "/value-added-services/admin/customers",
+    getCustomersWithActiveVAS: builder.query<
+      BackendPaginationResponse<any>,
+      VASFilters | void
+    >({
+      query: (filters = {}) => {
+        const params = new URLSearchParams();
+        if (filters && typeof filters === "object") {
+          if (filters.page) params.append("page", filters.page.toString());
+          if (filters.limit) params.append("limit", filters.limit.toString());
+        }
+        const queryString = params.toString();
+        return `/value-added-services/admin/customers${
+          queryString ? `?${queryString}` : ""
+        }`;
+      },
       providesTags: ["CustomerActiveService"],
       transformErrorResponse: (response) => handleApiError(response),
     }),
 
-    // Get VAS by ID (admin) - matches backend route
     getVASById: builder.query<VASResponse, string>({
       query: (id) => `/value-added-services/admin/${id}`,
       providesTags: (_result, _error, id) => [{ type: "VAS", id }],
       transformErrorResponse: (response) => handleApiError(response),
     }),
 
-    // Update VAS (admin only) - matches backend route
     updateVAS: builder.mutation<
       VASResponse,
       { id: string; data: UpdateVASRequest }
@@ -210,18 +202,16 @@ export const vasApi = createApi({
       invalidatesTags: (_result, _error, { id }) => [
         { type: "VAS", id },
         "VAS",
-        "VASStats",
       ],
       transformErrorResponse: (response) => handleApiError(response),
     }),
 
-    // Delete VAS (admin only) - matches backend route
     deleteVAS: builder.mutation<{ success: boolean; message: string }, string>({
       query: (id) => ({
         url: `/value-added-services/admin/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["VAS", "VASStats"],
+      invalidatesTags: ["VAS"],
       transformErrorResponse: (response) => handleApiError(response),
     }),
 
@@ -234,7 +224,7 @@ export const vasApi = createApi({
         method: "POST",
         body: { serviceId, customerId },
       }),
-      invalidatesTags: ["CustomerActiveService", "VASStats"],
+      invalidatesTags: ["CustomerActiveService"],
       transformErrorResponse: (response) => handleApiError(response),
     }),
   }),
@@ -242,24 +232,23 @@ export const vasApi = createApi({
 
 // ===================== EXPORT HOOKS =====================
 export const {
-  // Public/Mixed hooks
+  // Public/Mixed
   useGetServicesByTypeQuery,
-  useLazyGetServicesByTypeQuery,
 
-  // Customer hooks
+  // Customer
   useGetCustomerActiveServicesQuery,
-  useCalculateVASPriceMutation,
-  useLazyGetCustomerActiveServicesQuery,
 
-  // Admin hooks
+  useCalculateVASPriceMutation,
+
+  // Admin
   useGetAllVASQuery,
+
+  useGetVASByIdQuery,
+
+  useGetCustomersWithActiveVASQuery,
+
   useCreateVASMutation,
   useUpdateVASMutation,
   useDeleteVASMutation,
   useActivateServiceForCustomerMutation,
-  useGetCustomersWithActiveVASQuery,
-  useGetVASByIdQuery,
-  useLazyGetAllVASQuery,
-  useLazyGetCustomersWithActiveVASQuery,
-  useLazyGetVASByIdQuery,
 } = vasApi;

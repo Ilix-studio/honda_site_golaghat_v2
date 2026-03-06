@@ -1,7 +1,7 @@
 // src/components/admin/forms/CustomerCSVStock.tsx
 
 import { useState, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Folder,
   FolderOpen,
@@ -28,20 +28,23 @@ import {
 import toast from "react-hot-toast";
 
 import {
+  useAssignCSVStockMutation,
   useGetCSVBatchesQuery,
   useGetStocksByBatchQuery,
 } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 import { CSVBatch, IStockConceptCSV } from "@/types/customer/stockcsv.types";
+import { useAppSelector, useAppDispatch } from "@/hooks/redux";
+import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
+import { setVehicleCompleted } from "@/redux-store/slices/setupProgressSlice";
 
 const CustomerCSVStock = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const customerId = searchParams.get("customerId");
+  const dispatch = useAppDispatch();
+  const { customer, isAuthenticated } = useAppSelector(selectCustomerAuth);
 
   const [selectedBatch, setSelectedBatch] = useState<CSVBatch | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch batches
   const {
     data: batchesData,
     isLoading: batchesLoading,
@@ -49,7 +52,6 @@ const CustomerCSVStock = () => {
     refetch: refetchBatches,
   } = useGetCSVBatchesQuery({ page: 1, limit: 100 });
 
-  // Fetch stocks for selected batch (only available)
   const {
     data: stocksData,
     isLoading: stocksLoading,
@@ -59,13 +61,14 @@ const CustomerCSVStock = () => {
     { skip: !selectedBatch }
   );
 
+  const [assignCSVStock, { isLoading: isAssigning }] =
+    useAssignCSVStockMutation();
+
   const batches = batchesData?.data || [];
   const stocks = stocksData?.data || [];
 
-  // Filter batches with available stocks only
   const availableBatches = batches.filter((b) => b.availableStocks > 0);
 
-  // Sort by import date (newest first)
   const sortedBatches = [...availableBatches].sort(
     (a, b) =>
       new Date(b.importDate).getTime() - new Date(a.importDate).getTime()
@@ -99,83 +102,123 @@ const CustomerCSVStock = () => {
     });
   };
 
-  const handleAssign = (stock: IStockConceptCSV) => {
-    navigate(`/admin/assign/csv-stock/${stock._id}`, {
-      state: {
-        stockType: "csv",
-        stockData: stock,
-        customerId,
-      },
+ const handleAssign = async (stock: IStockConceptCSV) => {
+  if (!customer?.id || !isAuthenticated) {
+    toast.error("Customer not authenticated");
+    return;
+  }
+
+const salePrice: number = stock.priceInfo?.onRoadPrice 
+  ?? stock.priceInfo?.exShowroomPrice 
+  ?? 1;
+  try {
+    const assignmentData = {
+      customerId: customer.id,
+      stockType: "csv" as const,
+      salePrice,
+      invoiceNumber: `INV-${Date.now()}`,
+      insurance: false,
+      isPaid: false,
+      isFinance: false,
+    };
+
+    await assignCSVStock({
+      stockId: stock._id,
+      data: assignmentData,
+    }).unwrap();
+
+    toast.success("Vehicle assigned successfully!");
+    dispatch(setVehicleCompleted(true));
+    navigate("/customer/initialize", {
+      state: { vehicleCompleted: true },
     });
-  };
+  } catch (error: any) {
+    toast.error(error?.data?.message || "Failed to assign vehicle");
+  }
+};
 
   if (batchesError) {
     toast.error("Failed to load CSV batches");
   }
 
-  // Stock list view for selected batch
+  if (!isAuthenticated || !customer) {
+    return (
+      <div className="max-w-2xl mx-auto p-6">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="font-semibold mb-2">Authentication Required</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Please log in to select a vehicle
+            </p>
+            <Button onClick={() => navigate("/customer/login")}>
+              Go to Login
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (selectedBatch) {
     return (
-      <div className='max-w-7xl mx-auto p-6'>
+      <div className="max-w-7xl mx-auto p-6">
         <Card>
           <CardHeader>
-            <div className='flex items-center justify-between'>
-              <div className='flex items-center gap-3'>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
                 <Button
-                  variant='outline'
-                  size='sm'
+                  variant="outline"
+                  size="sm"
                   onClick={() => {
                     setSelectedBatch(null);
                     setSearchQuery("");
                   }}
                 >
-                  <ArrowLeft className='h-4 w-4 mr-2' />
+                  <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to Folder
                 </Button>
                 <div>
-                  <CardTitle className='flex items-center gap-2'>
-                    <FolderOpen className='h-5 w-5 text-yellow-600' />
+                  <CardTitle className="flex items-center gap-2">
+                    <FolderOpen className="h-5 w-5 text-yellow-600" />
                     {selectedBatch.fileName}
                   </CardTitle>
-                  <p className='text-sm text-muted-foreground'>
+                  <p className="text-sm text-muted-foreground">
                     {selectedBatch.availableStocks} available vehicles
                   </p>
                 </div>
               </div>
               <Button
-                variant='outline'
-                size='sm'
+                variant="outline"
+                size="sm"
                 onClick={() => refetchStocks()}
               >
-                <RefreshCw className='h-4 w-4 mr-2' />
+                <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh
               </Button>
             </div>
           </CardHeader>
 
-          <CardContent className='space-y-4'>
-            {/* Search */}
-            <div className='relative max-w-md'>
-              <Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+          <CardContent className="space-y-4">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder='Search by stock ID, model, engine...'
+                placeholder="Search by stock ID, model, engine..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className='pl-10'
+                className="pl-10"
               />
             </div>
 
-            {/* Loading */}
             {stocksLoading && (
-              <div className='text-center py-12'>
-                <RefreshCw className='h-8 w-8 animate-spin mx-auto mb-3 text-primary' />
-                <p className='text-muted-foreground'>Loading stocks...</p>
+              <div className="text-center py-12">
+                <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-3 text-primary" />
+                <p className="text-muted-foreground">Loading stocks...</p>
               </div>
             )}
 
-            {/* Stock Table */}
             {!stocksLoading && filteredStocks.length > 0 && (
-              <div className='border rounded-lg overflow-hidden'>
+              <div className="border rounded-lg overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -185,21 +228,21 @@ const CustomerCSVStock = () => {
                       <TableHead>Engine / Chassis</TableHead>
                       <TableHead>Location</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className='text-right'>Action</TableHead>
+                      <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredStocks.map((stock) => (
                       <TableRow key={stock._id}>
-                        <TableCell className='font-mono text-sm'>
+                        <TableCell className="font-mono text-sm">
                           {stock.stockId}
                         </TableCell>
-                        <TableCell className='font-medium'>
+                        <TableCell className="font-medium">
                           {stock.modelName}
                         </TableCell>
                         <TableCell>{stock.color}</TableCell>
                         <TableCell>
-                          <div className='text-xs space-y-1'>
+                          <div className="text-xs space-y-1">
                             <div>E: {stock.engineNumber}</div>
                             <div>C: {stock.chassisNumber}</div>
                           </div>
@@ -216,14 +259,26 @@ const CustomerCSVStock = () => {
                             {stock.stockStatus.status}
                           </Badge>
                         </TableCell>
-                        <TableCell className='text-right'>
+                        <TableCell className="text-right">
                           <Button
-                            size='sm'
+                            size="sm"
                             onClick={() => handleAssign(stock)}
-                            disabled={stock.stockStatus.status !== "Available"}
+                            disabled={
+                              stock.stockStatus.status !== "Available" ||
+                              isAssigning
+                            }
                           >
-                            <CheckCircle className='h-4 w-4 mr-1' />
-                            Assign
+                            {isAssigning ? (
+                              <>
+                                <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
+                                Assigning...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                Assign
+                              </>
+                            )}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -233,11 +288,10 @@ const CustomerCSVStock = () => {
               </div>
             )}
 
-            {/* Empty */}
             {!stocksLoading && filteredStocks.length === 0 && (
-              <div className='text-center py-12 border rounded-lg'>
-                <Package className='h-12 w-12 mx-auto mb-3 text-muted-foreground' />
-                <p className='text-muted-foreground'>
+              <div className="text-center py-12 border rounded-lg">
+                <Package className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                <p className="text-muted-foreground">
                   {searchQuery
                     ? "No vehicles match your search"
                     : "No available vehicles in this batch"}
@@ -250,69 +304,66 @@ const CustomerCSVStock = () => {
     );
   }
 
-  // Batch folder grid view
   return (
-    <div className='max-w-7xl mx-auto p-6'>
+    <div className="max-w-7xl mx-auto p-6">
       <Card>
         <CardHeader>
-          <div className='flex items-center justify-between'>
+          <div className="flex items-center justify-between">
             <div>
-              <CardTitle className='flex items-center gap-2'>
-                <Folder className='h-5 w-5' />
+              <CardTitle className="flex items-center gap-2">
+                <Folder className="h-5 w-5" />
                 Select CSV Stock Batch
               </CardTitle>
-              <p className='text-sm text-muted-foreground mt-1'>
+              <p className="text-sm text-muted-foreground mt-1">
                 Choose a batch to view available vehicles for assignment
               </p>
             </div>
             <Button
-              variant='outline'
-              size='sm'
+              variant="outline"
+              size="sm"
               onClick={() => refetchBatches()}
             >
-              <RefreshCw className='h-4 w-4 mr-2' />
+              <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>
           </div>
         </CardHeader>
 
         <CardContent>
-          {/* Loading */}
           {batchesLoading && (
-            <div className='text-center py-12'>
-              <RefreshCw className='h-8 w-8 animate-spin mx-auto mb-3 text-primary' />
-              <p className='text-muted-foreground'>Loading batches...</p>
+            <div className="text-center py-12">
+              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-3 text-primary" />
+              <p className="text-muted-foreground">Loading batches...</p>
             </div>
           )}
 
-          {/* Batch Grid */}
           {!batchesLoading && sortedBatches.length > 0 && (
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {sortedBatches.map((batch) => (
                 <div
                   key={batch.batchId}
                   onClick={() => setSelectedBatch(batch)}
-                  className='group cursor-pointer'
+                  className="group cursor-pointer"
                 >
-                  <Card className='h-full transition-all hover:shadow-lg hover:border-primary/50'>
-                    <CardContent className='p-6'>
-                      <div className='flex flex-col items-center text-center space-y-4'>
-                        <div className='relative'>
-                          <Folder className='h-20 w-20 text-red-500 transition-transform group-hover:scale-110' />
+                  <Card className="h-full transition-all hover:shadow-lg hover:border-primary/50">
+                    <CardContent className="p-6">
+                      <div className="flex flex-col items-center text-center space-y-4">
+                        <div className="relative">
+                          <Folder className="h-20 w-20 text-red-500 transition-transform group-hover:scale-110" />
                           <Badge
-                            variant='secondary'
-                            className='absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center'
+                            variant="secondary"
+                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center"
                           >
                             {batch.availableStocks}
                           </Badge>
                         </div>
 
-                        <div className='space-y-1 w-full'>
-                          <h3 className='font-semibold text-sm line-clamp-2'>
+                        <div className="space-y-1 w-full">
+                          <h3 className="font-semibold text-sm line-clamp-2">
                             {batch.fileName}
                           </h3>
-                          <div className='flex items-center justify-center gap-1 text-xs text-muted-foreground'>
-                            <Calendar className='h-3 w-3' />
+                          <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                            <Calendar className="h-3 w-3" />
                             <span>
                               {formatDate(batch.importDate)} at{" "}
                               {formatTime(batch.importDate)}
@@ -320,17 +371,17 @@ const CustomerCSVStock = () => {
                           </div>
                         </div>
 
-                        <div className='flex flex-wrap items-center gap-2 w-full justify-center'>
+                        <div className="flex flex-wrap items-center gap-2 w-full justify-center">
                           <Badge
-                            variant='outline'
-                            className='text-xs bg-green-50 text-green-700'
+                            variant="outline"
+                            className="text-xs bg-green-50 text-green-700"
                           >
-                            <FileSpreadsheet className='h-3 w-3 mr-1' />
+                            <FileSpreadsheet className="h-3 w-3 mr-1" />
                             {batch.availableStocks} available
                           </Badge>
                         </div>
 
-                        <div className='text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity'>
+                        <div className="text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity">
                           Click to view vehicles →
                         </div>
                       </div>
@@ -341,12 +392,11 @@ const CustomerCSVStock = () => {
             </div>
           )}
 
-          {/* Empty */}
           {!batchesLoading && sortedBatches.length === 0 && (
-            <div className='text-center py-12 border rounded-lg'>
-              <Package className='h-12 w-12 mx-auto mb-3 text-muted-foreground' />
-              <h3 className='font-semibold mb-1'>No available stock batches</h3>
-              <p className='text-sm text-muted-foreground'>
+            <div className="text-center py-12 border rounded-lg">
+              <Package className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+              <h3 className="font-semibold mb-1">No available stock batches</h3>
+              <p className="text-sm text-muted-foreground">
                 Import CSV stock files or check existing batches for available
                 vehicles
               </p>

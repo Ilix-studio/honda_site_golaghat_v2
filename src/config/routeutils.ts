@@ -52,7 +52,7 @@ export const ROUTES = {
 
   CUSTOMER: {
     LOGIN: "/customer/login",
-    INITIALIZE: "/customer/initialize",
+    INITIALIZE: "/customer/first-dash",
     PROFILE: { CREATE: "/customer/profile/create" },
     GENERATE_TAGS: "/customer/generate-tags",
     //

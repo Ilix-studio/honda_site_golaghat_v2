@@ -143,3 +143,56 @@ export interface CheckStatusResponse {
     };
   };
 }
+// In getApproved_types.ts — add this interface
+export interface GetApplicationsWithBikesFilters {
+  page?: number;
+  limit?: number;
+  status?: string;
+  enquiryType?: string;
+  category?: string;
+  urgency?: string;
+  hasTradeIn?: boolean;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+export interface GetStatsResponseWithBikes {
+  success: boolean;
+  count: number;
+  total: number;
+  totalPages: number;
+  currentPage: number;
+  data: GetApprovedApplicationWithBikes[];
+}
+
+// Extend existing GetApprovedApplication with populated bike
+export interface GetApprovedApplicationWithBikes
+  extends GetApprovedApplication {
+  enquiryType: "general-financing" | "specific-bike" | "trade-in" | "upgrade";
+  bikeEnquiry?: {
+    bikeId?: {
+      _id: string;
+      modelName: string;
+      category: string;
+      price: number;
+      images: string[];
+      year: number;
+    };
+    bikeModel?: string;
+    category?: string;
+    priceRange?: { min: number; max: number };
+    preferredFeatures?: string[];
+    intendedUse?: string;
+    previousBikeExperience?: string;
+    urgency?: string;
+    additionalRequirements?: string;
+    tradeInBike?: {
+      hasTradeIn: boolean;
+      currentBikeModel?: string;
+      currentBikeYear?: number;
+      estimatedValue?: number;
+      condition?: string;
+    };
+  };
+}

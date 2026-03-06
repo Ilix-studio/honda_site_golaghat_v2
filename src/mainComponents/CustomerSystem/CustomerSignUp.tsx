@@ -65,7 +65,7 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
       console.log("Customer authenticated, navigating to dashboard...");
       // Use a longer delay to ensure all state is properly updated
       const timer = setTimeout(() => {
-        navigate("/customer/initialize", { replace: true });
+        navigate("/customer/first-dash", { replace: true });
       }, 1500);
 
       return () => clearTimeout(timer);

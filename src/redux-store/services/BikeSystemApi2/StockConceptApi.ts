@@ -1,5 +1,4 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery, handleApiError } from "../../../lib/apiConfig";
+
 
 // ===================== TYPES & INTERFACES =====================
 
@@ -128,11 +127,11 @@ export interface StockConceptFilters {
   search?: string;
 }
 
+import { apiSlice } from "../apiSlice";
+import { handleApiError } from "../../../lib/apiConfig";
+
 // ===================== STOCK CONCEPT API SLICE =====================
-export const stockConceptApi = createApi({
-  reducerPath: "stockConceptApi",
-  baseQuery,
-  tagTypes: ["StockConcept"],
+export const stockConceptApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Get all stock items with filtering
     getAllStockItems: builder.query<
