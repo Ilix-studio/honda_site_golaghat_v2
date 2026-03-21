@@ -26,7 +26,9 @@ import {
   updateContactFormData,
   selectContactFormData,
 } from "@/redux-store/slices/formSlice";
+import { useSendContactMessageMutation } from "@/redux-store/services/contactApi";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 // Map Component with Error Handling
 interface MapComponentProps {
@@ -119,21 +121,30 @@ export function ContactSection({ branch }: any) {
   const dispatch = useAppDispatch();
   const formData = useAppSelector(selectContactFormData);
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [sendContactMessage, { isLoading: isSubmitting }] =
+    useSendContactMessageMutation();
 
   const handleInputChange = (field: string, value: string) => {
     dispatch(updateContactFormData({ [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await sendContactMessage({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        recaptchaToken: "", // wire up reCAPTCHA token here when available
+      }).unwrap();
       setFormSubmitted(true);
-    }, 1500);
+    } catch (err: any) {
+      toast.error(
+        err?.data?.message ?? "Failed to send message. Please try again."
+      );
+    }
   };
 
   const handleReset = () => {

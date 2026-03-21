@@ -54,7 +54,11 @@ const InitialDashboard: React.FC = () => {
     useGetMyVehiclesQuery(undefined, { skip: !isAuthenticated });
 
   useEffect(() => {
-    if (profileLoaded) dispatch(setProfileCompleted(!!profileData?.data));
+    if (profileLoaded) {
+      dispatch(
+        setProfileCompleted(profileData?.data?.profileCompleted ?? false)
+      );
+    }
     if (profileError) dispatch(setProfileCompleted(false));
   }, [profileLoaded, profileError, profileData, dispatch]);
 

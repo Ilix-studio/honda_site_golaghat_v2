@@ -37,6 +37,7 @@ interface BikeFormData {
     | "electric"
     | "commuter"
     | "automatic"
+    | "commuter"
     | "gearless";
   year: number;
   variants: BikeVariant[];
@@ -289,7 +290,7 @@ const AddBikes = () => {
       );
 
       // Navigate to image upload page with the created bike ID
-      navigate(`/admin/bikes/add${result.data.bikeId}/images`);
+      navigate(`/admin/bikes/add/${result.data.bikeId}/images`);
     } catch (error: any) {
       dispatch(
         addNotification({

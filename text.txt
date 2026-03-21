@@ -111,3 +111,33 @@ Fast-forward
  src/redux-store/store.ts                                    |  56 +-
  src/types/customer/customer.types.ts                        |   3 +
  111 files changed, 16947 insertions(+), 7550 deletions(-)
+
+  77 files changed, 5702 insertions(+), 4382 deletions(-)
+ create mode 100644 src/assets/HS.jpeg
+ create mode 100644 src/lib/financeformUtils.ts
+ create mode 100644 src/mainComponents/Admin/AdminDash/FinanceEnquiry/AllApplicationsTab.tsx
+ create mode 100644 src/mainComponents/Admin/AdminDash/FinanceEnquiry/FinanceQueries.tsx
+ create mode 100644 src/mainComponents/Admin/AdminDash/FinanceEnquiry/WithBikesTab.tsx
+ create mode 100644 src/mainComponents/Admin/AdminDash/StatCard.tsx
+ create mode 100644 src/mainComponents/Admin/Bikes/ViewBike/LightBox.tsx
+ create mode 100644 src/mainComponents/Admin/Bikes/ViewBike/ViewBikeImages.tsx
+ create mode 100644 src/mainComponents/Admin/Bikes/ViewBike/ViewScootymages.tsx
+ create mode 100644 src/mainComponents/BikeSystem2/CustomerVehicleDetail.tsx
+ delete mode 100644 src/mainComponents/BookService/BookService.tsx
+ delete mode 100644 src/mainComponents/BookService/BookServiceForm.tsx
+ delete mode 100644 src/mainComponents/BookService/BookServicePage.tsx
+ delete mode 100644 src/mainComponents/BookService/FormNavigation.tsx
+ create mode 100644 src/mainComponents/BookService/SimpleBookService.tsx
+ delete mode 100644 src/mainComponents/BookService/StepIndicator.tsx
+ delete mode 100644 src/mainComponents/BookService/formSteps/AdditionalInformation.tsx
+ delete mode 100644 src/mainComponents/BookService/formSteps/ScheduleService.tsx
+ delete mode 100644 src/mainComponents/BookService/formSteps/ServiceSelection.tsx
+ delete mode 100644 src/mainComponents/BookService/formSteps/VehicleInformation.tsx
+ create mode 100644 src/mainComponents/CustomerSystem/Dashboards/CustomerActiveServices.tsx
+ create mode 100644 src/mainComponents/CustomerSystem/Dashboards/FirstDash.tsx
+ delete mode 100644 src/mainComponents/CustomerSystem/GenerateTags.tsx
+ create mode 100644 src/mainComponents/Home/HeroSection.tsx
+ create mode 100644 src/mainComponents/Scanfleet/UseToken.tsx
+ create mode 100644 src/redux-store/services/Scanfleet/scanfleetApi.ts
+ create mode 100644 src/redux-store/services/apiSlice.ts
+ create mode 100644 src/types/superAd_Cu.types.ts

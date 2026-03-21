@@ -165,6 +165,18 @@ const ViewScootyImages = lazy(
   () => import("@/mainComponents/Admin/Bikes/ViewBike/ViewScootymages")
 );
 
+const BikeImageManager = lazy(
+  () => import("@/mainComponents/Admin/AdminDash/BikeImageManager")
+);
+const SeeMessages = lazy(() => import("@/mainComponents/Admin/SeeMessages"));
+
+const GetAllAccidentReports = lazy(
+  () => import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReports")
+);
+const GetAllAccidentReportsById = lazy(
+  () => import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReportsById")
+);
+
 // Create admin routes array
 const createAdminRoutes = () => [
   // Authentication
@@ -186,6 +198,8 @@ const createAdminRoutes = () => [
   { path: "/admin/bikes/images/:id", component: ViewBikeImage },
   { path: "/admin/bikeimages/:bikeId", component: ViewBikeImages },
   { path: "/admin/scootyimages/:bikeId", component: ViewScootyImages },
+  //  admin view bikes
+  { path: "/admin/bikes/add/:id/images", component: BikeImageManager },
 
   // Customer Management
   { path: "/admin/customers/signup", component: CustomerSignUp },
@@ -207,6 +221,11 @@ const createAdminRoutes = () => [
   { path: "/admin/service-bookings", component: AdminBookingsManager },
   //Finance Queries
   { path: "/admin/finanace-query", component: FinanceQueries },
+  //Contact Section
+  { path: "/admin/any-messages", component: SeeMessages },
+  //
+  { path: "/admin/accident-reports", component: GetAllAccidentReports },
+  { path: "/admin/accident-reports/:id", component: GetAllAccidentReportsById },
 ];
 
 export const adminRoutes = createAdminRoutes();
@@ -242,7 +261,10 @@ const CustomerServices = lazy(
 );
 
 const CustomerSupport = lazy(
-  () => import("@/mainComponents/CustomerSystem/Head/CustomerSupport")
+  () =>
+    import(
+      "@/mainComponents/CustomerSystem/Head/CustomerSupport/CustomerSupport"
+    )
 );
 
 const CustomerProfile = lazy(
@@ -365,7 +387,7 @@ export const routeConfig: Record<
   },
   "/customer/support": {
     title: "Customer Support",
-    subtitle: "Support System",
+    subtitle: "",
     showBack: true,
     backTo: "/customer/dashboard",
   },
