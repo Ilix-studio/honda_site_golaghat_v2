@@ -80,7 +80,7 @@ const fmtShort = (iso: string) =>
 // ─── PDF Generator ────────────────────────────────────────────────────────────
 
 const generateReportPdf = async (report: AccidentReport) => {
-  const { jsPDF } = await import("jspdf");
+  const jsPDF = (await import("jspdf")).default;
 
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const pageW = doc.internal.pageSize.getWidth();
@@ -115,7 +115,7 @@ const generateReportPdf = async (report: AccidentReport) => {
     `Generated: ${fmtShort(new Date().toISOString())}`,
     pageW - m,
     16.5,
-    { align: "right" }
+    { align: "right" },
   );
 
   y = 36;
@@ -224,7 +224,7 @@ const generateReportPdf = async (report: AccidentReport) => {
   doc.text(
     report.isInsuranceAvailable ? "Available" : "Not Available",
     m + 4,
-    y + 10.5
+    y + 10.5,
   );
   y += 20;
 
