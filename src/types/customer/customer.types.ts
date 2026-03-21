@@ -34,6 +34,7 @@ export interface CustomerAuthResponse {
   success: boolean;
   message: string;
   data: {
+    profileCompleted: boolean;
     customer: Customer;
     token?: string;
   };

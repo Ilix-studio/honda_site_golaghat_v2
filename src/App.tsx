@@ -23,10 +23,11 @@ import {
 
 // Import global components
 import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
+import { usePageTitle } from "./hooks/usePageTitle";
 
 const App: React.FC = () => {
   const location = useLocation();
-
+  usePageTitle();
   // Scroll to top when route changes
   useEffect(() => {
     window.scrollTo(0, 0);

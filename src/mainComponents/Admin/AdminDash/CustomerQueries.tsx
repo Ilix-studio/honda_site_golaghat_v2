@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useGetAllApplicationsQuery } from "@/redux-store/services/customer/getApprovedApi";
+import { useGetContactMessagesQuery } from "@/redux-store/services/contactApi";
 
 interface StatCardProps {
   title: string;
@@ -104,6 +105,7 @@ const CustomerQueries = () => {
       sortBy: "createdAt",
       sortOrder: "desc",
     });
+  const { data: messagesData } = useGetContactMessagesQuery({ limit: 1 });
 
   const stats: Omit<StatCardProps, "index">[] = [
     {
@@ -117,21 +119,21 @@ const CustomerQueries = () => {
     },
     {
       title: "Message by Users",
-      value: 10,
+      value: messagesData?.pagination.total ?? 0,
       icon: MessageCircleCode,
       loading: false,
       description: "Pending review",
       accent: "#ef4444",
-      action: { label: "View Reports", href: "/admin/reports" },
+      action: { label: "View Reports", href: "/admin/any-messages" },
     },
     {
       title: "Accident Reports",
       value: 10,
       icon: AlertTriangle,
       loading: false,
-      description: "Pending review",
+      description: "",
       accent: "#ef4444",
-      action: { label: "View Reports", href: "/admin/reports" },
+      action: { label: "View Reports", href: "/admin/accident-reports" },
     },
     {
       title: "Parts Ordered",

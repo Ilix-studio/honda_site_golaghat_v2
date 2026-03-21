@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
@@ -6,13 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Plus, X, Loader2, AlertCircle, Images } from "lucide-react";
 
@@ -82,20 +75,36 @@ const EditBikes = () => {
   const bike = bikeResponse?.data;
 
   const form = useForm<BikeFormData>({
-    defaultValues: {
-      features: [],
-      colors: [],
-      variants: [],
-      priceBreakdown: {
-        exShowroomPrice: 0,
-        rtoCharges: 0,
-        insuranceComprehensive: 0,
-      },
-      stockAvailable: 0,
-      isNewModel: false,
-      isE20Efficiency: false,
-      isActive: true,
-    },
+    // `values` re-initializes the form whenever bike data changes (replaces useEffect+reset)
+    values: bike
+      ? {
+          modelName: bike.modelName,
+          mainCategory: bike.mainCategory,
+          category: bike.category,
+          year: bike.year,
+          variants: bike.variants?.length
+            ? bike.variants
+            : [
+                {
+                  name: "Standard",
+                  features: [],
+                  priceAdjustment: 0,
+                  isAvailable: true,
+                },
+              ],
+          priceBreakdown: bike.priceBreakdown,
+          engineSize: bike.engineSize,
+          power: bike.power,
+          transmission: bike.transmission,
+          fuelNorms: bike.fuelNorms,
+          isE20Efficiency: bike.isE20Efficiency,
+          features: bike.features || [],
+          colors: bike.colors || [],
+          stockAvailable: bike.stockAvailable,
+          isNewModel: bike.isNewModel ?? false,
+          isActive: bike.isActive,
+        }
+      : undefined,
   });
 
   const {
@@ -104,7 +113,6 @@ const EditBikes = () => {
     formState: { errors },
     watch,
     setValue,
-    reset,
   } = form;
 
   const watchedFeatures = watch("features") || [];
@@ -112,37 +120,6 @@ const EditBikes = () => {
   const watchedVariants = watch("variants") || [];
   const watchedMainCategory = watch("mainCategory");
   const watchedPriceBreakdown = watch("priceBreakdown");
-
-  // Populate form when bike data is loaded
-  useEffect(() => {
-    if (bike) {
-      reset({
-        modelName: bike.modelName,
-        mainCategory: bike.mainCategory,
-        category: bike.category,
-        year: bike.year,
-        variants: bike.variants || [
-          {
-            name: "Standard",
-            features: [],
-            priceAdjustment: 0,
-            isAvailable: true,
-          },
-        ],
-        priceBreakdown: bike.priceBreakdown,
-        engineSize: bike.engineSize,
-        power: bike.power,
-        transmission: bike.transmission,
-        fuelNorms: bike.fuelNorms,
-        isE20Efficiency: bike.isE20Efficiency,
-        features: bike.features || [],
-        colors: bike.colors || [],
-        stockAvailable: bike.stockAvailable,
-        isNewModel: bike.isNewModel || false,
-        isActive: bike.isActive,
-      });
-    }
-  }, [bike, reset]);
 
   // Category options based on main category
   const getCategoryOptions = (mainCategory: string) => {
@@ -383,43 +360,47 @@ const EditBikes = () => {
 
                   <div className='space-y-2'>
                     <Label htmlFor='mainCategory'>Main Category *</Label>
-                    <Select
-                      value={watchedMainCategory}
-                      onValueChange={(value) =>
-                        setValue("mainCategory", value as "bike" | "scooter")
-                      }
+                    <select
+                      id='mainCategory'
+                      value={watchedMainCategory ?? ""}
+                      onChange={(e) => {
+                        setValue(
+                          "mainCategory",
+                          e.target.value as "bike" | "scooter"
+                        );
+                        setValue("category", "" as any);
+                      }}
+                      className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select main category' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='bike'>Bike</SelectItem>
-                        <SelectItem value='scooter'>Scooter</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <option value='' disabled>
+                        Select main category
+                      </option>
+                      <option value='bike'>Bike</option>
+                      <option value='scooter'>Scooter</option>
+                    </select>
                   </div>
 
                   <div className='space-y-2'>
                     <Label htmlFor='category'>Category *</Label>
-                    <Select
-                      value={watch("category")}
-                      onValueChange={(value) =>
-                        setValue("category", value as any)
+                    <select
+                      id='category'
+                      value={watch("category") ?? ""}
+                      onChange={(e) =>
+                        setValue("category", e.target.value as any)
                       }
+                      className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select category' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getCategoryOptions(watchedMainCategory).map(
-                          (option) => (
-                            <SelectItem key={option} value={option}>
-                              {option.charAt(0).toUpperCase() + option.slice(1)}
-                            </SelectItem>
-                          )
-                        )}
-                      </SelectContent>
-                    </Select>
+                      <option value='' disabled>
+                        Select category
+                      </option>
+                      {getCategoryOptions(
+                        watchedMainCategory ?? bike.mainCategory
+                      ).map((option) => (
+                        <option key={option} value={option}>
+                          {option.charAt(0).toUpperCase() + option.slice(1)}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -443,22 +424,22 @@ const EditBikes = () => {
 
                   <div className='space-y-2'>
                     <Label htmlFor='fuelNorms'>Fuel Norms *</Label>
-                    <Select
-                      value={watch("fuelNorms")}
-                      onValueChange={(value) =>
-                        setValue("fuelNorms", value as any)
+                    <select
+                      id='fuelNorms'
+                      value={watch("fuelNorms") ?? ""}
+                      onChange={(e) =>
+                        setValue("fuelNorms", e.target.value as any)
                       }
+                      className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select fuel norms' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='BS4'>BS4</SelectItem>
-                        <SelectItem value='BS6'>BS6</SelectItem>
-                        <SelectItem value='BS6 Phase 2'>BS6 Phase 2</SelectItem>
-                        <SelectItem value='Electric'>Electric</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <option value='' disabled>
+                        Select fuel norms
+                      </option>
+                      <option value='BS4'>BS4</option>
+                      <option value='BS6'>BS6</option>
+                      <option value='BS6 Phase 2'>BS6 Phase 2</option>
+                      <option value='Electric'>Electric</option>
+                    </select>
                   </div>
                 </div>
               </div>

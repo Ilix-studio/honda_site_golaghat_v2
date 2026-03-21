@@ -14,7 +14,6 @@ const NotFoundPage = () => {
 
   useEffect(() => {
     // Set page title
-    document.title = "Page Not Found | Tsangpool Honda Motorcycles";
 
     // Animation timing
     const timer = setTimeout(() => {

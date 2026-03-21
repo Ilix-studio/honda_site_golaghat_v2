@@ -72,9 +72,6 @@ export default function NewUI() {
                 <span className='text-lg lg:text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent'>
                   Tsangpool Honda
                 </span>
-                <div className='text-xs text-red-400 font-medium tracking-wider hidden lg:block'>
-                  AUTHORIZED DEALER
-                </div>
               </div>
             </div>
 
