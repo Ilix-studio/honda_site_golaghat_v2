@@ -5,7 +5,7 @@ import { FeaturesSection } from "./mainComponents/Home/FeatureSection";
 import { Footer } from "./mainComponents/Home/Footer";
 
 import NewUI from "./mainComponents/Home/NewUI";
-import UnderDevelopment from "./mainComponents/UnderDevelopment";
+// import UnderDevelopment from "./mainComponents/UnderDevelopment";
 import AvailableModel from "./mainComponents/Home/AvailableModel";
 import ServiceDetails from "./mainComponents/Home/ServiceDetails";
 
@@ -15,7 +15,6 @@ function Home() {
       <NewUI />
       <main>
         <AvailableModel />
-        <UnderDevelopment />
         <ServiceDetails />
         <br />
         <br />

@@ -63,7 +63,7 @@ const ServiceStatsDisplay: React.FC<ServiceStatsDisplayProps> = () => {
       <Card className='border-red-200'>
         <CardContent className='p-6 text-center'>
           <AlertCircle className='h-8 w-8 mx-auto mb-2 text-red-500' />
-          <p className='text-red-600'>Failed to load service data</p>
+          <p className='text-black'>No service data</p>
           <Button
             variant='outline'
             onClick={() => {
@@ -266,7 +266,7 @@ const ServiceStatsDisplay: React.FC<ServiceStatsDisplayProps> = () => {
                           <div className='flex items-center gap-1'>
                             <Calendar className='h-4 w-4' />
                             {new Date(
-                              booking.appointmentDate
+                              booking.appointmentDate,
                             ).toLocaleDateString()}
                           </div>
                           <div className='flex items-center gap-1'>

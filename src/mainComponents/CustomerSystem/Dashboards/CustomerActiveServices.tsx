@@ -72,7 +72,7 @@ export default function CustomerActiveServices() {
     return (
       <div className='rounded-2xl border border-red-100 bg-red-50 p-6 flex items-center gap-3'>
         <AlertCircle className='w-5 h-5 text-red-400 shrink-0' />
-        <p className='text-sm text-red-600'>Failed to load active services.</p>
+        <p className='text-sm text-black'>No active services.</p>
       </div>
     );
   }
@@ -83,7 +83,7 @@ export default function CustomerActiveServices() {
       entry.services.map((svc) => ({
         ...svc,
         vehicle: entry.vehicle,
-      }))
+      })),
     ) ?? [];
 
   const activeEntries = allEntries.filter((s) => s.isActive);
@@ -162,15 +162,15 @@ export default function CustomerActiveServices() {
                         isExpired
                           ? "bg-red-100 text-red-600"
                           : isExpiringSoon
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-emerald-100 text-emerald-700"
+                            ? "bg-amber-100 text-amber-700"
+                            : "bg-emerald-100 text-emerald-700"
                       }`}
                     >
                       {isExpired
                         ? "Expired"
                         : isExpiringSoon
-                        ? `${daysLeft}d left`
-                        : "Active"}
+                          ? `${daysLeft}d left`
+                          : "Active"}
                     </span>
                   </div>
 
