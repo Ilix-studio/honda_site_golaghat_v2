@@ -142,7 +142,7 @@ export function ContactSection({ branch }: any) {
       setFormSubmitted(true);
     } catch (err: any) {
       toast.error(
-        err?.data?.message ?? "Failed to send message. Please try again."
+        err?.data?.message ?? "Failed to send message. Please try again.",
       );
     }
   };
@@ -154,7 +154,7 @@ export function ContactSection({ branch }: any) {
   // Default contact details if no branch is provided
   const contactDetails = {
     address: branch?.address || "Bengenakhowa GF Rd, Golaghat, Assam 785702",
-    phone: branch?.phone || "910202020",
+    phone: branch?.phone || "93942 77123",
     email: branch?.email || "golaghat@hondamotorcycles.example",
     hours: branch?.hours || {
       weekdays: "9:00 AM - 7:00 PM",

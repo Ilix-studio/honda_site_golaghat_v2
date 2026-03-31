@@ -5,7 +5,6 @@ import {
   ChevronLeft,
   Share2,
   UserCheck,
-  Calendar,
   Info,
   Battery,
   Zap,
@@ -42,12 +41,6 @@ const BikeDetailPage: React.FC = () => {
       setSelectedColor(bike.colors[0]);
     }
   }, [bike, selectedColor]);
-
-  const handleBookNow = () => {
-    if (bike) {
-      navigate(`/customer/book-service?bikeId=${bike._id}`);
-    }
-  };
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -219,7 +212,7 @@ const BikeDetailPage: React.FC = () => {
                   {formatCurrency(
                     bike.priceBreakdown?.onRoadPrice ||
                       bike.priceBreakdown?.exShowroomPrice ||
-                      0
+                      0,
                   )}
                 </p>
                 <div className='flex gap-2 mb-4'>
@@ -320,7 +313,7 @@ const BikeDetailPage: React.FC = () => {
                         <span className='text-gray-600'>Insurance:</span>
                         <span className='font-medium'>
                           {formatCurrency(
-                            bike.priceBreakdown.insuranceComprehensive
+                            bike.priceBreakdown.insuranceComprehensive,
                           )}
                         </span>
                       </div>
@@ -332,7 +325,7 @@ const BikeDetailPage: React.FC = () => {
                             bike.priceBreakdown.onRoadPrice ||
                               bike.priceBreakdown.exShowroomPrice +
                                 bike.priceBreakdown.rtoCharges +
-                                bike.priceBreakdown.insuranceComprehensive
+                                bike.priceBreakdown.insuranceComprehensive,
                           )}
                         </span>
                       </div>
@@ -419,16 +412,6 @@ const BikeDetailPage: React.FC = () => {
 
               {/* Action Buttons */}
               <div className='space-y-4'>
-                <Button
-                  onClick={handleBookNow}
-                  disabled={bike.stockAvailable === 0}
-                  className='w-full'
-                  size='lg'
-                >
-                  <Calendar className='h-4 w-4 mr-2' />
-                  Book Now
-                </Button>
-
                 <div className='grid grid-cols-2 gap-4'>
                   <Button
                     onClick={handleShare}

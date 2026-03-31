@@ -125,7 +125,7 @@ interface UseEnquiryStatsReturn {
 
 // Mock API hooks with proper typing
 const useEnquiryApplications = (
-  filters: EnquiryFilters
+  filters: EnquiryFilters,
 ): UseEnquiryApplicationsReturn => {
   const [data, setData] = useState<UseEnquiryApplicationsReturn>({
     applications: [],
@@ -143,7 +143,7 @@ const useEnquiryApplications = (
           firstName: "John",
           lastName: "Doe",
           email: "john@example.com",
-          phone: "+91 9876543210",
+          phone: "+91 93942 77123",
           employmentType: "salaried",
           monthlyIncome: 50000,
           creditScoreRange: "good",
@@ -173,7 +173,7 @@ const useEnquiryApplications = (
           firstName: "Jane",
           lastName: "Smith",
           email: "jane@example.com",
-          phone: "+91 9876543211",
+          phone: "+91 93942 77123",
           employmentType: "self-employed",
           monthlyIncome: 75000,
           creditScoreRange: "excellent",
@@ -494,7 +494,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
                             <span className='text-sm font-medium'>{count}</span>
                           </div>
                         </div>
-                      )
+                      ),
                     )}
                 </div>
               </CardContent>
@@ -526,7 +526,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
                             <span className='text-sm font-medium'>{count}</span>
                           </div>
                         </div>
-                      )
+                      ),
                     )}
                 </div>
               </CardContent>
@@ -757,7 +757,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
                             <span className='font-medium w-8'>{count}</span>
                           </div>
                         </div>
-                      )
+                      ),
                     )}
                 </div>
               </CardContent>
@@ -810,7 +810,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
                         </p>
                         <p className='text-sm text-gray-600'>enquiries</p>
                       </div>
-                    )
+                    ),
                   )}
               </div>
             </CardContent>

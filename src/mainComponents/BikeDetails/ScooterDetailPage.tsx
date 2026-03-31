@@ -5,7 +5,6 @@ import {
   ChevronLeft,
   Share2,
   UserCheck,
-  Calendar,
   Info,
   Battery,
   Zap,
@@ -42,12 +41,6 @@ const ScooterDetailPage: React.FC = () => {
       setSelectedColor(scooter.colors[0]);
     }
   }, [scooter, selectedColor]);
-
-  const handleBookNow = () => {
-    if (scooter) {
-      navigate(`/book-service?bikeId=${scooter._id}`);
-    }
-  };
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -220,7 +213,7 @@ const ScooterDetailPage: React.FC = () => {
                   {formatCurrency(
                     scooter.priceBreakdown?.onRoadPrice ||
                       scooter.priceBreakdown?.exShowroomPrice ||
-                      0
+                      0,
                   )}
                 </p>
                 <div className='flex gap-2 mb-4'>
@@ -308,7 +301,7 @@ const ScooterDetailPage: React.FC = () => {
                         </span>
                         <span className='font-medium'>
                           {formatCurrency(
-                            scooter.priceBreakdown.exShowroomPrice
+                            scooter.priceBreakdown.exShowroomPrice,
                           )}
                         </span>
                       </div>
@@ -322,7 +315,7 @@ const ScooterDetailPage: React.FC = () => {
                         <span className='text-gray-600'>Insurance:</span>
                         <span className='font-medium'>
                           {formatCurrency(
-                            scooter.priceBreakdown.insuranceComprehensive
+                            scooter.priceBreakdown.insuranceComprehensive,
                           )}
                         </span>
                       </div>
@@ -334,7 +327,7 @@ const ScooterDetailPage: React.FC = () => {
                             scooter.priceBreakdown.onRoadPrice ||
                               scooter.priceBreakdown.exShowroomPrice +
                                 scooter.priceBreakdown.rtoCharges +
-                                scooter.priceBreakdown.insuranceComprehensive
+                                scooter.priceBreakdown.insuranceComprehensive,
                           )}
                         </span>
                       </div>
@@ -421,16 +414,6 @@ const ScooterDetailPage: React.FC = () => {
 
               {/* Action Buttons */}
               <div className='space-y-4'>
-                <Button
-                  onClick={handleBookNow}
-                  disabled={scooter.stockAvailable === 0}
-                  className='w-full'
-                  size='lg'
-                >
-                  <Calendar className='h-4 w-4 mr-2' />
-                  Book Now
-                </Button>
-
                 <div className='grid grid-cols-2 gap-4'>
                   <Button
                     onClick={handleShare}

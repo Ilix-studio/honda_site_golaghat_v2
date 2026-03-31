@@ -166,14 +166,16 @@ export default function NewUI() {
 
             {/* CTA Buttons - responsive display */}
             <div className='hidden lg:flex items-center space-x-4'>
-              <Button
-                variant='outline'
-                size='sm'
-                className='border-red-500/50 text-red-400 hover:bg-red-500/10 hover:border-red-400 transition-all duration-300 px-4 py-2'
-              >
-                <Phone className='h-4 w-4 mr-2' />
-                <span className='hidden xl:inline'>Call Now</span>
-              </Button>
+              <a href='tel:9394277123'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='border-red-500/50 text-red-400 hover:bg-white-500/10 hover:border-red-400 transition-all duration-300 px-4 py-2'
+                >
+                  <Phone className='h-4 w-4 mr-2' />
+                  <span className='hidden xl:inline'>Call Now</span>
+                </Button>
+              </a>
               <Link to='/customer/book-service'>
                 <Button
                   size='sm'
@@ -215,7 +217,7 @@ export default function NewUI() {
                   >
                     {item}
                   </a>
-                )
+                ),
               )}
 
               {/* Branches in mobile menu */}

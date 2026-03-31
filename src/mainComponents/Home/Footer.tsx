@@ -7,6 +7,7 @@ import {
   useLazyGetVisitorCountQuery,
 } from "@/redux-store/services/visitorApi";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { Link } from "react-router-dom";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -113,7 +114,9 @@ export function Footer() {
                 <div className='w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center'>
                   <span className='text-white font-bold text-sm'>T</span>
                 </div>
-                <span className='text-xl font-bold'>TsangPool Honda</span>
+                <Link to='/'>
+                  <span className='text-xl font-bold'>TsangPool Honda</span>
+                </Link>
               </div>
               <p className='text-muted-foreground text-pretty'>
                 Your trusted Honda dealer for premium motorcycles and scooters.
@@ -229,7 +232,7 @@ export function Footer() {
               <div className='space-y-3 text-muted-foreground'>
                 <div className='flex items-center space-x-2'>
                   <Phone className='w-4 h-4' />
-                  <span>+91 98765 43210</span>
+                  <span>+91 93942 77123</span>
                 </div>
                 <div className='flex items-center space-x-2'>
                   <Mail className='w-4 h-4' />
@@ -245,8 +248,15 @@ export function Footer() {
         </div>
         <div className='border-t border-border mt-12 pt-8 text-center text-muted-foreground'>
           <p>
-            &copy; {currentYear} TsangPool Honda. All rights reserved. | Powered
-            by Honda Excellence
+            &copy; {currentYear} Tsangpool Honda || Precision on road. {""}
+            <a
+              href='https://ilix-hazarika.vercel.app/'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-red-500 hover:text-blue-400 transition-colors'
+            >
+              Precision in code.
+            </a>
           </p>
         </div>
         {/* Error handling */}
