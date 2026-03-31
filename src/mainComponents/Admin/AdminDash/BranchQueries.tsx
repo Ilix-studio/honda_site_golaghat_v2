@@ -21,6 +21,8 @@ import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi"
 import { useGetCSVBatchesQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 import { useGetAllStockItemsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 // ─── main ────────────────────────────────────────────────────────────────────
 const BranchQueries = () => {
@@ -190,7 +192,7 @@ const BranchQueries = () => {
                       Math.max(vs.totalVisitors ?? 1, 1)) *
                       100 *
                       10,
-                    100
+                    100,
                   )}%`,
                 }}
                 transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
@@ -211,6 +213,9 @@ const BranchQueries = () => {
       >
         <RecentMotorcycles />
       </motion.div>
+      <Link to='/see-bill-memo' className='text-red-600 hover:underline'>
+        <Button variant='outline'>See Bill Memo</Button>
+      </Link>
     </div>
   );
 };

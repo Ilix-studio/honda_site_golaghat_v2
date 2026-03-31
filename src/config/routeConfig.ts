@@ -19,43 +19,43 @@ export const immediateRoutes = [
 const Finance = lazy(() => import("../mainComponents/NavMenu/Finance"));
 const Contact = lazy(() => import("../mainComponents/NavMenu/Contact"));
 const BranchesPage = lazy(
-  () => import("../mainComponents/NavMenu/Branches/BranchesPage")
+  () => import("../mainComponents/NavMenu/Branches/BranchesPage"),
 );
 const BranchDetailPage = lazy(
-  () => import("../mainComponents/NavMenu/Branches/BranchDetailPage")
+  () => import("../mainComponents/NavMenu/Branches/BranchDetailPage"),
 );
 const ViewAllBikes = lazy(() =>
   import("../mainComponents/BikeDetails/ViewAllBikes").then((module) => ({
     default: module.ViewAllBikes,
-  }))
+  })),
 );
 const BikeDetailsPage = lazy(
-  () => import("../mainComponents/BikeDetails/BikeDetailsPage")
+  () => import("../mainComponents/BikeDetails/BikeDetailsPage"),
 );
 const ScooterDetailPage = lazy(
-  () => import("../mainComponents/BikeDetails/ScooterDetailPage")
+  () => import("../mainComponents/BikeDetails/ScooterDetailPage"),
 );
 const CompareBike = lazy(
-  () => import("../mainComponents/BikeDetails/CompareBikes/CompareBike")
+  () => import("../mainComponents/BikeDetails/CompareBikes/CompareBike"),
 );
 
 const SearchResults = lazy(
-  () => import("../mainComponents/Search/SearchResults")
+  () => import("../mainComponents/Search/SearchResults"),
 );
 
 // View System - Public access
 const ViewAllBranches = lazy(
-  () => import("../mainComponents/ViewBS2/ViewAllBranches")
+  () => import("../mainComponents/ViewBS2/ViewAllBranches"),
 );
 //
 const SelectVas = lazy(() => import("@/mainComponents/BikeSystem2/SelectVas"));
 const ViewVAS = lazy(() => import("../mainComponents/ViewBS2/ViewVAS"));
 
 const ViewStockConcept = lazy(
-  () => import("../mainComponents/ViewBS2/ViewStockConcept")
+  () => import("../mainComponents/ViewBS2/ViewStockConcept"),
 );
 const DownloadSafetyfeature = lazy(
-  () => import("../mainComponents/ViewBS2/DownloadSafetyfeature")
+  () => import("../mainComponents/ViewBS2/DownloadSafetyfeature"),
 );
 
 export const publicRoutes = [
@@ -92,33 +92,33 @@ export const publicRoutes = [
 
 // Admin Authentication
 const LoginSuperAdmin = lazy(
-  () => import("../mainComponents/Admin/LoginSuperAdmin")
+  () => import("../mainComponents/Admin/LoginSuperAdmin"),
 );
 const LoginBranchManager = lazy(
-  () => import("../mainComponents/Admin/LoginBranchManager")
+  () => import("../mainComponents/Admin/LoginBranchManager"),
 );
 
 // Admin Dashboard
 const AdminDashboard = lazy(
-  () => import("../mainComponents/Admin/AdminDash/AdminDashboard")
+  () => import("../mainComponents/Admin/AdminDash/AdminDashboard"),
 );
 
 // Branch Management
 const AddBranch = lazy(
-  () => import("../mainComponents/NavMenu/Branches/AddBranch")
+  () => import("../mainComponents/NavMenu/Branches/AddBranch"),
 );
 const BranchManager = lazy(
-  () => import("../mainComponents/Admin/BranchM/BranchManager")
+  () => import("../mainComponents/Admin/BranchM/BranchManager"),
 );
 
 // Bike Management
 const AddBikes = lazy(() => import("../mainComponents/Admin/Bikes/AddBikes"));
 const EditBikes = lazy(() => import("../mainComponents/Admin/Bikes/EditBikes"));
 const AddBikeImage = lazy(
-  () => import("../mainComponents/Admin/Bikes/AddBikeImage")
+  () => import("../mainComponents/Admin/Bikes/AddBikeImage"),
 );
 const EditBikeImage = lazy(
-  () => import("../mainComponents/Admin/Bikes/EditBikeImage")
+  () => import("../mainComponents/Admin/Bikes/EditBikeImage"),
 );
 
 // Customer Management (Admin only)
@@ -127,55 +127,58 @@ const EditBikeImage = lazy(
 const VASForm = lazy(() => import("../mainComponents/BikeSystem2/VASForm"));
 
 const StockConceptForm = lazy(
-  () => import("../mainComponents/BikeSystem2/StockConceptForm")
+  () => import("../mainComponents/BikeSystem2/StockConceptForm"),
 );
 
 const AdminBookingsManager = lazy(
-  () => import("@/mainComponents/Admin/ServiceBookings/AdminBookingsManager")
+  () => import("@/mainComponents/Admin/ServiceBookings/AdminBookingsManager"),
 );
 const CustomerSignUp = lazy(
-  () => import("@/mainComponents/CustomerSystem/CustomerSignUp")
+  () => import("@/mainComponents/CustomerSystem/CustomerSignUp"),
 );
 const AssignStock = lazy(
-  () => import("@/mainComponents/CustomerSystem/ActivateFeature/AssignStock")
+  () => import("@/mainComponents/CustomerSystem/ActivateFeature/AssignStock"),
 );
 const UploadCSVForm = lazy(
-  () => import("@/mainComponents/BikeSsytem3/UploadCSVForm")
+  () => import("@/mainComponents/BikeSsytem3/UploadCSVForm"),
 );
 const SelectStockForm = lazy(
-  () => import("@/mainComponents/BikeSsytem3/SelectStockForm")
+  () => import("@/mainComponents/BikeSsytem3/SelectStockForm"),
 );
 
 const GetCSVFiles = lazy(
-  () => import("@/mainComponents/BikeSsytem3/GetCSVFiles")
+  () => import("@/mainComponents/BikeSsytem3/GetCSVFiles"),
 );
 
 const GetAllStockFiles = lazy(
-  () => import("@/mainComponents/BikeSsytem3/GetAllStockFiles")
+  () => import("@/mainComponents/BikeSsytem3/GetAllStockFiles"),
 );
 
 const FinanceQueries = lazy(
-  () => import("@/mainComponents/Admin/AdminDash/FinanceEnquiry/FinanceQueries")
+  () =>
+    import("@/mainComponents/Admin/AdminDash/FinanceEnquiry/FinanceQueries"),
 );
 const ViewBikeImages = lazy(
-  () => import("@/mainComponents/Admin/Bikes/ViewBike/ViewBikeImages")
+  () => import("@/mainComponents/Admin/Bikes/ViewBike/ViewBikeImages"),
 );
 
 const ViewScootyImages = lazy(
-  () => import("@/mainComponents/Admin/Bikes/ViewBike/ViewScootymages")
+  () => import("@/mainComponents/Admin/Bikes/ViewBike/ViewScootymages"),
 );
 
 const BikeImageManager = lazy(
-  () => import("@/mainComponents/Admin/AdminDash/BikeImageManager")
+  () => import("@/mainComponents/Admin/AdminDash/BikeImageManager"),
 );
 const SeeMessages = lazy(() => import("@/mainComponents/Admin/SeeMessages"));
 
 const GetAllAccidentReports = lazy(
-  () => import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReports")
+  () => import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReports"),
 );
 const GetAllAccidentReportsById = lazy(
-  () => import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReportsById")
+  () =>
+    import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReportsById"),
 );
+const BillMemo = lazy(() => import("@/mainComponents/Admin/ZBillMemo"));
 
 // Create admin routes array
 const createAdminRoutes = () => [
@@ -226,6 +229,8 @@ const createAdminRoutes = () => [
   //
   { path: "/admin/accident-reports", component: GetAllAccidentReports },
   { path: "/admin/accident-reports/:id", component: GetAllAccidentReportsById },
+  //
+  { path: "/see-bill-memo", component: BillMemo },
 ];
 
 export const adminRoutes = createAdminRoutes();
@@ -234,64 +239,61 @@ export const adminRoutes = createAdminRoutes();
 
 // Customer Dashboard
 const InitialDashboard = lazy(
-  () => import("../mainComponents/CustomerSystem/Dashboards/InitialDashboard")
+  () => import("../mainComponents/CustomerSystem/Dashboards/InitialDashboard"),
 );
 const CustomerMainDash = lazy(
-  () => import("../mainComponents/CustomerSystem/Dashboards/CustomerMainDash")
+  () => import("../mainComponents/CustomerSystem/Dashboards/CustomerMainDash"),
 );
 
 // Customer Profile
 const CustomerCreateProfile = lazy(
-  () => import("../mainComponents/CustomerSystem/CustomerCreateProfile")
+  () => import("../mainComponents/CustomerSystem/CustomerCreateProfile"),
 );
 
 // Customer Vehicle Management
 const CustomerVehicleInfo = lazy(
-  () => import("../mainComponents/BikeSystem2/CustomerVehicleInfo")
+  () => import("../mainComponents/BikeSystem2/CustomerVehicleInfo"),
 );
 
 // Customer Services
 
 const ActivateVAS = lazy(
-  () => import("../mainComponents/CustomerSystem/ActivateFeature/ActivateVAS")
+  () => import("../mainComponents/CustomerSystem/ActivateFeature/ActivateVAS"),
 );
 
 const CustomerServices = lazy(
-  () => import("../mainComponents/CustomerSystem/Head/CustomerServices")
+  () => import("../mainComponents/CustomerSystem/Head/CustomerServices"),
 );
 
 const CustomerSupport = lazy(
   () =>
-    import(
-      "@/mainComponents/CustomerSystem/Head/CustomerSupport/CustomerSupport"
-    )
+    import("@/mainComponents/CustomerSystem/Head/CustomerSupport/CustomerSupport"),
 );
 
 const CustomerProfile = lazy(
-  () => import("@/mainComponents/CustomerSystem/CustomerProfile")
+  () => import("@/mainComponents/CustomerSystem/CustomerProfile"),
 );
 const ChooseStock = lazy(
-  () => import("@/mainComponents/CustomerSystem/SelectStock/ChooseStock")
+  () => import("@/mainComponents/CustomerSystem/SelectStock/ChooseStock"),
 );
 const CustomerCSVStock = lazy(
-  () => import("@/mainComponents/CustomerSystem/SelectStock/CustomerCSVStock")
+  () => import("@/mainComponents/CustomerSystem/SelectStock/CustomerCSVStock"),
 );
 const UseToken = lazy(() => import("@/mainComponents/Scanfleet/UseToken"));
 
 const FirstDash = lazy(
-  () => import("@/mainComponents/CustomerSystem/Dashboards/FirstDash")
+  () => import("@/mainComponents/CustomerSystem/Dashboards/FirstDash"),
 );
 
 const CustomerVehicleDetail = lazy(
-  () => import("@/mainComponents/BikeSystem2/CustomerVehicleDetail")
+  () => import("@/mainComponents/BikeSystem2/CustomerVehicleDetail"),
 );
 
 // Create customer routes array
 const createCustomerRoutes = () => {
   const CustomerLoginComponent = lazy(async () => {
-    const module = await import(
-      "../mainComponents/CustomerSystem/CustomerLogin"
-    );
+    const module =
+      await import("../mainComponents/CustomerSystem/CustomerLogin");
     return { default: module.default };
   });
 
@@ -409,7 +411,7 @@ export const routeCategories = {
 
 // Helper function to determine route category
 export const getRouteCategory = (
-  path: string
+  path: string,
 ): "public" | "admin" | "customer" | "immediate" => {
   if (path.startsWith("/admin/")) return "admin";
   if (path.startsWith("/customer/")) return "customer";
