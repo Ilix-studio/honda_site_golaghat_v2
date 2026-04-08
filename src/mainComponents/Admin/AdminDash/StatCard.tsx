@@ -75,25 +75,14 @@ export const StatCard = ({
           <Icon className='w-5 h-5' style={{ color: accent }} />
         </div>
 
-        {action.href === "/admin/customers/signup" ? (
-          <a href={action.href} target='_blank' rel='noopener noreferrer'>
-            <motion.div
-              whileHover={{ scale: 1.1, rotate: -5 }}
-              className='w-8 h-8 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200 cursor-pointer hover:border-gray-400 transition-colors'
-            >
-              <ArrowUpRight className='w-3.5 h-3.5 text-gray-500' />
-            </motion.div>
-          </a>
-        ) : (
-          <Link to={action.href}>
-            <motion.div
-              whileHover={{ scale: 1.1, rotate: -5 }}
-              className='w-8 h-8 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200 cursor-pointer hover:border-gray-400 transition-colors'
-            >
-              <ArrowUpRight className='w-3.5 h-3.5 text-gray-500' />
-            </motion.div>
-          </Link>
-        )}
+        <Link to={action.href}>
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: -5 }}
+            className='w-8 h-8 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200 cursor-pointer hover:border-gray-400 transition-colors'
+          >
+            <ArrowUpRight className='w-3.5 h-3.5 text-gray-500' />
+          </motion.div>
+        </Link>
       </div>
 
       {/* value */}
@@ -116,35 +105,19 @@ export const StatCard = ({
       </div>
 
       {/* action */}
-      {action.href === "/admin/customers/signup" ? (
-        <a href={action.href} target='_blank' rel='noopener noreferrer'>
-          <Button
-            variant='ghost'
-            size='sm'
-            className='w-full justify-between px-3 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-all group/btn'
-          >
-            <span className='flex items-center gap-1.5 text-xs font-medium'>
-              <Plus className='w-3 h-3' />
-              {action.label}
-            </span>
-            <ChevronRight className='w-3 h-3 opacity-0 group-hover/btn:opacity-100 transition-opacity' />
-          </Button>
-        </a>
-      ) : (
-        <Link to={action.href}>
-          <Button
-            variant='ghost'
-            size='sm'
-            className='w-full justify-between px-3 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-all group/btn'
-          >
-            <span className='flex items-center gap-1.5 text-xs font-medium'>
-              <Plus className='w-3 h-3' />
-              {action.label}
-            </span>
-            <ChevronRight className='w-3 h-3 opacity-0 group-hover/btn:opacity-100 transition-opacity' />
-          </Button>
-        </Link>
-      )}
+      <Link to={action.href}>
+        <Button
+          variant='ghost'
+          size='sm'
+          className='w-full justify-between px-3 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-all group/btn'
+        >
+          <span className='flex items-center gap-1.5 text-xs font-medium'>
+            <Plus className='w-3 h-3' />
+            {action.label}
+          </span>
+          <ChevronRight className='w-3 h-3 opacity-0 group-hover/btn:opacity-100 transition-opacity' />
+        </Button>
+      </Link>
     </div>
   </motion.div>
 );

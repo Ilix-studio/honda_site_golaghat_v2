@@ -23,12 +23,12 @@ function VehicleCard({
   index: number;
 }) {
   const navigate = useNavigate();
-  const bike = vehicle.bike;
-  const modelName = bike?.modelName ?? "Unknown Model";
-  const category = bike?.mainCategory ?? "—";
-  const color = bike?.colors?.[0] ?? "—";
-  const variant = bike?.variants?.[0]?.name ?? "";
-  const year = bike?.year ?? "—";
+  const stock = vehicle.stockConcept;
+  const modelName = stock?.modelName ?? "Unknown Model";
+  const category = stock?.category ?? "—";
+  const color = stock?.color ?? "—";
+  const variant = stock?.variant ?? "";
+  const year = stock?.yearOfManufacture ?? "—";
   const vasCount =
     vehicle.activeValueAddedServices?.filter((s) => s.isActive).length ?? 0;
 

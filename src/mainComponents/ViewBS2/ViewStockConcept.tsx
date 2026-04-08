@@ -1,27 +1,17 @@
-import {
-  StockConceptFilters,
-  useGetAllStockItemsQuery,
-  useAssignToCustomerMutation,
-} from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { useAppDispatch, useAppSelector } from "@/hooks/redux";
-import { setVehicleCompleted } from "@/redux-store/slices/setupProgressSlice";
-import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
+import {
+  StockConceptFilters,
+  useGetAllStockItemsQuery,
+} from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 
-const CustomerVehicleInfo = () => {
+const ViewStockConcept = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const { customer, isAuthenticated } = useAppSelector(selectCustomerAuth);
-  const [assignToCustomer, { isLoading: isAssigning }] =
-    useAssignToCustomerMutation();
-
   const [filters, setFilters] = useState<StockConceptFilters>({
     page: 1,
     limit: 10,
     search: "",
-    status: "Available",
   });
 
   const { data, isLoading, error } = useGetAllStockItemsQuery(filters);
@@ -33,7 +23,7 @@ const CustomerVehicleInfo = () => {
     setFilters((prev) => ({
       ...prev,
       [name]: value,
-      page: 1,
+      page: 1, // Reset to first page on filter change
     }));
   };
 
@@ -41,36 +31,25 @@ const CustomerVehicleInfo = () => {
     setFilters((prev) => ({ ...prev, page: newPage }));
   };
 
-  const handleAssignVehicle = async (stockId: string, stockData: any) => {
-    try {
-      if (!customer?.id || !isAuthenticated) {
-        toast.error("Customer not authenticated");
-        return;
-      }
+  const getStatusBadge = (status: string) => {
+    const statusColors: Record<string, string> = {
+      Available: "bg-green-100 text-green-800",
+      Sold: "bg-blue-100 text-blue-800",
+      Reserved: "bg-yellow-100 text-yellow-800",
+      Service: "bg-purple-100 text-purple-800",
+      Damaged: "bg-red-100 text-red-800",
+      Transit: "bg-gray-100 text-gray-800",
+    };
 
-      const assignmentData = {
-        customerId: customer.id,
-        salePrice: stockData.priceInfo.onRoadPrice,
-        invoiceNumber: `INV-${Date.now()}`,
-
-        insurance: false,
-        isPaid: false,
-        isFinance: false,
-      };
-
-      await assignToCustomer({
-        id: stockId,
-        data: assignmentData,
-      }).unwrap();
-
-      toast.success("Vehicle assigned successfully!");
-      dispatch(setVehicleCompleted(true));
-      navigate("/customer/initialize", {
-        state: { vehicleCompleted: true },
-      });
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to assign vehicle");
-    }
+    return (
+      <span
+        className={`px-2 py-1 rounded-full text-xs font-medium ${
+          statusColors[status] || "bg-gray-100 text-gray-800"
+        }`}
+      >
+        {status}
+      </span>
+    );
   };
 
   if (error) {
@@ -82,12 +61,18 @@ const CustomerVehicleInfo = () => {
       <div className='max-w-7xl mx-auto p-6'>
         {/* Header */}
         <div className='flex justify-between items-center mb-6'>
-          <h1 className='text-3xl font-bold'>Available Vehicles</h1>
+          <h1 className='text-3xl font-bold'>Stock Concept</h1>
+          <button
+            onClick={() => navigate("/admin/stock-concept")}
+            className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700'
+          >
+            Add Stock Item
+          </button>
         </div>
 
         {/* Filters */}
         <div className='bg-white p-4 rounded-lg shadow-md mb-6'>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
             <div>
               <label className='block text-sm font-medium mb-1'>Search</label>
               <input
@@ -98,6 +83,24 @@ const CustomerVehicleInfo = () => {
                 placeholder='Search by stock ID, model, engine...'
                 className='w-full px-3 py-2 border border-gray-300 rounded-md'
               />
+            </div>
+
+            <div>
+              <label className='block text-sm font-medium mb-1'>Status</label>
+              <select
+                name='status'
+                value={filters.status || ""}
+                onChange={handleFilterChange}
+                className='w-full px-3 py-2 border border-gray-300 rounded-md'
+              >
+                <option value=''>All Status</option>
+                <option value='Available'>Available</option>
+                <option value='Sold'>Sold</option>
+                <option value='Reserved'>Reserved</option>
+                <option value='Service'>Service</option>
+                <option value='Damaged'>Damaged</option>
+                <option value='Transit'>Transit</option>
+              </select>
             </div>
 
             <div>
@@ -132,14 +135,7 @@ const CustomerVehicleInfo = () => {
           </div>
 
           <button
-            onClick={() =>
-              setFilters({
-                page: 1,
-                limit: 10,
-                search: "",
-                status: "Available",
-              })
-            }
+            onClick={() => setFilters({ page: 1, limit: 10, search: "" })}
             className='mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300'
           >
             Clear Filters
@@ -150,7 +146,7 @@ const CustomerVehicleInfo = () => {
         {isLoading && (
           <div className='text-center py-8'>
             <div className='inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
-            <p className='mt-2 text-gray-600'>Loading available vehicles...</p>
+            <p className='mt-2 text-gray-600'>Loading stock items...</p>
           </div>
         )}
 
@@ -175,13 +171,13 @@ const CustomerVehicleInfo = () => {
                         Engine/Chassis
                       </th>
                       <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        Status
+                      </th>
+                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                         Location
                       </th>
                       <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                         Price
-                      </th>
-                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                        Actions
                       </th>
                     </tr>
                   </thead>
@@ -208,6 +204,9 @@ const CustomerVehicleInfo = () => {
                             <div>C: {stock.chassisNumber}</div>
                           </div>
                         </td>
+                        <td className='px-6 py-4 whitespace-nowrap'>
+                          {getStatusBadge(stock.stockStatus.status)}
+                        </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
                           {stock.stockStatus.location}
                         </td>
@@ -215,15 +214,16 @@ const CustomerVehicleInfo = () => {
                           ₹{stock.priceInfo.onRoadPrice.toLocaleString()}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
-                          <button
-                            onClick={() =>
-                              handleAssignVehicle(stock._id, stock)
-                            }
-                            disabled={isAssigning || !isAuthenticated}
-                            className='px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-                          >
-                            {isAssigning ? "Assigning..." : "Assign"}
-                          </button>
+                          {stock.stockStatus.status === "Available" && (
+                            <button
+                              onClick={() =>
+                                navigate(`/assign/stock-concept/${stock._id}`)
+                              }
+                              className='text-green-600 hover:text-green-900'
+                            >
+                              Assign
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -235,7 +235,7 @@ const CustomerVehicleInfo = () => {
             {/* Pagination */}
             <div className='mt-6 flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow-md'>
               <div className='text-sm text-gray-700'>
-                Showing {data.count} of {data.total} available vehicles
+                Showing {data.count} of {data.total} results
               </div>
               <div className='flex gap-2'>
                 <button
@@ -263,7 +263,7 @@ const CustomerVehicleInfo = () => {
         {/* Empty State */}
         {!isLoading && data && data.data.length === 0 && (
           <div className='bg-white rounded-lg shadow-md p-8 text-center'>
-            <p className='text-gray-500'>No available vehicles found</p>
+            <p className='text-gray-500'>No stock items found</p>
           </div>
         )}
       </div>
@@ -271,4 +271,4 @@ const CustomerVehicleInfo = () => {
   );
 };
 
-export default CustomerVehicleInfo;
+export default ViewStockConcept;
