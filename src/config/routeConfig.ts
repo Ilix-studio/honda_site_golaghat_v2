@@ -51,9 +51,6 @@ const ViewAllBranches = lazy(
 const SelectVas = lazy(() => import("@/mainComponents/BikeSystem2/SelectVas"));
 const ViewVAS = lazy(() => import("../mainComponents/ViewBS2/ViewVAS"));
 
-const ViewStockConcept = lazy(
-  () => import("../mainComponents/ViewBS2/ViewStockConcept"),
-);
 const DownloadSafetyfeature = lazy(
   () => import("../mainComponents/ViewBS2/DownloadSafetyfeature"),
 );
@@ -80,8 +77,6 @@ export const publicRoutes = [
   // Public View System
   { path: "/admin/branches/view", component: ViewAllBranches },
   { path: "/admin/view/vas", component: ViewVAS },
-
-  { path: "/view/stock-concept", component: ViewStockConcept },
   {
     path: "/download/safety-feature-stickers",
     component: DownloadSafetyfeature,
@@ -101,6 +96,11 @@ const LoginBranchManager = lazy(
 // Admin Dashboard
 const AdminDashboard = lazy(
   () => import("../mainComponents/Admin/AdminDash/AdminDashboard"),
+);
+
+// Bike Management
+const AdminBikeManagement = lazy(
+  () => import("../mainComponents/Admin/BikeManagement"),
 );
 
 // Branch Management
@@ -126,32 +126,11 @@ const EditBikeImage = lazy(
 // Business System Forms
 const VASForm = lazy(() => import("../mainComponents/BikeSystem2/VASForm"));
 
-const StockConceptForm = lazy(
-  () => import("../mainComponents/BikeSystem2/StockConceptForm"),
-);
-
 const AdminBookingsManager = lazy(
   () => import("@/mainComponents/Admin/ServiceBookings/AdminBookingsManager"),
 );
 const CustomerSignUp = lazy(
   () => import("@/mainComponents/CustomerSystem/CustomerSignUp"),
-);
-const AssignStock = lazy(
-  () => import("@/mainComponents/CustomerSystem/ActivateFeature/AssignStock"),
-);
-const UploadCSVForm = lazy(
-  () => import("@/mainComponents/BikeSsytem3/UploadCSVForm"),
-);
-const SelectStockForm = lazy(
-  () => import("@/mainComponents/BikeSsytem3/SelectStockForm"),
-);
-
-const GetCSVFiles = lazy(
-  () => import("@/mainComponents/BikeSsytem3/GetCSVFiles"),
-);
-
-const GetAllStockFiles = lazy(
-  () => import("@/mainComponents/BikeSsytem3/GetAllStockFiles"),
 );
 
 const FinanceQueries = lazy(
@@ -189,6 +168,9 @@ const createAdminRoutes = () => [
   // Dashboard
   { path: "/admin/dashboard", component: AdminDashboard },
 
+  // Bike Management
+  { path: "/admin/bike-management", component: AdminBikeManagement },
+
   // Branch Management (Super Admin Only)
   { path: "/admin/branches/add", component: AddBranch },
   { path: "/admin/branches/managers", component: BranchManager },
@@ -210,15 +192,6 @@ const createAdminRoutes = () => [
   // Business System Forms
   { path: "/admin/vas/select", component: SelectVas },
   { path: "/admin/forms/vas", component: VASForm },
-
-  { path: "/admin/stockC/select", component: SelectStockForm },
-  { path: "/admin/forms/stock-concept", component: StockConceptForm },
-  { path: "/admin/forms/stock-concept-csv", component: UploadCSVForm },
-  { path: "/admin/get/all-stock", component: GetAllStockFiles },
-  { path: "/admin/get/csv", component: GetCSVFiles },
-
-  // Assignment System
-  { path: "/admin/assign/stock-concept/:id", component: AssignStock },
 
   //Service Booking
   { path: "/admin/service-bookings", component: AdminBookingsManager },
@@ -251,6 +224,9 @@ const CustomerCreateProfile = lazy(
 );
 
 // Customer Vehicle Management
+const SelectVehicle = lazy(
+  () => import("../mainComponents/CustomerSystem/SelectVehicle"),
+);
 const CustomerVehicleInfo = lazy(
   () => import("../mainComponents/BikeSystem2/CustomerVehicleInfo"),
 );
@@ -272,12 +248,6 @@ const CustomerSupport = lazy(
 
 const CustomerProfile = lazy(
   () => import("@/mainComponents/CustomerSystem/CustomerProfile"),
-);
-const ChooseStock = lazy(
-  () => import("@/mainComponents/CustomerSystem/SelectStock/ChooseStock"),
-);
-const CustomerCSVStock = lazy(
-  () => import("@/mainComponents/CustomerSystem/SelectStock/CustomerCSVStock"),
 );
 const UseToken = lazy(() => import("@/mainComponents/Scanfleet/UseToken"));
 
@@ -306,8 +276,7 @@ const createCustomerRoutes = () => {
     { path: "/customer/first-dash", component: FirstDash },
     { path: "/customer/initialize", component: InitialDashboard },
     // Vehicle Management
-    { path: "/customer/select/stock", component: ChooseStock },
-    { path: "/customer/assign/csv-stock", component: CustomerCSVStock },
+    { path: "/customer/select/vehicle", component: SelectVehicle },
     { path: "/customer/vehicle/info", component: CustomerVehicleInfo },
     { path: "/customer/vehicle/:vehicleId", component: CustomerVehicleDetail },
 

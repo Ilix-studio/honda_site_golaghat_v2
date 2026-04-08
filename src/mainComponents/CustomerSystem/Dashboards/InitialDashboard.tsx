@@ -56,7 +56,7 @@ const InitialDashboard: React.FC = () => {
   useEffect(() => {
     if (profileLoaded) {
       dispatch(
-        setProfileCompleted(profileData?.data?.profileCompleted ?? false)
+        setProfileCompleted(profileData?.data?.profileCompleted ?? false),
       );
     }
     if (profileError) dispatch(setProfileCompleted(false));
@@ -66,8 +66,8 @@ const InitialDashboard: React.FC = () => {
     if (vehiclesLoaded) {
       dispatch(
         setVehicleCompleted(
-          Array.isArray(vehicleData?.data) && vehicleData.data.length > 0
-        )
+          Array.isArray(vehicleData?.data) && vehicleData.data.length > 0,
+        ),
       );
     }
   }, [vehiclesLoaded, vehicleData, dispatch]);
@@ -77,7 +77,7 @@ const InitialDashboard: React.FC = () => {
       const hasActiveVAS =
         Array.isArray(vehicleData.data) &&
         vehicleData.data.some((v: any) =>
-          v.activeValueAddedServices?.some((s: any) => s.isActive)
+          v.activeValueAddedServices?.some((s: any) => s.isActive),
         );
       dispatch(setSelectVASCompleted(hasActiveVAS));
     }
@@ -112,7 +112,7 @@ const InitialDashboard: React.FC = () => {
       title: "Add Vehicle",
       buttonText: "Add Now",
       icon: Bike,
-      onClick: () => navigate("/customer/select/stock"),
+      onClick: () => navigate("/customer/select/vehicle"),
       description: "Register your motorcycle details and specifications",
       completed: setupProgress.vehicle,
       accent: "#f97316",
@@ -340,7 +340,7 @@ const InitialDashboard: React.FC = () => {
                   <Button
                     size='sm'
                     onClick={() =>
-                      navigate("/customer/select/stock", { replace: true })
+                      navigate("/customer/select/vehicle", { replace: true })
                     }
                     className='rounded-xl bg-white text-emerald-700 hover:bg-emerald-50 text-xs font-bold h-9'
                   >

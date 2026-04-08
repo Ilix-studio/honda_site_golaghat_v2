@@ -18,8 +18,6 @@ import RecentMotorcycles from "./RecentMotocycles";
 import { useGetAllCustomersQuery } from "@/redux-store/services/customer/customerApi";
 import { formatTimeAgo, MetricTile, StatCard, StatCardProps } from "./StatCard";
 import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
-import { useGetCSVBatchesQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
-import { useGetAllStockItemsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -34,11 +32,6 @@ const BranchQueries = () => {
   const { data: customersData, isLoading: customersLoading } =
     useGetAllCustomersQuery({ limit: 1 });
   const { data: vasData } = useGetAllVASQuery({});
-  const { data: csvBatchData } = useGetCSVBatchesQuery({ page: 1, limit: 1 });
-  const { data: stockData } = useGetAllStockItemsQuery({ page: 1, limit: 1 });
-
-  const stockTotal =
-    (csvBatchData?.pagination?.total ?? 0) + (stockData?.total ?? 0);
   const { data: bookingsData } = useGetAllBookingsQuery({
     page: 1,
     limit: 1,
@@ -82,13 +75,13 @@ const BranchQueries = () => {
       action: { label: "Open VAS Manager", href: "/admin/vas/select" },
     },
     {
-      title: "Stock Queries",
-      value: stockTotal,
+      title: "Bike Management",
+      value: "Manage",
       icon: Activity,
       loading: false,
-      description: "Vehicles in branch",
+      description: "Available bikes",
       accent: "#f59e0b",
-      action: { label: "Open Stock Manager", href: "/admin/stockC/select" },
+      action: { label: "Open Bike Manager", href: "/admin/bike-management" },
     },
     {
       title: "Service Bookings",

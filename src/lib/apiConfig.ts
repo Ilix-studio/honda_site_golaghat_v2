@@ -1,7 +1,10 @@
 import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const API_CONFIG = {
-  BASE_URL: "https://tsangpool-be-34098913955.europe-west1.run.app/api",
+  BASE_URL:
+    import.meta.env.MODE === "development"
+      ? "http://localhost:8080/api"
+      : "https://tsangpool-be-34098913955.europe-west1.run.app/api",
 };
 
 export const baseQuery = fetchBaseQuery({

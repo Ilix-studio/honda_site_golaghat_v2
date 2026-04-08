@@ -14,10 +14,10 @@ type NextServiceType =
 // Customer Vehicle Interface
 export interface ICustomerVehicle {
   _id: string;
-  modelName: string;
+  modelName?: string;
 
-  // Reference to StockConcept for vehicle details
-  stockConcept?: string; // ObjectId as string
+  // Reference to Bike for vehicle details
+  bike?: string; // ObjectId as string
 
   // Vehicle ownership details
   registrationDate?: Date;
@@ -114,8 +114,7 @@ export interface PopulatedCustomerVehicleListResponse {
 }
 
 export interface CreateCustomerVehicleRequest {
-  modelName: string;
-  stockConcept?: string;
+  bike?: string;
   registrationDate?: Date;
   insurance: boolean;
   isPaid: boolean;
@@ -139,8 +138,7 @@ export interface CreateCustomerVehicleRequest {
   };
 }
 
-export interface UpdateCustomerVehicleRequest
-  extends Partial<CreateCustomerVehicleRequest> {
+export interface UpdateCustomerVehicleRequest extends Partial<CreateCustomerVehicleRequest> {
   isActive?: boolean;
 }
 
@@ -318,11 +316,69 @@ export interface IPopulatedVAS {
   isActive: boolean;
 }
 
-export interface IPopulatedCustomerVehicle
-  extends Omit<
-    ICustomerVehicle,
-    "stockConcept" | "activeValueAddedServices" | "stockConceptcsv"
-  > {
-  stockConcept?: IPopulatedStockConcept;
+export interface IPopulatedBike {
+  _id: string;
+  modelName: string;
+  mainCategory: "bike" | "scooter";
+  category: string;
+  year: number;
+  variants: Array<{
+    name: string;
+    features: string[];
+    priceAdjustment: number;
+    isAvailable: boolean;
+  }>;
+  priceBreakdown: {
+    exShowroomPrice: number;
+    rtoCharges: number;
+    insuranceComprehensive: number;
+    onRoadPrice?: number;
+  };
+  engineSize: string;
+  power: number;
+  transmission: string;
+  fuelNorms: string;
+  isE20Efficiency: boolean;
+  features: string[];
+  colors: string[];
+  stockAvailable: number;
+  images?: Array<{
+    src: string;
+    alt?: string;
+    isPrimary?: boolean;
+  }>;
+  isNewModel?: boolean;
+  isActive: boolean;
+  keySpecifications: {
+    engine?: string;
+    power?: string;
+    transmission?: string;
+    year?: number;
+    fuelNorms?: string;
+    isE20Efficiency?: boolean;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IPopulatedBikeImage {
+  _id: string;
+  bikeId: string;
+  imageUrl: string;
+  caption?: string;
+  isPrimary: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IPopulatedCustomerVehicle extends Omit<
+  ICustomerVehicle,
+  "bike" | "activeValueAddedServices"
+> {
+  bike?: IPopulatedBike;
+  bikeDetails?: IPopulatedBike;
+  bikeImages?: IPopulatedBikeImage[];
+  primaryBikeImage?: IPopulatedBikeImage;
   activeValueAddedServices: IPopulatedVAS[];
 }

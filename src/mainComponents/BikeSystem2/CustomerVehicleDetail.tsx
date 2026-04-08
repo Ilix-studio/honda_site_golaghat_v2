@@ -4,7 +4,6 @@ import {
   Bike,
   Shield,
   Calendar,
-  CreditCard,
   MapPin,
   Wrench,
   BadgeCheck,
@@ -71,7 +70,7 @@ function StatusBadge({
   colorClass?: string;
 }) {
   const base = active
-    ? colorClass ?? "bg-green-50 text-green-700 border-green-200"
+    ? (colorClass ?? "bg-green-50 text-green-700 border-green-200")
     : "bg-gray-50 text-gray-400 border-gray-200";
   return (
     <span
@@ -109,11 +108,16 @@ export default function CustomerVehicleDetail() {
     vehicleId!,
     {
       skip: !vehicleId,
-    }
+    },
   );
 
+  // Debug: Log the vehicle data to check bike images
+  console.log("Vehicle data:", data?.data);
+  console.log("Bike images:", data?.data?.bikeImages);
+  console.log("Primary bike image:", data?.data?.primaryBikeImage);
+
   const vehicle = data?.data;
-  const stock = vehicle?.stockConcept;
+  const bike = vehicle?.bike;
 
   // ── Loading ──
   if (isLoading) {
@@ -151,7 +155,7 @@ export default function CustomerVehicleDetail() {
     );
   }
 
-  const modelName = stock?.modelName ?? "Unknown Model";
+  const modelName = bike?.modelName ?? "Unknown Model";
   const activeVAS = vehicle.activeValueAddedServices?.filter((s) => s.isActive);
 
   return (
@@ -201,20 +205,12 @@ export default function CustomerVehicleDetail() {
         {/* Vehicle Info */}
         <Section title='Vehicle Information'>
           <InfoRow label='Model' value={modelName} icon={Bike} />
-          <InfoRow label='Category' value={stock?.category} />
-          <InfoRow label='Variant' value={stock?.variant} />
-          <InfoRow label='Color' value={stock?.color} />
-          <InfoRow
-            label='Year of Manufacture'
-            value={stock?.yearOfManufacture}
-          />
-          <InfoRow
-            label='Engine CC'
-            value={stock?.engineCC ? `${stock.engineCC} cc` : undefined}
-          />
-          <InfoRow label='Engine Number' value={stock?.engineNumber} />
-          <InfoRow label='Chassis Number' value={stock?.chassisNumber} />
-          <InfoRow label='Stock ID' value={stock?.stockId} />
+          <InfoRow label='Category' value={bike?.mainCategory} />
+          <InfoRow label='Variant' value={bike?.variants?.[0]?.name} />
+          <InfoRow label='Color' value={bike?.colors?.join(", ")} />
+          <InfoRow label='Year of Manufacture' value={bike?.year} />
+          <InfoRow label='Engine' value={bike?.engineSize} />
+          <InfoRow label='Stock ID' value={vehicle._id?.slice(-8)} />
         </Section>
 
         {/* Ownership */}
@@ -238,17 +234,6 @@ export default function CustomerVehicleDetail() {
             value={formatDate(vehicle.purchaseDate)}
             icon={Calendar}
           />
-          <InfoRow
-            label='Payment Status'
-            value={
-              vehicle.isPaid
-                ? "Paid"
-                : vehicle.isFinance
-                ? "Finance"
-                : "Pending"
-            }
-            icon={CreditCard}
-          />
         </Section>
 
         {/* RTO Info */}
@@ -258,25 +243,6 @@ export default function CustomerVehicleDetail() {
             <InfoRow label='RTO Name' value={vehicle.rtoInfo.rtoName} />
             <InfoRow label='RTO Address' value={vehicle.rtoInfo.rtoAddress} />
             <InfoRow label='State' value={vehicle.rtoInfo.state} />
-          </Section>
-        )}
-
-        {/* Price Info */}
-        {stock?.priceInfo && (
-          <Section title='Price Information'>
-            <InfoRow
-              label='Ex-Showroom'
-              value={formatCurrency(stock.priceInfo.exShowroomPrice)}
-              icon={CreditCard}
-            />
-            <InfoRow
-              label='Road Tax'
-              value={formatCurrency(stock.priceInfo.roadTax)}
-            />
-            <InfoRow
-              label='On-Road Price'
-              value={formatCurrency(stock.priceInfo.onRoadPrice)}
-            />
           </Section>
         )}
 

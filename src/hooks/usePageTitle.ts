@@ -21,7 +21,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/customer/services/vas": "Value Added Services | Tsangpool Honda",
   "/customer/support": "Support | Tsangpool Honda",
   "/customer/book-service": "Book Service | Tsangpool Honda",
-  "/customer/select/stock": "Add Vehicle | Tsangpool Honda",
+  "/customer/select/vehicle": "Add Vehicle | Tsangpool Honda",
   "/customer/vehicle/info": "Vehicle Info | Tsangpool Honda",
 
   // Admin

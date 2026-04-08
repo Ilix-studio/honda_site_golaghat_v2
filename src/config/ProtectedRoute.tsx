@@ -19,7 +19,7 @@ interface ProtectedRouteProps {
 const ADMIN_ONLY_CUSTOMER_PATHS = [
   "/customer/first-dash",
   "/customer/initialize",
-  "/customer/select/stock",
+  "/customer/select/vehicle",
   "/customer/vehicle/info",
   "/customer/assign/csv-stock",
   "/customer/profile/create",
@@ -42,7 +42,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Get auth state from Redux
   const authState = useSelector((state: RootState) => state.auth);
   const customerAuthState = useSelector(
-    (state: RootState) => state.customerAuth
+    (state: RootState) => state.customerAuth,
   );
 
   const { isAuthenticated, user, userType, adminRole } = {
@@ -52,15 +52,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     userType: authState?.user
       ? "admin"
       : customerAuthState?.customer
-      ? "customer"
-      : null,
+        ? "customer"
+        : null,
     adminRole: authState?.user?.role || null, // "Super-Admin" or "Branch-Admin"
   };
 
   // Helper function to check if current path is admin-restricted
   const isAdminRestrictedPath = (path: string): boolean => {
     return customerRestrictedPaths.some((restrictedPath) =>
-      path.startsWith(restrictedPath)
+      path.startsWith(restrictedPath),
     );
   };
 
@@ -98,8 +98,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             userType === "admin"
               ? "/admin/dashboard"
               : userType === "customer"
-              ? "/customer/dashboard"
-              : "/";
+                ? "/customer/dashboard"
+                : "/";
           return <Navigate to={fallbackPath} replace />;
         }
         break;

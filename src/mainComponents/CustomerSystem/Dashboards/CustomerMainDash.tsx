@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CustomerBikeInfo } from "../CustomerBikeInfo";
+import CustomerBikeInfo from "../CustomerBikeInfo";
 import { useAppSelector } from "@/hooks/redux";
 import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
 import { Loader2, Bike, Sparkles } from "lucide-react";
