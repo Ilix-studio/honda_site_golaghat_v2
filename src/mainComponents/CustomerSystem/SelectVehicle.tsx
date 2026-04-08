@@ -14,8 +14,8 @@ import {
   MapPin,
   User,
 } from "lucide-react";
+import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
 import {
-  useGetAvailableBikesQuery,
   useAssignBikeToCustomerMutation,
   BikeImage,
 } from "@/redux-store/services/admin/bikeManagementApi";
@@ -49,8 +49,7 @@ const SelectVehicle = () => {
     purchaseDate: "",
   });
 
-  const { data, isLoading, error, refetch } =
-    useGetAvailableBikesQuery(filters);
+  const { data, isLoading, error, refetch } = useGetBikesQuery(filters);
   const [assignBikeToCustomer, { isLoading: isAssigning }] =
     useAssignBikeToCustomerMutation();
 
@@ -224,7 +223,7 @@ const SelectVehicle = () => {
         {/* Bikes Grid */}
         {!isLoading && data && (
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
-            {data?.data?.map((bike: any) => (
+            {data?.data?.bikes?.map((bike) => (
               <Card
                 key={bike._id}
                 className='hover:shadow-lg transition-shadow cursor-pointer group'
@@ -332,7 +331,7 @@ const SelectVehicle = () => {
         )}
 
         {/* Empty State */}
-        {!isLoading && data && data?.data?.length === 0 && (
+        {!isLoading && data && data?.data?.bikes?.length === 0 && (
           <div className='text-center py-12'>
             <div className='w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4'>
               <Bike className='w-6 h-6 text-gray-400' />
@@ -350,11 +349,11 @@ const SelectVehicle = () => {
         )}
 
         {/* Pagination */}
-        {data?.data && data?.data?.length > 0 && (
+        {data?.data?.bikes && data?.data?.bikes?.length > 0 && (
           <div className='mt-8 flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow-md'>
             <div className='text-sm text-gray-700'>
-              Showing {data?.data?.length || 0} of{" "}
-              {data?.pagination?.total || 0} bikes
+              Showing {data?.data?.bikes?.length || 0} of{" "}
+              {data?.data?.pagination?.total || 0} bikes
             </div>
             <div className='flex gap-2'>
               <button
@@ -365,11 +364,11 @@ const SelectVehicle = () => {
                 Previous
               </button>
               <span className='px-3 py-1 text-sm text-gray-700'>
-                Page {filters.page} of {data?.pagination?.pages || 1}
+                Page {filters.page} of {data?.data?.pagination?.pages || 1}
               </span>
               <button
                 onClick={() => handlePageChange(filters.page! + 1)}
-                disabled={filters.page >= (data?.pagination?.pages || 1)}
+                disabled={filters.page >= (data?.data?.pagination?.pages || 1)}
                 className='px-3 py-1 border rounded-md disabled:opacity-50 hover:bg-gray-50'
               >
                 Next
