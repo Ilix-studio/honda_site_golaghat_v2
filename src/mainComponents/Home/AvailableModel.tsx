@@ -137,7 +137,7 @@ const AvailableModel = () => {
           </p>
 
           {/* Stats Display */}
-          <div className='flex justify-center gap-6 mb-8'>
+          {/* <div className='flex justify-center gap-6 mb-8'>
             <div className='text-center'>
               <div className='text-2xl font-bold text-red-600'>
                 {stats.total}
@@ -156,13 +156,7 @@ const AvailableModel = () => {
               </div>
               <div className='text-sm text-muted-foreground'>Scooters</div>
             </div>
-            <div className='text-center'>
-              <div className='text-2xl font-bold text-orange-600'>
-                {stats.newModels}
-              </div>
-              <div className='text-sm text-muted-foreground'>New Models</div>
-            </div>
-          </div>
+          </div> */}
         </motion.div>
 
         {/* Filters and Controls */}

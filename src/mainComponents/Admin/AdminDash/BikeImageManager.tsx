@@ -119,7 +119,7 @@ const UploadZone = ({ bikeId, onSuccess }: UploadZoneProps) => {
       const formData = createImageUploadFormData(files, altTexts);
       await uploadImages({ bikeId, formData }).unwrap();
       toast.success(
-        `${files.length} image${files.length > 1 ? "s" : ""} uploaded`
+        `${files.length} image${files.length > 1 ? "s" : ""} uploaded`,
       );
       setFiles([]);
       setAltTexts([]);
@@ -196,7 +196,7 @@ const UploadZone = ({ bikeId, onSuccess }: UploadZoneProps) => {
                       value={altTexts[i] ?? ""}
                       onChange={(e) =>
                         setAltTexts((p) =>
-                          p.map((t, idx) => (idx === i ? e.target.value : t))
+                          p.map((t, idx) => (idx === i ? e.target.value : t)),
                         )
                       }
                     />
@@ -445,7 +445,7 @@ export default function BikeImageManager() {
       !window.confirm(
         `Delete ${selectedImages.size} image${
           selectedImages.size > 1 ? "s" : ""
-        }?`
+        }?`,
       )
     )
       return;
@@ -453,8 +453,8 @@ export default function BikeImageManager() {
       [...selectedImages].map((id) =>
         deleteBikeImage(id)
           .unwrap()
-          .catch(() => null)
-      )
+          .catch(() => null),
+      ),
     );
     setSelectedImages(new Set());
     toast.success("Images deleted");
@@ -484,7 +484,7 @@ export default function BikeImageManager() {
           </button>
           <div>
             <h1 className='text-lg font-bold text-gray-900'>
-              {bikeLoading ? "Loading…" : bike?.modelName ?? "Vehicle Images"}
+              {bikeLoading ? "Loading…" : (bike?.modelName ?? "Vehicle Images")}
             </h1>
             <p className='text-xs text-gray-400'>
               Manage images for this vehicle
@@ -785,6 +785,12 @@ export default function BikeImageManager() {
             </div>
           )}
         </DialogContent>
+        <Button
+          className='mx-auto mt-4 w-full bg-white text-black hover:bg-gray-100'
+          onClick={() => navigate("/admin/dashboard")}
+        >
+          <ArrowLeft className='ml-2 h-4 w-4' /> Back to Dashboard
+        </Button>
       </Dialog>
     </div>
   );

@@ -9,6 +9,8 @@ import NewUI from "./mainComponents/Home/NewUI";
 import AvailableModel from "./mainComponents/Home/AvailableModel";
 import ServiceDetails from "./mainComponents/Home/ServiceDetails";
 
+import DealershipReviews from "./mainComponents/Home/DealershipReviews";
+
 function Home() {
   return (
     <div className='min-h-screen flex flex-col'>
@@ -16,6 +18,7 @@ function Home() {
       <main>
         <AvailableModel />
         <ServiceDetails />
+
         <br />
         <br />
         <EmiCalculator />
@@ -26,6 +29,7 @@ function Home() {
         <br />
         <ContactSection />
         <br />
+        <DealershipReviews />
         <br />
         <Footer />
       </main>

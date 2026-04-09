@@ -70,7 +70,7 @@ const EditBikes = () => {
     isError: isBikeError,
   } = useGetBikeByIdQuery(id ?? skipToken);
 
-  const [, { isLoading: updateLoading }] = useUpdateBikeMutation();
+  const [updateBike, { isLoading: updateLoading }] = useUpdateBikeMutation();
 
   const bike = bikeResponse?.data;
 
@@ -153,7 +153,7 @@ const EditBikes = () => {
   const removeFeature = (index: number) => {
     setValue(
       "features",
-      watchedFeatures.filter((_, i) => i !== index)
+      watchedFeatures.filter((_, i) => i !== index),
     );
   };
 
@@ -168,7 +168,7 @@ const EditBikes = () => {
   const removeColor = (index: number) => {
     setValue(
       "colors",
-      watchedColors.filter((_, i) => i !== index)
+      watchedColors.filter((_, i) => i !== index),
     );
   };
 
@@ -189,7 +189,7 @@ const EditBikes = () => {
     if (watchedVariants.length > 1) {
       setValue(
         "variants",
-        watchedVariants.filter((_, i) => i !== index)
+        watchedVariants.filter((_, i) => i !== index),
       );
     }
   };
@@ -211,23 +211,28 @@ const EditBikes = () => {
   };
 
   // Form submission
-  const onSubmit = async () => {
+  const onSubmit = async (formData: BikeFormData) => {
     if (!id) {
       dispatch(
         addNotification({
           type: "error",
           message: "No bike ID provided",
-        })
+        }),
       );
       return;
     }
 
     try {
+      await updateBike({
+        id,
+        data: formData,
+      }).unwrap();
+
       dispatch(
         addNotification({
           type: "success",
           message: "Vehicle updated successfully!",
-        })
+        }),
       );
       navigate("/admin/dashboard");
     } catch (error: any) {
@@ -235,7 +240,7 @@ const EditBikes = () => {
         addNotification({
           type: "error",
           message: error?.data?.error || "Failed to update vehicle",
-        })
+        }),
       );
     }
   };
@@ -366,7 +371,7 @@ const EditBikes = () => {
                       onChange={(e) => {
                         setValue(
                           "mainCategory",
-                          e.target.value as "bike" | "scooter"
+                          e.target.value as "bike" | "scooter",
                         );
                         setValue("category", "" as any);
                       }}
@@ -394,7 +399,7 @@ const EditBikes = () => {
                         Select category
                       </option>
                       {getCategoryOptions(
-                        watchedMainCategory ?? bike.mainCategory
+                        watchedMainCategory ?? bike.mainCategory,
                       ).map((option) => (
                         <option key={option} value={option}>
                           {option.charAt(0).toUpperCase() + option.slice(1)}
@@ -462,7 +467,7 @@ const EditBikes = () => {
                         const value = e.target.value;
                         setValue(
                           "priceBreakdown.exShowroomPrice",
-                          value === "" ? 0 : parseFloat(value)
+                          value === "" ? 0 : parseFloat(value),
                         );
                       }}
                     />
@@ -479,7 +484,7 @@ const EditBikes = () => {
                         const value = e.target.value;
                         setValue(
                           "priceBreakdown.rtoCharges",
-                          value === "" ? 0 : parseFloat(value)
+                          value === "" ? 0 : parseFloat(value),
                         );
                       }}
                     />
@@ -500,7 +505,7 @@ const EditBikes = () => {
                         const value = e.target.value;
                         setValue(
                           "priceBreakdown.insuranceComprehensive",
-                          value === "" ? 0 : parseFloat(value)
+                          value === "" ? 0 : parseFloat(value),
                         );
                       }}
                     />

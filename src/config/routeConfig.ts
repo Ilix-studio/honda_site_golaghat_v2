@@ -43,6 +43,14 @@ const SearchResults = lazy(
   () => import("../mainComponents/Search/SearchResults"),
 );
 
+const DealershipLocator = lazy(
+  () => import("../mainComponents/Location/DealershipLocator"),
+);
+
+const DealershipReviews = lazy(
+  () => import("../mainComponents/Location/DealershipReviews"),
+);
+
 // View System - Public access
 const ViewAllBranches = lazy(
   () => import("../mainComponents/ViewBS2/ViewAllBranches"),
@@ -74,8 +82,11 @@ export const publicRoutes = [
   { path: "/compare", component: CompareBike },
 
   // Services
-
   { path: "/search", component: SearchResults },
+
+  // Location Services
+  { path: "/dealership-locator", component: DealershipLocator },
+  { path: "/dealership-reviews", component: DealershipReviews },
 
   // Public View System
   { path: "/admin/branches/view", component: ViewAllBranches },

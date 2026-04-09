@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, MessageSquare, Clock, Shield } from "lucide-react";
+import { Building2, MessageSquare, Clock, Shield, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // Redux
@@ -19,6 +19,7 @@ import { selectAuth } from "../../../redux-store/slices/authSlice";
 // Import the new components
 import CustomerQueries from "./CustomerQueries";
 import BranchQueries from "./BranchQueries";
+import { Button } from "@/components/ui/button";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -114,6 +115,12 @@ const AdminDashboard = () => {
                 <Clock className='h-3.5 w-3.5' />
                 <span>{formattedDate}</span>
               </div>
+              <Button
+                className='text-gray-400 text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full bg-white/5 border border-white/10'
+                onClick={() => navigate("/")}
+              >
+                <Home className='h-3 w-3 text-gray-400' /> Visit Homepage
+              </Button>
               <div className='flex items-center gap-4'>
                 <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20'>
                   <div className='h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse' />
