@@ -83,7 +83,7 @@ const DealershipReviews: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Default place ID for main dealership (you can make this configurable)
-  const mainDealershipPlaceId = "ChIJrTLr-GyuEmsRBfyf1GD8KAE"; // Example: Replace with actual place ID
+  const mainDealershipPlaceId = "ChIJLSBUrcSPRjcRn5Qcs8B2jgg"; // Tsangpool Honda Golaghat Place ID
 
   useEffect(() => {
     if (googlePlacesService.isConfigured()) {

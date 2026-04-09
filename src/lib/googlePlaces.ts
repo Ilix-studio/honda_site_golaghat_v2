@@ -48,15 +48,11 @@ export interface PlaceAutocompleteResult {
 }
 
 class GooglePlacesService {
-  private apiKey: string;
-  private baseUrl = 'https://maps.googleapis.com/maps/api';
+  private baseUrl = "/api/google-places";
 
   constructor() {
-    this.apiKey = import.meta.env.VITE_GOOGLE_PLACES_API_KEY || '';
-    
-    if (!this.apiKey) {
-      console.warn('Google Places API key is not configured. Please set VITE_GOOGLE_PLACES_API_KEY in your environment variables.');
-    }
+    // API key is now handled on the backend
+    console.log("Google Places Service initialized with backend proxy");
   }
 
   /**
@@ -64,12 +60,8 @@ class GooglePlacesService {
    */
   async getPlaceDetails(placeId: string): Promise<PlaceDetails | null> {
     try {
-      if (!this.apiKey) {
-        throw new Error('Google Places API key is not configured');
-      }
-
       const response = await fetch(
-        `${this.baseUrl}/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,reviews,geometry,opening_hours,photos&key=${this.apiKey}`
+        `${this.baseUrl}/place-details?place_id=${encodeURIComponent(placeId)}&fields=name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,reviews,geometry,opening_hours,photos`,
       );
 
       if (!response.ok) {
@@ -77,14 +69,14 @@ class GooglePlacesService {
       }
 
       const data = await response.json();
-      
-      if (data.status !== 'OK') {
-        throw new Error(`Google Places API error: ${data.status} - ${data.error_message || 'Unknown error'}`);
+
+      if (!data.success) {
+        throw new Error(data.error || "Unknown error");
       }
 
-      return data.result;
+      return data.data;
     } catch (error) {
-      console.error('Error fetching place details:', error);
+      console.error("Error fetching place details:", error);
       return null;
     }
   }
@@ -92,14 +84,12 @@ class GooglePlacesService {
   /**
    * Get place suggestions using autocomplete
    */
-  async getPlaceAutocomplete(input: string): Promise<PlaceAutocompleteResult[]> {
+  async getPlaceAutocomplete(
+    input: string,
+  ): Promise<PlaceAutocompleteResult[]> {
     try {
-      if (!this.apiKey) {
-        throw new Error('Google Places API key is not configured');
-      }
-
       const response = await fetch(
-        `${this.baseUrl}/place/autocomplete/json?input=${encodeURIComponent(input)}&types=establishment&key=${this.apiKey}`
+        `${this.baseUrl}/autocomplete?input=${encodeURIComponent(input)}&types=establishment`,
       );
 
       if (!response.ok) {
@@ -107,14 +97,14 @@ class GooglePlacesService {
       }
 
       const data = await response.json();
-      
-      if (data.status !== 'OK') {
-        throw new Error(`Google Places API error: ${data.status} - ${data.error_message || 'Unknown error'}`);
+
+      if (!data.success) {
+        throw new Error(data.error || "Unknown error");
       }
 
-      return data.predictions;
+      return data.data;
     } catch (error) {
-      console.error('Error fetching place autocomplete:', error);
+      console.error("Error fetching place autocomplete:", error);
       return [];
     }
   }
@@ -125,15 +115,11 @@ class GooglePlacesService {
   async searchNearbyPlaces(
     location: { lat: number; lng: number },
     radius: number = 5000,
-    type: string = 'car_dealer'
+    type: string = "car_dealer",
   ): Promise<PlaceDetails[]> {
     try {
-      if (!this.apiKey) {
-        throw new Error('Google Places API key is not configured');
-      }
-
       const response = await fetch(
-        `${this.baseUrl}/place/nearbysearch/json?location=${location.lat},${location.lng}&radius=${radius}&type=${type}&key=${this.apiKey}`
+        `${this.baseUrl}/nearbysearch?location=${location.lat},${location.lng}&radius=${radius}&type=${type}`,
       );
 
       if (!response.ok) {
@@ -141,14 +127,14 @@ class GooglePlacesService {
       }
 
       const data = await response.json();
-      
-      if (data.status !== 'OK') {
-        throw new Error(`Google Places API error: ${data.status} - ${data.error_message || 'Unknown error'}`);
+
+      if (!data.success) {
+        throw new Error(data.error || "Unknown error");
       }
 
-      return data.results;
+      return data.data;
     } catch (error) {
-      console.error('Error searching nearby places:', error);
+      console.error("Error searching nearby places:", error);
       return [];
     }
   }
@@ -157,17 +143,15 @@ class GooglePlacesService {
    * Get photo URL from photo reference
    */
   getPhotoUrl(photoReference: string, maxWidth: number = 400): string {
-    if (!this.apiKey) {
-      return '';
-    }
-    return `${this.baseUrl}/place/photo?maxwidth=${maxWidth}&photo_reference=${encodeURIComponent(photoReference)}&key=${this.apiKey}`;
+    return `${this.baseUrl}/photo?photoreference=${encodeURIComponent(photoReference)}&maxwidth=${maxWidth}`;
   }
 
   /**
    * Check if API is properly configured
    */
   isConfigured(): boolean {
-    return !!this.apiKey;
+    // Always return true when using backend proxy
+    return true;
   }
 }
 
