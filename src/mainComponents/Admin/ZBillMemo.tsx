@@ -148,7 +148,7 @@ const BACKEND_ITEMS: LineItem[] = [
     scope:
       "Global template vs customer-specific records, activation status, discriminator patterns",
     complexity: "Medium",
-    charge: 4200,
+    charge: 5450,
     tag: "be",
   },
   {
@@ -167,8 +167,8 @@ const BACKEND_ITEMS: LineItem[] = [
       "branches_controller, branchM_controller, auth_controller, Branch model, Admin model, BranchManager model, seeder",
     scope:
       "Multi-branch architecture, role hierarchy (Super-Admin → Branch-Admin), seeder scripts",
-    complexity: "Simple",
-    charge: 3500,
+    complexity: "Complex",
+    charge: 6150,
     tag: "be",
   },
   {
@@ -178,21 +178,16 @@ const BACKEND_ITEMS: LineItem[] = [
     scope:
       "Production deployment, environment config, asyncHandler, centralized error handling",
     complexity: "Medium",
-    charge: 3500,
+    charge: 7000,
     tag: "infra",
   },
 ];
 
 const TOTALS: TotalRow[] = [
   { label: "Frontend Subtotal", value: "₹48,300" },
-  { label: "Backend Subtotal", value: "₹32,900" },
-  { label: "Gross Total", value: "₹81,200" },
-  {
-    label: "Assam Market Adjustment (−8%)",
-    value: "−₹5,200",
-    variant: "discount",
-  },
-  { label: "Grand Total", value: "₹76,000", variant: "grand" },
+  { label: "Backend Subtotal", value: "₹40,300" },
+  { label: "Gross Total", value: "₹88,600" },
+  { label: "Grand Total", value: "₹88,600", variant: "grand" },
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -367,9 +362,9 @@ const NOTE_BOXES: NoteBox[] = [
     highlight: true,
     content: (
       <p className='text-sm text-gray-600 leading-relaxed'>
-        50% advance (₹38,000) before development start.
+        50% advance (₹44,300) before development start.
         <br />
-        50% balance (₹38,000) on final delivery.
+        50% balance (₹44,300) on final delivery.
         <br />
         Payment via NEFT/UPI.
       </p>
