@@ -121,7 +121,7 @@ const AvailableModel = () => {
     <section id='models' className='py-20 bg-muted/30'>
       <div className='container mx-auto px-4'>
         {/* Header Section */}
-        <motion.div
+        {/* <motion.div
           className='text-center mb-12'
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -129,12 +129,12 @@ const AvailableModel = () => {
           transition={{ duration: 0.5 }}
         >
           <h2 className='text-3xl md:text-4xl font-bold tracking-tight mb-4'>
-            Our Vehicle Collection
+           
           </h2>
           <p className='text-lg text-muted-foreground max-w-2xl mx-auto mb-6'>
             Discover our premium Honda motorcycles and scooters, engineered for
             performance and designed for the future.
-          </p>
+          </p> */}
 
           {/* Stats Display */}
           {/* <div className='flex justify-center gap-6 mb-8'>
@@ -157,7 +157,34 @@ const AvailableModel = () => {
               <div className='text-sm text-muted-foreground'>Scooters</div>
             </div>
           </div> */}
-        </motion.div>
+        {/* </motion.div> */}
+            <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                  className='text-center mb-12'
+                >
+                  <div className='flex items-center justify-center gap-2 mb-4'>
+                    <div className='h-1 w-12 bg-red-500 rounded-full' />
+                    <span className='text-red-600 text-sm font-semibold tracking-[0.2em] uppercase'>
+                        Our Vehicle Collection
+                    </span>
+                    <div className='h-1 w-12 bg-red-500 rounded-full' />
+                  </div>
+                  {/* <p className='text-3xl md:text-4xl font-bold tracking-tight mb-4'>
+                   Calculate your monthly payments and explore financing options for
+            your 
+                     <span className='bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent ml-2'>
+  new Honda motorcycle
+            </span>
+                  </p> */}
+                      <p className='text-lg text-muted-foreground max-w-2xl mx-auto mb-6'>
+            Discover our premium Honda motorcycles and scooters, engineered for
+            performance and designed for the future.
+          </p>
+                
+                </motion.div>
 
         {/* Filters and Controls */}
         <motion.div

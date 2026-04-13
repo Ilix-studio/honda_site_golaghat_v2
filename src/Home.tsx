@@ -9,7 +9,8 @@ import NewUI from "./mainComponents/Home/NewUI";
 import AvailableModel from "./mainComponents/Home/AvailableModel";
 import ServiceDetails from "./mainComponents/Home/ServiceDetails";
 
-import DealershipReviews from "./mainComponents/Home/DealershipReviews";
+
+import GoogleReviews from "./mainComponents/Reviews/GoogleReviews";
 
 function Home() {
   return (
@@ -29,7 +30,8 @@ function Home() {
         <br />
         <ContactSection />
         <br />
-        <DealershipReviews />
+     
+        <GoogleReviews />
         <br />
         <Footer />
       </main>

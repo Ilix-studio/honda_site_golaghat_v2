@@ -173,20 +173,29 @@ export function ContactSection({ branch }: any) {
   return (
     <section id='contact' className='py-16 bg-gray-50'>
       <div className='container px-4 md:px-6'>
-        <motion.div
-          className='text-center mb-8'
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <h2 className='text-2xl md:text-3xl font-bold tracking-tight'>
-            {title}
-          </h2>
-          <p className='mt-2 text-muted-foreground max-w-2xl mx-auto'>
-            Discover what makes Honda motorcycles stand out from the crowd
-          </p>
-        </motion.div>
+  
+
+             <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                  className='text-center mb-12'
+                >
+                  <div className='flex items-center justify-center gap-2 mb-4'>
+                    <div className='h-1 w-12 bg-red-500 rounded-full' />
+                    <span className='text-red-600 text-sm font-semibold tracking-[0.2em] uppercase'>
+                         {title}
+                    </span>
+                    <div className='h-1 w-12 bg-red-500 rounded-full' />
+                  </div>
+                  <h2 className='text-3xl md:text-4xl font-bold tracking-tight mb-4'>
+                 Discover what makes Honda motorcycles stand out from the crowd
+                   
+                  </h2>
+                
+                </motion.div>
+       
 
         <div className='flex flex-col lg:flex-row gap-8'>
           {/* Map Embed with Fallback */}

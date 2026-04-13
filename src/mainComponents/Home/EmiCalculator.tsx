@@ -136,21 +136,30 @@ export function EmiCalculator({
   return (
     <section id='finance' className='py-20 bg-gray-50'>
       <div className='container px-4 md:px-6'>
-        <motion.div
-          className='text-center mb-12'
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
-          <h2 className='text-3xl font-bold tracking-tight'>
-            Finance Your Dream Ride
-          </h2>
-          <p className='mt-4 text-lg text-muted-foreground max-w-2xl mx-auto'>
-            Calculate your monthly payments and explore financing options for
-            your new Honda motorcycle
-          </p>
-        </motion.div>
+   
+               <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                  className='text-center mb-12'
+                >
+                  <div className='flex items-center justify-center gap-2 mb-4'>
+                    <div className='h-1 w-12 bg-red-500 rounded-full' />
+                    <span className='text-red-600 text-sm font-semibold tracking-[0.2em] uppercase'>
+                           Finance Your Dream Ride
+                    </span>
+                    <div className='h-1 w-12 bg-red-500 rounded-full' />
+                  </div>
+                  <p className='text-3xl md:text-4xl font-bold tracking-tight mb-4'>
+                   Calculate your monthly payments and explore financing options for
+            your 
+                     <span className='bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent ml-2'>
+  new Honda motorcycle
+            </span>
+                  </p>
+                
+                </motion.div>
 
         {/* Bank Partners Section */}
         <motion.div

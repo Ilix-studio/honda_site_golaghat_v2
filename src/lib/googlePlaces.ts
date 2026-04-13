@@ -1,6 +1,8 @@
 // Google Places API Service
 // This file handles all Google Places API interactions
 
+import { API_CONFIG } from "./apiConfig";
+
 // Types for Google Places API responses
 export interface PlaceDetails {
   place_id: string;
@@ -48,7 +50,7 @@ export interface PlaceAutocompleteResult {
 }
 
 class GooglePlacesService {
-  private baseUrl = "/api/google-places";
+  private baseUrl = `${API_CONFIG.BASE_URL}/google-places`;
 
   constructor() {
     // API key is now handled on the backend

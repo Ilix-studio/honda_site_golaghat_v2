@@ -63,20 +63,29 @@ export function FeaturesSection() {
     <>
       <section id='features' className='py-12 bg-white'>
         <div className='container px-4 md:px-6'>
-          <motion.div
-            className='text-center mb-8'
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className='text-2xl md:text-3xl font-bold tracking-tight'>
-              Honda Engineering Excellence
-            </h2>
-            <p className='mt-2 text-muted-foreground max-w-2xl mx-auto'>
-              Discover what makes Honda motorcycles stand out from the crowd
-            </p>
-          </motion.div>
+    
+                 <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                  className='text-center mb-12'
+                >
+                  <div className='flex items-center justify-center gap-2 mb-4'>
+                    <div className='h-1 w-12 bg-red-500 rounded-full' />
+                    <span className='text-red-600 text-sm font-semibold tracking-[0.2em] uppercase'>
+                         Honda Engineering Excellence
+                    </span>
+                    <div className='h-1 w-12 bg-red-500 rounded-full' />
+                  </div>
+                  <h2 className='text-3xl md:text-4xl font-bold tracking-tight mb-4'>
+                 Discover what makes Honda motorcycles stand out 
+                     <span className='bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent ml-2'>
+         from the crowd
+            </span>
+                  </h2>
+                
+                </motion.div>
 
           <motion.div
             className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6'
