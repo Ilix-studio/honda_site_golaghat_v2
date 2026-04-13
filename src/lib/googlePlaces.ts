@@ -64,8 +64,22 @@ class GooglePlacesService {
         `${this.baseUrl}/place-details?place_id=${encodeURIComponent(placeId)}&fields=name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,reviews,geometry,opening_hours,photos`,
       );
 
+      const contentType = response.headers.get("content-type");
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || errorData.error || `HTTP error! status: ${response.status}`);
+        } else {
+          const text = await response.text();
+          console.error("Non-JSON error response from Google Places API:", text.substring(0, 200));
+          throw new Error(`Server returned an unexpected response (status: ${response.status}). This may be due to a configuration issue.`);
+        }
+      }
+
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Expected JSON but received:", text.substring(0, 200));
+        throw new Error("Invalid response format from server. Please check your backend configuration.");
       }
 
       const data = await response.json();
@@ -77,7 +91,7 @@ class GooglePlacesService {
       return data.data;
     } catch (error) {
       console.error("Error fetching place details:", error);
-      return null;
+      throw error; // Rethrow to let the component handle it
     }
   }
 

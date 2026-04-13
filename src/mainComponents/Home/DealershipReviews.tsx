@@ -104,9 +104,9 @@ const DealershipReviews: React.FC = () => {
       } else {
         setError("Could not fetch dealership information");
       }
-    } catch (err) {
-      setError("Failed to load reviews");
-      console.error("Error fetching place details:", err);
+    } catch (err: any) {
+      setError(err.message || "Failed to load reviews");
+      console.error("Error in component fetching place details:", err);
     } finally {
       setLoading(false);
     }

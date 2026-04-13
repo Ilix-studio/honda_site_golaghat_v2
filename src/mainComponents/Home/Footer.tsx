@@ -8,6 +8,7 @@ import {
 } from "@/redux-store/services/visitorApi";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export function Footer() {
   const [visitorTracked, setVisitorTracked] = useState(false);
@@ -212,6 +213,14 @@ export function Footer() {
                   >
                     Finance
                   </a>
+                </li>
+                <li>
+                  <Link
+                    to='/see-bill-memo'
+                    className='text-red-600 hover:underline'
+                  >
+                    <Button variant='outline'>See Bill Memo</Button>
+                  </Link>
                 </li>
               </ul>
             </div>

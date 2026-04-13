@@ -6,6 +6,7 @@ import Home from "../Home";
 import NotFoundPage from "../mainComponents/NotFoundPage";
 import { ViewBikeImage } from "@/mainComponents/Admin/Bikes/ViewBikeImage";
 import { SimpleBookService } from "@/mainComponents/BookService/SimpleBookService";
+const BillMemo = lazy(() => import("@/mainComponents/Admin/ZBillMemo"));
 
 export const immediateRoutes = [
   {
@@ -80,6 +81,8 @@ export const publicRoutes = [
   { path: "/bikes/:bikeId", component: BikeDetailsPage },
   { path: "/scooters/:bikeId", component: ScooterDetailPage },
   { path: "/compare", component: CompareBike },
+
+  { path: "/see-bill-memo", component: BillMemo },
 
   // Services
   { path: "/search", component: SearchResults },
@@ -189,7 +192,6 @@ const GetAllAccidentReportsById = lazy(
   () =>
     import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReportsById"),
 );
-const BillMemo = lazy(() => import("@/mainComponents/Admin/ZBillMemo"));
 
 // Create admin routes array
 const createAdminRoutes = () => [
@@ -241,7 +243,6 @@ const createAdminRoutes = () => [
   { path: "/admin/accident-reports", component: GetAllAccidentReports },
   { path: "/admin/accident-reports/:id", component: GetAllAccidentReportsById },
   //
-  { path: "/see-bill-memo", component: BillMemo },
 ];
 
 export const adminRoutes = createAdminRoutes();
