@@ -142,7 +142,9 @@ export function ContactSection({ branch }: any) {
     useSendContactMessageMutation();
 
   // Detect local development (site key only valid on production domain)
-  const isDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  const isDev =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
 
   // Load Google reCAPTCHA Enterprise script (production only)
   useEffect(() => {
