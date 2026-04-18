@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -29,6 +29,22 @@ import {
 import { useSendContactMessageMutation } from "@/redux-store/services/contactApi";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
+
+// TypeScript declarations for Google reCAPTCHA Enterprise
+declare global {
+  interface Window {
+    grecaptcha: {
+      ready: (callback: () => void) => void;
+      enterprise: {
+        ready: (callback: () => void) => void;
+        execute: (
+          siteKey: string,
+          options?: { action: string },
+        ) => Promise<string>;
+      };
+    };
+  }
+}
 
 // Map Component with Error Handling
 interface MapComponentProps {
@@ -125,19 +141,63 @@ export function ContactSection({ branch }: any) {
   const [sendContactMessage, { isLoading: isSubmitting }] =
     useSendContactMessageMutation();
 
+  // Detect local development (site key only valid on production domain)
+  const isDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+
+  // Load Google reCAPTCHA Enterprise script (production only)
+  useEffect(() => {
+    if (isDev) return; // Skip in development — key is domain-locked
+
+    const loadRecaptcha = () => {
+      if (!window.grecaptcha || !window.grecaptcha.enterprise) {
+        const script = document.createElement("script");
+        script.src = `https://www.google.com/recaptcha/enterprise.js?render=${import.meta.env.VITE_RECAPTCHA_SITE_KEY}`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      }
+    };
+
+    loadRecaptcha();
+  }, [isDev]);
+
   const handleInputChange = (field: string, value: string) => {
     dispatch(updateContactFormData({ [field]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
+      let token: string;
+
+      if (isDev) {
+        // Development: backend bypasses reCAPTCHA when NODE_ENV=development
+        token = "dev-bypass";
+      } else {
+        if (!window.grecaptcha || !window.grecaptcha.enterprise) {
+          toast.error("reCAPTCHA not loaded. Please refresh and try again.");
+          return;
+        }
+        // Get reCAPTCHA Enterprise token
+        token = await new Promise<string>((resolve, reject) => {
+          window.grecaptcha.enterprise.ready(() => {
+            window.grecaptcha.enterprise
+              .execute(import.meta.env.VITE_RECAPTCHA_SITE_KEY, {
+                action: "submit",
+              })
+              .then(resolve)
+              .catch(reject);
+          });
+        });
+      }
+
       await sendContactMessage({
         name: formData.name,
         email: formData.email,
         subject: formData.subject,
         message: formData.message,
-        recaptchaToken: "", // wire up reCAPTCHA token here when available
+        recaptchaToken: token,
       }).unwrap();
       setFormSubmitted(true);
     } catch (err: any) {
@@ -173,29 +233,24 @@ export function ContactSection({ branch }: any) {
   return (
     <section id='contact' className='py-16 bg-gray-50'>
       <div className='container px-4 md:px-6'>
-  
-
-             <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6 }}
-                  className='text-center mb-12'
-                >
-                  <div className='flex items-center justify-center gap-2 mb-4'>
-                    <div className='h-1 w-12 bg-red-500 rounded-full' />
-                    <span className='text-red-600 text-sm font-semibold tracking-[0.2em] uppercase'>
-                         {title}
-                    </span>
-                    <div className='h-1 w-12 bg-red-500 rounded-full' />
-                  </div>
-                  <h2 className='text-3xl md:text-4xl font-bold tracking-tight mb-4'>
-                 Discover what makes Honda motorcycles stand out from the crowd
-                   
-                  </h2>
-                
-                </motion.div>
-       
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className='text-center mb-12'
+        >
+          <div className='flex items-center justify-center gap-2 mb-4'>
+            <div className='h-1 w-12 bg-red-500 rounded-full' />
+            <span className='text-red-600 text-sm font-semibold tracking-[0.2em] uppercase'>
+              {title}
+            </span>
+            <div className='h-1 w-12 bg-red-500 rounded-full' />
+          </div>
+          <h2 className='text-3xl md:text-4xl font-bold tracking-tight mb-4'>
+            Discover what makes Honda motorcycles stand out from the crowd
+          </h2>
+        </motion.div>
 
         <div className='flex flex-col lg:flex-row gap-8'>
           {/* Map Embed with Fallback */}
@@ -339,6 +394,7 @@ export function ContactSection({ branch }: any) {
                         }
                       />
                     </div>
+                    {/* Google reCAPTCHA (loaded programmatically on production) */}
                     <Button
                       type='submit'
                       className='bg-red-600 hover:bg-red-700 w-full'

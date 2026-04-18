@@ -62,7 +62,7 @@ export const branches: BranchType[] = [
     reviews: 98,
     image: "/placeholder.svg?height=400&width=600",
     mapUrl:
-      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14281.708160586099!2d93.95457205941675!3d26.50638691585567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x37468fc4ad54202d%3A0x88e76c0b31c949f!2sTsangpool%20Honda!5e0!3m2!1sen!2sin!4v1745182747233!5m2!1sen!2sin",
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3580.036941773476!2d93.8661445345152!3d26.19547653477141!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x37467a89e540746f%3A0x2f38e5f8c581db27!2sTsangpool%20Honda!5e0!3m2!1sen!2sin!4v1776504472631!5m2!1sen!2sin",
     featured: true,
     inventory: {
       sport: 12,
@@ -76,7 +76,7 @@ export const branches: BranchType[] = [
 
 export function Branches({ defaultBranch }: BranchesProps): JSX.Element {
   const [selectedBranch, setSelectedBranch] = useState<string>(
-    defaultBranch || branches[0].id
+    defaultBranch || branches[0].id,
   );
   const branch = branches.find((b) => b.id === selectedBranch) || branches[0];
 

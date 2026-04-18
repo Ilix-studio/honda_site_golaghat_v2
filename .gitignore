@@ -11,6 +11,11 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Environment variables — never commit real secrets
+.env
+.env.local
+.env.*.local
 /dist
 /Notes.txt
 

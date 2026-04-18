@@ -1,15 +1,18 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Phone, MapPin, ServerCogIcon } from "lucide-react";
+import {
+  Menu,
+  X,
+  Phone,
+  MapPin,
+  ServerCogIcon,
+  ChevronDown,
+} from "lucide-react";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Link } from "react-router-dom";
+import { branches } from "@/mainComponents/NavMenu/Branches/TwoBranch";
 import HeroSection from "./HeroSection";
-
-const branches = [
-  { id: 1, name: "Honda Motorcycles Golaghat" },
-  { id: 2, name: "Honda Motorcycles Sarupathar" },
-];
 
 export default function NewUI() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -137,27 +140,39 @@ export default function NewUI() {
 
                       <div className='border-t border-red-500/20 my-1'></div>
 
-                      {/* Branches */}
-                      <div className='px-4 py-2'>
-                        <div className='text-xs text-gray-400 uppercase tracking-wider mb-2'>
-                          Branches
-                        </div>
-                        <a
-                          href='/branches'
-                          className='block px-2 py-1 text-sm hover:bg-red-500/10 transition-colors text-gray-300 hover:text-white rounded'
-                        >
-                          All Branches
-                        </a>
-                        {branches.map((branch) => (
-                          <a
-                            key={branch.id}
-                            href={`/branches/${branch.id}`}
-                            className='block px-2 py-1 text-sm hover:bg-red-500/10 transition-colors text-gray-400 hover:text-white rounded'
-                          >
-                            {branch.name.split(" ").pop()}
-                          </a>
-                        ))}
-                      </div>
+                      {/* Branches Dropdown */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className='flex items-center gap-1 text-sm font-medium text-white hover:text-white transition-colors px-4 py-3 text-left w-full'>
+                            Branches{" "}
+                            <ChevronDown className='h-4 w-4 text-white' />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className='w-48 p-0 bg-black/95 backdrop-blur-xl border border-red-500/30 text-white'>
+                          <div className='rounded-lg shadow-2xl shadow-red-500/20'>
+                            <div className='flex flex-col'>
+                              <Link
+                                to='/branches'
+                                className='px-4 py-2 text-sm hover:bg-red-500/10 transition-colors text-gray-300 hover:text-white font-medium'
+                              >
+                                All Branches
+                              </Link>
+                              <div className='border-t border-red-500/20 my-1'></div>
+                              {branches.map(
+                                (branch: { id: string; name: string }) => (
+                                  <Link
+                                    key={branch.id}
+                                    to={`/branches/${branch.id}`}
+                                    className='px-4 py-2 text-sm hover:bg-red-500/10 transition-colors text-gray-400 hover:text-white'
+                                  >
+                                    {branch.name.split(" ").pop()}
+                                  </Link>
+                                ),
+                              )}
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
                 </PopoverContent>
@@ -224,22 +239,22 @@ export default function NewUI() {
               <div className='py-2'>
                 <div className='text-gray-300 font-medium mb-2'>Branches</div>
                 <div className='pl-4 space-y-2'>
-                  <a
-                    href='/branches'
+                  <Link
+                    to='/branches'
                     className='block text-gray-400 hover:text-white transition-colors py-1'
                     onClick={() => setIsMenuOpen(false)}
                   >
                     All Branches
-                  </a>
+                  </Link>
                   {branches.map((branch) => (
-                    <a
+                    <Link
                       key={branch.id}
-                      href={`/branches/${branch.id}`}
+                      to={`/branches/${branch.id}`}
                       className='block text-gray-400 hover:text-white transition-colors py-1'
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {branch.name.split(" ").pop()}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>

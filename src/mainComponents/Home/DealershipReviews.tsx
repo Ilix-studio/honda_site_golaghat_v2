@@ -189,7 +189,7 @@ const DealershipReviews: React.FC = () => {
           </h2>
           <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
             Read authentic reviews from our valued customers about their
-            experiences at TsangPool Honda
+            experiences at Tsangpool Honda
           </p>
         </motion.div>
 
@@ -325,7 +325,7 @@ const DealershipReviews: React.FC = () => {
             </div>
             <h3 className='text-xl font-semibold mb-2'>No Reviews Available</h3>
             <p className='text-gray-600 mb-6'>
-              Be the first to share your experience at TsangPool Honda
+              Be the first to share your experience at Tsangpool Honda
             </p>
             <Button variant='outline'>
               <ExternalLink className='h-4 w-4 mr-2' />

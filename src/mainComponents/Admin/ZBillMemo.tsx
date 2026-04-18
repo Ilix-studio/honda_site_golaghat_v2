@@ -536,7 +536,7 @@ const BillMemo: React.FC = () => {
               Billed To
             </p>
             <h3 className='text-base font-black mb-1.5 text-gray-900'>
-              TsangPool Honda
+              Tsangpool Honda
             </h3>
             <p className='text-sm text-gray-600 leading-7'>
               Bengenakhowa GF Rd

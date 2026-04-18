@@ -115,7 +115,7 @@ export function Footer() {
                   <span className='text-white font-bold text-sm'>T</span>
                 </div>
                 <Link to='/'>
-                  <span className='text-xl font-bold'>TsangPool Honda</span>
+                  <span className='text-xl font-bold'>Tsangpool Honda</span>
                 </Link>
               </div>
               <p className='text-muted-foreground text-pretty'>
