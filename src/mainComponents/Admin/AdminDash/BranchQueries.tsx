@@ -64,7 +64,7 @@ const BranchQueries = () => {
       action: { label: "Add Branch", href: "/admin/branches/add" },
     },
     {
-      title: "Branch Managers",
+      title: "Branch Admins",
       value: branchManagersData?.count ?? 0,
       icon: Users,
       loading: managersLoading,

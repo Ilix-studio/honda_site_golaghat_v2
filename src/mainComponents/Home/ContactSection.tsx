@@ -30,18 +30,14 @@ import { useSendContactMessageMutation } from "@/redux-store/services/contactApi
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
-// TypeScript declarations for Google reCAPTCHA Enterprise
+// TypeScript declarations for Google reCAPTCHA v2
 declare global {
   interface Window {
     grecaptcha: {
       ready: (callback: () => void) => void;
-      enterprise: {
-        ready: (callback: () => void) => void;
-        execute: (
-          siteKey: string,
-          options?: { action: string },
-        ) => Promise<string>;
-      };
+      render: (container: string, options: { sitekey: string }) => string;
+      getResponse: (widgetId?: string) => string;
+      reset: (widgetId?: string) => void;
     };
   }
 }
@@ -140,28 +136,56 @@ export function ContactSection({ branch }: any) {
 
   const [sendContactMessage, { isLoading: isSubmitting }] =
     useSendContactMessageMutation();
+  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+  const [recaptchaError, setRecaptchaError] = useState<string | null>(null);
+  const [recaptchaWidgetId, setRecaptchaWidgetId] = useState<string | null>(
+    null,
+  );
 
-  // Detect local development (site key only valid on production domain)
   const isDev =
     window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1";
 
-  // Load Google reCAPTCHA Enterprise script (production only)
+  // Load Google reCAPTCHA v2 script
   useEffect(() => {
-    if (isDev) return; // Skip in development — key is domain-locked
-
     const loadRecaptcha = () => {
-      if (!window.grecaptcha || !window.grecaptcha.enterprise) {
-        const script = document.createElement("script");
-        script.src = `https://www.google.com/recaptcha/enterprise.js?render=${import.meta.env.VITE_RECAPTCHA_SITE_KEY}`;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
+      if (window.grecaptcha) {
+        setRecaptchaLoaded(true);
+        return;
       }
+
+      const script = document.createElement("script");
+      script.src = `https://www.google.com/recaptcha/api.js`;
+      script.async = true;
+      script.defer = true;
+
+      script.onload = () => {
+        window.grecaptcha.ready(() => {
+          setRecaptchaLoaded(true);
+          setRecaptchaError(null);
+        });
+      };
+
+      script.onerror = () => {
+        setRecaptchaError("Failed to load reCAPTCHA. Please refresh the page.");
+        console.error("Failed to load reCAPTCHA script");
+      };
+
+      document.head.appendChild(script);
     };
 
     loadRecaptcha();
-  }, [isDev]);
+  }, []);
+
+  // Render reCAPTCHA widget when loaded
+  useEffect(() => {
+    if (recaptchaLoaded && window.grecaptcha && !recaptchaWidgetId && !isDev) {
+      const widgetId = window.grecaptcha.render("recaptcha-container", {
+        sitekey: import.meta.env.VITE_RECAPTCHA_SITE_KEY,
+      });
+      setRecaptchaWidgetId(widgetId);
+    }
+  }, [recaptchaLoaded, recaptchaWidgetId, isDev]);
 
   const handleInputChange = (field: string, value: string) => {
     dispatch(updateContactFormData({ [field]: value }));
@@ -174,24 +198,26 @@ export function ContactSection({ branch }: any) {
       let token: string;
 
       if (isDev) {
-        // Development: backend bypasses reCAPTCHA when NODE_ENV=development
-        token = "dev-bypass";
+        // Development: use a test token
+        token = "test_token";
       } else {
-        if (!window.grecaptcha || !window.grecaptcha.enterprise) {
-          toast.error("reCAPTCHA not loaded. Please refresh and try again.");
+        if (!recaptchaLoaded) {
+          toast.error("reCAPTCHA is still loading. Please wait and try again.");
           return;
         }
-        // Get reCAPTCHA Enterprise token
-        token = await new Promise<string>((resolve, reject) => {
-          window.grecaptcha.enterprise.ready(() => {
-            window.grecaptcha.enterprise
-              .execute(import.meta.env.VITE_RECAPTCHA_SITE_KEY, {
-                action: "submit",
-              })
-              .then(resolve)
-              .catch(reject);
-          });
-        });
+
+        if (!window.grecaptcha) {
+          toast.error("reCAPTCHA not available. Please refresh the page.");
+          return;
+        }
+
+        // Get reCAPTCHA v2 token
+        token = window.grecaptcha.getResponse(recaptchaWidgetId || undefined);
+
+        if (!token) {
+          toast.error("Please complete the reCAPTCHA challenge.");
+          return;
+        }
       }
 
       await sendContactMessage({
@@ -348,6 +374,13 @@ export function ContactSection({ branch }: any) {
                   </div>
                 </div>
 
+                {/* reCAPTCHA Error Display */}
+                {recaptchaError && (
+                  <div className='p-3 bg-red-50 border border-red-200 rounded-md'>
+                    <p className='text-sm text-red-600'>{recaptchaError}</p>
+                  </div>
+                )}
+
                 {/* Quick Contact Form */}
                 {!formSubmitted ? (
                   <form onSubmit={handleSubmit} className='space-y-4 pt-4'>
@@ -396,11 +429,16 @@ export function ContactSection({ branch }: any) {
                         }
                       />
                     </div>
-                    {/* Google reCAPTCHA (loaded programmatically on production) */}
+                    {!isDev && (
+                      <div
+                        id='recaptcha-container'
+                        className='flex justify-center py-2'
+                      ></div>
+                    )}
                     <Button
                       type='submit'
                       className='bg-red-600 hover:bg-red-700 w-full'
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || (!recaptchaLoaded && !isDev)}
                     >
                       {isSubmitting ? (
                         <span className='flex items-center gap-2'>

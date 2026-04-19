@@ -91,7 +91,7 @@ const LoginSuperAdmin = () => {
           addNotification({
             type: "success",
             message: `Welcome back, ${result.data.name}!`,
-          })
+          }),
         );
 
         // Store remember me preference
@@ -113,7 +113,7 @@ const LoginSuperAdmin = () => {
         addNotification({
           type: "error",
           message: errorMsg,
-        })
+        }),
       );
     }
   };
@@ -294,10 +294,10 @@ const LoginSuperAdmin = () => {
             <div className='mt-8 pt-6 border-t border-gray-200'>
               <div className='text-center space-y-4'>
                 <Link
-                  to='/admin/manager-login'
+                  to='/manager-login'
                   className='inline-flex items-center text-sm font-medium text-gray-600 hover:text-red-600 transition-colors'
                 >
-                  Sign in as Branch Manager instead
+                  Sign in as Branch Admin instead
                 </Link>
 
                 <Link

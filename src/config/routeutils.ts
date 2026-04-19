@@ -13,7 +13,6 @@ export const ROUTES = {
 
   ADMIN: {
     LOGIN: "/admin/login",
-    MANAGER_LOGIN: "/admin/manager-login",
     CUSTOMER_SIGNUP: "/admin/customer-signup",
     DASHBOARD: "/admin/dashboard",
     BRANCHES: {
@@ -50,6 +49,19 @@ export const ROUTES = {
     },
   },
 
+  BRANCH_MANAGER: {
+    LOGIN: "/manager-login",
+    DASHBOARD: "/manager/dashboard",
+    SERVICE_BOOKINGS: "/manager/service-bookings",
+    ACCIDENT_REPORTS: "/manager/accident-reports",
+    ENQUIRIES: "/manager/enquiries",
+    APPLICATIONS: "/manager/applications",
+    STOCK: "/manager/stock",
+    VAS: "/manager/vas",
+    CUSTOMER_VEHICLES: "/manager/customer-vehicles",
+    FINANCE_QUERIES: "/manager/finance-queries",
+  },
+
   CUSTOMER: {
     LOGIN: "/customer/login",
     INITIALIZE: "/customer/first-dash",
@@ -80,6 +92,8 @@ export interface NavigationUser {
 
 export const isAdminRoute = (path: string): boolean =>
   path.startsWith("/admin");
+export const isBranchManagerRoute = (path: string): boolean =>
+  path.startsWith("/manager") || path === "/manager-login";
 export const isCustomerRoute = (path: string): boolean =>
   path.startsWith("/customer");
 
@@ -98,13 +112,13 @@ export const isPublicRoute = (path: string): boolean => {
     "/download",
   ];
   return publicPaths.some(
-    (publicPath) => path === publicPath || path.startsWith(`${publicPath}/`)
+    (publicPath) => path === publicPath || path.startsWith(`${publicPath}/`),
   );
 };
 
 export const canAccessRoute = (
   path: string,
-  user: NavigationUser | null
+  user: NavigationUser | null,
 ): { canAccess: boolean; redirectTo?: string; reason?: string } => {
   if (isPublicRoute(path)) return { canAccess: true };
 
@@ -113,7 +127,9 @@ export const canAccessRoute = (
       canAccess: false,
       redirectTo: isCustomerRoute(path)
         ? ROUTES.CUSTOMER.LOGIN
-        : ROUTES.ADMIN.LOGIN,
+        : isBranchManagerRoute(path)
+          ? ROUTES.BRANCH_MANAGER.LOGIN
+          : ROUTES.ADMIN.LOGIN,
       reason: "Authentication required",
     };
   }
@@ -139,6 +155,23 @@ export const canAccessRoute = (
     }
   }
 
+  if (isBranchManagerRoute(path)) {
+    if (user.role === "Customer") {
+      return {
+        canAccess: false,
+        redirectTo: ROUTES.CUSTOMER.DASHBOARD,
+        reason: "Branch manager access required",
+      };
+    }
+    if (user.role !== "Branch-Admin" && user.role !== "Super-Admin") {
+      return {
+        canAccess: false,
+        redirectTo: ROUTES.HOME,
+        reason: "Branch manager access required",
+      };
+    }
+  }
+
   if (isCustomerRoute(path) && user.role !== "Customer") {
     return {
       canAccess: false,
@@ -152,15 +185,15 @@ export const canAccessRoute = (
 
 export const getDefaultRoute = (user: NavigationUser | null): string => {
   if (!user?.isAuthenticated) return ROUTES.HOME;
-  return user.role === "Customer"
-    ? ROUTES.CUSTOMER.DASHBOARD
-    : ROUTES.ADMIN.DASHBOARD;
+  if (user.role === "Customer") return ROUTES.CUSTOMER.DASHBOARD;
+  if (user.role === "Branch-Admin") return ROUTES.BRANCH_MANAGER.DASHBOARD;
+  return ROUTES.ADMIN.DASHBOARD;
 };
 
 export const safeNavigate = (
   navigate: NavigateFunction,
   path: string,
-  user: NavigationUser | null
+  user: NavigationUser | null,
 ): void => {
   const { canAccess, redirectTo } = canAccessRoute(path, user);
   navigate(canAccess ? path : redirectTo || ROUTES.HOME);

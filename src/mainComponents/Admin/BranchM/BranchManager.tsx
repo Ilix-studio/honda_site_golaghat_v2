@@ -44,6 +44,7 @@ import {
   useGetAllBranchManagersQuery,
   useCreateBranchManagerMutation,
   useDeleteBranchManagerMutation,
+  useGetBranchManagerPasswordQuery,
 } from "../../../redux-store/services/branchManagerApi";
 import { useGetBranchesQuery } from "../../../redux-store/services/branchApi";
 
@@ -68,9 +69,8 @@ const BranchManager: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isCredentialsModalOpen, setIsCredentialsModalOpen] = useState(false);
   const [selectedManager, setSelectedManager] = useState<BranchManager | null>(
-    null
+    null,
   );
-  // const [showPassword, setShowPassword] = useState(false);
 
   // RTK Query hooks
   const {
@@ -86,28 +86,32 @@ const BranchManager: React.FC = () => {
     useCreateBranchManagerMutation();
   const [deleteBranchManager, { isLoading: isDeleting }] =
     useDeleteBranchManagerMutation();
+  const { data: passwordData, isLoading: isFetchingPassword } =
+    useGetBranchManagerPasswordQuery(selectedManager?._id || "", {
+      skip: !selectedManager || !isCredentialsModalOpen,
+    });
 
   // Derived state
   const branchManagers = branchManagersResponse?.data || [];
   const branches = branchesData?.data || [];
 
-  // Filtered branch managers based on search term
+  // Filtered branch admins based on search term
   const filteredBranchManagers = branchManagers.filter(
     (manager) =>
       manager.applicationId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       manager.branch?.branchName
         .toLowerCase()
-        .includes(searchTerm.toLowerCase())
+        .includes(searchTerm.toLowerCase()),
   );
 
-  // Handle create branch manager
+  // Handle create branch admin
   const handleCreateBranchManager = async () => {
     if (!selectedBranch) {
       dispatch(
         addNotification({
           type: "error",
           message: "Please select a branch",
-        })
+        }),
       );
       return;
     }
@@ -120,20 +124,20 @@ const BranchManager: React.FC = () => {
       dispatch(
         addNotification({
           type: "success",
-          message: "Branch manager created successfully",
-        })
+          message: "Branch admin created successfully",
+        }),
       );
 
       // Show the credentials in a toast
       toast.success(
-        "Branch Manager Created! ID: " +
+        "Branch Admin Created! ID: " +
           response.data.applicationId +
           ", Password: " +
           response.data.password +
           " (save these credentials - they won't be shown again)",
         {
           duration: 60000, // 1 minute
-        }
+        },
       );
 
       // Reset the form and close dialog
@@ -141,40 +145,38 @@ const BranchManager: React.FC = () => {
       setIsDialogOpen(false);
       refetchBranchManagers();
     } catch (error: any) {
-      console.error("Error creating branch manager:", error);
+      console.error("Error creating branch admin:", error);
       dispatch(
         addNotification({
           type: "error",
-          message: error.data?.message || "Failed to create branch manager",
-        })
+          message: error.data?.message || "Failed to create branch admin",
+        }),
       );
     }
   };
 
-  // Handle delete branch manager
+  // Handle delete branch admin
   const handleDeleteBranchManager = async (id: string) => {
-    if (
-      window.confirm("Are you sure you want to delete this branch manager?")
-    ) {
+    if (window.confirm("Are you sure you want to delete this branch admin?")) {
       try {
         await deleteBranchManager(id).unwrap();
         dispatch(
           addNotification({
             type: "success",
-            message: "Branch manager deleted successfully",
-          })
+            message: "Branch admin deleted successfully",
+          }),
         );
-        toast.success("Branch manager deleted successfully");
+        toast.success("Branch admin deleted successfully");
         refetchBranchManagers();
       } catch (error: any) {
-        console.error("Error deleting branch manager:", error);
+        console.error("Error deleting branch admin:", error);
         dispatch(
           addNotification({
             type: "error",
-            message: error.data?.message || "Failed to delete branch manager",
-          })
+            message: error.data?.message || "Failed to delete branch admin",
+          }),
         );
-        toast.error(error.data?.message || "Failed to delete branch manager");
+        toast.error(error.data?.message || "Failed to delete branch admin");
       }
     }
   };
@@ -185,11 +187,6 @@ const BranchManager: React.FC = () => {
     setIsCredentialsModalOpen(true);
   };
 
-  // Toggle password visibility
-  // const togglePasswordVisibility = () => {
-  //   setShowPassword(!showPassword);
-  // };
-
   return (
     <>
       <div className='container py-6'>
@@ -199,24 +196,24 @@ const BranchManager: React.FC = () => {
               <div>
                 <CardTitle className='text-2xl flex items-center gap-2'>
                   <Building className='h-6 w-6' />
-                  Branch Manager Administration
+                  Branch Admin Administration
                 </CardTitle>
                 <CardDescription>
-                  Create and manage branch manager credentials
+                  Create and manage branch admin credentials
                 </CardDescription>
               </div>
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className='gap-1'>
                     <UserPlus className='h-4 w-4' />
-                    New Branch Manager
+                    New Branch Admin
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Create Branch Manager</DialogTitle>
+                    <DialogTitle>Create Branch Admin</DialogTitle>
                     <DialogDescription>
-                      Create login credentials for a new branch manager. The
+                      Create login credentials for a new branch admin. The
                       system will generate an Application ID and Password.
                     </DialogDescription>
                   </DialogHeader>
@@ -266,7 +263,7 @@ const BranchManager: React.FC = () => {
                       onClick={handleCreateBranchManager}
                       disabled={!selectedBranch || isCreating}
                     >
-                      {isCreating ? "Creating..." : "Create Branch Manager"}
+                      {isCreating ? "Creating..." : "Create Branch Admin"}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -281,7 +278,7 @@ const BranchManager: React.FC = () => {
                   <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
                   <Input
                     type='search'
-                    placeholder='Search branch managers...'
+                    placeholder='Search branch admins...'
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className='pl-8'
@@ -291,13 +288,13 @@ const BranchManager: React.FC = () => {
 
               {branchManagersLoading ? (
                 <div className='text-center py-8 text-muted-foreground'>
-                  Loading branch managers...
+                  Loading branch admins...
                 </div>
               ) : filteredBranchManagers.length === 0 ? (
                 <div className='text-center py-8 text-muted-foreground'>
                   {searchTerm
-                    ? "No branch managers found matching your search"
-                    : "No branch managers available. Create a branch manager to get started."}
+                    ? "No branch admins found matching your search"
+                    : "No branch admins available. Create a branch admin to get started."}
                 </div>
               ) : (
                 <div className='rounded-md border'>
@@ -358,9 +355,9 @@ const BranchManager: React.FC = () => {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Branch Manager Credentials</DialogTitle>
+              <DialogTitle>Branch Admin Credentials</DialogTitle>
               <DialogDescription>
-                Login credentials for the selected branch manager.
+                Login credentials for the selected branch admin.
               </DialogDescription>
             </DialogHeader>
 
@@ -378,7 +375,7 @@ const BranchManager: React.FC = () => {
                     size='icon'
                     onClick={() => {
                       navigator.clipboard.writeText(
-                        selectedManager?.applicationId || ""
+                        selectedManager?.applicationId || "",
                       );
                       toast.success("Application ID copied to clipboard");
                     }}
@@ -403,42 +400,89 @@ const BranchManager: React.FC = () => {
 
               <div className='space-y-2'>
                 <Label>Password</Label>
-                <div className='p-3 bg-gray-100 rounded-md text-center'>
-                  <p className='text-sm text-amber-600'>
-                    For security reasons, passwords are only shown once when a
-                    branch manager is created. If the password is lost, you'll
-                    need to delete and recreate the branch manager.
-                  </p>
-                  <Button
-                    variant='outline'
-                    className='mt-2'
-                    onClick={() => {
-                      // Close this dialog
-                      setIsCredentialsModalOpen(false);
+                {isFetchingPassword ? (
+                  <Input
+                    value='Loading...'
+                    readOnly
+                    className='font-mono bg-gray-100'
+                  />
+                ) : passwordData?.data?.password ? (
+                  <div className='flex items-center gap-2'>
+                    <Input
+                      value={passwordData.data.password}
+                      readOnly
+                      className='font-mono'
+                    />
+                    <Button
+                      variant='outline'
+                      size='icon'
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          passwordData.data.password,
+                        );
+                        toast.success("Password copied to clipboard");
+                      }}
+                    >
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        width='16'
+                        height='16'
+                        viewBox='0 0 24 24'
+                        fill='none'
+                        stroke='currentColor'
+                        strokeWidth='2'
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                      >
+                        <rect
+                          x='9'
+                          y='9'
+                          width='13'
+                          height='13'
+                          rx='2'
+                          ry='2'
+                        />
+                        <path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1' />
+                      </svg>
+                    </Button>
+                  </div>
+                ) : (
+                  <div className='p-3 bg-gray-100 rounded-md text-center'>
+                    <p className='text-sm text-amber-600'>
+                      Unable to fetch password. You may need to delete and
+                      recreate the branch admin.
+                    </p>
+                    <Button
+                      variant='outline'
+                      className='mt-2'
+                      onClick={() => {
+                        // Close this dialog
+                        setIsCredentialsModalOpen(false);
 
-                      // Confirm before deleting
-                      if (
-                        window.confirm(
-                          `Are you sure you want to delete and recreate this branch manager? This will invalidate any current login sessions.`
-                        )
-                      ) {
-                        // Delete first
-                        selectedManager &&
-                          handleDeleteBranchManager(selectedManager._id);
+                        // Confirm before deleting
+                        if (
+                          window.confirm(
+                            `Are you sure you want to delete and recreate this branch admin? This will invalidate any current login sessions.`,
+                          )
+                        ) {
+                          // Delete first
+                          selectedManager &&
+                            handleDeleteBranchManager(selectedManager._id);
 
-                        // Then open create dialog with the same branch pre-selected
-                        if (selectedManager?.branch?._id) {
-                          setSelectedBranch(selectedManager.branch._id);
-                          setTimeout(() => {
-                            setIsDialogOpen(true);
-                          }, 300);
+                          // Then open create dialog with the same branch pre-selected
+                          if (selectedManager?.branch?._id) {
+                            setSelectedBranch(selectedManager.branch._id);
+                            setTimeout(() => {
+                              setIsDialogOpen(true);
+                            }, 300);
+                          }
                         }
-                      }
-                    }}
-                  >
-                    Delete & Recreate Manager
-                  </Button>
-                </div>
+                      }}
+                    >
+                      Delete & Recreate Manager
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <div className='space-y-2'>

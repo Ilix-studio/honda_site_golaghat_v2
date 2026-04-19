@@ -45,7 +45,7 @@ export default function GoogleReviews() {
         <Button
           asChild
           variant='outline'
-          className='bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-100'
+          className='bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-800 dark:border-gray-800 hover:bg-gray-100'
         >
           <a
             href='https://www.google.com/search?sca_esv=ca0ac730e1a720b1&sxsrf=ANbL-n5ujz0MEcFpFu0C2cx9SXe700fr6w:1776050798323&si=AL3DRZEsmMGCryMMFSHJ3StBhOdZ2-6yYkXd_doETEE1OR-qOR7qB2_y5iVNSh5tGHzGGomyOKlTBWAMm66hiBJM4uzHT4-mYIwySuRr6ULdkGVwJxlAB3WfxKLiPUm5J3C19K5mOCP5&q=Tsangpool+Honda+Reviews&sa=X&ved=2ahUKEwjVjL_n8OmTAxXKSGwGHbdJAaAQ0bkNegQIOxAH&biw=1573&bih=993&dpr=1'
@@ -72,7 +72,7 @@ export default function GoogleReviews() {
               </span>
               <div className='flex-1 h-[10px] bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden'>
                 <div
-                  className='h-full bg-[#fbbc04] rounded-full'
+                  className='h-full bg-red-500 rounded-full'
                   style={{ width: `${item.percentage}%` }}
                 ></div>
               </div>
@@ -82,7 +82,7 @@ export default function GoogleReviews() {
 
         <div className='flex flex-col items-center justify-center shrink-0 w-full md:w-auto'>
           <div className='text-[64px] font-normal leading-none text-gray-800 dark:text-gray-100 mb-2'>
-            4.5
+            4.0
           </div>
           <div className='flex items-center gap-0.5 mb-1'>
             {[1, 2, 3, 4].map((i) => (

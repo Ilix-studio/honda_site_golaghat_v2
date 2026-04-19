@@ -137,7 +137,7 @@ const AddBranch = () => {
         addNotification({
           type: "success",
           message: `Branch "${result.data.branchName}" created successfully with ID: ${result.data.id}`,
-        })
+        }),
       );
 
       navigate("/admin/dashboard");
@@ -146,7 +146,7 @@ const AddBranch = () => {
         addNotification({
           type: "error",
           message: error?.data?.message || "Failed to create branch",
-        })
+        }),
       );
     }
   };
@@ -359,7 +359,7 @@ const AddBranch = () => {
                           <Label htmlFor='staffPosition'>Position</Label>
                           <Input
                             id='staffPosition'
-                            placeholder='e.g., Branch Manager, Sales Executive'
+                            placeholder='e.g., Branch Admin, Sales Executive'
                             value={currentStaffPosition}
                             onChange={(e) =>
                               setCurrentStaffPosition(e.target.value)

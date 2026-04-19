@@ -10,6 +10,7 @@ import {
   adminRoutes,
   fallbackRoute,
   customerRoutes,
+  branchManagerRoutes,
 } from "./config/routeConfig";
 
 // Import route helpers
@@ -18,6 +19,7 @@ import {
   createPublicRoute,
   createAdminRoute,
   createCustomerRoute,
+  createBranchManagerRoute,
   createAuthRoute,
 } from "./config/routeHelpers";
 
@@ -100,12 +102,12 @@ const App: React.FC = () => {
       <Routes>
         {/* IMMEDIATE ROUTES - Critical routes that load immediately */}
         {immediateRoutes.map(({ path, component }) =>
-          createImmediateRoute(path, component)
+          createImmediateRoute(path, component),
         )}
 
         {/* PUBLIC ROUTES - Lazy loaded public routes with Header */}
         {publicRoutes.map(({ path, component }) =>
-          createPublicRoute(path, component)
+          createPublicRoute(path, component),
         )}
 
         {/* ADMIN ROUTES - Protected admin routes with AdminHeader */}
@@ -126,6 +128,18 @@ const App: React.FC = () => {
         {/* CUSTOMER AUTH ROUTES - Login pages without header */}
         {customerRoutes
           .filter(({ path }) => path.includes("/customer/login"))
+          .map(({ path, component }) => createAuthRoute(path, component))}
+
+        {/* BRANCH ADMIN ROUTES - Protected branch admin routes with AdminHeader */}
+        {branchManagerRoutes
+          .filter(({ path }) => !path.includes("/manager-login"))
+          .map(({ path, component }) =>
+            createBranchManagerRoute(path, component),
+          )}
+
+        {/* BRANCH ADMIN AUTH ROUTES - Login page without header */}
+        {branchManagerRoutes
+          .filter(({ path }) => path.includes("/manager-login"))
           .map(({ path, component }) => createAuthRoute(path, component))}
 
         {/* FALLBACK ROUTE - 404 Not Found */}

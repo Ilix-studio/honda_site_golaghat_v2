@@ -16,7 +16,7 @@ export interface LoginBranchManagerResponse {
       name: string;
       location: string;
     };
-    role: string; // Add role to response
+    role: string;
     token: string;
   };
 }
@@ -33,6 +33,18 @@ export interface CreateBranchManagerResponse {
     applicationId: string;
     password: string;
     branch: string;
+  };
+}
+
+export interface GetBranchManagerPasswordResponse {
+  success: boolean;
+  data: {
+    applicationId: string;
+    password: string;
+    branch: {
+      branchName: string;
+      address: string;
+    };
   };
 }
 
@@ -53,9 +65,9 @@ export const branchManagerApi = apiSlice.injectEndpoints({
           if (data.success) {
             const userData: User = {
               id: data.data.id,
-              name: data.data.applicationId, // Use applicationId as name
-              email: data.data.branch.name, // Use branch name as email placeholder
-              role: data.data.role || "Branch-Admin", // Set role for branch manager
+              name: data.data.applicationId,
+              email: data.data.branch.name,
+              role: data.data.role || "Branch-Admin",
             };
             dispatch(loginSuccess({ user: userData, token: data.data.token }));
           }
@@ -102,6 +114,15 @@ export const branchManagerApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["BranchManager"],
     }),
+    getBranchManagerPassword: builder.query<
+      GetBranchManagerPasswordResponse,
+      string
+    >({
+      query: (id) => ({
+        url: `/adminLogin/branch-manager/${id}/password`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -111,4 +132,5 @@ export const {
   useCreateBranchManagerMutation,
   useDeleteBranchManagerMutation,
   useGetAllBranchManagersQuery,
+  useGetBranchManagerPasswordQuery,
 } = branchManagerApi;

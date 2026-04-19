@@ -9,7 +9,8 @@ interface ProtectedRouteProps {
     | "admin"
     | "customer"
     | "admin-or-customer"
-    | "super-admin-only";
+    | "super-admin-only"
+    | "branch-manager";
   adminCanAccess?: boolean; // Allow admin access to customer routes
   customerRestrictedPaths?: string[]; // Specific paths customers cannot access
   redirectTo?: string;
@@ -42,25 +43,25 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Get auth state from Redux
   const authState = useSelector((state: RootState) => state.auth);
   const customerAuthState = useSelector(
-    (state: RootState) => state.customerAuth
+    (state: RootState) => state.customerAuth,
   );
 
   const { isAuthenticated, user, userType, adminRole } = {
     isAuthenticated:
       authState?.isAuthenticated || customerAuthState?.isAuthenticated || false,
     user: authState?.user || customerAuthState?.customer || null,
-    userType: authState?.user
-      ? "admin"
-      : customerAuthState?.customer
+    userType: customerAuthState?.customer
       ? "customer"
-      : null,
+      : authState?.user
+        ? "admin"
+        : null,
     adminRole: authState?.user?.role || null, // "Super-Admin" or "Branch-Admin"
   };
 
   // Helper function to check if current path is admin-restricted
   const isAdminRestrictedPath = (path: string): boolean => {
     return customerRestrictedPaths.some((restrictedPath) =>
-      path.startsWith(restrictedPath)
+      path.startsWith(restrictedPath),
     );
   };
 
@@ -80,7 +81,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Not authenticated - redirect to appropriate login
   if (!isAuthenticated || !user) {
     const loginPath =
-      requiredRole === "customer" ? "/customer/login" : "/admin/login";
+      requiredRole === "customer"
+        ? "/customer/login"
+        : requiredRole === "branch-manager"
+          ? "/manager-login"
+          : "/admin/login";
     const redirectPath = redirectTo || loginPath;
 
     return (
@@ -98,8 +103,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             userType === "admin"
               ? "/admin/dashboard"
               : userType === "customer"
-              ? "/customer/dashboard"
-              : "/";
+                ? "/customer/dashboard"
+                : "/";
           return <Navigate to={fallbackPath} replace />;
         }
         break;
@@ -145,6 +150,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         if (userType === "customer" || hasAdminPrivileges()) {
           return <>{children}</>;
         } else {
+          const fallbackPath = "/";
+          return <Navigate to={fallbackPath} replace />;
+        }
+        break;
+
+      case "branch-manager":
+        // Only Branch-Admin can access
+        if (adminRole !== "Branch-Admin") {
           const fallbackPath = "/";
           return <Navigate to={fallbackPath} replace />;
         }

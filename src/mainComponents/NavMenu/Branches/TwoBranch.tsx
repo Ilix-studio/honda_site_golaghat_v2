@@ -24,7 +24,7 @@ export const branches: BranchType[] = [
       sunday: "Closed",
     },
     staff: [
-      { name: "Ilix", position: "Branch Manager" },
+      { name: "Ilix", position: "Branch Admin" },
       { name: "Jyotish", position: "Sales Manager" },
       { name: "Hazarika", position: "Service Manager" },
     ],
@@ -54,7 +54,7 @@ export const branches: BranchType[] = [
       sunday: "11:00 AM - 4:00 PM",
     },
     staff: [
-      { name: "Ilix", position: "Branch Manager" },
+      { name: "Ilix", position: "Branch Admin" },
       { name: "Jyotish", position: "Sales Manager" },
       { name: "Hazarika", position: "Service Manager" },
     ],

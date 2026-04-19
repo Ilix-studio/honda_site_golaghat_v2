@@ -8,7 +8,11 @@ import { Link, useNavigate } from "react-router-dom";
 // Redux
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { useLoginBranchManagerMutation } from "../../redux-store/services/branchManagerApi";
-import { loginSuccess, selectAuth } from "../../redux-store/slices/authSlice";
+import {
+  loginSuccess,
+  logout,
+  selectAuth,
+} from "../../redux-store/slices/authSlice";
 import { addNotification } from "../../redux-store/slices/uiSlice";
 
 const LoginBranchManager = () => {
@@ -23,10 +27,15 @@ const LoginBranchManager = () => {
 
   const [loginBranchManager, { isLoading }] = useLoginBranchManagerMutation();
 
+  // Clear any existing auth state on mount to prevent conflicts
+  useEffect(() => {
+    dispatch(logout());
+  }, [dispatch]);
+
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/admin/dashboard");
+      navigate("/manager/dashboard");
     }
   }, [isAuthenticated, navigate]);
 
@@ -50,26 +59,30 @@ const LoginBranchManager = () => {
       }).unwrap();
 
       if (result.success) {
-        // Store branch manager data in auth slice
+        // Store branch admin data in auth slice
         dispatch(
           loginSuccess({
             user: {
               id: result.data.id,
               name: result.data.applicationId,
               email: result.data.branch.name, // Using branch name as email placeholder
+              role: result.data.role,
             },
             token: result.data.token,
-          })
+          }),
         );
 
         dispatch(
           addNotification({
             type: "success",
-            message: "Logged in successfully as Branch Manager",
-          })
+            message: "Logged in successfully as Branch Admin",
+          }),
         );
 
-        navigate("/admin/dashboard");
+        // Small delay to ensure Redux state is updated before navigation
+        setTimeout(() => {
+          navigate("/manager/dashboard");
+        }, 100);
       } else {
         setErrorMessage(result.message || "Login failed");
       }
@@ -80,7 +93,7 @@ const LoginBranchManager = () => {
         addNotification({
           type: "error",
           message: errorMsg,
-        })
+        }),
       );
     }
   };
@@ -90,7 +103,7 @@ const LoginBranchManager = () => {
       <div className='container max-w-md px-4 py-16'>
         <div className='space-y-6'>
           <div className='text-center space-y-2'>
-            <h1 className='text-3xl font-bold'>Branch Manager Login</h1>
+            <h1 className='text-3xl font-bold'>Branch Admin Login</h1>
             <p className='text-gray-500'>
               Sign in to access the branch management area
             </p>
@@ -194,7 +207,7 @@ const LoginBranchManager = () => {
           <div className='pt-4 text-center text-sm text-gray-500'>
             <p>
               Don't have credentials? Contact your Super Admin to create a
-              Branch Manager account.
+              Branch Admin account.
             </p>
           </div>
         </div>

@@ -109,7 +109,7 @@ const LoginSuperAdmin = lazy(
   () => import("../mainComponents/Admin/LoginSuperAdmin"),
 );
 const LoginBranchManager = lazy(
-  () => import("../mainComponents/Admin/LoginBranchManager"),
+  () => import("@/mainComponents/Admin/LoginBranchManager"),
 );
 
 // Admin Dashboard
@@ -197,7 +197,6 @@ const GetAllAccidentReportsById = lazy(
 const createAdminRoutes = () => [
   // Authentication
   { path: "/admin/login", component: LoginSuperAdmin },
-  { path: "/admin/manager-login", component: LoginBranchManager },
 
   // Dashboard
   { path: "/admin/dashboard", component: AdminDashboard },
@@ -339,6 +338,78 @@ const createCustomerRoutes = () => {
 
 export const customerRoutes = createCustomerRoutes();
 
+// BRANCH MANAGER ROUTES - Protected routes with /manager prefix
+const BranchManagerDashboard = lazy(
+  () => import("@/mainComponents/Admin/BranchM/BranchManagerDashboard"),
+);
+
+const BranchServiceBookings = lazy(
+  () => import("@/mainComponents/Admin/BranchM/BranchServiceBookings"),
+);
+
+const BranchAccidentReports = lazy(
+  () => import("@/mainComponents/Admin/BranchM/BranchAccidentReports"),
+);
+
+const BranchEnquiries = lazy(
+  () => import("@/mainComponents/Admin/BranchM/BranchEnquiries"),
+);
+
+const BranchApplications = lazy(
+  () => import("@/mainComponents/Admin/BranchM/BranchApplications"),
+);
+
+const BranchStockManagement = lazy(
+  () => import("@/mainComponents/Admin/BranchM/BranchStockManagement"),
+);
+
+const BranchVASManagement = lazy(
+  () => import("@/mainComponents/Admin/BranchM/BranchVASManagement"),
+);
+
+const BranchCustomerVehicles = lazy(
+  () => import("@/mainComponents/Admin/BranchM/BranchCustomerVehicles"),
+);
+
+const BranchFinanceQueries = lazy(
+  () => import("@/mainComponents/Admin/BranchM/BranchFinanceQueries"),
+);
+
+// Create branch manager routes array
+const createBranchManagerRoutes = () => [
+  // Authentication
+  { path: "/manager-login", component: LoginBranchManager },
+
+  // Dashboard
+  { path: "/manager/dashboard", component: BranchManagerDashboard },
+
+  // Service Bookings
+  { path: "/manager/service-bookings", component: BranchServiceBookings },
+
+  // Accident Reports
+  { path: "/manager/accident-reports", component: BranchAccidentReports },
+
+  // Enquiries
+  { path: "/manager/enquiries", component: BranchEnquiries },
+
+  // Applications
+  { path: "/manager/applications", component: BranchApplications },
+
+  // Stock Management
+  { path: "/manager/stock", component: BranchStockManagement },
+
+  // VAS Management
+  { path: "/manager/vas", component: BranchVASManagement },
+
+  // Customer Vehicles
+  { path: "/manager/customer-vehicles", component: BranchCustomerVehicles },
+
+  // Finance Queries
+  { path: "/manager/finance-queries", component: BranchFinanceQueries },
+];
+
+export const branchManagerRoutes = createBranchManagerRoutes();
+
 // Route configuration for dynamic titles and navigation
 export const routeConfig: Record<
   string,
@@ -405,6 +476,60 @@ export const routeConfig: Record<
     showBack: true,
     backTo: "/customer/dashboard",
   },
+
+  // Branch Manager Routes
+  "/manager/dashboard": {
+    title: "Branch Manager Dashboard",
+    subtitle: "Overview of branch operations",
+  },
+  "/manager/service-bookings": {
+    title: "Service Bookings",
+    subtitle: "Manage service appointments",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/accident-reports": {
+    title: "Accident Reports",
+    subtitle: "View and manage accident reports",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/enquiries": {
+    title: "Enquiries",
+    subtitle: "Manage customer enquiries",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/applications": {
+    title: "Applications",
+    subtitle: "Manage customer applications",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/stock": {
+    title: "Stock Management",
+    subtitle: "Manage branch stock",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/vas": {
+    title: "Value Added Services",
+    subtitle: "Manage VAS offerings",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/customer-vehicles": {
+    title: "Customer Vehicles",
+    subtitle: "View customer vehicle information",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/finance-queries": {
+    title: "Finance Queries",
+    subtitle: "Manage finance enquiries",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
 };
 
 // FALLBACK ROUTE
@@ -418,22 +543,28 @@ export const routeCategories = {
   public: publicRoutes.map((route) => route.path),
   admin: adminRoutes.map((route) => route.path),
   customer: customerRoutes.map((route) => route.path),
+  branchManager: branchManagerRoutes.map((route) => route.path),
   immediate: immediateRoutes.map((route) => route.path),
 };
 
 // Helper function to determine route category
 export const getRouteCategory = (
   path: string,
-): "public" | "admin" | "customer" | "immediate" => {
+): "public" | "admin" | "customer" | "branchManager" | "immediate" => {
   if (path.startsWith("/admin/")) return "admin";
   if (path.startsWith("/customer/")) return "customer";
+  if (path.startsWith("/manager/")) return "branchManager";
   if (routeCategories.immediate.includes(path)) return "immediate";
   return "public";
 };
 
 // Helper function to check if route requires authentication
 export const requiresAuth = (path: string): boolean => {
-  return path.startsWith("/admin/") || path.startsWith("/customer/");
+  return (
+    path.startsWith("/admin/") ||
+    path.startsWith("/customer/") ||
+    path.startsWith("/manager/")
+  );
 };
 
 // Helper function to check if route is admin-only
@@ -444,4 +575,9 @@ export const requiresAdminAuth = (path: string): boolean => {
 // Helper function to check if route is customer-only
 export const requiresCustomerAuth = (path: string): boolean => {
   return path.startsWith("/customer/");
+};
+
+// Helper function to check if route is branch manager only
+export const requiresBranchManagerAuth = (path: string): boolean => {
+  return path.startsWith("/manager/");
 };
