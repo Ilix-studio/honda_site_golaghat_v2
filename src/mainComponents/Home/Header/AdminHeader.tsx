@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { LogOut, ArrowLeft, Menu, ChevronDown, Settings } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { LogOut, ArrowLeft, Menu, ChevronDown } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   DropdownMenu,
@@ -12,50 +12,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { useLogoutAdminMutation } from "@/redux-store/services/adminApi";
 import { logout, selectAuth } from "@/redux-store/slices/authSlice";
 import { addNotification } from "@/redux-store/slices/uiSlice";
-
-const routeConfig: Record<
-  string,
-  {
-    title: string;
-    subtitle?: string;
-    showBack?: boolean;
-    backTo?: string;
-    menuItems?: Array<{ label: string; href: string }>;
-  }
-> = {
-  "/admin/dashboard": { title: "Admin Dashboard", subtitle: "" },
-  "/admin/branches/add": {
-    title: "Add New Branch",
-    subtitle: "",
-    showBack: true,
-    backTo: "/admin/dashboard",
-    menuItems: [
-      { label: "Add Bikes/Scooty", href: "/admin/bikes/add" },
-      { label: "Manage Branches", href: "/admin/branches" },
-    ],
-  },
-  "/admin/bikes/add": {
-    title: "Add New Bike",
-    subtitle: "Add motorcycle to inventory",
-    showBack: true,
-    backTo: "/admin/dashboard",
-    menuItems: [
-      { label: "Add Branch", href: "/admin/branches/add" },
-      { label: "Manage Branches", href: "/admin/branches" },
-    ],
-  },
-  "/admin/editbikes": {
-    title: "Edit Bike",
-    subtitle: "Update motorcycle details",
-    showBack: true,
-    backTo: "/admin/dashboard",
-    menuItems: [
-      { label: "Add Branch", href: "/admin/branches/add" },
-      { label: "Add Bikes/Scooty", href: "/admin/bikes/add" },
-      { label: "Manage Branches", href: "/admin/branches" },
-    ],
-  },
-};
+import { routeConfigAdmin } from "./routeConfigAdmin";
 
 const AdminHeader = () => {
   const dispatch = useAppDispatch();
@@ -65,10 +22,19 @@ const AdminHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [logoutAdmin, { isLoading: isLoggingOut }] = useLogoutAdminMutation();
 
-  const currentRoute = routeConfig[location.pathname] || {
-    title: "Admin Panel",
-    subtitle: "Honda Dealership Management",
-  };
+  const currentRoute = useMemo(() => {
+    if (routeConfigAdmin[location.pathname])
+      return routeConfigAdmin[location.pathname];
+
+    const match = Object.keys(routeConfigAdmin).find((pattern) => {
+      const regex = new RegExp("^" + pattern.replace(/:[^/]+/g, "[^/]+") + "$");
+      return regex.test(location.pathname);
+    });
+
+    return match
+      ? routeConfigAdmin[match]
+      : { title: "Admin Panel", subtitle: "Honda Dealership Management" };
+  }, [location.pathname]);
 
   useEffect(() => {
     if (!isAuthenticated) navigate("/admin/login");
@@ -84,7 +50,7 @@ const AdminHeader = () => {
         addNotification({
           type: "success",
           message: result.message || "Logged out successfully",
-        })
+        }),
       );
     } catch (error: any) {
       dispatch(logout());
@@ -94,7 +60,7 @@ const AdminHeader = () => {
         addNotification({
           type: "error",
           message: error?.data?.message || "Error logging out",
-        })
+        }),
       );
     } finally {
       navigate("/", { replace: true });
@@ -117,7 +83,7 @@ const AdminHeader = () => {
               className='flex items-center gap-2 shrink-0'
             >
               <div className='w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center'>
-                <span className='text-white text-xs font-black'>H</span>
+                <span className='text-white text-xs font-black'>T</span>
               </div>
               <span className='text-sm font-black text-white tracking-tight hidden sm:block'>
                 Tsangpool <span className='text-red-500'>Admin</span>
@@ -132,7 +98,7 @@ const AdminHeader = () => {
                 onClick={handleBack}
                 className='flex items-center justify-center w-7 h-7 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors'
               >
-                <ArrowLeft className='w-3.5 h-3.5 text-gray-400' />
+                <ArrowLeft className='w-3.5 h-3.5 text-white' />
               </button>
             )}
 
@@ -189,11 +155,6 @@ const AdminHeader = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
-
-            {/* Settings icon (visual affordance) */}
-            <button className='hidden sm:flex w-8 h-8 rounded-xl bg-gray-800 hover:bg-gray-700 items-center justify-center transition-colors'>
-              <Settings className='w-3.5 h-3.5 text-gray-400' />
-            </button>
 
             {/* Logout */}
             <button

@@ -1,66 +1,105 @@
 // src/components/admin/forms/SelectStockForm.tsx
 
 import { useNavigate } from "react-router-dom";
-import { FileSpreadsheet, Database, ArrowRight } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { FileSpreadsheet, Database, ArrowRight, Sparkles } from "lucide-react";
+
+const OPTIONS = [
+  {
+    id: "add_vas",
+    title: "Add VAS",
+    description:
+      "Register a new Value Added Service and attach it to vehicles in the system.",
+    icon: FileSpreadsheet,
+    route: "/admin/forms/vas",
+    buttonText: "Add VAS",
+    gradient: "from-red-500 to-orange-500",
+    lightBg: "bg-red-50",
+    iconColor: "text-red-600",
+    badgeBg: "bg-red-100",
+    badgeText: "text-red-600",
+    badge: "New entry",
+  },
+  {
+    id: "view_vas",
+    title: "View VAS",
+    description:
+      "Browse, edit, and manage all existing Value Added Services from one place.",
+    icon: Database,
+    route: "/admin/view/vas",
+    buttonText: "View VAS",
+    gradient: "from-blue-500 to-violet-500",
+    lightBg: "bg-blue-50",
+    iconColor: "text-blue-600",
+    badgeBg: "bg-blue-100",
+    badgeText: "text-blue-600",
+    badge: "Manage",
+  },
+];
 
 const SelectVas = () => {
   const navigate = useNavigate();
 
-  const vasOptions = [
-    {
-      id: "add_vas",
-      title: "Add VAS",
-      description: "Add Value Added Service Info",
-      icon: FileSpreadsheet,
-      route: "/admin/forms/vas",
-      buttonText: "Add",
-    },
-    {
-      id: "view_vas",
-      title: "View VAS",
-      description: "Manage VAS from here",
-      icon: Database,
-      route: "/admin/view/vas",
-      buttonText: "View VAS",
-    },
-  ];
-
   return (
-    <div className='max-w-4xl mx-auto py-8 px-4'>
-      <div className='text-center mb-8'>
-        <h1 className='text-2xl font-bold mb-2'>VAS Manager</h1>
-        <p className='text-muted-foreground'>
-          Choose how you want to add VAS items to the system
+    <div className='max-w-3xl mx-auto py-10 px-4 space-y-8'>
+      {/* header */}
+      <div className='text-center space-y-1.5'>
+        <div className='inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-600 mb-2'>
+          <Sparkles className='h-3 w-3' />
+          VAS Manager
+        </div>
+        <h1 className='text-2xl font-bold text-gray-900'>
+          Value Added Services
+        </h1>
+        <p className='text-sm text-gray-500'>
+          Add new VAS entries or manage existing ones
         </p>
       </div>
 
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-        {vasOptions.map((option) => (
-          <Card
-            key={option.id}
-            className='hover:shadow-lg transition-shadow cursor-pointer group'
-            onClick={() => navigate(option.route)}
+      {/* cards */}
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
+        {OPTIONS.map((opt) => (
+          <div
+            key={opt.id}
+            onClick={() => navigate(opt.route)}
+            className='group relative overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer'
           >
-            <CardContent className='p-6 flex flex-col h-full'>
-              <div className='flex items-center gap-3 mb-4'>
-                <div className='p-3 rounded-lg bg-primary/10 text-primary'>
-                  <option.icon className='h-6 w-6' />
+            {/* top gradient bar */}
+            <div className={`h-1 w-full bg-gradient-to-r ${opt.gradient}`} />
+
+            <div className='p-6 flex flex-col gap-5'>
+              {/* icon + badge */}
+              <div className='flex items-start justify-between'>
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-xl ${opt.lightBg}`}
+                >
+                  <opt.icon className={`h-5 w-5 ${opt.iconColor}`} />
                 </div>
-                <h2 className='text-xl font-semibold'>{option.title}</h2>
+                <span
+                  className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${opt.badgeBg} ${opt.badgeText}`}
+                >
+                  {opt.badge}
+                </span>
               </div>
 
-              <p className='text-muted-foreground flex-1 mb-6'>
-                {option.description}
-              </p>
+              {/* text */}
+              <div className='space-y-1'>
+                <h2 className='text-base font-bold text-gray-900'>
+                  {opt.title}
+                </h2>
+                <p className='text-sm text-gray-500 leading-relaxed'>
+                  {opt.description}
+                </p>
+              </div>
 
-              <Button className='w-full group-hover:bg-primary/90'>
-                {option.buttonText}
-                <ArrowRight className='h-4 w-4 ml-2 transition-transform group-hover:translate-x-1' />
-              </Button>
-            </CardContent>
-          </Card>
+              {/* cta */}
+              <button
+                className={`mt-auto flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r ${opt.gradient} py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90`}
+              >
+                {opt.buttonText}
+                <ArrowRight className='h-4 w-4 transition-transform group-hover:translate-x-1' />
+              </button>
+            </div>
+          </div>
         ))}
       </div>
     </div>

@@ -58,7 +58,6 @@ const ViewAllBranches = lazy(
 );
 //
 const SelectVas = lazy(() => import("@/mainComponents/BikeSystem2/SelectVas"));
-const ViewVAS = lazy(() => import("../mainComponents/ViewBS2/ViewVAS"));
 
 const ViewStockConcept = lazy(
   () => import("../mainComponents/ViewBS2/ViewStockConcept"),
@@ -93,7 +92,6 @@ export const publicRoutes = [
 
   // Public View System
   { path: "/admin/branches/view", component: ViewAllBranches },
-  { path: "/admin/view/vas", component: ViewVAS },
 
   { path: "/view/stock-concept", component: ViewStockConcept },
   {
@@ -192,7 +190,7 @@ const GetAllAccidentReportsById = lazy(
   () =>
     import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReportsById"),
 );
-
+const ViewVAS = lazy(() => import("../mainComponents/ViewBS2/ViewVAS"));
 // Create admin routes array
 const createAdminRoutes = () => [
   // Authentication
@@ -222,6 +220,7 @@ const createAdminRoutes = () => [
   // Business System Forms
   { path: "/admin/vas/select", component: SelectVas },
   { path: "/admin/forms/vas", component: VASForm },
+  { path: "/admin/view/vas", component: ViewVAS },
 
   { path: "/admin/stockC/select", component: SelectStockForm },
   { path: "/admin/forms/stock-concept", component: StockConceptForm },

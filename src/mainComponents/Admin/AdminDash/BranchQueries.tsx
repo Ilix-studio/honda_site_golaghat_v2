@@ -102,7 +102,6 @@ const BranchQueries = () => {
   ];
 
   const vs = visitorStatsData?.data;
-  const growth = vs?.weeklyStats?.growth ?? 0;
 
   return (
     <div className='space-y-8'>
@@ -145,7 +144,7 @@ const BranchQueries = () => {
           </div>
 
           {/* metric tiles */}
-          <div className='grid grid-cols-2 lg:grid-cols-4 gap-4 p-6'>
+          <div className='grid grid-cols-1 lg:grid-cols-3 gap-4 p-6'>
             <MetricTile
               index={0}
               label='Total Visitors'
@@ -169,14 +168,6 @@ const BranchQueries = () => {
               bg='bg-green-50'
               text='text-green-900'
               sub='text-green-400'
-            />
-            <MetricTile
-              index={3}
-              label='Weekly Growth'
-              value={`${growth >= 0 ? "+" : ""}${growth}%`}
-              bg={growth >= 0 ? "bg-emerald-50" : "bg-red-50"}
-              text={growth >= 0 ? "text-emerald-900" : "text-red-900"}
-              sub={growth >= 0 ? "text-emerald-400" : "text-red-400"}
             />
           </div>
 

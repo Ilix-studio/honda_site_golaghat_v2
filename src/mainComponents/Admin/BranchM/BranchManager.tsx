@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -34,21 +34,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Trash2, Search, Building, UserPlus, ExternalLink } from "lucide-react";
+import { Trash2, Search, Building, UserPlus, Copy } from "lucide-react";
 import toast from "react-hot-toast";
 
-// Redux imports
 import { useAppDispatch } from "../../../hooks/redux";
 import { addNotification } from "../../../redux-store/slices/uiSlice";
 import {
   useGetAllBranchManagersQuery,
   useCreateBranchManagerMutation,
   useDeleteBranchManagerMutation,
-  useGetBranchManagerPasswordQuery,
 } from "../../../redux-store/services/branchManagerApi";
 import { useGetBranchesQuery } from "../../../redux-store/services/branchApi";
 
-// Types
 interface BranchManager {
   _id: string;
   applicationId: string;
@@ -60,19 +57,51 @@ interface BranchManager {
   createdAt: string;
 }
 
+interface NewCredentials {
+  applicationId: string;
+  password: string;
+  branchName: string;
+  expiresAt: number;
+}
+
+const CREDENTIAL_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+const CopyField: React.FC<{ label: string; value: string }> = ({
+  label,
+  value,
+}) => (
+  <div className='space-y-1'>
+    <p className='text-xs text-amber-700 font-medium'>{label}</p>
+    <div className='flex items-center gap-2'>
+      <input
+        readOnly
+        value={value}
+        className='flex-1 font-mono text-sm bg-white border border-amber-200 rounded-lg px-3 py-1.5 outline-none'
+      />
+      <button
+        onClick={() => {
+          navigator.clipboard.writeText(value);
+          toast.success(`${label} copied`);
+        }}
+        className='p-1.5 rounded-lg border border-amber-200 bg-white hover:bg-amber-50 text-amber-700 transition-colors'
+      >
+        <Copy className='w-3.5 h-3.5' />
+      </button>
+    </div>
+  </div>
+);
+
 const BranchManager: React.FC = () => {
   const dispatch = useAppDispatch();
 
-  // States
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [isCredentialsModalOpen, setIsCredentialsModalOpen] = useState(false);
-  const [selectedManager, setSelectedManager] = useState<BranchManager | null>(
+  const [newCredentials, setNewCredentials] = useState<NewCredentials | null>(
     null,
   );
+  const [timeLeft, setTimeLeft] = useState(0);
 
-  // RTK Query hooks
   const {
     data: branchManagersResponse,
     isLoading: branchManagersLoading,
@@ -86,16 +115,10 @@ const BranchManager: React.FC = () => {
     useCreateBranchManagerMutation();
   const [deleteBranchManager, { isLoading: isDeleting }] =
     useDeleteBranchManagerMutation();
-  const { data: passwordData, isLoading: isFetchingPassword } =
-    useGetBranchManagerPasswordQuery(selectedManager?._id || "", {
-      skip: !selectedManager || !isCredentialsModalOpen,
-    });
 
-  // Derived state
   const branchManagers = branchManagersResponse?.data || [];
   const branches = branchesData?.data || [];
 
-  // Filtered branch admins based on search term
   const filteredBranchManagers = branchManagers.filter(
     (manager) =>
       manager.applicationId.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -104,14 +127,31 @@ const BranchManager: React.FC = () => {
         .includes(searchTerm.toLowerCase()),
   );
 
-  // Handle create branch admin
+  // Countdown timer — clears credentials when TTL expires
+  useEffect(() => {
+    if (!newCredentials) return;
+
+    setTimeLeft(Math.ceil(CREDENTIAL_TTL_MS / 1000));
+
+    const interval = setInterval(() => {
+      const remaining = Math.ceil(
+        (newCredentials.expiresAt - Date.now()) / 1000,
+      );
+      if (remaining <= 0) {
+        setNewCredentials(null);
+        clearInterval(interval);
+      } else {
+        setTimeLeft(remaining);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [newCredentials]);
+
   const handleCreateBranchManager = async () => {
     if (!selectedBranch) {
       dispatch(
-        addNotification({
-          type: "error",
-          message: "Please select a branch",
-        }),
+        addNotification({ type: "error", message: "Please select a branch" }),
       );
       return;
     }
@@ -121,6 +161,16 @@ const BranchManager: React.FC = () => {
         branch: selectedBranch,
       }).unwrap();
 
+      const branchName =
+        branches.find((b) => b._id === selectedBranch)?.branchName ?? "";
+
+      setNewCredentials({
+        applicationId: response.data.applicationId,
+        password: response.data.password,
+        branchName,
+        expiresAt: Date.now() + CREDENTIAL_TTL_MS,
+      });
+
       dispatch(
         addNotification({
           type: "success",
@@ -128,24 +178,10 @@ const BranchManager: React.FC = () => {
         }),
       );
 
-      // Show the credentials in a toast
-      toast.success(
-        "Branch Admin Created! ID: " +
-          response.data.applicationId +
-          ", Password: " +
-          response.data.password +
-          " (save these credentials - they won't be shown again)",
-        {
-          duration: 60000, // 1 minute
-        },
-      );
-
-      // Reset the form and close dialog
       setSelectedBranch("");
       setIsDialogOpen(false);
       refetchBranchManagers();
     } catch (error: any) {
-      console.error("Error creating branch admin:", error);
       dispatch(
         addNotification({
           type: "error",
@@ -155,354 +191,212 @@ const BranchManager: React.FC = () => {
     }
   };
 
-  // Handle delete branch admin
   const handleDeleteBranchManager = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this branch admin?")) {
-      try {
-        await deleteBranchManager(id).unwrap();
-        dispatch(
-          addNotification({
-            type: "success",
-            message: "Branch admin deleted successfully",
-          }),
-        );
-        toast.success("Branch admin deleted successfully");
-        refetchBranchManagers();
-      } catch (error: any) {
-        console.error("Error deleting branch admin:", error);
-        dispatch(
-          addNotification({
-            type: "error",
-            message: error.data?.message || "Failed to delete branch admin",
-          }),
-        );
-        toast.error(error.data?.message || "Failed to delete branch admin");
-      }
+    if (!window.confirm("Are you sure you want to delete this branch admin?"))
+      return;
+
+    try {
+      await deleteBranchManager(id).unwrap();
+      dispatch(
+        addNotification({
+          type: "success",
+          message: "Branch admin deleted successfully",
+        }),
+      );
+      toast.success("Branch admin deleted successfully");
+      refetchBranchManagers();
+    } catch (error: any) {
+      dispatch(
+        addNotification({
+          type: "error",
+          message: error.data?.message || "Failed to delete branch admin",
+        }),
+      );
+      toast.error(error.data?.message || "Failed to delete branch admin");
     }
   };
 
-  // Handle opening credentials modal
-  const handleViewCredentials = (manager: BranchManager) => {
-    setSelectedManager(manager);
-    setIsCredentialsModalOpen(true);
-  };
-
   return (
-    <>
-      <div className='container py-6'>
-        <Card className='shadow-md'>
-          <CardHeader className='bg-muted/50'>
-            <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
-              <div>
-                <CardTitle className='text-2xl flex items-center gap-2'>
-                  <Building className='h-6 w-6' />
-                  Branch Admin Administration
-                </CardTitle>
-                <CardDescription>
-                  Create and manage branch admin credentials
-                </CardDescription>
-              </div>
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className='gap-1'>
-                    <UserPlus className='h-4 w-4' />
-                    New Branch Admin
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Create Branch Admin</DialogTitle>
-                    <DialogDescription>
-                      Create login credentials for a new branch admin. The
-                      system will generate an Application ID and Password.
-                    </DialogDescription>
-                  </DialogHeader>
+    <div className='container py-6'>
+      <Card className='shadow-md'>
+        <CardHeader className='bg-muted/50'>
+          <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+            <div>
+              <CardTitle className='text-2xl flex items-center gap-2'>
+                <Building className='h-6 w-6' />
+                Branch Admin Administration
+              </CardTitle>
+              <CardDescription>
+                Create and manage branch admin credentials
+              </CardDescription>
+            </div>
 
-                  <div className='space-y-4 py-4'>
-                    <div className='space-y-2'>
-                      <Label htmlFor='branch'>Select Branch</Label>
-                      <Select
-                        value={selectedBranch}
-                        onValueChange={setSelectedBranch}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder='Select a branch' />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {branchesLoading ? (
-                              <SelectItem value='loading' disabled>
-                                Loading branches...
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className='gap-1'>
+                  <UserPlus className='h-4 w-4' />
+                  New Branch Admin
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create Branch Admin</DialogTitle>
+                  <DialogDescription>
+                    Create login credentials for a new branch admin. The system
+                    will generate an Application ID and Password.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className='space-y-4 py-4'>
+                  <div className='space-y-2'>
+                    <Label htmlFor='branch'>Select Branch</Label>
+                    <Select
+                      value={selectedBranch}
+                      onValueChange={setSelectedBranch}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder='Select a branch' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {branchesLoading ? (
+                            <SelectItem value='loading' disabled>
+                              Loading branches...
+                            </SelectItem>
+                          ) : branches.length === 0 ? (
+                            <SelectItem value='none' disabled>
+                              No branches available
+                            </SelectItem>
+                          ) : (
+                            branches.map((branch) => (
+                              <SelectItem key={branch._id} value={branch._id}>
+                                {branch.branchName}
                               </SelectItem>
-                            ) : branches.length === 0 ? (
-                              <SelectItem value='none' disabled>
-                                No branches available
-                              </SelectItem>
-                            ) : (
-                              branches.map((branch) => (
-                                <SelectItem key={branch._id} value={branch._id}>
-                                  {branch.branchName}
-                                </SelectItem>
-                              ))
-                            )}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                            ))
+                          )}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </div>
-
-                  <DialogFooter>
-                    <Button
-                      variant='outline'
-                      onClick={() => setIsDialogOpen(false)}
-                      disabled={isCreating}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleCreateBranchManager}
-                      disabled={!selectedBranch || isCreating}
-                    >
-                      {isCreating ? "Creating..." : "Create Branch Admin"}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </CardHeader>
-
-          <CardContent className='p-6'>
-            <div className='space-y-6'>
-              <div className='flex items-center gap-2'>
-                <div className='relative flex-1'>
-                  <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
-                  <Input
-                    type='search'
-                    placeholder='Search branch admins...'
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className='pl-8'
-                  />
                 </div>
-              </div>
 
-              {branchManagersLoading ? (
-                <div className='text-center py-8 text-muted-foreground'>
-                  Loading branch admins...
-                </div>
-              ) : filteredBranchManagers.length === 0 ? (
-                <div className='text-center py-8 text-muted-foreground'>
-                  {searchTerm
-                    ? "No branch admins found matching your search"
-                    : "No branch admins available. Create a branch admin to get started."}
-                </div>
-              ) : (
-                <div className='rounded-md border'>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Application ID</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Created</TableHead>
-                        <TableHead className='text-right'>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredBranchManagers.map((manager) => (
-                        <TableRow key={manager._id}>
-                          <TableCell className='font-medium'>
-                            {manager.applicationId}
-                          </TableCell>
-                          <TableCell>
-                            {manager.branch?.address || "Unknown"}
-                          </TableCell>
-                          <TableCell>
-                            {new Date(manager.createdAt).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell className='text-right'>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              onClick={() =>
-                                handleDeleteBranchManager(manager._id)
-                              }
-                              disabled={isDeleting}
-                            >
-                              <Trash2 className='h-4 w-4 text-destructive' />
-                            </Button>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              onClick={() => handleViewCredentials(manager)}
-                            >
-                              <ExternalLink className='h-4 w-4' />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Credentials Modal */}
-        <Dialog
-          open={isCredentialsModalOpen}
-          onOpenChange={setIsCredentialsModalOpen}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Branch Admin Credentials</DialogTitle>
-              <DialogDescription>
-                Login credentials for the selected branch admin.
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className='space-y-4 py-2'>
-              <div className='space-y-2'>
-                <Label>Application ID</Label>
-                <div className='flex items-center gap-2'>
-                  <Input
-                    value={selectedManager?.applicationId || ""}
-                    readOnly
-                    className='font-mono'
-                  />
+                <DialogFooter>
                   <Button
                     variant='outline'
-                    size='icon'
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        selectedManager?.applicationId || "",
-                      );
-                      toast.success("Application ID copied to clipboard");
-                    }}
+                    onClick={() => setIsDialogOpen(false)}
+                    disabled={isCreating}
                   >
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      width='16'
-                      height='16'
-                      viewBox='0 0 24 24'
-                      fill='none'
-                      stroke='currentColor'
-                      strokeWidth='2'
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                    >
-                      <rect x='9' y='9' width='13' height='13' rx='2' ry='2' />
-                      <path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1' />
-                    </svg>
+                    Cancel
                   </Button>
+                  <Button
+                    onClick={handleCreateBranchManager}
+                    disabled={!selectedBranch || isCreating}
+                  >
+                    {isCreating ? "Creating..." : "Create Branch Admin"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </CardHeader>
+
+        <CardContent className='p-6'>
+          <div className='space-y-6'>
+            {/* New credentials banner — visible for 5 minutes after creation */}
+            {newCredentials && (
+              <div className='rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3'>
+                <div className='flex items-center justify-between'>
+                  <p className='text-sm font-semibold text-amber-800'>
+                    ⚠ Save these credentials now — disappears in {timeLeft}s
+                  </p>
+                  <button
+                    onClick={() => setNewCredentials(null)}
+                    className='text-amber-600 hover:text-amber-800 text-xs font-medium'
+                  >
+                    Dismiss
+                  </button>
                 </div>
+                <CopyField
+                  label='Application ID'
+                  value={newCredentials.applicationId}
+                />
+                <CopyField label='Password' value={newCredentials.password} />
+                <CopyField label='Branch' value={newCredentials.branchName} />
               </div>
+            )}
 
-              <div className='space-y-2'>
-                <Label>Password</Label>
-                {isFetchingPassword ? (
-                  <Input
-                    value='Loading...'
-                    readOnly
-                    className='font-mono bg-gray-100'
-                  />
-                ) : passwordData?.data?.password ? (
-                  <div className='flex items-center gap-2'>
-                    <Input
-                      value={passwordData.data.password}
-                      readOnly
-                      className='font-mono'
-                    />
-                    <Button
-                      variant='outline'
-                      size='icon'
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          passwordData.data.password,
-                        );
-                        toast.success("Password copied to clipboard");
-                      }}
-                    >
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        width='16'
-                        height='16'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='2'
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                      >
-                        <rect
-                          x='9'
-                          y='9'
-                          width='13'
-                          height='13'
-                          rx='2'
-                          ry='2'
-                        />
-                        <path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1' />
-                      </svg>
-                    </Button>
-                  </div>
-                ) : (
-                  <div className='p-3 bg-gray-100 rounded-md text-center'>
-                    <p className='text-sm text-amber-600'>
-                      Unable to fetch password. You may need to delete and
-                      recreate the branch admin.
-                    </p>
-                    <Button
-                      variant='outline'
-                      className='mt-2'
-                      onClick={() => {
-                        // Close this dialog
-                        setIsCredentialsModalOpen(false);
-
-                        // Confirm before deleting
-                        if (
-                          window.confirm(
-                            `Are you sure you want to delete and recreate this branch admin? This will invalidate any current login sessions.`,
-                          )
-                        ) {
-                          // Delete first
-                          selectedManager &&
-                            handleDeleteBranchManager(selectedManager._id);
-
-                          // Then open create dialog with the same branch pre-selected
-                          if (selectedManager?.branch?._id) {
-                            setSelectedBranch(selectedManager.branch._id);
-                            setTimeout(() => {
-                              setIsDialogOpen(true);
-                            }, 300);
-                          }
-                        }
-                      }}
-                    >
-                      Delete & Recreate Manager
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <Label>Branch</Label>
+            {/* Search */}
+            <div className='flex items-center gap-2'>
+              <div className='relative flex-1'>
+                <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
                 <Input
-                  value={selectedManager?.branch?.branchName || ""}
-                  readOnly
+                  type='search'
+                  placeholder='Search branch admins...'
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className='pl-8'
                 />
               </div>
             </div>
 
-            <DialogFooter>
-              <Button onClick={() => setIsCredentialsModalOpen(false)}>
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </>
+            {/* Table */}
+            {branchManagersLoading ? (
+              <div className='text-center py-8 text-muted-foreground'>
+                Loading branch admins...
+              </div>
+            ) : filteredBranchManagers.length === 0 ? (
+              <div className='text-center py-8 text-muted-foreground'>
+                {searchTerm
+                  ? "No branch admins found matching your search"
+                  : "No branch admins available. Create a branch admin to get started."}
+              </div>
+            ) : (
+              <div className='rounded-md border'>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Application ID</TableHead>
+                      <TableHead>Branch</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead className='text-right'>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredBranchManagers.map((manager) => (
+                      <TableRow key={manager._id}>
+                        <TableCell className='font-medium font-mono'>
+                          {manager.applicationId}
+                        </TableCell>
+                        <TableCell>
+                          {manager.branch?.branchName || "—"}
+                        </TableCell>
+                        <TableCell>{manager.branch?.address || "—"}</TableCell>
+                        <TableCell>
+                          {new Date(manager.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className='text-right'>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            onClick={() =>
+                              handleDeleteBranchManager(manager._id)
+                            }
+                            disabled={isDeleting}
+                          >
+                            <Trash2 className='h-4 w-4 text-destructive' />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
