@@ -54,8 +54,7 @@ export const ROUTES = {
     DASHBOARD: "/manager/dashboard",
     SERVICE_BOOKINGS: "/manager/service-bookings",
     ACCIDENT_REPORTS: "/manager/accident-reports",
-    ENQUIRIES: "/manager/enquiries",
-    APPLICATIONS: "/manager/applications",
+
     STOCK: "/manager/stock",
     VAS: "/manager/vas",
     CUSTOMER_VEHICLES: "/manager/customer-vehicles",

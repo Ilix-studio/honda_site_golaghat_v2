@@ -24,8 +24,9 @@ import {
 } from "./config/routeHelpers";
 
 // Import global components
-import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
+
 import { usePageTitle } from "./hooks/usePageTitle";
+import NotificationSystem from "./SystemComponents/authentication/Admin/NotificationSystem";
 
 const App: React.FC = () => {
   const location = useLocation();

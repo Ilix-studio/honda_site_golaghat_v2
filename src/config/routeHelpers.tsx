@@ -1,10 +1,11 @@
 import React, { Suspense } from "react";
 import { Route } from "react-router-dom";
-import AdminHeader from "../mainComponents/Home/Header/AdminHeader";
-import ManagerHeader from "../mainComponents/Home/Header/ManagerHeader";
-import { CustomerDashHeader } from "../mainComponents/Home/Header/CustomerDashHeader";
-import { Header } from "../mainComponents/Home/Header/Header";
+
 import ProtectedRoute from "./ProtectedRoute";
+import { Header } from "@/SystemComponents/headers/Header";
+import AdminHeader from "@/SystemComponents/headers/AdminHeader";
+import { CustomerDashHeader } from "@/SystemComponents/headers/CustomerDashHeader";
+import ManagerHeader from "@/SystemComponents/headers/ManagerHeader";
 
 // LOADING FALLBACK COMPONENT
 const RouteLoadingFallback: React.FC = () => (

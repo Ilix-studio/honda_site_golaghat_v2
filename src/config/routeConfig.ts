@@ -2,11 +2,13 @@ import { lazy } from "react";
 
 // IMMEDIATE ROUTES - No lazy loading for critical routes
 // Essential components that should load immediately
-import Home from "../Home";
-import NotFoundPage from "../mainComponents/NotFoundPage";
-import { ViewBikeImage } from "@/mainComponents/Admin/Bikes/ViewBikeImage";
-import { SimpleBookService } from "@/mainComponents/BookService/SimpleBookService";
-const BillMemo = lazy(() => import("@/mainComponents/Admin/ZBillMemo"));
+import Home from "../SystemComponents/public/Home";
+import NotFoundPage from "../SystemComponents/common/NotFoundPage";
+import { ViewBikeImage } from "../SystemComponents/shared/BikesCRUD/ViewBikeImage";
+import { SimpleBookService } from "../SystemComponents/authentication/CustomerSystem/BookService/SimpleBookService";
+const BillMemo = lazy(
+  () => import("../SystemComponents/authentication/Admin/ZBillMemo"),
+);
 
 export const immediateRoutes = [
   {
@@ -17,53 +19,62 @@ export const immediateRoutes = [
 
 // PUBLIC ROUTES - With lazy loading
 // Public pages accessible to everyone
-const Finance = lazy(() => import("../mainComponents/NavMenu/Finance"));
-const Contact = lazy(() => import("../mainComponents/NavMenu/Contact"));
+const Finance = lazy(
+  () => import("../SystemComponents/public/NavMenu/Finance"),
+);
+const Contact = lazy(
+  () => import("../SystemComponents/public/NavMenu/Contact"),
+);
 const BranchesPage = lazy(
-  () => import("../mainComponents/NavMenu/Branches/BranchesPage"),
+  () => import("../SystemComponents/public/NavMenu/Branches/BranchesPage"),
 );
 const BranchDetailPage = lazy(
-  () => import("../mainComponents/NavMenu/Branches/BranchDetailPage"),
+  () => import("../SystemComponents/public/NavMenu/Branches/BranchDetailPage"),
 );
 const ViewAllBikes = lazy(() =>
-  import("../mainComponents/BikeDetails/ViewAllBikes").then((module) => ({
-    default: module.ViewAllBikes,
-  })),
+  import("../SystemComponents/shared/BikeDetails/ViewAllBikes").then(
+    (module) => ({
+      default: module.ViewAllBikes,
+    }),
+  ),
 );
 const BikeDetailsPage = lazy(
-  () => import("../mainComponents/BikeDetails/BikeDetailsPage"),
+  () => import("../SystemComponents/shared/BikeDetails/BikeDetailsPage"),
 );
 const ScooterDetailPage = lazy(
-  () => import("../mainComponents/BikeDetails/ScooterDetailPage"),
+  () => import("../SystemComponents/shared/BikeDetails/ScooterDetailPage"),
 );
 const CompareBike = lazy(
-  () => import("../mainComponents/BikeDetails/CompareBikes/CompareBike"),
+  () =>
+    import("../SystemComponents/shared/BikeDetails/CompareBikes/CompareBike"),
 );
 
 const SearchResults = lazy(
-  () => import("../mainComponents/Search/SearchResults"),
+  () => import("../SystemComponents/public/Search/SearchResults"),
 );
 
 const DealershipLocator = lazy(
-  () => import("../mainComponents/Location/DealershipLocator"),
+  () => import("../SystemComponents/public/Location/DealershipLocator"),
 );
 
 const DealershipReviews = lazy(
-  () => import("../mainComponents/Location/DealershipReviews"),
+  () => import("../SystemComponents/public/Location/DealershipReviews"),
 );
 
 // View System - Public access
 const ViewAllBranches = lazy(
-  () => import("../mainComponents/ViewBS2/ViewAllBranches"),
+  () => import("../SystemComponents/shared/ViewBS2/ViewAllBranches"),
 );
 //
-const SelectVas = lazy(() => import("@/mainComponents/BikeSystem2/SelectVas"));
+const SelectVas = lazy(
+  () => import("@/SystemComponents/shared/VAScrud/SelectVas"),
+);
 
 const ViewStockConcept = lazy(
-  () => import("../mainComponents/ViewBS2/ViewStockConcept"),
+  () => import("../SystemComponents/shared/ViewBS2/ViewStockConcept"),
 );
 const DownloadSafetyfeature = lazy(
-  () => import("../mainComponents/ViewBS2/DownloadSafetyfeature"),
+  () => import("../SystemComponents/shared/ViewBS2/DownloadSafetyfeature"),
 );
 
 export const publicRoutes = [
@@ -104,93 +115,109 @@ export const publicRoutes = [
 
 // Admin Authentication
 const LoginSuperAdmin = lazy(
-  () => import("../mainComponents/Admin/LoginSuperAdmin"),
+  () => import("../SystemComponents/authentication/Admin/LoginSuperAdmin"),
 );
 const LoginBranchManager = lazy(
-  () => import("@/mainComponents/Admin/LoginBranchManager"),
+  () =>
+    import("../SystemComponents/authentication/BranchManager/LoginBranchManager"),
 );
 
 // Admin Dashboard
 const AdminDashboard = lazy(
-  () => import("../mainComponents/Admin/AdminDash/AdminDashboard"),
+  () =>
+    import("../SystemComponents/authentication/Admin/AdminDash/AdminDashboard"),
 );
 
 // Branch Management
 const AddBranch = lazy(
-  () => import("../mainComponents/NavMenu/Branches/AddBranch"),
+  () => import("../SystemComponents/public/NavMenu/Branches/AddBranch"),
 );
 const BranchManager = lazy(
-  () => import("../mainComponents/Admin/BranchM/BranchManager"),
+  () =>
+    import("../SystemComponents/authentication/BranchManager/BranchManager"),
 );
 
 // Bike Management
-const AddBikes = lazy(() => import("../mainComponents/Admin/Bikes/AddBikes"));
-const EditBikes = lazy(() => import("../mainComponents/Admin/Bikes/EditBikes"));
+const AddBikes = lazy(
+  () => import("../SystemComponents/shared/BikesCRUD/AddBikes"),
+);
+const EditBikes = lazy(
+  () => import("../SystemComponents/shared/BikesCRUD/EditBikes"),
+);
 const AddBikeImage = lazy(
-  () => import("../mainComponents/Admin/Bikes/AddBikeImage"),
+  () => import("../SystemComponents/shared/BikesCRUD/AddBikeImage"),
 );
 const EditBikeImage = lazy(
-  () => import("../mainComponents/Admin/Bikes/EditBikeImage"),
+  () => import("../SystemComponents/shared/BikesCRUD/EditBikeImage"),
 );
 
 // Customer Management (Admin only)
 
 // Business System Forms
-const VASForm = lazy(() => import("../mainComponents/BikeSystem2/VASForm"));
+const VASForm = lazy(
+  () => import("../SystemComponents/shared/VAScrud/VASForm"),
+);
 
 const StockConceptForm = lazy(
-  () => import("../mainComponents/BikeSystem2/StockConceptForm"),
+  () => import("../SystemComponents/shared/InventoryManual/StockConceptForm"),
 );
 
 const AdminBookingsManager = lazy(
-  () => import("@/mainComponents/Admin/ServiceBookings/AdminBookingsManager"),
+  () =>
+    import("../SystemComponents/authentication/Admin/ServiceBookings/AdminBookingsManager"),
 );
 const CustomerSignUp = lazy(
-  () => import("@/mainComponents/CustomerSystem/CustomerSignUp"),
+  () =>
+    import("../SystemComponents/authentication/CustomerSystem/CustomerSignUp"),
 );
 const AssignStock = lazy(
-  () => import("@/mainComponents/CustomerSystem/ActivateFeature/AssignStock"),
+  () => import("@/SystemComponents/shared/ActivateFeature/AssignStock"),
 );
 const UploadCSVForm = lazy(
-  () => import("@/mainComponents/BikeSsytem3/UploadCSVForm"),
+  () => import("@/SystemComponents/shared/InventoryCSV/UploadCSVForm"),
 );
 const SelectStockForm = lazy(
-  () => import("@/mainComponents/BikeSsytem3/SelectStockForm"),
+  () => import("@/SystemComponents/shared/InventoryCSV/SelectStockForm"),
 );
 
 const GetCSVFiles = lazy(
-  () => import("@/mainComponents/BikeSsytem3/GetCSVFiles"),
+  () => import("@/SystemComponents/shared/InventoryCSV/GetCSVFiles"),
 );
 
 const GetAllStockFiles = lazy(
-  () => import("@/mainComponents/BikeSsytem3/GetAllStockFiles"),
+  () => import("@/SystemComponents/shared/InventoryCSV/GetAllStockFiles"),
 );
 
 const FinanceQueries = lazy(
-  () =>
-    import("@/mainComponents/Admin/AdminDash/FinanceEnquiry/FinanceQueries"),
+  () => import("../SystemComponents/shared/FinanceEnquiry/FinanceQueries"),
 );
 const ViewBikeImages = lazy(
-  () => import("@/mainComponents/Admin/Bikes/ViewBike/ViewBikeImages"),
+  () => import("../SystemComponents/shared/BikesCRUD/ViewBike/ViewBikeImages"),
 );
 
 const ViewScootyImages = lazy(
-  () => import("@/mainComponents/Admin/Bikes/ViewBike/ViewScootymages"),
+  () => import("../SystemComponents/shared/BikesCRUD/ViewBike/ViewScootymages"),
 );
 
 const BikeImageManager = lazy(
-  () => import("@/mainComponents/Admin/AdminDash/BikeImageManager"),
+  () =>
+    import("../SystemComponents/authentication/Admin/AdminDash/BikeImageManager"),
 );
-const SeeMessages = lazy(() => import("@/mainComponents/Admin/SeeMessages"));
+const SeeMessages = lazy(
+  () => import("../SystemComponents/authentication/Admin/SeeMessages"),
+);
 
 const GetAllAccidentReports = lazy(
-  () => import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReports"),
+  () =>
+    import("../SystemComponents/shared/AcidentReport/GetAllAccidentReports"),
 );
 const GetAllAccidentReportsById = lazy(
   () =>
-    import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReportsById"),
+    import("../SystemComponents/shared/AcidentReport/GetAllAccidentReportsById"),
 );
-const ViewVAS = lazy(() => import("../mainComponents/ViewBS2/ViewVAS"));
+const ViewVAS = lazy(
+  () => import("../SystemComponents/shared/ViewBS2/ViewVAS"),
+);
 // Create admin routes array
 const createAdminRoutes = () => [
   // Authentication
@@ -215,7 +242,7 @@ const createAdminRoutes = () => [
   { path: "/admin/bikes/add/:id/images", component: BikeImageManager },
 
   // Customer Management
-  { path: "/admin/customers/signup", component: CustomerSignUp },
+  { path: "/customers/signup", component: CustomerSignUp },
 
   // Business System Forms
   { path: "/admin/vas/select", component: SelectVas },
@@ -249,61 +276,68 @@ export const adminRoutes = createAdminRoutes();
 
 // Customer Dashboard
 const InitialDashboard = lazy(
-  () => import("../mainComponents/CustomerSystem/Dashboards/InitialDashboard"),
+  () =>
+    import("../SystemComponents/authentication/CustomerSystem/Dashboards/InitialDashboard"),
 );
 const CustomerMainDash = lazy(
-  () => import("../mainComponents/CustomerSystem/Dashboards/CustomerMainDash"),
+  () =>
+    import("../SystemComponents/authentication/CustomerSystem/Dashboards/CustomerMainDash"),
 );
 
 // Customer Profile
 const CustomerCreateProfile = lazy(
-  () => import("../mainComponents/CustomerSystem/CustomerCreateProfile"),
+  () =>
+    import("../SystemComponents/authentication/CustomerSystem/CustomerCreateProfile"),
 );
 
 // Customer Vehicle Management
 const CustomerVehicleInfo = lazy(
-  () => import("../mainComponents/BikeSystem2/CustomerVehicleInfo"),
+  () => import("../SystemComponents/shared/AssignCustomer/CustomerVehicleInfo"),
 );
 
 // Customer Services
 
 const ActivateVAS = lazy(
-  () => import("../mainComponents/CustomerSystem/ActivateFeature/ActivateVAS"),
+  () => import("../SystemComponents/shared/ActivateFeature/ActivateVAS"),
 );
 
 const CustomerServices = lazy(
-  () => import("../mainComponents/CustomerSystem/Head/CustomerServices"),
+  () => import("../SystemComponents/shared/Support/CustomerServices"),
 );
 
 const CustomerSupport = lazy(
-  () =>
-    import("@/mainComponents/CustomerSystem/Head/CustomerSupport/CustomerSupport"),
+  () => import("@/SystemComponents/shared/CustomerSupport/CustomerSupport"),
 );
 
 const CustomerProfile = lazy(
-  () => import("@/mainComponents/CustomerSystem/CustomerProfile"),
+  () =>
+    import("../SystemComponents/authentication/CustomerSystem/CustomerProfile"),
 );
 const ChooseStock = lazy(
-  () => import("@/mainComponents/CustomerSystem/SelectStock/ChooseStock"),
+  () => import("@/SystemComponents/shared/SelectStock/ChooseStock"),
 );
 const CustomerCSVStock = lazy(
-  () => import("@/mainComponents/CustomerSystem/SelectStock/CustomerCSVStock"),
+  () => import("@/SystemComponents/shared/SelectStock/CustomerCSVStock"),
 );
-const UseToken = lazy(() => import("@/mainComponents/Scanfleet/UseToken"));
+const UseToken = lazy(
+  () => import("@/SystemComponents/shared/Scanfleet/UseToken"),
+);
 
 const FirstDash = lazy(
-  () => import("@/mainComponents/CustomerSystem/Dashboards/FirstDash"),
+  () =>
+    import("@/SystemComponents/authentication/CustomerSystem/Dashboards/FirstDash"),
 );
 
 const CustomerVehicleDetail = lazy(
-  () => import("@/mainComponents/BikeSystem2/CustomerVehicleDetail"),
+  () =>
+    import("@/SystemComponents/shared/AssignCustomer/CustomerVehicleDetail"),
 );
 
 // Create customer routes array
 const createCustomerRoutes = () => {
   const CustomerLoginComponent = lazy(async () => {
     const module =
-      await import("../mainComponents/CustomerSystem/CustomerLogin");
+      await import("../SystemComponents/authentication/CustomerSystem/CustomerLogin");
     return { default: module.default };
   });
 
@@ -336,78 +370,6 @@ const createCustomerRoutes = () => {
 };
 
 export const customerRoutes = createCustomerRoutes();
-
-// BRANCH MANAGER ROUTES - Protected routes with /manager prefix
-const BranchManagerDashboard = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchManagerDashboard"),
-);
-
-const BranchServiceBookings = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchServiceBookings"),
-);
-
-const BranchAccidentReports = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchAccidentReports"),
-);
-
-const BranchEnquiries = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchEnquiries"),
-);
-
-const BranchApplications = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchApplications"),
-);
-
-const BranchStockManagement = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchStockManagement"),
-);
-
-const BranchVASManagement = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchVASManagement"),
-);
-
-const BranchCustomerVehicles = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchCustomerVehicles"),
-);
-
-const BranchFinanceQueries = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchFinanceQueries"),
-);
-
-// Create branch manager routes array
-const createBranchManagerRoutes = () => [
-  // Authentication
-  { path: "/manager-login", component: LoginBranchManager },
-
-  // Dashboard
-  { path: "/manager/dashboard", component: BranchManagerDashboard },
-
-  // Service Bookings
-  { path: "/manager/service-bookings", component: BranchServiceBookings },
-
-  // Accident Reports
-  { path: "/manager/accident-reports", component: BranchAccidentReports },
-
-  // Enquiries
-  { path: "/manager/enquiries", component: BranchEnquiries },
-
-  // Applications
-  { path: "/manager/applications", component: BranchApplications },
-
-  // Stock Management
-  { path: "/manager/stock", component: BranchStockManagement },
-
-  // VAS Management
-  { path: "/manager/vas", component: BranchVASManagement },
-
-  // Customer Vehicles
-  { path: "/manager/customer-vehicles", component: BranchCustomerVehicles },
-
-  // Finance Queries
-  { path: "/manager/finance-queries", component: BranchFinanceQueries },
-];
-
-export const branchManagerRoutes = createBranchManagerRoutes();
 
 // Route configuration for dynamic titles and navigation
 export const routeConfig: Record<
@@ -493,18 +455,7 @@ export const routeConfig: Record<
     showBack: true,
     backTo: "/manager/dashboard",
   },
-  "/manager/enquiries": {
-    title: "Enquiries",
-    subtitle: "Manage customer enquiries",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/applications": {
-    title: "Applications",
-    subtitle: "Manage customer applications",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
+
   "/manager/stock": {
     title: "Stock Management",
     subtitle: "Manage branch stock",
@@ -530,6 +481,71 @@ export const routeConfig: Record<
     backTo: "/manager/dashboard",
   },
 };
+
+// BRANCH MANAGER ROUTES - Protected routes with /manager prefix
+const BranchManagerDashboard = lazy(
+  () =>
+    import("../SystemComponents/authentication/BranchManager/BranchManagerDashboard"),
+);
+
+const BranchServiceBookings = lazy(
+  () =>
+    import("../SystemComponents/authentication/BranchManager/BranchServiceBookings"),
+);
+
+const BranchAccidentReports = lazy(
+  () =>
+    import("../SystemComponents/authentication/BranchManager/BranchAccidentReports"),
+);
+
+const BranchStockManagement = lazy(
+  () =>
+    import("../SystemComponents/authentication/BranchManager/BranchStockManagement"),
+);
+
+const BranchVASManagement = lazy(
+  () =>
+    import("../SystemComponents/authentication/BranchManager/BranchVASManagement"),
+);
+
+const BranchCustomerVehicles = lazy(
+  () =>
+    import("../SystemComponents/authentication/BranchManager/BranchCustomerVehicles"),
+);
+
+const BranchFinanceQueries = lazy(
+  () =>
+    import("../SystemComponents/authentication/BranchManager/BranchFinanceQueries"),
+);
+
+// Create branch manager routes array
+const createBranchManagerRoutes = () => [
+  // Authentication
+  { path: "/manager-login", component: LoginBranchManager },
+
+  // Dashboard
+  { path: "/manager/dashboard", component: BranchManagerDashboard },
+
+  // Service Bookings
+  { path: "/manager/service-bookings", component: BranchServiceBookings },
+
+  // Accident Reports
+  { path: "/manager/accident-reports", component: BranchAccidentReports },
+
+  // Stock Management
+  { path: "/manager/stock", component: BranchStockManagement },
+
+  // VAS Management
+  { path: "/manager/vas", component: BranchVASManagement },
+
+  // Customer Vehicles
+  { path: "/manager/customer-vehicles", component: BranchCustomerVehicles },
+
+  // Finance Queries
+  { path: "/manager/finance-queries", component: BranchFinanceQueries },
+];
+
+export const branchManagerRoutes = createBranchManagerRoutes();
 
 // FALLBACK ROUTE
 export const fallbackRoute = {
