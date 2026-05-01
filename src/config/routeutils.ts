@@ -115,6 +115,9 @@ export const ROUTES = {
     VAS_SELECT: "/manager/vas/select",
     ANY_MESSAGES: "/manager/any-messages",
     FINANCE_QUERY: "/manager/finanace-query", // Keep typo to match backend route
+    STOCK: "/manager/stockC/select",
+    VAS: "/manager/vas/select",
+    FINANCE_QUERIES: "/manager/finanace-query",
   },
   DOWNLOAD: { SAFETY_FEATURES: "/download/safety-features" },
 } as const;

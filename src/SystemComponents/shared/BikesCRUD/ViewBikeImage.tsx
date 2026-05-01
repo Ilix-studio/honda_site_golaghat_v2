@@ -336,7 +336,7 @@ export function ViewBikeImage() {
 
   // Redux selectors
   const viewMode = useAppSelector(selectImageViewMode);
-  const selectedImages = useAppSelector(selectSelectedImages);
+  const selectedImages: string[] = useAppSelector(selectSelectedImages);
   const showImageViewer = useAppSelector(
     (state) => state.bikeImages.showImageViewer,
   );
@@ -527,7 +527,7 @@ export function ViewBikeImage() {
                 size='sm'
                 onClick={() => {
                   // Handle bulk delete
-                  selectedImages.forEach((imageId) =>
+                  selectedImages.forEach((imageId: string) =>
                     handleDeleteImage(imageId),
                   );
                   dispatch(clearSelection());

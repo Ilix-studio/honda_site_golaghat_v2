@@ -72,7 +72,7 @@ export const store = configureStore({
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
         ignoredPaths: ["api"],
       },
-    }).concat(apiSlice.middleware),
+    }).concat(apiSlice.middleware) as any,
 });
 
 // Create persistor for use with PersistGate

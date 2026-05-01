@@ -278,7 +278,7 @@ const bikesSlice = createSlice({
     },
     updateBikeInList: (state, action: PayloadAction<Bike>) => {
       const index = state.bikes.findIndex(
-        (bike) => bike._id === action.payload._id
+        (bike) => bike._id === action.payload._id,
       );
       if (index !== -1) {
         state.bikes[index] = action.payload;
@@ -338,7 +338,7 @@ const bikesSlice = createSlice({
     },
     setPriceRange: (
       state,
-      action: PayloadAction<{ min: number; max: number }>
+      action: PayloadAction<{ min: number; max: number }>,
     ) => {
       state.priceRange = action.payload;
     },
@@ -428,27 +428,28 @@ export const selectFilteredBikes = (state: RootState) => {
   if (!searchQuery) return bikes;
 
   return bikes.filter(
-    (bike) =>
+    (bike: Bike) =>
       bike.modelName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       bike.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      bike.features.some((feature) =>
-        feature.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      bike.features.some((feature: string) =>
+        feature.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
   );
 };
 
 export const selectBikeById = (state: RootState, bikeId: string) =>
-  state.bikes.bikes.find((bike) => bike._id === bikeId);
+  state.bikes.bikes.find((bike: Bike) => bike._id === bikeId);
 
 export const selectBikesByCategory = (state: RootState, category: string) =>
-  state.bikes.bikes.filter((bike) => bike.category === category);
+  state.bikes.bikes.filter((bike: Bike) => bike.category === category);
 
 export const selectBikesByMainCategory = (
   state: RootState,
-  mainCategory: "bike" | "scooter"
-) => state.bikes.bikes.filter((bike) => bike.mainCategory === mainCategory);
+  mainCategory: "bike" | "scooter",
+) =>
+  state.bikes.bikes.filter((bike: Bike) => bike.mainCategory === mainCategory);
 
 export const selectInStockBikes = (state: RootState) =>
-  state.bikes.bikes.filter((bike) => bike.stockAvailable > 0);
+  state.bikes.bikes.filter((bike: Bike) => bike.stockAvailable > 0);
 
 export default bikesSlice.reducer;

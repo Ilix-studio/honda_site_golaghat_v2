@@ -165,7 +165,7 @@ const bikeImageSlice = createSlice({
     },
     setBikeImages: (
       state,
-      action: PayloadAction<{ bikeId: string; images: BikeImage[] }>
+      action: PayloadAction<{ bikeId: string; images: BikeImage[] }>,
     ) => {
       const { bikeId, images } = action.payload;
       state.imagesByBike[bikeId] = images;
@@ -190,7 +190,7 @@ const bikeImageSlice = createSlice({
 
       // Update current bike images if applicable
       const currentBikeImages = newImages.filter(
-        (img) => img.bikeId === state.selectedBikeId
+        (img) => img.bikeId === state.selectedBikeId,
       );
       if (currentBikeImages.length > 0) {
         state.currentBikeImages.push(...currentBikeImages);
@@ -201,7 +201,7 @@ const bikeImageSlice = createSlice({
 
       // Update in main list
       const index = state.images.findIndex(
-        (img) => img._id === updatedImage._id
+        (img) => img._id === updatedImage._id,
       );
       if (index !== -1) {
         state.images[index] = updatedImage;
@@ -211,7 +211,7 @@ const bikeImageSlice = createSlice({
       const bikeImages = state.imagesByBike[updatedImage.bikeId];
       if (bikeImages) {
         const bikeIndex = bikeImages.findIndex(
-          (img) => img._id === updatedImage._id
+          (img) => img._id === updatedImage._id,
         );
         if (bikeIndex !== -1) {
           bikeImages[bikeIndex] = updatedImage;
@@ -220,7 +220,7 @@ const bikeImageSlice = createSlice({
 
       // Update in current bike images
       const currentIndex = state.currentBikeImages.findIndex(
-        (img) => img._id === updatedImage._id
+        (img) => img._id === updatedImage._id,
       );
       if (currentIndex !== -1) {
         state.currentBikeImages[currentIndex] = updatedImage;
@@ -244,12 +244,12 @@ const bikeImageSlice = createSlice({
 
       // Remove from current bike images
       state.currentBikeImages = state.currentBikeImages.filter(
-        (img) => img._id !== imageId
+        (img) => img._id !== imageId,
       );
 
       // Remove from selected images
       state.selectedImages = state.selectedImages.filter(
-        (id) => id !== imageId
+        (id) => id !== imageId,
       );
     },
     removeAllBikeImages: (state, action: PayloadAction<string>) => {
@@ -271,7 +271,7 @@ const bikeImageSlice = createSlice({
         .filter((img) => img.bikeId === bikeId)
         .map((img) => img._id);
       state.selectedImages = state.selectedImages.filter(
-        (id) => !imagesToRemove.includes(id)
+        (id) => !imagesToRemove.includes(id),
       );
     },
 
@@ -282,7 +282,7 @@ const bikeImageSlice = createSlice({
     updateUploadProgress: (state, action: PayloadAction<UploadProgress>) => {
       const progress = action.payload;
       const index = state.uploadProgress.findIndex(
-        (p) => p.imageId === progress.imageId
+        (p) => p.imageId === progress.imageId,
       );
       if (index !== -1) {
         state.uploadProgress[index] = progress;
@@ -305,7 +305,7 @@ const bikeImageSlice = createSlice({
       const imageId = action.payload;
       if (state.selectedImages.includes(imageId)) {
         state.selectedImages = state.selectedImages.filter(
-          (id) => id !== imageId
+          (id) => id !== imageId,
         );
       } else {
         state.selectedImages.push(imageId);
@@ -324,7 +324,7 @@ const bikeImageSlice = createSlice({
     },
     setSortBy: (
       state,
-      action: PayloadAction<"createdAt" | "isPrimary" | "alt">
+      action: PayloadAction<"createdAt" | "isPrimary" | "alt">,
     ) => {
       state.sortBy = action.payload;
     },
@@ -359,7 +359,7 @@ const bikeImageSlice = createSlice({
     // Primary image management
     setPrimaryImage: (
       state,
-      action: PayloadAction<{ bikeId: string; imageId: string }>
+      action: PayloadAction<{ bikeId: string; imageId: string }>,
     ) => {
       const { bikeId, imageId } = action.payload;
 
@@ -484,10 +484,10 @@ export const selectImagesByBikeId = (state: RootState, bikeId: string) =>
 
 export const selectPrimaryImageByBikeId = (
   state: RootState,
-  bikeId: string
+  bikeId: string,
 ) => {
   const images = state.bikeImages.imagesByBike[bikeId] || [];
-  return images.find((img) => img.isPrimary);
+  return images.find((img: BikeImage) => img.isPrimary);
 };
 
 export const selectSortedCurrentBikeImages = (state: RootState) => {
@@ -495,7 +495,7 @@ export const selectSortedCurrentBikeImages = (state: RootState) => {
     state.bikeImages;
 
   let filtered = showOnlyPrimary
-    ? currentBikeImages.filter((img) => img.isPrimary)
+    ? currentBikeImages.filter((img: BikeImage) => img.isPrimary)
     : currentBikeImages;
 
   return [...filtered].sort((a, b) => {
@@ -519,6 +519,6 @@ export const selectSortedCurrentBikeImages = (state: RootState) => {
 };
 
 export const selectImageById = (state: RootState, imageId: string) =>
-  state.bikeImages.images.find((img) => img._id === imageId);
+  state.bikeImages.images.find((img: BikeImage) => img._id === imageId);
 
 export default bikeImageSlice.reducer;
