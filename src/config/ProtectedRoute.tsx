@@ -95,7 +95,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         ? "/customer/login"
         : requiredRole === "branch-manager"
           ? "/manager-login"
-          : "/admin/login";
+          : "/admin/login/super";
     const redirectPath = redirectTo || loginPath;
 
     return (

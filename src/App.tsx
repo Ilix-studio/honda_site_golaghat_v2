@@ -113,12 +113,12 @@ const App: React.FC = () => {
 
         {/* ADMIN ROUTES - Protected admin routes with AdminHeader */}
         {adminRoutes
-          .filter(({ path }) => !path.includes("/admin/login")) // Separate auth routes
+          .filter(({ path }) => !path.includes("/admin/login/super")) // Separate auth routes
           .map(({ path, component }) => createAdminRoute(path, component))}
 
         {/* ADMIN AUTH ROUTES - Login pages without header */}
         {adminRoutes
-          .filter(({ path }) => path.includes("/admin/login"))
+          .filter(({ path }) => path.includes("/admin/login/super"))
           .map(({ path, component }) => createAuthRoute(path, component))}
 
         {/* CUSTOMER ROUTES - Protected customer routes with CustomerHeader */}

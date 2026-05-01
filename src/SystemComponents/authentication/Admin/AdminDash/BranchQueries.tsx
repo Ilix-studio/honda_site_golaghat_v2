@@ -52,7 +52,7 @@ const BranchQueries = () => {
       loading: customersLoading,
       description: "Total registered",
       accent: "#f97316",
-      action: { label: "Open Sign-up form", href: "/customers/signup" },
+      action: { label: "Open Sign-up form", href: "/admin/customers/signup" },
     },
     {
       title: "Branches",
@@ -70,7 +70,7 @@ const BranchQueries = () => {
       loading: managersLoading,
       description: "Active managers",
       accent: "#8b5cf6",
-      action: { label: "Add Manager", href: "/admin/branches/managers" },
+      action: { label: "Add Manager", href: "/admin/managers" },
     },
     {
       title: "Value-Added Services",

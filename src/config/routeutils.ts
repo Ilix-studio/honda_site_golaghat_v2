@@ -12,7 +12,7 @@ export const ROUTES = {
   VIEW_ALL: "/view-all",
 
   ADMIN: {
-    LOGIN: "/admin/login",
+    LOGIN: "/admin/login/super",
     CUSTOMER_SIGNUP: "/admin/customer-signup",
     DASHBOARD: "/admin/dashboard",
     BRANCHES: {

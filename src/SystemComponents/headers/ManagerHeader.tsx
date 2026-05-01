@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { LogOut, ArrowLeft, Menu, ChevronDown } from "lucide-react";
+import { LogOut, Menu, ChevronDown, ArrowLeft } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   DropdownMenu,
@@ -10,8 +10,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { useLogoutBranchManagerMutation } from "@/redux-store/services/branchManagerApi";
-import { logout, selectAuth } from "@/redux-store/slices/authSlice";
+
 import { addNotification } from "@/redux-store/slices/uiSlice";
+import {
+  branchLogout,
+  selectBranchAuth,
+} from "@/redux-store/slices/branchAuthSlice";
 
 const routeConfig: Record<
   string,
@@ -64,13 +68,50 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/manager/dashboard",
   },
+  "/manager/stockC/select": {
+    title: "Stock Selection",
+    subtitle: "Select stock for branch",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/forms/stock-concept-csv": {
+    title: "Stock Concept CSV",
+    subtitle: "Upload stock concept CSV",
+    showBack: true,
+    backTo: "/manager/stockC/select",
+  },
+  "/manager/vas/select": {
+    title: "VAS Selection",
+    subtitle: "Select VAS for branch",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+
+  "/manager/view/vas": {
+    title: "View VAS",
+    subtitle: "View VAS records",
+    showBack: true,
+    backTo: "/manager/vas/select",
+  },
+  "/manager/forms/vas": {
+    title: "Add VAS",
+    subtitle: "Add new VAS",
+    showBack: true,
+    backTo: "/manager/vas/select",
+  },
+  "/manager/customers/signup": {
+    title: "Register Customer",
+    subtitle: "Create new customer account",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
 };
 
 const ManagerHeader = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAppSelector(selectAuth);
+  const { isAuthenticated } = useAppSelector(selectBranchAuth);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [logoutBranchManager, { isLoading: isLoggingOut }] =
     useLogoutBranchManagerMutation();
@@ -81,8 +122,10 @@ const ManagerHeader = () => {
   };
 
   useEffect(() => {
-    if (!isAuthenticated) navigate("/manager-login");
-  }, [isAuthenticated, navigate]);
+    if (!isAuthenticated && location.pathname !== "/manager-login") {
+      navigate("/manager-login", { replace: true });
+    }
+  }, [isAuthenticated, location.pathname, navigate]);
 
   const handleLogout = async () => {
     setIsMenuOpen(false);
@@ -97,7 +140,7 @@ const ManagerHeader = () => {
         }),
       );
     } catch (error: any) {
-      dispatch(logout());
+      dispatch(branchLogout());
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       dispatch(

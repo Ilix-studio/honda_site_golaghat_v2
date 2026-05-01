@@ -24,33 +24,15 @@ import {
   UserPlus,
   Upload,
   Settings,
-  LogOut,
 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
-import {
-  selectBranchAuth,
-  branchLogout,
-} from "../../../redux-store/slices/branchAuthSlice";
-import { useLogoutBranchManagerMutation } from "../../../redux-store/services/branchManagerApi";
-import toast from "react-hot-toast";
+import { useAppSelector } from "../../../hooks/redux";
+import { selectBranchAuth } from "../../../redux-store/slices/branchAuthSlice";
 
 const BranchManagerDashboard = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+
   const { user, isAuthenticated } = useAppSelector(selectBranchAuth);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [logoutBranchManager] = useLogoutBranchManagerMutation();
-
-  const handleLogout = async () => {
-    try {
-      await logoutBranchManager().unwrap();
-    } catch {
-      // API call is optional — logout locally regardless
-    }
-    dispatch(branchLogout());
-    toast.success("Logged out successfully");
-    navigate("/manager-login");
-  };
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -152,7 +134,7 @@ const BranchManagerDashboard = () => {
     {
       title: "Add VAS",
       icon: Wrench,
-      path: "/manager/vas/select",
+      path: "/manager/forms/vas",
       color: "text-cyan-600 bg-cyan-50 hover:bg-cyan-100",
     },
     {
@@ -228,12 +210,7 @@ const BranchManagerDashboard = () => {
               >
                 <Home className='h-3 w-3 text-gray-400' /> Visit Homepage
               </Button>
-              <Button
-                className='text-red-400 text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 hover:bg-red-500/20'
-                onClick={handleLogout}
-              >
-                <LogOut className='h-3 w-3' /> Logout
-              </Button>
+
               <div className='flex items-center gap-4'>
                 <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20'>
                   <div className='h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse' />

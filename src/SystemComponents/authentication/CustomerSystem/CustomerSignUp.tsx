@@ -30,6 +30,7 @@ import { useSelector } from "react-redux";
 
 import { useSaveAuthDataMutation } from "@/redux-store/services/customer/customerLoginApi";
 import NotFoundPage from "@/SystemComponents/common/NotFoundPage";
+import { selectBranchAuth } from "@/redux-store/slices/branchAuthSlice";
 
 export interface CustomerSignUpProps {
   onSignUpSuccess?: () => void;
@@ -38,9 +39,10 @@ export interface CustomerSignUpProps {
 const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
   const { isAuthenticated } = useSelector(selectAuth);
   const isAdmin = useSelector(selectIsAdmin);
+  const { isAuthenticated: isBranchAuth } = useAppSelector(selectBranchAuth);
 
   // Check if user is authenticated admin
-  if (!isAuthenticated || !isAdmin) {
+  if (!isAuthenticated || (!isAdmin && !isBranchAuth)) {
     return <NotFoundPage />;
   }
 

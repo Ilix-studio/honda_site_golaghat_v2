@@ -1,43 +1,45 @@
-// src/components/admin/forms/SelectStockForm.tsx
+// src/SystemComponents/shared/VAS/SelectVas.tsx
 
 import { useNavigate } from "react-router-dom";
 import { FileSpreadsheet, Database, ArrowRight, Sparkles } from "lucide-react";
-
-const OPTIONS = [
-  {
-    id: "add_vas",
-    title: "Add VAS",
-    description:
-      "Register a new Value Added Service and attach it to vehicles in the system.",
-    icon: FileSpreadsheet,
-    route: "/admin/forms/vas",
-    buttonText: "Add VAS",
-    gradient: "from-red-500 to-orange-500",
-    lightBg: "bg-red-50",
-    iconColor: "text-red-600",
-    badgeBg: "bg-red-100",
-    badgeText: "text-red-600",
-    badge: "New entry",
-  },
-  {
-    id: "view_vas",
-    title: "View VAS",
-    description:
-      "Browse, edit, and manage all existing Value Added Services from one place.",
-    icon: Database,
-    route: "/admin/view/vas",
-    buttonText: "View VAS",
-    gradient: "from-blue-500 to-violet-500",
-    lightBg: "bg-blue-50",
-    iconColor: "text-blue-600",
-    badgeBg: "bg-blue-100",
-    badgeText: "text-blue-600",
-    badge: "Manage",
-  },
-];
+import { useRoutePrefix } from "@/hooks/useRoutePrefix";
 
 const SelectVas = () => {
   const navigate = useNavigate();
+  const prefix = useRoutePrefix();
+
+  const OPTIONS = [
+    {
+      id: "add_vas",
+      title: "Add VAS",
+      description:
+        "Register a new Value Added Service and attach it to vehicles in the system.",
+      icon: FileSpreadsheet,
+      route: `${prefix}/forms/vas`,
+      buttonText: "Add VAS",
+      gradient: "from-red-500 to-orange-500",
+      lightBg: "bg-red-50",
+      iconColor: "text-red-600",
+      badgeBg: "bg-red-100",
+      badgeText: "text-red-600",
+      badge: "New entry",
+    },
+    {
+      id: "view_vas",
+      title: "View VAS",
+      description:
+        "Browse, edit, and manage all existing Value Added Services from one place.",
+      icon: Database,
+      route: `${prefix}/view/vas`,
+      buttonText: "View VAS",
+      gradient: "from-blue-500 to-violet-500",
+      lightBg: "bg-blue-50",
+      iconColor: "text-blue-600",
+      badgeBg: "bg-blue-100",
+      badgeText: "text-blue-600",
+      badge: "Manage",
+    },
+  ];
 
   return (
     <div className='max-w-3xl mx-auto py-10 px-4 space-y-8'>

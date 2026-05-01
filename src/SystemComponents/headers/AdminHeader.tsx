@@ -37,7 +37,7 @@ const AdminHeader = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (!isAuthenticated) navigate("/admin/login");
+    if (!isAuthenticated) navigate("/admin/login/super");
   }, [isAuthenticated, navigate]);
 
   const handleLogout = async () => {

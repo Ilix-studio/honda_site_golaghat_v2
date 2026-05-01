@@ -120,7 +120,7 @@ export const publicRoutes: RouteItem[] = [
 
   // View System
   { path: "/view/branches", component: ViewAllBranches },
-  { path: "/view/vas", component: ViewVAS },
+
   { path: "/view/stock-concept", component: ViewStockConcept },
   { path: "/download/safety-features", component: DownloadSafetyfeature },
 
@@ -246,6 +246,7 @@ const createSharedRoutes = (prefix: "/admin" | "/manager"): RouteItem[] => [
   // VAS CRUD
   { path: `${prefix}/vas/select`, component: SelectVas },
   { path: `${prefix}/forms/vas`, component: VASForm },
+  { path: `${prefix}/view/vas`, component: ViewVAS },
 
   // Stock CRUD
   { path: `${prefix}/stockC/select`, component: SelectStockForm },
@@ -640,14 +641,6 @@ const createSharedRouteConfig = (
     subtitle: "View report details",
     showBack: true,
     backTo: `${prefix}/accident-reports`,
-  },
-
-  // Customer Management
-  [`${prefix}/customers/signup`]: {
-    title: "Customer Sign Up",
-    subtitle: "Register a new customer",
-    showBack: true,
-    backTo: `${backPrefix}`,
   },
 
   // Enquiries
