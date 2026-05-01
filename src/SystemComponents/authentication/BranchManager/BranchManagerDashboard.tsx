@@ -140,25 +140,25 @@ const BranchManagerDashboard = () => {
     {
       title: "Add Stock",
       icon: Plus,
-      path: "/stockC/select",
+      path: "/manager/stockC/select",
       color: "text-orange-600 bg-orange-50 hover:bg-orange-100",
     },
     {
       title: "Upload CSV",
       icon: Upload,
-      path: "/forms/stock-concept-csv",
+      path: "/manager/forms/stock-concept-csv",
       color: "text-blue-600 bg-blue-50 hover:bg-blue-100",
     },
     {
       title: "Add VAS",
       icon: Wrench,
-      path: "/vas/select",
+      path: "/manager/vas/select",
       color: "text-cyan-600 bg-cyan-50 hover:bg-cyan-100",
     },
     {
       title: "Register Customer",
       icon: UserPlus,
-      path: "/customers/signup",
+      path: "/manager/customers/signup",
       color: "text-green-600 bg-green-50 hover:bg-green-100",
     },
   ];

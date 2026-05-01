@@ -1,24 +1,38 @@
-import { lazy } from "react";
+// src/config/routeConfig.ts
 
-// IMMEDIATE ROUTES - No lazy loading for critical routes
-// Essential components that should load immediately
+import { lazy, type LazyExoticComponent, type ComponentType } from "react";
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+interface RouteItem {
+  path: string;
+  component: LazyExoticComponent<ComponentType<any>> | ComponentType<any>;
+}
+
+interface RouteConfigEntry {
+  title: string;
+  subtitle: string;
+  showBack?: boolean;
+  backTo?: string;
+  menuItems?: Array<{ label: string; href: string }>;
+}
+
+// ============================================================================
+// IMMEDIATE ROUTES — No lazy loading for critical paths
+// ============================================================================
+
 import Home from "../SystemComponents/public/Home";
 import NotFoundPage from "../SystemComponents/common/NotFoundPage";
-import { ViewBikeImage } from "../SystemComponents/shared/BikesCRUD/ViewBikeImage";
-import { SimpleBookService } from "../SystemComponents/authentication/CustomerSystem/BookService/SimpleBookService";
-const BillMemo = lazy(
-  () => import("../SystemComponents/authentication/Admin/ZBillMemo"),
-);
 
-export const immediateRoutes = [
-  {
-    path: "/",
-    component: Home,
-  },
-];
+export const immediateRoutes: RouteItem[] = [{ path: "/", component: Home }];
 
-// PUBLIC ROUTES - With lazy loading
-// Public pages accessible to everyone
+// ============================================================================
+// PUBLIC ROUTES — Lazy loaded, accessible to everyone
+// ============================================================================
+
+// Navigation
 const Finance = lazy(
   () => import("../SystemComponents/public/NavMenu/Finance"),
 );
@@ -31,12 +45,12 @@ const BranchesPage = lazy(
 const BranchDetailPage = lazy(
   () => import("../SystemComponents/public/NavMenu/Branches/BranchDetailPage"),
 );
+
+// Bikes
 const ViewAllBikes = lazy(() =>
-  import("../SystemComponents/shared/BikeDetails/ViewAllBikes").then(
-    (module) => ({
-      default: module.ViewAllBikes,
-    }),
-  ),
+  import("../SystemComponents/shared/BikeDetails/ViewAllBikes").then((m) => ({
+    default: m.ViewAllBikes,
+  })),
 );
 const BikeDetailsPage = lazy(
   () => import("../SystemComponents/shared/BikeDetails/BikeDetailsPage"),
@@ -48,28 +62,24 @@ const CompareBike = lazy(
   () =>
     import("../SystemComponents/shared/BikeDetails/CompareBikes/CompareBike"),
 );
-
+const BookServicePage = lazy(() =>
+  import("../SystemComponents/authentication/CustomerSystem/BookService/SimpleBookService").then(
+    (m) => ({
+      default: m.SimpleBookService,
+    }),
+  ),
+);
 const SearchResults = lazy(
   () => import("../SystemComponents/public/Search/SearchResults"),
 );
 
-const DealershipLocator = lazy(
-  () => import("../SystemComponents/public/Location/DealershipLocator"),
-);
-
-const DealershipReviews = lazy(
-  () => import("../SystemComponents/public/Location/DealershipReviews"),
-);
-
-// View System - Public access
+// View System — public access
 const ViewAllBranches = lazy(
   () => import("../SystemComponents/shared/ViewBS2/ViewAllBranches"),
 );
-//
-const SelectVas = lazy(
-  () => import("@/SystemComponents/shared/VAScrud/SelectVas"),
+const ViewVAS = lazy(
+  () => import("../SystemComponents/shared/ViewBS2/ViewVAS"),
 );
-
 const ViewStockConcept = lazy(
   () => import("../SystemComponents/shared/ViewBS2/ViewStockConcept"),
 );
@@ -77,72 +87,55 @@ const DownloadSafetyfeature = lazy(
   () => import("../SystemComponents/shared/ViewBS2/DownloadSafetyfeature"),
 );
 
-export const publicRoutes = [
+// Get Approved / Enquiry
+const GetApprovedForm = lazy(() =>
+  import("../SystemComponents/shared/GetApproved/GetApprovedForm").then(
+    (m) => ({
+      default: m.GetApprovedForm,
+    }),
+  ),
+);
+const FinanceWithBikeEnquiry = lazy(() =>
+  import("../SystemComponents/shared/GetApproved/FinanceWithBikeEnquiry").then(
+    (m) => ({
+      default: m.FinanceWithBikeEnquiry,
+    }),
+  ),
+);
+
+export const publicRoutes: RouteItem[] = [
   // Navigation pages
   { path: "/finance", component: Finance },
   { path: "/contact", component: Contact },
-
-  // Branches
   { path: "/branches", component: BranchesPage },
   { path: "/branches/:id", component: BranchDetailPage },
 
-  // Bikes & Scooters
+  // Bikes
   { path: "/view-all", component: ViewAllBikes },
-  { path: "/bikes/:bikeId", component: BikeDetailsPage },
-  { path: "/scooters/:bikeId", component: ScooterDetailPage },
+  { path: "/bikes/:id", component: BikeDetailsPage },
+  { path: "/scooter/:id", component: ScooterDetailPage },
   { path: "/compare", component: CompareBike },
-
-  { path: "/see-bill-memo", component: BillMemo },
-
-  // Services
+  { path: "/book-service", component: BookServicePage },
   { path: "/search", component: SearchResults },
 
-  // Location Services
-  { path: "/dealership-locator", component: DealershipLocator },
-  { path: "/dealership-reviews", component: DealershipReviews },
-
-  // Public View System
-  { path: "/admin/branches/view", component: ViewAllBranches },
-
+  // View System
+  { path: "/view/branches", component: ViewAllBranches },
+  { path: "/view/vas", component: ViewVAS },
   { path: "/view/stock-concept", component: ViewStockConcept },
-  {
-    path: "/download/safety-feature-stickers",
-    component: DownloadSafetyfeature,
-  },
+  { path: "/download/safety-features", component: DownloadSafetyfeature },
+
+  // Get Approved / Enquiry
+  { path: "/get-approved", component: GetApprovedForm },
+  { path: "/finance-enquiry", component: FinanceWithBikeEnquiry },
 ];
 
-// ADMIN ROUTES - Protected routes with /admin prefix
+// ============================================================================
+// SHARED COMPONENTS — Used by both Super-Admin and Branch-Admin
+// ============================================================================
 
-// Admin Authentication
-const LoginSuperAdmin = lazy(
-  () => import("../SystemComponents/authentication/Admin/LoginSuperAdmin"),
-);
-const LoginBranchManager = lazy(
-  () =>
-    import("../SystemComponents/authentication/BranchManager/LoginBranchManager"),
-);
-
-// Admin Dashboard
-const AdminDashboard = lazy(
-  () =>
-    import("../SystemComponents/authentication/Admin/AdminDash/AdminDashboard"),
-);
-
-// Branch Management
-const AddBranch = lazy(
-  () => import("../SystemComponents/public/NavMenu/Branches/AddBranch"),
-);
-const BranchManager = lazy(
-  () =>
-    import("../SystemComponents/authentication/BranchManager/BranchManager"),
-);
-
-// Bike Management
+// Bike CRUD
 const AddBikes = lazy(
   () => import("../SystemComponents/shared/BikesCRUD/AddBikes"),
-);
-const EditBikes = lazy(
-  () => import("../SystemComponents/shared/BikesCRUD/EditBikes"),
 );
 const AddBikeImage = lazy(
   () => import("../SystemComponents/shared/BikesCRUD/AddBikeImage"),
@@ -150,63 +143,67 @@ const AddBikeImage = lazy(
 const EditBikeImage = lazy(
   () => import("../SystemComponents/shared/BikesCRUD/EditBikeImage"),
 );
+const ViewBikeImage = lazy(() =>
+  import("../SystemComponents/shared/BikesCRUD/ViewBikeImage").then((m) => ({
+    default: m.ViewBikeImage,
+  })),
+);
 
-// Customer Management (Admin only)
-
-// Business System Forms
+// VAS
+const SelectVas = lazy(
+  () => import("../SystemComponents/shared/VAScrud/SelectVas"),
+);
 const VASForm = lazy(
   () => import("../SystemComponents/shared/VAScrud/VASForm"),
 );
 
+// Stock Concept
+const SelectStockForm = lazy(
+  () => import("../SystemComponents/shared/InventoryCSV/SelectStockForm"),
+);
 const StockConceptForm = lazy(
   () => import("../SystemComponents/shared/InventoryManual/StockConceptForm"),
 );
 
+// CSV Stock
+const UploadCSVForm = lazy(
+  () => import("../SystemComponents/shared/InventoryCSV/UploadCSVForm"),
+);
+const GetCSVFiles = lazy(
+  () => import("../SystemComponents/shared/InventoryCSV/GetCSVFiles"),
+);
+const GetAllStockFiles = lazy(
+  () => import("../SystemComponents/shared/InventoryCSV/GetAllStockFiles"),
+);
+
+// Assignment
+const AssignStock = lazy(
+  () => import("../SystemComponents/shared/ActivateFeature/AssignStock"),
+);
+const ChooseStock = lazy(
+  () => import("../SystemComponents/shared/SelectStock/ChooseStock"),
+);
+const CustomerCSVStock = lazy(
+  () => import("../SystemComponents/shared/SelectStock/CustomerCSVStock"),
+);
+
+// Service Bookings
 const AdminBookingsManager = lazy(
   () =>
     import("../SystemComponents/authentication/Admin/ServiceBookings/AdminBookingsManager"),
 );
-const CustomerSignUp = lazy(
-  () =>
-    import("../SystemComponents/authentication/CustomerSystem/CustomerSignUp"),
-);
-const AssignStock = lazy(
-  () => import("@/SystemComponents/shared/ActivateFeature/AssignStock"),
-);
-const UploadCSVForm = lazy(
-  () => import("@/SystemComponents/shared/InventoryCSV/UploadCSVForm"),
-);
-const SelectStockForm = lazy(
-  () => import("@/SystemComponents/shared/InventoryCSV/SelectStockForm"),
-);
 
-const GetCSVFiles = lazy(
-  () => import("@/SystemComponents/shared/InventoryCSV/GetCSVFiles"),
-);
-
-const GetAllStockFiles = lazy(
-  () => import("@/SystemComponents/shared/InventoryCSV/GetAllStockFiles"),
-);
-
+// Finance
 const FinanceQueries = lazy(
   () => import("../SystemComponents/shared/FinanceEnquiry/FinanceQueries"),
 );
-const ViewBikeImages = lazy(
-  () => import("../SystemComponents/shared/BikesCRUD/ViewBike/ViewBikeImages"),
-);
 
-const ViewScootyImages = lazy(
-  () => import("../SystemComponents/shared/BikesCRUD/ViewBike/ViewScootymages"),
-);
-
-const BikeImageManager = lazy(
-  () =>
-    import("../SystemComponents/authentication/Admin/AdminDash/BikeImageManager"),
-);
+// Messages
 const SeeMessages = lazy(
   () => import("../SystemComponents/authentication/Admin/SeeMessages"),
 );
 
+// Accident Reports
 const GetAllAccidentReports = lazy(
   () =>
     import("../SystemComponents/shared/AcidentReport/GetAllAccidentReports"),
@@ -215,66 +212,169 @@ const GetAllAccidentReportsById = lazy(
   () =>
     import("../SystemComponents/shared/AcidentReport/GetAllAccidentReportsById"),
 );
-const ViewVAS = lazy(
-  () => import("../SystemComponents/shared/ViewBS2/ViewVAS"),
+
+// Customer Management
+const CustomerSignUp = lazy(
+  () =>
+    import("../SystemComponents/authentication/CustomerSystem/CustomerSignUp"),
 );
-// Create admin routes array
-const createAdminRoutes = () => [
-  // Authentication
-  { path: "/admin/login", component: LoginSuperAdmin },
+
+// Enquiry Dashboard
+const EnquiryDashboard = lazy(
+  () => import("../SystemComponents/authentication/Admin/EnquiryDetailsView"),
+);
+
+// ============================================================================
+// SHARED ROUTES — Identical paths (suffix) used by both admin & manager
+// ============================================================================
+
+const createSharedRoutes = (prefix: "/admin" | "/manager"): RouteItem[] => [
+  // Bike CRUD
+  { path: `${prefix}/bikes/add`, component: AddBikes },
+  {
+    path: `${prefix}/bikes/:bikeId/images/add`,
+    component: AddBikeImage,
+  },
+  {
+    path: `${prefix}/bikes/:bikeId/images/edit`,
+    component: EditBikeImage,
+  },
+  { path: `${prefix}/bikes/images/:id`, component: ViewBikeImage },
+  { path: `${prefix}/bikeimages/:bikeId`, component: ViewBikeImage },
+  { path: `${prefix}/scootyimages/:bikeId`, component: ViewBikeImage },
+
+  // VAS CRUD
+  { path: `${prefix}/vas/select`, component: SelectVas },
+  { path: `${prefix}/forms/vas`, component: VASForm },
+
+  // Stock CRUD
+  { path: `${prefix}/stockC/select`, component: SelectStockForm },
+  { path: `${prefix}/forms/stock-concept`, component: StockConceptForm },
+  { path: `${prefix}/forms/stock-concept-csv`, component: UploadCSVForm },
+  { path: `${prefix}/get/csv`, component: GetCSVFiles },
+  { path: `${prefix}/get/all-stock`, component: GetAllStockFiles },
+  { path: `${prefix}/assign/stock-concept/:id`, component: AssignStock },
+  { path: `${prefix}/assign/choose-stock`, component: ChooseStock },
+  { path: `${prefix}/assign/csv-stock`, component: CustomerCSVStock },
+
+  // Service Bookings — Read, Update, Delete
+  { path: `${prefix}/service-bookings`, component: AdminBookingsManager },
+
+  // Finance — Read
+  { path: `${prefix}/finanace-query`, component: FinanceQueries },
+
+  // Accident Reports
+  { path: `${prefix}/accident-reports`, component: GetAllAccidentReports },
+  {
+    path: `${prefix}/accident-reports/:id`,
+    component: GetAllAccidentReportsById,
+  },
+
+  // Customer Management
+  { path: `${prefix}/customers/signup`, component: CustomerSignUp },
+
+  // Messages
+  { path: `${prefix}/any-messages`, component: SeeMessages },
+
+  // Enquiries
+  { path: `${prefix}/enquiries`, component: EnquiryDashboard },
+];
+
+// ============================================================================
+// ADMIN-ONLY ROUTES — Super-Admin exclusive
+// ============================================================================
+
+// Super-Admin auth
+const LoginSuperAdmin = lazy(
+  () => import("../SystemComponents/authentication/Admin/LoginSuperAdmin"),
+);
+const AdminDashboard = lazy(
+  () =>
+    import("../SystemComponents/authentication/Admin/AdminDash/AdminDashboard"),
+);
+
+// Branch management — Super-Admin only
+const AddBranch = lazy(
+  () => import("../SystemComponents/public/NavMenu/Branches/AddBranch"),
+);
+const BranchManager = lazy(
+  () =>
+    import("../SystemComponents/authentication/BranchManager/BranchManager"),
+);
+
+// Bike edit — Super-Admin only
+const AdminEditBikes = lazy(
+  () => import("../SystemComponents/shared/BikesCRUD/EditBikes"),
+);
+
+const createAdminRoutes = (): RouteItem[] => [
+  // Auth
+  { path: "/admin/login/super", component: LoginSuperAdmin },
 
   // Dashboard
   { path: "/admin/dashboard", component: AdminDashboard },
 
-  // Branch Management (Super Admin Only)
+  // Super-Admin only: Branch management
   { path: "/admin/branches/add", component: AddBranch },
-  { path: "/admin/branches/managers", component: BranchManager },
+  { path: "/admin/managers", component: BranchManager },
+  { path: "/admin/branches/view", component: ViewAllBranches },
 
-  // Bike Management
-  { path: "/admin/bikes/add", component: AddBikes },
-  { path: "/admin/bikes/edit/:id", component: EditBikes },
-  { path: "/admin/bikes/:bikeId/images/add", component: AddBikeImage },
-  { path: "/admin/bikes/:bikeId/images/edit", component: EditBikeImage },
-  { path: "/admin/bikes/images/:id", component: ViewBikeImage },
-  { path: "/admin/bikeimages/:bikeId", component: ViewBikeImages },
-  { path: "/admin/scootyimages/:bikeId", component: ViewScootyImages },
-  //  admin view bikes
-  { path: "/admin/bikes/add/:id/images", component: BikeImageManager },
+  // Super-Admin only: Bike edit/delete
+  { path: "/admin/bikes/edit/:id", component: AdminEditBikes },
 
-  // Customer Management
-  { path: "/customers/signup", component: CustomerSignUp },
-
-  // Business System Forms
-  { path: "/admin/vas/select", component: SelectVas },
-  { path: "/admin/forms/vas", component: VASForm },
-  { path: "/admin/view/vas", component: ViewVAS },
-
-  { path: "/admin/stockC/select", component: SelectStockForm },
-  { path: "/admin/forms/stock-concept", component: StockConceptForm },
-  { path: "/admin/forms/stock-concept-csv", component: UploadCSVForm },
-  { path: "/admin/get/all-stock", component: GetAllStockFiles },
-  { path: "/admin/get/csv", component: GetCSVFiles },
-
-  // Assignment System
-  { path: "/admin/assign/stock-concept/:id", component: AssignStock },
-
-  //Service Booking
-  { path: "/admin/service-bookings", component: AdminBookingsManager },
-  //Finance Queries
-  { path: "/admin/finanace-query", component: FinanceQueries },
-  //Contact Section
-  { path: "/admin/any-messages", component: SeeMessages },
-  //
-  { path: "/admin/accident-reports", component: GetAllAccidentReports },
-  { path: "/admin/accident-reports/:id", component: GetAllAccidentReportsById },
-  //
+  // Shared routes with /admin prefix
+  ...createSharedRoutes("/admin"),
 ];
 
 export const adminRoutes = createAdminRoutes();
 
-// CUSTOMER ROUTES - Protected routes with /customer prefix
+// ============================================================================
+// BRANCH MANAGER ROUTES — Branch-Admin
+// ============================================================================
 
-// Customer Dashboard
+const LoginBranchManager = lazy(
+  () =>
+    import("../SystemComponents/authentication/BranchManager/LoginBranchManager"),
+);
+const BranchManagerDashboard = lazy(
+  () =>
+    import("../SystemComponents/authentication/BranchManager/BranchManagerDashboard"),
+);
+
+// Branch-specific wrapper (customer vehicles with branch scope)
+const BranchCustomerVehicles = lazy(
+  () =>
+    import("../SystemComponents/authentication/BranchManager/BranchCustomerVehicles"),
+);
+
+const createBranchManagerRoutes = (): RouteItem[] => [
+  // Auth
+  { path: "/manager-login", component: LoginBranchManager },
+
+  // Dashboard
+  { path: "/manager/dashboard", component: BranchManagerDashboard },
+
+  // Branch-scoped customer vehicles
+  { path: "/manager/customer-vehicles", component: BranchCustomerVehicles },
+
+  // Shared routes with /manager prefix
+  ...createSharedRoutes("/manager"),
+];
+
+export const branchManagerRoutes = createBranchManagerRoutes();
+
+// ============================================================================
+// CUSTOMER ROUTES — Firebase auth required
+// ============================================================================
+
+const CustomerLogin = lazy(
+  () =>
+    import("../SystemComponents/authentication/CustomerSystem/CustomerLogin"),
+);
+const CustomerCreateProfile = lazy(
+  () =>
+    import("../SystemComponents/authentication/CustomerSystem/CustomerCreateProfile"),
+);
 const InitialDashboard = lazy(
   () =>
     import("../SystemComponents/authentication/CustomerSystem/Dashboards/InitialDashboard"),
@@ -283,190 +383,320 @@ const CustomerMainDash = lazy(
   () =>
     import("../SystemComponents/authentication/CustomerSystem/Dashboards/CustomerMainDash"),
 );
-
-// Customer Profile
-const CustomerCreateProfile = lazy(
-  () =>
-    import("../SystemComponents/authentication/CustomerSystem/CustomerCreateProfile"),
+const CustomerVehicleInfo = lazy(() =>
+  import("../SystemComponents/authentication/CustomerSystem/CustomerBikeInfo").then(
+    (m) => ({
+      default: m.CustomerBikeInfo,
+    }),
+  ),
 );
-
-// Customer Vehicle Management
-const CustomerVehicleInfo = lazy(
-  () => import("../SystemComponents/shared/AssignCustomer/CustomerVehicleInfo"),
+const SimpleBookService = lazy(() =>
+  import("../SystemComponents/authentication/CustomerSystem/BookService/SimpleBookService").then(
+    (m) => ({
+      default: m.SimpleBookService,
+    }),
+  ),
 );
-
-// Customer Services
-
-const ActivateVAS = lazy(
-  () => import("../SystemComponents/shared/ActivateFeature/ActivateVAS"),
+const CustomerBikeInfo = lazy(() =>
+  import("../SystemComponents/authentication/CustomerSystem/CustomerBikeInfo").then(
+    (m) => ({
+      default: m.CustomerBikeInfo,
+    }),
+  ),
 );
-
-const CustomerServices = lazy(
-  () => import("../SystemComponents/shared/Support/CustomerServices"),
-);
-
-const CustomerSupport = lazy(
-  () => import("@/SystemComponents/shared/CustomerSupport/CustomerSupport"),
-);
-
-const CustomerProfile = lazy(
-  () =>
-    import("../SystemComponents/authentication/CustomerSystem/CustomerProfile"),
-);
-const ChooseStock = lazy(
-  () => import("@/SystemComponents/shared/SelectStock/ChooseStock"),
-);
-const CustomerCSVStock = lazy(
-  () => import("@/SystemComponents/shared/SelectStock/CustomerCSVStock"),
-);
-const UseToken = lazy(
-  () => import("@/SystemComponents/shared/Scanfleet/UseToken"),
-);
-
-const FirstDash = lazy(
-  () =>
-    import("@/SystemComponents/authentication/CustomerSystem/Dashboards/FirstDash"),
-);
-
 const CustomerVehicleDetail = lazy(
   () =>
-    import("@/SystemComponents/shared/AssignCustomer/CustomerVehicleDetail"),
+    import("../SystemComponents/shared/AssignCustomer/CustomerVehicleDetail"),
 );
 
-// Create customer routes array
-const createCustomerRoutes = () => {
-  const CustomerLoginComponent = lazy(async () => {
-    const module =
-      await import("../SystemComponents/authentication/CustomerSystem/CustomerLogin");
-    return { default: module.default };
-  });
+export const customerRoutes: RouteItem[] = [
+  // Auth & Profile
+  { path: "/customer/login", component: CustomerLogin },
+  { path: "/customer/profile/create", component: CustomerCreateProfile },
 
-  return [
-    // Authentication & Profile
-    { path: "/customer/login", component: CustomerLoginComponent },
-    { path: "/customer/profile/create", component: CustomerCreateProfile },
+  // Dashboard
+  { path: "/customer/dashboard/initial", component: InitialDashboard },
+  { path: "/customer/dashboard", component: CustomerMainDash },
 
-    // Dashboard
-    { path: "/customer/first-dash", component: FirstDash },
-    { path: "/customer/initialize", component: InitialDashboard },
-    // Vehicle Management
-    { path: "/customer/select/stock", component: ChooseStock },
-    { path: "/customer/assign/csv-stock", component: CustomerCSVStock },
-    { path: "/customer/vehicle/info", component: CustomerVehicleInfo },
-    { path: "/customer/vehicle/:vehicleId", component: CustomerVehicleDetail },
+  // Vehicle Management
+  { path: "/customer/vehicle/info", component: CustomerVehicleInfo },
+  { path: "/customer/vehicle/:id", component: CustomerVehicleDetail },
+  { path: "/customer/bike-info", component: CustomerBikeInfo },
 
-    //
-    { path: "/customer/dashboard", component: CustomerMainDash },
-    { path: "/customer/profile-info", component: CustomerProfile },
-    { path: "/customer/services", component: CustomerServices },
-    { path: "/customer/support", component: CustomerSupport },
+  // Services
+  { path: "/customer/book-service", component: SimpleBookService },
+];
 
-    // Select Services by Admin
+// ============================================================================
+// FALLBACK
+// ============================================================================
 
-    { path: "/customer/services/vas", component: ActivateVAS },
-    { path: "/customer/book-service", component: SimpleBookService },
-    { path: "/customer/attach-stickers", component: UseToken },
-  ];
+export const fallbackRoute: RouteItem = {
+  path: "*",
+  component: NotFoundPage as any,
 };
 
-export const customerRoutes = createCustomerRoutes();
+// ============================================================================
+// ROUTE CATEGORIES & HELPERS
+// ============================================================================
 
-// Route configuration for dynamic titles and navigation
-export const routeConfig: Record<
-  string,
-  {
-    title: string;
-    subtitle?: string;
-    showBack?: boolean;
-    backTo?: string;
-    menuItems?: Array<{ label: string; href: string }>;
-  }
-> = {
-  "/customer/first-dash": {
-    title: "Customer Lookup",
-    subtitle: "Search and manage customer vehicles",
+export const routeCategories = {
+  public: publicRoutes.map((r) => r.path),
+  admin: adminRoutes.map((r) => r.path),
+  manager: branchManagerRoutes.map((r) => r.path),
+  customer: customerRoutes.map((r) => r.path),
+  immediate: immediateRoutes.map((r) => r.path),
+};
+
+export const getRouteCategory = (
+  path: string,
+): "public" | "admin" | "manager" | "customer" | "immediate" => {
+  if (path.startsWith("/admin/")) return "admin";
+  if (path.startsWith("/manager")) return "manager";
+  if (path.startsWith("/customer/")) return "customer";
+  if (routeCategories.immediate.includes(path)) return "immediate";
+  return "public";
+};
+
+export const requiresAuth = (path: string): boolean =>
+  path.startsWith("/admin/") ||
+  path.startsWith("/manager") ||
+  path.startsWith("/customer/");
+
+export const requiresAdminAuth = (path: string): boolean =>
+  path.startsWith("/admin/");
+
+export const requiresBranchAuth = (path: string): boolean =>
+  path.startsWith("/manager");
+
+export const requiresCustomerAuth = (path: string): boolean =>
+  path.startsWith("/customer/");
+
+// ============================================================================
+// ROUTE CONFIG — Title/subtitle/back for admin & manager headers
+// ============================================================================
+
+// Helper to generate shared config entries for both prefixes
+const createSharedRouteConfig = (
+  prefix: "/admin" | "/manager",
+  backPrefix: string,
+): Record<string, RouteConfigEntry> => ({
+  // Bike management
+  [`${prefix}/bikes/add`]: {
+    title: "Add Motorcycle",
+    subtitle: "Add new motorcycle to catalog",
+    showBack: true,
+    backTo: `${backPrefix}`,
+  },
+  [`${prefix}/bikes/:bikeId/images/add`]: {
+    title: "Add Bike Images",
+    subtitle: "Upload images for this motorcycle",
+    showBack: true,
+    backTo: `${backPrefix}`,
+  },
+  [`${prefix}/bikes/:bikeId/images/edit`]: {
+    title: "Edit Bike Images",
+    subtitle: "Manage motorcycle images",
+    showBack: true,
+    backTo: `${backPrefix}`,
+  },
+  [`${prefix}/bikes/images/:id`]: {
+    title: "View Bike Image",
+    subtitle: "View bike image details",
+    showBack: true,
+    backTo: `${backPrefix}`,
+  },
+  [`${prefix}/bikeimages/:bikeId`]: {
+    title: "Bike Images",
+    subtitle: "View all bike images",
+    showBack: true,
+    backTo: `${backPrefix}`,
+  },
+  [`${prefix}/scootyimages/:bikeId`]: {
+    title: "Scooter Images",
+    subtitle: "View all scooter images",
+    showBack: true,
+    backTo: `${backPrefix}`,
+  },
+
+  // VAS
+  [`${prefix}/vas/select`]: {
+    title: "Select VAS",
+    subtitle: "Choose value-added service",
+    showBack: true,
+    backTo: `${backPrefix}`,
+    menuItems: [{ label: "VAS Form", href: `${prefix}/forms/vas` }],
+  },
+  [`${prefix}/forms/vas`]: {
+    title: "VAS Form",
+    subtitle: "Configure value-added service",
+    showBack: true,
+    backTo: `${prefix}/vas/select`,
+  },
+
+  // Stock Concept
+  [`${prefix}/stockC/select`]: {
+    title: "Select Stock",
+    subtitle: "Choose stock concept",
+    showBack: true,
+    backTo: `${backPrefix}`,
+    menuItems: [
+      { label: "Stock Form", href: `${prefix}/forms/stock-concept` },
+      { label: "CSV Import", href: `${prefix}/forms/stock-concept-csv` },
+    ],
+  },
+  [`${prefix}/forms/stock-concept`]: {
+    title: "Stock Concept Form",
+    subtitle: "Add stock concept details",
+    showBack: true,
+    backTo: `${prefix}/stockC/select`,
+    menuItems: [
+      { label: "CSV Import", href: `${prefix}/forms/stock-concept-csv` },
+      { label: "All Stock", href: `${prefix}/get/all-stock` },
+    ],
+  },
+  [`${prefix}/forms/stock-concept-csv`]: {
+    title: "Import CSV Stock",
+    subtitle: "Bulk stock upload via CSV",
+    showBack: true,
+    backTo: `${prefix}/stockC/select`,
+    menuItems: [
+      { label: "CSV Files", href: `${prefix}/get/csv` },
+      { label: "All Stock", href: `${prefix}/get/all-stock` },
+    ],
+  },
+  [`${prefix}/get/all-stock`]: {
+    title: "All Stock Files",
+    subtitle: "View and manage stock records",
+    showBack: true,
+    backTo: `${backPrefix}`,
+    menuItems: [
+      { label: "Add Stock", href: `${prefix}/stockC/select` },
+      { label: "CSV Files", href: `${prefix}/get/csv` },
+    ],
+  },
+  [`${prefix}/get/csv`]: {
+    title: "CSV Files",
+    subtitle: "Manage CSV stock imports",
+    showBack: true,
+    backTo: `${backPrefix}`,
+    menuItems: [
+      { label: "Import CSV", href: `${prefix}/forms/stock-concept-csv` },
+      { label: "All Stock", href: `${prefix}/get/all-stock` },
+    ],
+  },
+  [`${prefix}/assign/stock-concept/:id`]: {
+    title: "Assign Stock",
+    subtitle: "Assign stock to customer",
+    showBack: true,
+    backTo: `${prefix}/get/all-stock`,
+  },
+  [`${prefix}/assign/choose-stock`]: {
+    title: "Choose Stock Source",
+    subtitle: "Select manual or CSV stock for assignment",
+    showBack: true,
+    backTo: `${backPrefix}`,
+  },
+  [`${prefix}/assign/csv-stock`]: {
+    title: "CSV Stock Assignment",
+    subtitle: "Assign from CSV-imported stock",
+    showBack: true,
+    backTo: `${prefix}/assign/choose-stock`,
+  },
+
+  // Service Bookings
+  [`${prefix}/service-bookings`]: {
+    title: "Service Bookings",
+    subtitle: "Manage all service appointments",
+    showBack: true,
+    backTo: `${backPrefix}`,
+  },
+
+  // Finance
+  [`${prefix}/finanace-query`]: {
+    title: "Finance Queries",
+    subtitle: "Manage finance enquiries",
+    showBack: true,
+    backTo: `${backPrefix}`,
+  },
+
+  // Messages
+  [`${prefix}/any-messages`]: {
+    title: "Messages",
+    subtitle: "Customer contact messages",
+    showBack: true,
+    backTo: `${backPrefix}`,
+  },
+
+  // Accident Reports
+  [`${prefix}/accident-reports`]: {
+    title: "Accident Reports",
+    subtitle: "View all accident reports",
+    showBack: true,
+    backTo: `${backPrefix}`,
+  },
+  [`${prefix}/accident-reports/:id`]: {
+    title: "Accident Report Detail",
+    subtitle: "View report details",
+    showBack: true,
+    backTo: `${prefix}/accident-reports`,
+  },
+
+  // Customer Management
+  [`${prefix}/customers/signup`]: {
+    title: "Customer Sign Up",
+    subtitle: "Register a new customer",
+    showBack: true,
+    backTo: `${backPrefix}`,
+  },
+
+  // Enquiries
+  [`${prefix}/enquiries`]: {
+    title: "Enquiries",
+    subtitle: "Manage customer enquiries",
+    showBack: true,
+    backTo: `${backPrefix}`,
+  },
+});
+
+export const routeConfig: Record<string, RouteConfigEntry> = {
+  // ── Admin-only entries ──
+  "/admin/dashboard": {
+    title: "Admin Dashboard",
+    subtitle: "Honda Dealership Management System",
+  },
+  "/admin/branches/add": {
+    title: "Add Branch",
+    subtitle: "Create a new dealership branch",
     showBack: true,
     backTo: "/admin/dashboard",
   },
-  "/customer/dashboard": {
-    title: "",
-    subtitle: "",
-  },
-  "/customer/services": {
-    title: "My Services",
-    subtitle: "",
+  "/admin/managers": {
+    title: "Branch Managers",
+    subtitle: "Manage branch administrator accounts",
     showBack: true,
-    backTo: "/customer/dashboard",
-    menuItems: [
-      { label: "Book Service", href: "/customer/services" },
-      { label: "Service History", href: "/customer/service-history" },
-      { label: "Customer Support", href: "/customer/support" },
-    ],
+    backTo: "/admin/dashboard",
   },
-  "/customer/book-service": {
-    title: "Book Service",
-    subtitle: "",
+  "/admin/branches/view": {
+    title: "View Branches",
+    subtitle: "All dealership branches",
     showBack: true,
-    backTo: "/customer/dashboard",
-    menuItems: [
-      { label: "My Services", href: "/customer/services" },
-      { label: "Service History", href: "/customer/service-history" },
-    ],
+    backTo: "/admin/dashboard",
+  },
+  "/admin/bikes/edit/:id": {
+    title: "Edit Motorcycle",
+    subtitle: "Update motorcycle details",
+    showBack: true,
+    backTo: "/admin/dashboard",
   },
 
-  "/customer/service-history": {
-    title: "Service History",
-    subtitle: "View your past service records",
-    showBack: true,
-    backTo: "/customer/dashboard",
-    menuItems: [
-      { label: "Book Service", href: "/customer/book-service" },
-      { label: "My Services", href: "/customer/services" },
-    ],
-  },
+  // ── Shared entries for /admin ──
+  ...createSharedRouteConfig("/admin", "/admin/dashboard"),
 
-  "/customer/profile-info": {
-    title: "My Profile",
-    subtitle: "Manage your account information",
-    showBack: true,
-    backTo: "/customer/dashboard",
-  },
-  "/customer/support": {
-    title: "Customer Support",
-    subtitle: "",
-    showBack: true,
-    backTo: "/customer/dashboard",
-  },
-
-  // Branch Manager Routes
+  // ── Manager-only entries ──
   "/manager/dashboard": {
-    title: "Branch Manager Dashboard",
-    subtitle: "Overview of branch operations",
-  },
-  "/manager/service-bookings": {
-    title: "Service Bookings",
-    subtitle: "Manage service appointments",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/accident-reports": {
-    title: "Accident Reports",
-    subtitle: "View and manage accident reports",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-
-  "/manager/stock": {
-    title: "Stock Management",
-    subtitle: "Manage branch stock",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/vas": {
-    title: "Value Added Services",
-    subtitle: "Manage VAS offerings",
-    showBack: true,
-    backTo: "/manager/dashboard",
+    title: "Branch Dashboard",
+    subtitle: "Branch operations management",
   },
   "/manager/customer-vehicles": {
     title: "Customer Vehicles",
@@ -474,125 +704,7 @@ export const routeConfig: Record<
     showBack: true,
     backTo: "/manager/dashboard",
   },
-  "/manager/finance-queries": {
-    title: "Finance Queries",
-    subtitle: "Manage finance enquiries",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-};
 
-// BRANCH MANAGER ROUTES - Protected routes with /manager prefix
-const BranchManagerDashboard = lazy(
-  () =>
-    import("../SystemComponents/authentication/BranchManager/BranchManagerDashboard"),
-);
-
-const BranchServiceBookings = lazy(
-  () =>
-    import("../SystemComponents/authentication/BranchManager/BranchServiceBookings"),
-);
-
-const BranchAccidentReports = lazy(
-  () =>
-    import("../SystemComponents/authentication/BranchManager/BranchAccidentReports"),
-);
-
-const BranchStockManagement = lazy(
-  () =>
-    import("../SystemComponents/authentication/BranchManager/BranchStockManagement"),
-);
-
-const BranchVASManagement = lazy(
-  () =>
-    import("../SystemComponents/authentication/BranchManager/BranchVASManagement"),
-);
-
-const BranchCustomerVehicles = lazy(
-  () =>
-    import("../SystemComponents/authentication/BranchManager/BranchCustomerVehicles"),
-);
-
-const BranchFinanceQueries = lazy(
-  () =>
-    import("../SystemComponents/authentication/BranchManager/BranchFinanceQueries"),
-);
-
-// Create branch manager routes array
-const createBranchManagerRoutes = () => [
-  // Authentication
-  { path: "/manager-login", component: LoginBranchManager },
-
-  // Dashboard
-  { path: "/manager/dashboard", component: BranchManagerDashboard },
-
-  // Service Bookings
-  { path: "/manager/service-bookings", component: BranchServiceBookings },
-
-  // Accident Reports
-  { path: "/manager/accident-reports", component: BranchAccidentReports },
-
-  // Stock Management
-  { path: "/manager/stock", component: BranchStockManagement },
-
-  // VAS Management
-  { path: "/manager/vas", component: BranchVASManagement },
-
-  // Customer Vehicles
-  { path: "/manager/customer-vehicles", component: BranchCustomerVehicles },
-
-  // Finance Queries
-  { path: "/manager/finance-queries", component: BranchFinanceQueries },
-];
-
-export const branchManagerRoutes = createBranchManagerRoutes();
-
-// FALLBACK ROUTE
-export const fallbackRoute = {
-  path: "*",
-  component: NotFoundPage,
-};
-
-// ROUTE CATEGORIES FOR NAVIGATION LOGIC
-export const routeCategories = {
-  public: publicRoutes.map((route) => route.path),
-  admin: adminRoutes.map((route) => route.path),
-  customer: customerRoutes.map((route) => route.path),
-  branchManager: branchManagerRoutes.map((route) => route.path),
-  immediate: immediateRoutes.map((route) => route.path),
-};
-
-// Helper function to determine route category
-export const getRouteCategory = (
-  path: string,
-): "public" | "admin" | "customer" | "branchManager" | "immediate" => {
-  if (path.startsWith("/admin/")) return "admin";
-  if (path.startsWith("/customer/")) return "customer";
-  if (path.startsWith("/manager/")) return "branchManager";
-  if (routeCategories.immediate.includes(path)) return "immediate";
-  return "public";
-};
-
-// Helper function to check if route requires authentication
-export const requiresAuth = (path: string): boolean => {
-  return (
-    path.startsWith("/admin/") ||
-    path.startsWith("/customer/") ||
-    path.startsWith("/manager/")
-  );
-};
-
-// Helper function to check if route is admin-only
-export const requiresAdminAuth = (path: string): boolean => {
-  return path.startsWith("/admin/");
-};
-
-// Helper function to check if route is customer-only
-export const requiresCustomerAuth = (path: string): boolean => {
-  return path.startsWith("/customer/");
-};
-
-// Helper function to check if route is branch manager only
-export const requiresBranchManagerAuth = (path: string): boolean => {
-  return path.startsWith("/manager/");
+  // ── Shared entries for /manager ──
+  ...createSharedRouteConfig("/manager", "/manager/dashboard"),
 };

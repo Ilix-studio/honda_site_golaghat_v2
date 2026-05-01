@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { LogOut, ArrowLeft, Menu, ChevronDown, Settings } from "lucide-react";
+import { LogOut, ArrowLeft, Menu, ChevronDown } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   DropdownMenu,
@@ -127,7 +127,7 @@ const ManagerHeader = () => {
               className='flex items-center gap-2 shrink-0'
             >
               <div className='w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center'>
-                <span className='text-white text-xs font-black'>H</span>
+                <span className='text-white text-xs font-black'>T</span>
               </div>
               <span className='text-sm font-black text-white tracking-tight hidden sm:block'>
                 Tsangpool <span className='text-red-500'>Manager</span>
@@ -199,11 +199,6 @@ const ManagerHeader = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
-
-            {/* Settings icon (visual affordance) */}
-            <button className='hidden sm:flex w-8 h-8 rounded-xl bg-gray-800 hover:bg-gray-700 items-center justify-center transition-colors'>
-              <Settings className='w-3.5 h-3.5 text-gray-400' />
-            </button>
 
             {/* Logout */}
             <button
