@@ -41,8 +41,8 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
   const isAdmin = useSelector(selectIsAdmin);
   const { isAuthenticated: isBranchAuth } = useAppSelector(selectBranchAuth);
 
-  // Check if user is authenticated admin
-  if (!isAuthenticated || (!isAdmin && !isBranchAuth)) {
+  // Check if user is authenticated admin or branch manager
+  if ((isAuthenticated && !isAdmin) || (!isAuthenticated && !isBranchAuth)) {
     return <NotFoundPage />;
   }
 

@@ -14,7 +14,6 @@ import {
   FileText,
   MessageSquare,
   Package,
-  Users,
   Wrench,
   DollarSign,
   Clock,
@@ -27,6 +26,7 @@ import {
 } from "lucide-react";
 import { useAppSelector } from "../../../hooks/redux";
 import { selectBranchAuth } from "../../../redux-store/slices/branchAuthSlice";
+import { ROUTES } from "@/config/routeutils";
 
 const BranchManagerDashboard = () => {
   const navigate = useNavigate();
@@ -64,56 +64,51 @@ const BranchManagerDashboard = () => {
       title: "Service Bookings",
       description: "Manage service appointments",
       icon: Calendar,
-      path: "/manager/service-bookings",
+      path: ROUTES.BRANCH_MANAGER.SERVICE_BOOKINGS,
       color: "bg-blue-500",
     },
     {
       title: "Accident Reports",
       description: "View and manage accident reports",
       icon: FileText,
-      path: "/manager/accident-reports",
+      path: ROUTES.BRANCH_MANAGER.ACCIDENT_REPORTS,
       color: "bg-red-500",
     },
     {
       title: "Enquiries",
       description: "Manage customer enquiries",
       icon: MessageSquare,
-      path: "/manager/enquiries",
+      path: ROUTES.BRANCH_MANAGER.ENQUIRIES, // Use constant
       color: "bg-green-500",
+      enabled: true, // Add flag to disable items without routes
     },
-    {
-      title: "Applications",
-      description: "Manage customer applications",
-      icon: Users,
-      path: "/manager/applications",
-      color: "bg-purple-500",
-    },
+
     {
       title: "Stock Management",
       description: "Manage branch stock",
       icon: Package,
-      path: "/manager/stock",
+      path: ROUTES.BRANCH_MANAGER.STOCK,
       color: "bg-orange-500",
     },
     {
       title: "Value Added Services",
       description: "Manage VAS offerings",
       icon: Wrench,
-      path: "/manager/vas",
+      path: ROUTES.BRANCH_MANAGER.VAS,
       color: "bg-cyan-500",
     },
     {
       title: "Customer Vehicles",
       description: "View customer vehicle information",
       icon: Settings,
-      path: "/manager/customer-vehicles",
+      path: ROUTES.BRANCH_MANAGER.CUSTOMER_VEHICLES,
       color: "bg-pink-500",
     },
     {
       title: "Finance Queries",
       description: "Manage finance enquiries",
       icon: DollarSign,
-      path: "/manager/finance-queries",
+      path: ROUTES.BRANCH_MANAGER.FINANCE_QUERIES,
       color: "bg-yellow-500",
     },
   ];
@@ -122,25 +117,25 @@ const BranchManagerDashboard = () => {
     {
       title: "Add Stock",
       icon: Plus,
-      path: "/manager/stockC/select",
+      path: ROUTES.BRANCH_MANAGER.STOCK_SELECT,
       color: "text-orange-600 bg-orange-50 hover:bg-orange-100",
     },
     {
       title: "Upload CSV",
       icon: Upload,
-      path: "/manager/forms/stock-concept-csv",
+      path: ROUTES.BRANCH_MANAGER.FORMS.STOCK_CONCEPT_CSV,
       color: "text-blue-600 bg-blue-50 hover:bg-blue-100",
     },
     {
       title: "Add VAS",
       icon: Wrench,
-      path: "/manager/forms/vas",
+      path: ROUTES.BRANCH_MANAGER.FORMS.VAS,
       color: "text-cyan-600 bg-cyan-50 hover:bg-cyan-100",
     },
     {
       title: "Register Customer",
       icon: UserPlus,
-      path: "/manager/customers/signup",
+      path: ROUTES.BRANCH_MANAGER.CUSTOMERS.SIGNUP,
       color: "text-green-600 bg-green-50 hover:bg-green-100",
     },
   ];

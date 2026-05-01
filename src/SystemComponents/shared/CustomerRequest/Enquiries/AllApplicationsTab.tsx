@@ -15,15 +15,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGetAllApplicationsQuery } from "@/redux-store/services/customer/getApprovedApi";
+import { useGetAllApplicationsQuery } from "@/redux-store/services/customeRequest/getApprovedApi";
 import {
   GetApplicationsFilters,
   GetApprovedApplication,
 } from "@/types/getApproved.types";
 import { RefreshCw, Search } from "lucide-react";
 import { useState } from "react";
-import { STATUS_COLORS } from "./WithBikesTab";
+
 import { Badge } from "@/components/ui/badge";
+import { STATUS_COLORS } from "./WithBikesTab";
 
 const PAGE_SIZE = 10;
 export const AllApplicationsTab = () => {

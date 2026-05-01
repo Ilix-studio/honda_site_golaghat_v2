@@ -1,4 +1,5 @@
-// Enhanced navigation utilities for role-based routing
+// src/config/navigationUtils.ts
+
 import { NavigateFunction } from "react-router-dom";
 
 export const ROUTES = {
@@ -42,31 +43,20 @@ export const ROUTES = {
       VAS: (id: string) => `/admin/assign/VAS/${id}`,
       SERVICE_ADDONS: (id: string) => `/admin/assign/SERVICE_ADDONS/${id}`,
     },
-
     INTEGRATE: {
       VAS: "/admin/integrate/vas",
       SERVICE_ADDONS: "/admin/integrate/service-addons",
     },
-  },
-
-  BRANCH_MANAGER: {
-    LOGIN: "/manager-login",
-    DASHBOARD: "/manager/dashboard",
-    SERVICE_BOOKINGS: "/manager/service-bookings",
-    ACCIDENT_REPORTS: "/manager/accident-reports",
-
-    STOCK: "/manager/stock",
-    VAS: "/manager/vas",
-    CUSTOMER_VEHICLES: "/manager/customer-vehicles",
-    FINANCE_QUERIES: "/manager/finance-queries",
+    ENQUIRIES: "/admin/enquiries",
+    ENQUIRY_DETAILS: (id: string) => `/admin/enquiries/${id}`,
   },
 
   CUSTOMER: {
+    SIGNUP: "/customer/signup",
     LOGIN: "/customer/login",
     INITIALIZE: "/customer/first-dash",
     PROFILE: { CREATE: "/customer/profile/create" },
     GENERATE_TAGS: "/customer/generate-tags",
-    //
     DASHBOARD: "/customer/dashboard",
     PROFILE_INFO: "/customer/profile-info",
     SERVICES: "/customer/services",
@@ -76,6 +66,56 @@ export const ROUTES = {
     SERVICE_HISTORY: "/customer/service-history",
   },
 
+  BRANCH_MANAGER: {
+    LOGIN: "/manager-login",
+    DASHBOARD: "/manager/dashboard",
+    SERVICE_BOOKINGS: "/manager/service-bookings",
+    ACCIDENT_REPORTS: "/manager/accident-reports",
+    CUSTOMER_VEHICLES: "/manager/customer-vehicles",
+    ENQUIRIES: "/manager/enquiries",
+    ENQUIRY_DETAILS: (id: string) => `/manager/enquiries/${id}`,
+
+    CUSTOMERS: {
+      SIGNUP: "/manager/customers/signup",
+    },
+
+    FORMS: {
+      VAS: "/manager/forms/vas",
+      STOCK_CONCEPT: "/manager/forms/stock-concept",
+      STOCK_CONCEPT_CSV: "/manager/forms/stock-concept-csv",
+    },
+
+    STOCK_SELECT: "/manager/stockC/select",
+
+    BIKES: {
+      ADD: "/manager/bikes/add",
+      IMAGES: {
+        ADD: (bikeId: string) => `/manager/bikes/${bikeId}/images/add`,
+        EDIT: (bikeId: string) => `/manager/bikes/${bikeId}/images/edit`,
+        VIEW: (id: string) => `/manager/bikes/images/${id}`,
+      },
+    },
+
+    VIEW: {
+      VAS: "/manager/view/vas",
+      STOCK_CONCEPT: "/manager/view/stock-concept",
+    },
+
+    ASSIGN: {
+      STOCK_CONCEPT: (id: string) => `/manager/assign/stock-concept/${id}`,
+      CHOOSE_STOCK: "/manager/assign/choose-stock",
+      CSV_STOCK: "/manager/assign/csv-stock",
+    },
+
+    CSV: {
+      GET: "/manager/get/csv",
+      ALL_STOCK: "/manager/get/all-stock",
+    },
+
+    VAS_SELECT: "/manager/vas/select",
+    ANY_MESSAGES: "/manager/any-messages",
+    FINANCE_QUERY: "/manager/finanace-query", // Keep typo to match backend route
+  },
   DOWNLOAD: { SAFETY_FEATURES: "/download/safety-features" },
 } as const;
 

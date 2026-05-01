@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AllApplicationsTab } from "./AllApplicationsTab";
-import { WithBikesTab } from "./WithBikesTab";
+import { WithBikesTab } from "../Enquiries/WithBikesTab";
 
 const FinanceQueries = () => {
   return (
@@ -27,7 +26,7 @@ const FinanceQueries = () => {
               <CardTitle className='text-base'>Finance Applications</CardTitle>
             </CardHeader>
             <CardContent>
-              <AllApplicationsTab />
+              <div>Finance Applications</div>
             </CardContent>
           </Card>
         </TabsContent>

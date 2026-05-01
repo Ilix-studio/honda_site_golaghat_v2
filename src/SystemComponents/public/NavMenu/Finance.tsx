@@ -24,7 +24,7 @@ import {
 import { Footer } from "../Home/Footer";
 
 import type { SubmitApplicationRequest } from "@/types/getApproved.types";
-import { useSubmitApplicationMutation } from "@/redux-store/services/customer/getApprovedApi";
+import { useSubmitApplicationMutation } from "@/redux-store/services/customeRequest/getApprovedApi";
 import { FormData, validate } from "@/lib/financeformUtils";
 import { Header } from "@/SystemComponents/headers/Header";
 

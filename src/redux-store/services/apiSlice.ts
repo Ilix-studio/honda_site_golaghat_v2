@@ -60,6 +60,7 @@ export const apiSlice = createApi({
     "ContactMessages",
     "ContactMessage",
     "AccidentReport",
+    "Enquiry",
   ],
   endpoints: () => ({}),
 });

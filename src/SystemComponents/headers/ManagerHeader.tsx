@@ -62,7 +62,7 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/manager/dashboard",
   },
-  "/manager/finance-queries": {
+  "/manager/finance-query": {
     title: "Finance Queries",
     subtitle: "Handle finance-related requests",
     showBack: true,

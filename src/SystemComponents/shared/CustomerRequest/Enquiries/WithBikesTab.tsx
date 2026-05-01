@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGetApplicationsWithBikesQuery } from "@/redux-store/services/customer/getApprovedApi";
+import { useGetApplicationsWithBikesQuery } from "@/redux-store/services/customeRequest/getApprovedApi";
 import {
   GetApplicationsWithBikesFilters,
   GetApprovedApplicationWithBikes,
@@ -171,7 +171,7 @@ export const WithBikesTab = () => {
                 const bikeLabel =
                   typeof bike?.bikeId === "object"
                     ? bike.bikeId?.modelName
-                    : bike?.bikeModel ?? "—";
+                    : (bike?.bikeModel ?? "—");
 
                 return (
                   <TableRow key={app._id}>

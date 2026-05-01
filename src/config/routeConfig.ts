@@ -87,21 +87,12 @@ const DownloadSafetyfeature = lazy(
   () => import("../SystemComponents/shared/ViewBS2/DownloadSafetyfeature"),
 );
 
-// Get Approved / Enquiry
-const GetApprovedForm = lazy(() =>
-  import("../SystemComponents/shared/GetApproved/GetApprovedForm").then(
-    (m) => ({
-      default: m.GetApprovedForm,
-    }),
-  ),
-);
-const FinanceWithBikeEnquiry = lazy(() =>
-  import("../SystemComponents/shared/GetApproved/FinanceWithBikeEnquiry").then(
-    (m) => ({
-      default: m.FinanceWithBikeEnquiry,
-    }),
-  ),
-);
+// Customer signup redirect component
+import CustomerSignupRedirect from "../SystemComponents/authentication/CustomerSystem/CustomerSignupRedirect";
+import FinanceQueries from "@/SystemComponents/shared/CustomerRequest/GetApproved/FinanceQueries";
+import BikeEnquiryDashboard from "@/SystemComponents/shared/CustomerRequest/Enquiries/EnquiryDashboard";
+import { GetApprovedForm } from "@/SystemComponents/shared/CustomerRequest/GetApproved/GetApprovedForm";
+import { FinanceWithBikeEnquiry } from "@/SystemComponents/shared/CustomerRequest/GetApproved/FinanceWithBikeEnquiry";
 
 export const publicRoutes: RouteItem[] = [
   // Navigation pages
@@ -127,6 +118,9 @@ export const publicRoutes: RouteItem[] = [
   // Get Approved / Enquiry
   { path: "/get-approved", component: GetApprovedForm },
   { path: "/finance-enquiry", component: FinanceWithBikeEnquiry },
+
+  // Customer signup redirect
+  { path: "/customers/signup", component: CustomerSignupRedirect },
 ];
 
 // ============================================================================
@@ -194,9 +188,6 @@ const AdminBookingsManager = lazy(
 );
 
 // Finance
-const FinanceQueries = lazy(
-  () => import("../SystemComponents/shared/FinanceEnquiry/FinanceQueries"),
-);
 
 // Messages
 const SeeMessages = lazy(
@@ -220,7 +211,9 @@ const CustomerSignUp = lazy(
 );
 
 // Enquiry Dashboard
-const EnquiryDashboard = lazy(
+
+// Enquiry Details View
+const EnquiryDetailsView = lazy(
   () => import("../SystemComponents/authentication/Admin/EnquiryDetailsView"),
 );
 
@@ -278,7 +271,8 @@ const createSharedRoutes = (prefix: "/admin" | "/manager"): RouteItem[] => [
   { path: `${prefix}/any-messages`, component: SeeMessages },
 
   // Enquiries
-  { path: `${prefix}/enquiries`, component: EnquiryDashboard },
+  { path: `${prefix}/enquiries`, component: BikeEnquiryDashboard },
+  { path: `${prefix}/enquiries/:id`, component: EnquiryDetailsView },
 ];
 
 // ============================================================================

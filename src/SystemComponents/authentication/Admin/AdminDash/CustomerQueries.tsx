@@ -9,7 +9,7 @@ import {
   MessageCircleCode,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useGetAllApplicationsQuery } from "@/redux-store/services/customer/getApprovedApi";
+import { useGetAllApplicationsQuery } from "@/redux-store/services/customeRequest/getApprovedApi";
 import { useGetContactMessagesQuery } from "@/redux-store/services/contactApi";
 
 interface StatCardProps {
