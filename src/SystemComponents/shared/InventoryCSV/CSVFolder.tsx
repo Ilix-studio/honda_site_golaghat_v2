@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
 
-import { useGetCSVBatchesQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
+import { useGetCSVBatchesQuery } from "@/redux-store/services/csvStock/csvStockApi";
 import GetCSVFiles from "./GetCSVFiles";
 import { CSVBatch } from "@/types/customer/stockcsv.types";
 

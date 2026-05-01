@@ -22,7 +22,7 @@ import { formatCurrency } from "@/lib/formatters";
 
 import { comparisonSections } from "./comparisonSections";
 import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
-import { Bike } from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
+import { Bike } from "@/redux-store/slices/bikeSystemSlice/bikesSlice";
 import { AddBikeCard } from "./AddBikeCard";
 import { Header } from "@/SystemComponents/headers/Header";
 import { Footer } from "@/SystemComponents/public/Home/Footer";

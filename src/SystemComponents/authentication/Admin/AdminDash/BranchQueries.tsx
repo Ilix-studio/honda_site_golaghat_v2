@@ -17,10 +17,10 @@ import { useGetVisitorStatsQuery } from "@/redux-store/services/visitorApi";
 import RecentMotorcycles from "./RecentMotocycles";
 import { useGetAllCustomersQuery } from "@/redux-store/services/customer/customerApi";
 import { formatTimeAgo, MetricTile, StatCard, StatCardProps } from "./StatCard";
-import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
-import { useGetCSVBatchesQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
-import { useGetAllStockItemsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
-import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
+import { useGetAllVASQuery } from "@/redux-store/services/VASnStock/VASApi";
+import { useGetCSVBatchesQuery } from "@/redux-store/services/csvStock/csvStockApi";
+import { useGetAllStockItemsQuery } from "@/redux-store/services/VASnStock/StockConceptApi";
+import { useGetAllBookingsQuery } from "@/redux-store/services/VASnStock/ServiceBookAdminApi";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 

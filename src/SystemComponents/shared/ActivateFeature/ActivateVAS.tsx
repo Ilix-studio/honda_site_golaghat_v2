@@ -7,7 +7,7 @@ import { CheckCircle, User, Shield, Calendar, DollarSign } from "lucide-react";
 import {
   useActivateServiceForCustomerMutation,
   useGetAllVASQuery,
-} from "@/redux-store/services/BikeSystemApi2/VASApi";
+} from "@/redux-store/services/VASnStock/VASApi";
 import { formatCurrency } from "@/lib/formatters";
 import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
 import { setSelectVASCompleted } from "@/redux-store/slices/setupProgressSlice";
@@ -31,7 +31,7 @@ const ActivateVAS = () => {
     useActivateServiceForCustomerMutation();
 
   const [activatingServiceId, setActivatingServiceId] = useState<string | null>(
-    null
+    null,
   );
   const dispatch = useAppDispatch();
 
@@ -62,7 +62,7 @@ const ActivateVAS = () => {
       }).unwrap();
 
       toast.success(result.message || "VAS activated successfully!");
-      dispatch(setSelectVASCompleted(true)); 
+      dispatch(setSelectVASCompleted(true));
       navigate("/customer/initialize");
     } catch (error: any) {
       console.error("Full error object:", error);

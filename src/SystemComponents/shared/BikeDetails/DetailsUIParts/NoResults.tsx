@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Search, Filter } from "lucide-react";
 import { useAppDispatch } from "@/hooks/redux";
-import { clearFilters } from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
+import { clearFilters } from "@/redux-store/slices/bikeSystemSlice/bikesSlice";
 
 interface NoResultsProps {
   className?: string;

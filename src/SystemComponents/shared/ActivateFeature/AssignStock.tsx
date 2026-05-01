@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   useAssignToCustomerMutation,
   useGetStockItemByIdQuery,
-} from "../../../redux-store/services/BikeSystemApi2/StockConceptApi";
+} from "../../../redux-store/services/VASnStock/StockConceptApi";
 import { toast } from "react-hot-toast";
 import { useAuthForCustomer } from "@/hooks/useAuthforCustomer";
 
@@ -28,7 +28,7 @@ const AssignStock = () => {
   const { customer } = useAuthForCustomer(); // Get authenticated customer
 
   const { data: stockData, isLoading: stockLoading } = useGetStockItemByIdQuery(
-    id!
+    id!,
   );
   const [assignToCustomer, { isLoading: assignLoading }] =
     useAssignToCustomerMutation();
@@ -71,7 +71,7 @@ const AssignStock = () => {
   }, [customer]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value, type } = e.target;
 

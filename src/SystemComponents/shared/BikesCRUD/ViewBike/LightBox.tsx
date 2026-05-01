@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { Star, Trash2, Eye, ChevronLeft, ChevronRight, X } from "lucide-react";
 
-import { BikeImage } from "@/redux-store/slices/BikeSystemSlice/bikeImageSlice";
+import { BikeImage } from "@/redux-store/slices/bikeSystemSlice/bikeImageSlice";
 
 export interface LightboxProps {
   images: BikeImage[];

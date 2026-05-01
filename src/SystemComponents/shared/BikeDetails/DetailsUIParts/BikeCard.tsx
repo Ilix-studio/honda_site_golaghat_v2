@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
 import { Link } from "react-router-dom";
-import { Bike } from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
+import { Bike } from "@/redux-store/slices/bikeSystemSlice/bikesSlice";
 import { AlertTriangle, Star, Fuel, Calendar, Zap } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
 

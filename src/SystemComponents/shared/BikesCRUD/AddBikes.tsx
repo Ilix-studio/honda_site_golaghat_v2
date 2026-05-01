@@ -22,7 +22,7 @@ import { useCreateBikeMutation } from "@/redux-store/services/BikeSystemApi/bike
 import {
   BikeVariant,
   PriceBreakdown,
-} from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
+} from "@/redux-store/slices/bikeSystemSlice/bikesSlice";
 
 // Enhanced form data interface matching backend model
 interface BikeFormData {
@@ -210,7 +210,7 @@ const AddBikes = () => {
   const removeFeature = (index: number) => {
     setValue(
       "features",
-      watchedFeatures.filter((_, i) => i !== index)
+      watchedFeatures.filter((_, i) => i !== index),
     );
   };
 
@@ -225,7 +225,7 @@ const AddBikes = () => {
   const removeColor = (index: number) => {
     setValue(
       "colors",
-      watchedColors.filter((_, i) => i !== index)
+      watchedColors.filter((_, i) => i !== index),
     );
   };
 
@@ -246,7 +246,7 @@ const AddBikes = () => {
     if (watchedVariants.length > 1) {
       setValue(
         "variants",
-        watchedVariants.filter((_, i) => i !== index)
+        watchedVariants.filter((_, i) => i !== index),
       );
     }
   };
@@ -286,7 +286,7 @@ const AddBikes = () => {
           message: `${
             data.mainCategory === "bike" ? "Bike" : "Scooter"
           } created successfully!`,
-        })
+        }),
       );
 
       // Navigate to image upload page with the created bike ID
@@ -299,7 +299,7 @@ const AddBikes = () => {
             error?.data?.error ||
             error?.message ||
             `Failed to create ${data.mainCategory}`,
-        })
+        }),
       );
     }
   };
@@ -387,7 +387,7 @@ const AddBikes = () => {
                             <SelectItem key={option} value={option}>
                               {option.charAt(0).toUpperCase() + option.slice(1)}
                             </SelectItem>
-                          )
+                          ),
                         )}
                       </SelectContent>
                     </Select>
@@ -460,7 +460,7 @@ const AddBikes = () => {
                         const value = e.target.value;
                         setValue(
                           "priceBreakdown.exShowroomPrice",
-                          value === "" ? 0 : parseFloat(value)
+                          value === "" ? 0 : parseFloat(value),
                         );
                       }}
                       className={
@@ -485,7 +485,7 @@ const AddBikes = () => {
                         const value = e.target.value;
                         setValue(
                           "priceBreakdown.rtoCharges",
-                          value === "" ? 0 : parseFloat(value)
+                          value === "" ? 0 : parseFloat(value),
                         );
                       }}
                       className={formErrors.rtoCharges ? "border-red-500" : ""}
@@ -512,7 +512,7 @@ const AddBikes = () => {
                         const value = e.target.value;
                         setValue(
                           "priceBreakdown.insuranceComprehensive",
-                          value === "" ? 0 : parseFloat(value)
+                          value === "" ? 0 : parseFloat(value),
                         );
                       }}
                       className={

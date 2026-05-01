@@ -15,9 +15,10 @@ import createIdbStorage from "redux-persist-indexeddb-storage";
 
 // Import reducers
 import authReducer from "./slices/authSlice";
+import branchAuthReducer from "./slices/branchAuthSlice";
 //New
-import bikesReducer from "./slices/BikeSystemSlice/bikesSlice";
-import bikeImageReducer from "./slices/BikeSystemSlice/bikeImageSlice";
+import bikesReducer from "./slices/bikeSystemSlice/bikesSlice";
+import bikeImageReducer from "./slices/bikeSystemSlice/bikeImageSlice";
 
 import branchReducer from "./slices/branchSlice";
 import comparisonReducer from "./slices/comparisonSlice";
@@ -41,12 +42,13 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage: idbStorage,
-  whitelist: ["auth", "customerAuth", "comparison", "ui"],
+  whitelist: ["auth", "branchAuth", "customerAuth", "comparison", "ui"],
   blacklist: ["api"], // Don't persist API cache
 };
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  branchAuth: branchAuthReducer,
   bikes: bikesReducer,
   bikeImages: bikeImageReducer,
   branch: branchReducer,
@@ -66,9 +68,9 @@ export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      // Redux Persist middleware needs these actions to be ignored
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+        ignoredPaths: ["api"],
       },
     }).concat(apiSlice.middleware),
 });

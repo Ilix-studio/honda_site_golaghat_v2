@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatCurrency } from "@/lib/formatters";
-import { Bike } from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
+import { Bike } from "@/redux-store/slices/bikeSystemSlice/bikesSlice";
 
 interface AddBikeCardProps {
   onSelect: (bikeId: string) => void;
@@ -55,7 +55,7 @@ export function AddBikeCard({
         (searchQuery === "" ||
           bike.modelName.toLowerCase().includes(searchQuery.toLowerCase())) &&
         !bike._id) ||
-      true // Allow all bikes in selection
+      true, // Allow all bikes in selection
   );
 
   return (
@@ -155,7 +155,7 @@ export function AddBikeCard({
                           {formatCurrency(
                             bike.priceBreakdown?.onRoadPrice ||
                               bike.priceBreakdown?.exShowroomPrice ||
-                              0
+                              0,
                           )}
                         </span>
                       </div>

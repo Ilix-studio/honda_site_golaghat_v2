@@ -8,7 +8,8 @@ export const baseQuery = fetchBaseQuery({
   baseUrl: API_CONFIG.BASE_URL,
   prepareHeaders: (headers, { getState }) => {
     // Get token from Redux state
-    const token = (getState() as any).auth.token;
+    const token =
+      (getState() as any).auth.token || (getState() as any).branchAuth?.token;
     // Debug logging
     console.log("Token from Redux state:", token);
 

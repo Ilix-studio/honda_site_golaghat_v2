@@ -15,7 +15,7 @@ import {
   useGetAllBookingsQuery,
   useGetBookingStatsQuery,
   useUpdateBookingStatusMutation,
-} from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
+} from "@/redux-store/services/VASnStock/ServiceBookAdminApi";
 
 // ── status config ────────────────────────────────────────────────────────────
 const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string }> =

@@ -1,5 +1,6 @@
+// redux-store/services/branchManagerApi.ts
 import { apiSlice } from "./apiSlice";
-import { User, loginSuccess } from "../slices/authSlice";
+import { BranchUser, branchLoginSuccess } from "../slices/branchAuthSlice";
 
 export interface LoginBranchManagerRequest {
   applicationId: string;
@@ -13,8 +14,10 @@ export interface LoginBranchManagerResponse {
     id: string;
     applicationId: string;
     branch: {
-      name: string;
-      location: string;
+      _id: string;
+      name?: string;
+      branchName?: string;
+      address: string;
     };
     role: string;
     token: string;
@@ -63,19 +66,30 @@ export const branchManagerApi = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled;
           if (data.success) {
-            const userData: User = {
+            const branchUser: BranchUser = {
               id: data.data.id,
-              name: data.data.applicationId,
-              email: data.data.branch.name,
-              role: data.data.role || "Branch-Admin",
+              applicationId: data.data.applicationId,
+              branchName:
+                data.data.branch.name ||
+                data.data.branch.branchName ||
+                data.data.branch.address ||
+                "Branch",
+              branchId: data.data.branch._id,
+              role: "Branch-Admin",
             };
-            dispatch(loginSuccess({ user: userData, token: data.data.token }));
+            dispatch(
+              branchLoginSuccess({
+                user: branchUser,
+                token: data.data.token,
+              }),
+            );
           }
         } catch (error) {
           console.error("Branch manager login failed:", error);
         }
       },
     }),
+
     getAllBranchManagers: builder.query<
       { success: boolean; count: number; data: any[] },
       void
@@ -86,6 +100,7 @@ export const branchManagerApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["BranchManager"],
     }),
+
     logoutBranchManager: builder.mutation<
       { success: boolean; message: string },
       void
@@ -95,6 +110,7 @@ export const branchManagerApi = apiSlice.injectEndpoints({
         method: "POST",
       }),
     }),
+
     createBranchManager: builder.mutation<
       CreateBranchManagerResponse,
       CreateBranchManagerRequest
@@ -106,6 +122,7 @@ export const branchManagerApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["BranchManager"],
     }),
+
     deleteBranchManager: builder.mutation<{ success: boolean }, string>({
       query: (id) => ({
         url: `/adminLogin/del-branchM/${id}`,
@@ -114,6 +131,7 @@ export const branchManagerApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["BranchManager"],
     }),
+
     getBranchManagerPassword: builder.query<
       GetBranchManagerPasswordResponse,
       string

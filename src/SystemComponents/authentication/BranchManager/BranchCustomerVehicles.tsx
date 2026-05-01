@@ -23,7 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGetCustomerVehiclesQuery } from "@/redux-store/services/BikeSystemApi2/AdminVehicleApi";
+import { useGetCustomerVehiclesQuery } from "@/redux-store/services/VASnStock/AdminVehicleApi";
 
 const formatDate = (iso: string | undefined) => {
   if (!iso) return "—";

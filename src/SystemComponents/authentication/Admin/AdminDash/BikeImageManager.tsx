@@ -41,7 +41,7 @@ import {
   createImageUploadFormData,
 } from "@/redux-store/services/BikeSystemApi/bikeImageApi";
 
-import type { BikeImage } from "@/redux-store/slices/BikeSystemSlice/bikeImageSlice";
+import type { BikeImage } from "@/redux-store/slices/bikeSystemSlice/bikeImageSlice";
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 

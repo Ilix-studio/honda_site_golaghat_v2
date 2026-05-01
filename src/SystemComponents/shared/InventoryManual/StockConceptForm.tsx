@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { toast } from "react-hot-toast";
-import { useCreateStockItemMutation } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
+import { useCreateStockItemMutation } from "@/redux-store/services/VASnStock/StockConceptApi";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 
 interface StockConceptFormData {
@@ -44,7 +44,7 @@ export default function StockConceptForm() {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({

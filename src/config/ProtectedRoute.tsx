@@ -2,6 +2,8 @@ import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux-store/store";
+import { selectBranchAuth } from "@/redux-store/slices/branchAuthSlice";
+import { useAppSelector } from "@/hooks/redux";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -27,8 +29,6 @@ const ADMIN_ONLY_CUSTOMER_PATHS = [
   "/customer/assign/csv-stock",
   "/customer/services/vas",
   "/customer/attach-stickers",
-  // Admin assigns services
-  // Admin assigns vehicles
 ];
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
@@ -45,17 +45,27 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const customerAuthState = useSelector(
     (state: RootState) => state.customerAuth,
   );
+  const branchAuth = useAppSelector(selectBranchAuth);
 
   const { isAuthenticated, user, userType, adminRole } = {
     isAuthenticated:
-      authState?.isAuthenticated || customerAuthState?.isAuthenticated || false,
-    user: authState?.user || customerAuthState?.customer || null,
+      authState?.isAuthenticated ||
+      customerAuthState?.isAuthenticated ||
+      branchAuth?.isAuthenticated ||
+      false,
+    user:
+      authState?.user ||
+      customerAuthState?.customer ||
+      branchAuth?.user ||
+      null,
     userType: customerAuthState?.customer
       ? "customer"
       : authState?.user
         ? "admin"
-        : null,
-    adminRole: authState?.user?.role || null, // "Super-Admin" or "Branch-Admin"
+        : branchAuth?.user
+          ? "branch-manager"
+          : null,
+    adminRole: authState?.user?.role || null,
   };
 
   // Helper function to check if current path is admin-restricted
@@ -97,7 +107,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (requiredRole) {
     switch (requiredRole) {
       case "super-admin-only":
-        // Only Super-Admin can access
         if (!hasSuperAdminPrivileges()) {
           const fallbackPath =
             userType === "admin"
@@ -110,7 +119,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         break;
 
       case "admin":
-        // Only admins can access
         if (!hasAdminPrivileges()) {
           const fallbackPath =
             userType === "customer" ? "/customer/dashboard" : "/";
@@ -119,47 +127,46 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         break;
 
       case "customer":
-        // Customer routes with admin override capability
         const currentPath = location.pathname;
 
         if (userType === "customer") {
-          // Customer accessing routes
           if (isAdminRestrictedPath(currentPath)) {
-            // Customer trying to access admin-only customer route
             return <Navigate to='/customer/dashboard' replace />;
           }
-          // Customer can access their allowed routes
           return <>{children}</>;
         } else if (userType === "admin") {
-          // Admin accessing customer routes
           if (adminCanAccess && hasAdminPrivileges()) {
-            // Admin has permission to access customer routes for administrative tasks
             return <>{children}</>;
           } else {
-            // Admin doesn't have permission or adminCanAccess is false
             return <Navigate to='/admin/dashboard' replace />;
           }
+        } else if (userType === "branch-manager") {
+          // Branch Manager gets same access as admin on customer routes
+          if (branchAuth.isAuthenticated) {
+            return <>{children}</>;
+          }
+          return <Navigate to='/manager-login' replace />;
         } else {
-          // Neither customer nor admin
           return <Navigate to='/' replace />;
         }
         break;
 
       case "admin-or-customer":
-        // Both admin and customer can access
-        if (userType === "customer" || hasAdminPrivileges()) {
+        if (
+          userType === "customer" ||
+          hasAdminPrivileges() ||
+          branchAuth.isAuthenticated
+        ) {
           return <>{children}</>;
         } else {
-          const fallbackPath = "/";
-          return <Navigate to={fallbackPath} replace />;
+          return <Navigate to='/' replace />;
         }
         break;
 
       case "branch-manager":
-        // Only Branch-Admin can access
-        if (adminRole !== "Branch-Admin") {
-          const fallbackPath = "/";
-          return <Navigate to={fallbackPath} replace />;
+        // Check dedicated branchAuth slice — NOT the shared authSlice
+        if (!branchAuth.isAuthenticated) {
+          return <Navigate to='/manager-login' replace />;
         }
         break;
 

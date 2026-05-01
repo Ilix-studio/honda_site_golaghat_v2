@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/table";
 import toast from "react-hot-toast";
 
-import { useImportCSVStockMutation } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
+import { useImportCSVStockMutation } from "@/redux-store/services/csvStock/csvStockApi";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -69,7 +69,7 @@ const UploadCSVForm = () => {
   const [progress, setProgress] = useState(0);
   const [duplicates, setDuplicates] = useState<DuplicateError[]>([]);
   const [redirectCountdown, setRedirectCountdown] = useState<number | null>(
-    null
+    null,
   );
 
   const { data: branchesResponse, isLoading: branchesLoading } =
@@ -110,7 +110,7 @@ const UploadCSVForm = () => {
       const hasDuplicates =
         importResult.data.failureCount > 0 &&
         importResult.data.errors.some((err) =>
-          err.error.toLowerCase().includes("duplicate")
+          err.error.toLowerCase().includes("duplicate"),
         );
 
       const delay = hasDuplicates ? 10000 : 2000;
@@ -140,7 +140,7 @@ const UploadCSVForm = () => {
   useEffect(() => {
     if (importResult?.data?.errors) {
       const duplicateErrors = importResult.data.errors.filter((err) =>
-        err.error.toLowerCase().includes("duplicate")
+        err.error.toLowerCase().includes("duplicate"),
       );
       setDuplicates(duplicateErrors);
     }
@@ -378,8 +378,8 @@ const UploadCSVForm = () => {
                   uploadStage === "success"
                     ? "text-green-600"
                     : uploadStage === "error"
-                    ? "text-destructive"
-                    : "text-primary animate-pulse"
+                      ? "text-destructive"
+                      : "text-primary animate-pulse"
                 }`}
               />
               <p className='text-sm font-medium'>{currentStageInfo.text}</p>

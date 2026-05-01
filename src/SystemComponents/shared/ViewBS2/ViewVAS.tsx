@@ -5,7 +5,7 @@ import {
   useDeleteVASMutation,
   IValueAddedService,
   UpdateVASRequest,
-} from "@/redux-store/services/BikeSystemApi2/VASApi";
+} from "@/redux-store/services/VASnStock/VASApi";
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import {

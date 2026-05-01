@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/table";
 import toast from "react-hot-toast";
 
-import { useGetCSVStocksQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
+import { useGetCSVStocksQuery } from "@/redux-store/services/csvStock/csvStockApi";
 import {
   CSVStockFilters,
   IStockConceptCSV,
@@ -72,7 +72,7 @@ const GetCSVFiles = ({ folderDate, batchId }: GetCSVFilesProps) => {
             year: "numeric",
             month: "long",
             day: "numeric",
-          }
+          },
         );
         return stockDate === folderDate;
       })
@@ -80,22 +80,25 @@ const GetCSVFiles = ({ folderDate, batchId }: GetCSVFilesProps) => {
 
   // Group stocks by batch
   const batchGroups: BatchGroup[] = useMemo(() => {
-    const grouped = folderFilteredStocks.reduce((acc, stock) => {
-      const batchId = stock.csvImportBatch;
-      if (!acc[batchId]) {
-        acc[batchId] = {
-          batchId,
-          stocks: [],
-          importTime: stock.csvImportDate,
-        };
-      }
-      acc[batchId].stocks.push(stock);
-      return acc;
-    }, {} as Record<string, BatchGroup>);
+    const grouped = folderFilteredStocks.reduce(
+      (acc, stock) => {
+        const batchId = stock.csvImportBatch;
+        if (!acc[batchId]) {
+          acc[batchId] = {
+            batchId,
+            stocks: [],
+            importTime: stock.csvImportDate,
+          };
+        }
+        acc[batchId].stocks.push(stock);
+        return acc;
+      },
+      {} as Record<string, BatchGroup>,
+    );
 
     return Object.values(grouped).sort(
       (a, b) =>
-        new Date(b.importTime).getTime() - new Date(a.importTime).getTime()
+        new Date(b.importTime).getTime() - new Date(a.importTime).getTime(),
     );
   }, [folderFilteredStocks]);
 
@@ -104,12 +107,12 @@ const GetCSVFiles = ({ folderDate, batchId }: GetCSVFilesProps) => {
     selectedBatch === "all"
       ? folderFilteredStocks
       : folderFilteredStocks.filter(
-          (stock) => stock.csvImportBatch === selectedBatch
+          (stock) => stock.csvImportBatch === selectedBatch,
         );
 
   const handleFilterChange = (
     key: keyof CSVStockFilters,
-    value: string | number
+    value: string | number,
   ) => {
     setFilters((prev) => ({
       ...prev,
@@ -125,7 +128,7 @@ const GetCSVFiles = ({ folderDate, batchId }: GetCSVFilesProps) => {
     } else {
       handleFilterChange(
         "status",
-        value as IStockConceptCSV["stockStatus"]["status"]
+        value as IStockConceptCSV["stockStatus"]["status"],
       );
     }
   };
@@ -146,7 +149,7 @@ const GetCSVFiles = ({ folderDate, batchId }: GetCSVFilesProps) => {
   });
 
   const getStatusBadge = (
-    status: IStockConceptCSV["stockStatus"]["status"]
+    status: IStockConceptCSV["stockStatus"]["status"],
   ) => {
     const variants: Record<typeof status, string> = {
       Available: "bg-green-100 text-green-800",
@@ -293,8 +296,8 @@ const GetCSVFiles = ({ folderDate, batchId }: GetCSVFilesProps) => {
                     <p className='font-medium text-sm'>
                       {getBatchLabel(
                         batchGroups.findIndex(
-                          (b) => b.batchId === selectedBatch
-                        )
+                          (b) => b.batchId === selectedBatch,
+                        ),
                       )}
                     </p>
                     <p className='text-xs text-muted-foreground'>
@@ -307,12 +310,12 @@ const GetCSVFiles = ({ folderDate, batchId }: GetCSVFilesProps) => {
                     Imported on{" "}
                     {formatDate(
                       batchGroups.find((b) => b.batchId === selectedBatch)
-                        ?.importTime || ""
+                        ?.importTime || "",
                     )}{" "}
                     at{" "}
                     {formatTime(
                       batchGroups.find((b) => b.batchId === selectedBatch)
-                        ?.importTime || ""
+                        ?.importTime || "",
                     )}
                   </p>
                   <p className='text-sm font-medium mt-1'>

@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import {
   setFilters,
   selectBikesFilters,
-} from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
+} from "@/redux-store/slices/bikeSystemSlice/bikesSlice";
 
 interface SearchBarProps {
   placeholder?: string;

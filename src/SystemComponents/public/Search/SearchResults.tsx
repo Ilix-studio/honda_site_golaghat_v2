@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import SearchComponent from "./SearchComponent";
 
-import { Bike } from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
+import { Bike } from "@/redux-store/slices/bikeSystemSlice/bikesSlice";
 import { useSearchBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
 import { Header } from "@/SystemComponents/headers/Header";
 import { BikeCard } from "@/SystemComponents/shared/BikeDetails/DetailsUIParts/BikeCard";

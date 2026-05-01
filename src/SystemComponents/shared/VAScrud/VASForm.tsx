@@ -1,7 +1,7 @@
 import {
   CreateVASRequest,
   useCreateVASMutation,
-} from "@/redux-store/services/BikeSystemApi2/VASApi";
+} from "@/redux-store/services/VASnStock/VASApi";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 import React, { useState } from "react";
 
@@ -29,7 +29,7 @@ const VASForm: React.FC = () => {
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value, type } = e.target;
 
@@ -49,8 +49,8 @@ const VASForm: React.FC = () => {
           type === "number"
             ? Number(value)
             : type === "date"
-            ? new Date(value)
-            : value,
+              ? new Date(value)
+              : value,
       }));
     }
   };
@@ -58,7 +58,7 @@ const VASForm: React.FC = () => {
   const handleArrayFieldChange = (
     field: "benefits",
     index: number,
-    value: string
+    value: string,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -240,7 +240,7 @@ const VASForm: React.FC = () => {
                         handleArrayFieldChange(
                           "benefits",
                           index,
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       placeholder='Enter benefit'
@@ -307,7 +307,7 @@ const VASForm: React.FC = () => {
                         <input
                           type='checkbox'
                           checked={formData.applicableBranches.includes(
-                            branch._id
+                            branch._id,
                           )}
                           onChange={() => handleBranchSelection(branch._id)}
                           className='rounded border-gray-300 text-blue-600 focus:ring-blue-500'

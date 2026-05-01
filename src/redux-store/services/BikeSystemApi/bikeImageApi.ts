@@ -1,4 +1,4 @@
-import { BikeImage } from "../../slices/BikeSystemSlice/bikeImageSlice";
+import { BikeImage } from "../../slices/bikeSystemSlice/bikeImageSlice";
 import { apiSlice } from "../apiSlice";
 
 // Response interfaces
@@ -45,7 +45,7 @@ export interface DeleteImageResponse {
   message: string;
   data: {
     message: string;
-  }
+  };
 }
 
 export interface DeleteAllImagesResponse {
@@ -168,7 +168,7 @@ export const bikeImageApi = apiSlice.injectEndpoints({
 // Helper functions to create FormData for uploads
 export const createImageUploadFormData = (
   files: File[],
-  altTexts?: string[]
+  altTexts?: string[],
 ): FormData => {
   const formData = new FormData();
 
@@ -185,7 +185,7 @@ export const createImageUploadFormData = (
 
 export const createSingleImageUploadFormData = (
   file: File,
-  alt?: string
+  alt?: string,
 ): FormData => {
   const formData = new FormData();
   formData.append("image", file);

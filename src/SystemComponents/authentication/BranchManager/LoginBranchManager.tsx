@@ -1,3 +1,4 @@
+// mainComponents/Admin/LoginBranchManager.tsx
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,11 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 // Redux
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { useLoginBranchManagerMutation } from "../../../redux-store/services/branchManagerApi";
-import {
-  loginSuccess,
-  logout,
-  selectAuth,
-} from "../../../redux-store/slices/authSlice";
+import { selectBranchAuth } from "../../../redux-store/slices/branchAuthSlice";
 import { addNotification } from "../../../redux-store/slices/uiSlice";
 
 const LoginBranchManager = () => {
@@ -23,16 +20,11 @@ const LoginBranchManager = () => {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAppSelector(selectAuth);
+  const { isAuthenticated } = useAppSelector(selectBranchAuth);
 
   const [loginBranchManager, { isLoading }] = useLoginBranchManagerMutation();
 
-  // Clear any existing auth state on mount to prevent conflicts
-  useEffect(() => {
-    dispatch(logout());
-  }, [dispatch]);
-
-  // Redirect if already authenticated
+  // Redirect if already authenticated as branch manager
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/manager/dashboard");
@@ -59,19 +51,7 @@ const LoginBranchManager = () => {
       }).unwrap();
 
       if (result.success) {
-        // Store branch admin data in auth slice
-        dispatch(
-          loginSuccess({
-            user: {
-              id: result.data.id,
-              name: result.data.applicationId,
-              email: result.data.branch.name, // Using branch name as email placeholder
-              role: result.data.role,
-            },
-            token: result.data.token,
-          }),
-        );
-
+        // branchManagerApi.onQueryStarted already dispatches branchLoginSuccess
         dispatch(
           addNotification({
             type: "success",
@@ -79,7 +59,6 @@ const LoginBranchManager = () => {
           }),
         );
 
-        // Small delay to ensure Redux state is updated before navigation
         setTimeout(() => {
           navigate("/manager/dashboard");
         }, 100);
@@ -89,68 +68,79 @@ const LoginBranchManager = () => {
     } catch (err: any) {
       const errorMsg = err?.data?.message || "Login failed. Please try again.";
       setErrorMessage(errorMsg);
-      dispatch(
-        addNotification({
-          type: "error",
-          message: errorMsg,
-        }),
-      );
     }
   };
 
   return (
-    <div>
-      <div className='container max-w-md px-4 py-16'>
-        <div className='space-y-6'>
-          <div className='text-center space-y-2'>
-            <h1 className='text-3xl font-bold'>Branch Admin Login</h1>
-            <p className='text-gray-500'>
-              Sign in to access the branch management area
+    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-red-950 p-4'>
+      <div className='w-full max-w-md'>
+        <div className='mb-6'>
+          <Link
+            to='/'
+            className='inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm'
+          >
+            <ArrowLeft className='h-4 w-4' />
+            Back to Home
+          </Link>
+        </div>
+
+        <div className='bg-white rounded-2xl shadow-2xl p-8'>
+          <div className='text-center mb-8'>
+            <div className='inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 text-white mb-4 shadow-lg'>
+              <LogIn className='h-7 w-7' />
+            </div>
+            <h1 className='text-2xl font-bold text-gray-900'>Branch Manager</h1>
+            <p className='text-sm text-gray-500 mt-1'>
+              Sign in with your application credentials
             </p>
           </div>
 
           {errorMessage && (
-            <div className='p-3 rounded-md bg-red-50 border border-red-200 text-red-600 flex items-center gap-2'>
-              <AlertCircle className='h-5 w-5' />
+            <div className='flex items-center gap-2 p-3 mb-6 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm'>
+              <AlertCircle className='h-4 w-4 flex-shrink-0' />
               <span>{errorMessage}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className='space-y-4'>
+          <form onSubmit={handleSubmit} className='space-y-5'>
             <div className='space-y-2'>
-              <Label htmlFor='applicationId'>Application ID</Label>
+              <Label htmlFor='applicationId' className='text-sm font-medium'>
+                Application ID
+              </Label>
               <Input
                 id='applicationId'
                 type='text'
-                placeholder='BM-XXXX-XXXX'
+                placeholder='e.g. BM-XXXX-XXXX'
                 value={applicationId}
                 onChange={(e) => setApplicationId(e.target.value)}
-                required
+                className='h-11'
+                autoComplete='username'
               />
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='password'>Password</Label>
+              <Label htmlFor='password' className='text-sm font-medium'>
+                Password
+              </Label>
               <div className='relative'>
                 <Input
                   id='password'
                   type={showPassword ? "text" : "password"}
-                  placeholder='••••••••'
+                  placeholder='Enter your password'
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className='pr-10'
+                  className='h-11 pr-10'
+                  autoComplete='current-password'
                 />
                 <button
                   type='button'
-                  className='absolute right-3 top-1/2 -translate-y-1/2'
                   onClick={toggleShowPassword}
-                  tabIndex={-1}
+                  className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600'
                 >
                   {showPassword ? (
-                    <EyeOff className='h-4 w-4 text-gray-500' />
+                    <EyeOff className='h-4 w-4' />
                   ) : (
-                    <Eye className='h-4 w-4 text-gray-500' />
+                    <Eye className='h-4 w-4' />
                   )}
                 </button>
               </div>
@@ -158,58 +148,19 @@ const LoginBranchManager = () => {
 
             <Button
               type='submit'
-              className='w-full bg-red-500 hover:bg-red-600'
               disabled={isLoading}
+              className='w-full h-11 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-xl'
             >
               {isLoading ? (
                 <span className='flex items-center gap-2'>
-                  <svg
-                    className='animate-spin -ml-1 mr-2 h-4 w-4 text-white'
-                    xmlns='http://www.w3.org/2000/svg'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                  >
-                    <circle
-                      className='opacity-25'
-                      cx='12'
-                      cy='12'
-                      r='10'
-                      stroke='currentColor'
-                      strokeWidth='4'
-                    ></circle>
-                    <path
-                      className='opacity-75'
-                      fill='currentColor'
-                      d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                    ></path>
-                  </svg>
+                  <span className='h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin' />
                   Signing in...
                 </span>
               ) : (
-                <span className='flex items-center gap-2'>
-                  <LogIn className='h-4 w-4' />
-                  Sign In
-                </span>
+                "Sign In"
               )}
             </Button>
           </form>
-
-          <div className='pt-4 text-center'>
-            <Link
-              to='/'
-              className='inline-flex items-center text-sm font-medium text-gray-500 hover:underline'
-            >
-              <ArrowLeft className='mr-1 h-4 w-4' />
-              Back to Homepage
-            </Link>
-          </div>
-
-          <div className='pt-4 text-center text-sm text-gray-500'>
-            <p>
-              Don't have credentials? Contact your Super Admin to create a
-              Branch Admin account.
-            </p>
-          </div>
         </div>
       </div>
     </div>

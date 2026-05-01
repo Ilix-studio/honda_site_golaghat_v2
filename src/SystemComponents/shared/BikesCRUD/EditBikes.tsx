@@ -19,7 +19,7 @@ import { addNotification } from "../../../redux-store/slices/uiSlice";
 import {
   BikeVariant,
   PriceBreakdown,
-} from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
+} from "@/redux-store/slices/bikeSystemSlice/bikesSlice";
 
 // Enhanced form data interface matching backend model
 interface BikeFormData {

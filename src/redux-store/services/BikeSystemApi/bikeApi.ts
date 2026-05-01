@@ -5,7 +5,7 @@ import {
   BikeFilters,
   GetBikesResponse,
   GetBikeResponse,
-} from "../../slices/BikeSystemSlice/bikesSlice";
+} from "../../slices/bikeSystemSlice/bikesSlice";
 import { apiSlice } from "../apiSlice";
 
 // Helper function to build query string from filters

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/formatters";
-import { Bike } from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
+import { Bike } from "@/redux-store/slices/bikeSystemSlice/bikesSlice";
 import { X, Eye, CheckCircle, Fuel, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 

@@ -1,8 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Filter, Grid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Footer } from "@/SystemComponents/public/Home/Footer";
-import { Header } from "@/SystemComponents/headers/Header";
 
 import { CategoryTabs } from "./DetailsUIParts/CategoryTabs";
 import { BikeCard } from "./DetailsUIParts/BikeCard";
@@ -10,14 +8,16 @@ import { NoResults } from "./DetailsUIParts/NoResults";
 import { SortSelector } from "./DetailsUIParts/SortSelector";
 
 // Redux
-import { useAppDispatch, useAppSelector } from "@/hooks/redux";
-import { toggleFilterSidebar } from "@/redux-store/slices/uiSlice";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import { toggleFilterSidebar } from "../../../redux-store/slices/uiSlice";
 import {
   setViewMode,
   selectBikesViewMode,
   selectBikesFilters,
-} from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
+} from "../../../redux-store/slices/bikeSystemSlice/bikesSlice";
 import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
+import { Header } from "@/SystemComponents/headers/Header";
+import { Footer } from "@/SystemComponents/public/Home/Footer";
 
 // Skeleton Components
 const Skeleton = ({

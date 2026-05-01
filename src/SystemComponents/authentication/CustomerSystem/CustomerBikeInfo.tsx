@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { useGetMyStockVehiclesQuery } from "../../../redux-store/services/customer/stockCustomerVehicleApi";
 import { useAppSelector } from "@/hooks/redux";
 import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
-import cbr from "../../assets/cbr-1000-rrr.jpg";
+import cbr from "../../../assets/cbr-1000-rrr.jpg";
 
 // Type definitions
 // interface ServiceBadgeProps {
@@ -48,32 +48,6 @@ export function CustomerBikeInfo() {
   } = useGetMyStockVehiclesQuery(undefined, {
     skip: !isAuthenticated || !firebaseToken, // Skip query if not authenticated
   });
-
-  // const ServiceBadge = ({
-  //   title,
-  //   subtitle,
-  //   gradient,
-  //   shadowColor,
-  //   icon,
-  // }: ServiceBadgeProps) => (
-  //   <div className='relative group'>
-  //     <div
-  //       className={`flex flex-col items-center justify-center w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full bg-gradient-to-br ${gradient} shadow-xl ${shadowColor} border-2 border-white/20 backdrop-blur-sm transform transition-all duration-300 hover:scale-110 hover:shadow-2xl group-hover:rotate-3`}
-  //     >
-  //       <div className='absolute inset-0 rounded-full bg-gradient-to-tr from-white/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
-  //       <div className='text-white mb-1 transform group-hover:scale-110 transition-transform duration-200'>
-  //         {icon}
-  //       </div>
-  //       <div className='text-[7px] sm:text-[8px] lg:text-[9px] font-bold text-center leading-tight px-1 text-white/95 relative z-10'>
-  //         <div className='tracking-wider'>{title}</div>
-  //         <div className='font-semibold opacity-90'>{subtitle}</div>
-  //       </div>
-  //       <div className='absolute inset-0 rounded-full border-2 border-white/30 scale-110 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-500'></div>
-  //     </div>
-  //     <div className='absolute -top-1 -right-1 w-2 h-2 bg-white/40 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping'></div>
-  //     <div className='absolute -bottom-1 -left-1 w-1.5 h-1.5 bg-white/30 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping animation-delay-200'></div>
-  //   </div>
-  // );
 
   if (isLoading) {
     return (

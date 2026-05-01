@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 import { motion } from "framer-motion";
-import { useGetCustomerActiveServicesQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
+import { useGetCustomerActiveServicesQuery } from "@/redux-store/services/VASnStock/VASApi";
 
 // Backend populates serviceName + serviceType on the serviceId ref
 interface PopulatedService {

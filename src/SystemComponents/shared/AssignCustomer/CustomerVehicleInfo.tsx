@@ -2,7 +2,7 @@ import {
   StockConceptFilters,
   useGetAllStockItemsQuery,
   useAssignToCustomerMutation,
-} from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
+} from "@/redux-store/services/VASnStock/StockConceptApi";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
@@ -27,7 +27,7 @@ const CustomerVehicleInfo = () => {
   const { data, isLoading, error } = useGetAllStockItemsQuery(filters);
 
   const handleFilterChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFilters((prev) => ({

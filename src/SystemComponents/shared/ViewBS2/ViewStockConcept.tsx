@@ -5,7 +5,7 @@ import { Search, Filter, X, UserCheck } from "lucide-react";
 import {
   StockConceptFilters,
   useGetAllStockItemsQuery,
-} from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
+} from "@/redux-store/services/VASnStock/StockConceptApi";
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string }> =
   {
