@@ -14,7 +14,7 @@ const AddBranch = lazy(
   () => import("@/mainComponents/NavMenu/Branches/AddBranch"),
 );
 const BranchManager = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchManager"),
+  () => import("@/mainComponents/BranchM/BranchManager"),
 );
 const AddBikes = lazy(() => import("@/mainComponents/Admin/Bikes/AddBikes"));
 const EditBikes = lazy(() => import("@/mainComponents/Admin/Bikes/EditBikes"));

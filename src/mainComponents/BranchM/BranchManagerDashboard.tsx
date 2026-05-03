@@ -21,8 +21,8 @@ import {
   Home,
   Building2,
 } from "lucide-react";
-import { useAppSelector } from "../../../hooks/redux";
-import { selectAuth } from "../../../redux-store/slices/authSlice";
+import { useAppSelector } from "../../hooks/redux";
+import { selectAuth } from "../../redux-store/slices/authSlice";
 
 const BranchManagerDashboard = () => {
   const navigate = useNavigate();

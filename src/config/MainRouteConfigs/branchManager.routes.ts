@@ -4,31 +4,31 @@ const LoginBranchManager = lazy(
   () => import("@/mainComponents/Admin/LoginBranchManager"),
 );
 const BranchManagerDashboard = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchManagerDashboard"),
+  () => import("@/mainComponents/BranchM/BranchManagerDashboard"),
 );
 const BranchServiceBookings = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchServiceBookings"),
+  () => import("@/mainComponents/BranchM/BranchServiceBookings"),
 );
 const BranchAccidentReports = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchAccidentReports"),
+  () => import("@/mainComponents/BranchM/BranchAccidentReports"),
 );
 const BranchEnquiries = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchEnquiries"),
+  () => import("@/mainComponents/BranchM/BranchEnquiries"),
 );
 const BranchApplications = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchApplications"),
+  () => import("@/mainComponents/BranchM/BranchApplications"),
 );
 const BranchStockManagement = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchStockManagement"),
+  () => import("@/mainComponents/BranchM/BranchStockManagement"),
 );
 const BranchVASManagement = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchVASManagement"),
+  () => import("@/mainComponents/BranchM/BranchVASManagement"),
 );
 const BranchCustomerVehicles = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchCustomerVehicles"),
+  () => import("@/mainComponents/BranchM/BranchCustomerVehicles"),
 );
 const BranchFinanceQueries = lazy(
-  () => import("@/mainComponents/Admin/BranchM/BranchFinanceQueries"),
+  () => import("@/mainComponents/BranchM/BranchFinanceQueries"),
 );
 
 export const branchManagerAuthRoutes = [
