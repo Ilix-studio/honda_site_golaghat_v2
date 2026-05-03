@@ -7,9 +7,45 @@ import { useAppDispatch } from "@/hooks/redux";
 import { useAuthForCustomer } from "@/hooks/useAuthforCustomer";
 import { logout } from "@/redux-store/slices/customer/customerAuthSlice";
 import { addNotification } from "@/redux-store/slices/uiSlice";
-import { routeConfig } from "@/config/routeConfig";
+
 import { useGetCustomerProfileQuery } from "@/redux-store/services/customer/customerApi";
 import { ApiResponse } from "@/mainComponents/CustomerSystem/CustomerProfileInto";
+
+// Route configuration object for CustomerDashHeader
+export const routeConfig: Record<
+  string,
+  {
+    title?: string;
+    subtitle?: string;
+    showBack?: boolean;
+    backTo?: string;
+  }
+> = {
+  "/customer/dashboard": {
+    title: "Dashboard",
+    subtitle: "Customer Portal",
+  },
+  "/customer/services": {
+    title: "Services",
+    subtitle: "Customer Portal",
+  },
+  "/customer/support": {
+    title: "Support",
+    subtitle: "Customer Portal",
+  },
+  "/customer/book-service": {
+    title: "Book Service",
+    subtitle: "Customer Portal",
+    showBack: true,
+    backTo: "/customer/services",
+  },
+  "/customer/profile": {
+    title: "Profile",
+    subtitle: "Customer Portal",
+    showBack: true,
+    backTo: "/customer/dashboard",
+  },
+};
 
 const NAV_LINKS = [
   { label: "Dashboard", to: "/customer/dashboard" },
@@ -45,12 +81,15 @@ export function CustomerDashHeader() {
     try {
       dispatch(logout());
       dispatch(
-        addNotification({ type: "success", message: "Logged out successfully" })
+        addNotification({
+          type: "success",
+          message: "Logged out successfully",
+        }),
       );
       navigate("/");
     } catch {
       dispatch(
-        addNotification({ type: "error", message: "Error logging out" })
+        addNotification({ type: "error", message: "Error logging out" }),
       );
     }
   };
@@ -152,7 +191,7 @@ export function CustomerDashHeader() {
                 </div>
                 <div className='hidden sm:block text-left leading-none'>
                   <p className='text-xs font-semibold text-gray-900 truncate max-w-[80px]'>
-                    {isLoading ? "..." : profile?.firstName ?? "User"}
+                    {isLoading ? "..." : (profile?.firstName ?? "User")}
                   </p>
                 </div>
               </button>
