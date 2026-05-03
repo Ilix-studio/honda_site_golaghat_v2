@@ -1,7 +1,8 @@
+import OtherStaff from "@/mainComponents/StaffM/OtherStaff";
 import { lazy } from "react";
 
 const LoginBranchManager = lazy(
-  () => import("@/mainComponents/Admin/LoginBranchManager"),
+  () => import("@/mainComponents/BranchM/LoginBranchManager"),
 );
 const BranchManagerDashboard = lazy(
   () => import("@/mainComponents/BranchM/BranchManagerDashboard"),
@@ -45,4 +46,5 @@ export const branchManagerRoutes = [
   { path: "/manager/vas", component: BranchVASManagement },
   { path: "/manager/customer-vehicles", component: BranchCustomerVehicles },
   { path: "/manager/finance-queries", component: BranchFinanceQueries },
+  { path: "/manager/staff", component: OtherStaff },
 ];

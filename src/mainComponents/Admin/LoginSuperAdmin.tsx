@@ -23,9 +23,10 @@ import { motion } from "framer-motion";
 
 // Redux
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
-import { useLoginAdminMutation } from "../../redux-store/services/adminApi";
+
 import { selectAuth } from "../../redux-store/slices/authSlice";
 import { addNotification } from "../../redux-store/slices/uiSlice";
+import { useLoginSuperAdminMutation } from "@/redux-store/services/adminApi";
 
 const LoginSuperAdmin = () => {
   const [email, setEmail] = useState("");
@@ -39,7 +40,7 @@ const LoginSuperAdmin = () => {
   const { isAuthenticated, error } = useAppSelector(selectAuth);
 
   // Use the RTK Query mutation hook
-  const [loginAdmin, { isLoading }] = useLoginAdminMutation();
+  const [loginAdmin, { isLoading }] = useLoginSuperAdminMutation();
 
   // Redirect if already authenticated
   useEffect(() => {

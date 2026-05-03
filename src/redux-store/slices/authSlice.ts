@@ -1,18 +1,22 @@
-// Purpose: Manages admin authentication for only one user
-// Handles: User login, authentication status, permissions
-
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
-// Define user types
+export interface UserBranch {
+  _id: string;
+  branchName: string;
+  address: string;
+}
+
 export interface User {
   id: string;
   name: string;
-  email: string;
-  role?: string; // Add role property as optional
+  email?: string;
+  role: string;
+  applicationId?: string;
+  branch?: UserBranch;
+  position?: string;
 }
 
-// Define the authentication state
 export interface AuthState {
   user: User | null;
   token: string | null;
@@ -35,7 +39,7 @@ const authSlice = createSlice({
   reducers: {
     loginSuccess: (
       state,
-      action: PayloadAction<{ user: User; token: string }>
+      action: PayloadAction<{ user: User; token: string }>,
     ) => {
       state.isAuthenticated = true;
       state.user = action.payload.user;
@@ -64,6 +68,14 @@ export const { loginSuccess, logout, setLoading, setError } = authSlice.actions;
 // Selectors
 export const selectAuth = (state: RootState) => state.auth;
 export const selectIsAdmin = (state: RootState) =>
-  state.auth.isAuthenticated && state.auth.user !== null;
+  state.auth.isAuthenticated && state.auth.user?.role === "Super-Admin";
+export const selectIsBranchAdmin = (state: RootState) =>
+  state.auth.isAuthenticated && state.auth.user?.role === "Branch-Admin";
+export const selectIsServiceAdmin = (state: RootState) =>
+  state.auth.isAuthenticated && state.auth.user?.role === "Service-Admin";
+export const selectIsStaff = (state: RootState) =>
+  state.auth.isAuthenticated && state.auth.user?.role === "Staff";
+export const selectUserRole = (state: RootState) => state.auth.user?.role;
+export const selectUserBranch = (state: RootState) => state.auth.user?.branch;
 
 export default authSlice.reducer;

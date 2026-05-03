@@ -9,9 +9,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
-import { useLogoutBranchManagerMutation } from "@/redux-store/services/branchManagerApi";
+
 import { logout, selectAuth } from "@/redux-store/slices/authSlice";
 import { addNotification } from "@/redux-store/slices/uiSlice";
+import { useLogoutUserMutation } from "@/redux-store/services/adminApi";
 
 const routeConfig: Record<
   string,
@@ -84,7 +85,7 @@ const ManagerHeader = () => {
   const { isAuthenticated } = useAppSelector(selectAuth);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [logoutBranchManager, { isLoading: isLoggingOut }] =
-    useLogoutBranchManagerMutation();
+    useLogoutUserMutation();
 
   const currentRoute = routeConfig[location.pathname] || {
     title: "Branch Admin",

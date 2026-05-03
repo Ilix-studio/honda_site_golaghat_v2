@@ -20,6 +20,11 @@ export const ROUTES = {
       MANAGERS: "/admin/branches/managers",
       VIEW: "/admin/branches/view",
     },
+    SERVICE_ADMINS: {
+      ADD: "/admin/service-admins/add",
+      MANAGERS: "/admin/service-admins/managers",
+      VIEW: "/admin/service-admins/view",
+    },
     BIKES: {
       ADD: "/admin/bikes/add",
       EDIT: (id: string) => `/admin/bikes/edit/${id}`,

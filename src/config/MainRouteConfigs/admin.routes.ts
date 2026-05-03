@@ -5,7 +5,7 @@ const LoginSuperAdmin = lazy(
   () => import("@/mainComponents/Admin/LoginSuperAdmin"),
 );
 const LoginBranchManager = lazy(
-  () => import("@/mainComponents/Admin/LoginBranchManager"),
+  () => import("@/mainComponents/BranchM/LoginBranchManager"),
 );
 const AdminDashboard = lazy(
   () => import("@/mainComponents/Admin/AdminDash/AdminDashboard"),
@@ -72,6 +72,10 @@ const GetAllAccidentReportsById = lazy(
 );
 const SelectVas = lazy(() => import("@/mainComponents/VASsystem/SelectVas"));
 
+const ServiceAdmins = lazy(
+  () => import("@/mainComponents/ServiceM/ServiceAdmins"),
+);
+
 export const adminAuthRoutes = [
   { path: "/admin/login", component: LoginSuperAdmin },
 ];
@@ -80,6 +84,9 @@ export const adminRoutes = [
   { path: "/admin/dashboard", component: AdminDashboard },
   { path: "/admin/branches/add", component: AddBranch },
   { path: "/admin/branches/managers", component: BranchManager },
+  { path: "/admin/branches/service-admins", component: ServiceAdmins },
+
+  //Handling Bikes
   { path: "/admin/bikes/add", component: AddBikes },
   { path: "/admin/bikes/edit/:id", component: EditBikes },
   { path: "/admin/bikes/:bikeId/images/add", component: AddBikeImage },
@@ -88,6 +95,7 @@ export const adminRoutes = [
   { path: "/admin/bikeimages/:bikeId", component: ViewBikeImages },
   { path: "/admin/scootyimages/:bikeId", component: ViewScootyImages },
   { path: "/admin/bikes/add/:id/images", component: BikeImageManager },
+  // Handling Customers
   { path: "/admin/customers/signup", component: CustomerSignUp },
   { path: "/admin/vas/select", component: SelectVas },
   { path: "/admin/forms/vas", component: VASForm },
@@ -97,6 +105,7 @@ export const adminRoutes = [
   { path: "/admin/get/all-stock", component: GetAllStockFiles },
   { path: "/admin/get/csv", component: GetCSVFiles },
   { path: "/admin/assign/stock-concept/:id", component: AssignStock },
+  // Handling Dealer Queries
   { path: "/admin/service-bookings", component: AdminBookingsManager },
   { path: "/admin/finanace-query", component: FinanceQueries },
   { path: "/admin/any-messages", component: SeeMessages },

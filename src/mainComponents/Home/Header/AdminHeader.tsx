@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { LogOut, ArrowLeft, Menu, ChevronDown, Settings } from "lucide-react";
+import { LogOut, ArrowLeft, Menu, ChevronDown } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   DropdownMenu,
@@ -9,9 +9,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
-import { useLogoutAdminMutation } from "@/redux-store/services/adminApi";
+
 import { logout, selectAuth } from "@/redux-store/slices/authSlice";
 import { addNotification } from "@/redux-store/slices/uiSlice";
+import { useLogoutSuperAdminMutation } from "@/redux-store/services/adminApi";
 
 const routeConfig: Record<
   string,
@@ -63,7 +64,8 @@ const AdminHeader = () => {
   const location = useLocation();
   const { isAuthenticated } = useAppSelector(selectAuth);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [logoutAdmin, { isLoading: isLoggingOut }] = useLogoutAdminMutation();
+  const [logoutAdmin, { isLoading: isLoggingOut }] =
+    useLogoutSuperAdminMutation();
 
   const currentRoute = routeConfig[location.pathname] || {
     title: "Admin Panel",
@@ -84,7 +86,7 @@ const AdminHeader = () => {
         addNotification({
           type: "success",
           message: result.message || "Logged out successfully",
-        })
+        }),
       );
     } catch (error: any) {
       dispatch(logout());
@@ -94,7 +96,7 @@ const AdminHeader = () => {
         addNotification({
           type: "error",
           message: error?.data?.message || "Error logging out",
-        })
+        }),
       );
     } finally {
       navigate("/", { replace: true });
@@ -189,11 +191,6 @@ const AdminHeader = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
-
-            {/* Settings icon (visual affordance) */}
-            <button className='hidden sm:flex w-8 h-8 rounded-xl bg-gray-800 hover:bg-gray-700 items-center justify-center transition-colors'>
-              <Settings className='w-3.5 h-3.5 text-gray-400' />
-            </button>
 
             {/* Logout */}
             <button

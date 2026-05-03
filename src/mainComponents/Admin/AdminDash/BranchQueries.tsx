@@ -9,9 +9,10 @@ import {
   Eye,
   Clock,
   Wrench,
+  Settings,
 } from "lucide-react";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
-import { useGetAllBranchManagersQuery } from "@/redux-store/services/branchManagerApi";
+import { useGetAllBranchAdminsQuery } from "@/redux-store/services/adminApi";
 
 import { useGetVisitorStatsQuery } from "@/redux-store/services/visitorApi";
 import RecentMotorcycles from "./RecentMotocycles";
@@ -29,7 +30,7 @@ const BranchQueries = () => {
   const { data: branchesData, isLoading: branchesLoading } =
     useGetBranchesQuery();
   const { data: branchManagersData, isLoading: managersLoading } =
-    useGetAllBranchManagersQuery();
+    useGetAllBranchAdminsQuery();
   const { data: visitorStatsData } = useGetVisitorStatsQuery();
   const { data: customersData, isLoading: customersLoading } =
     useGetAllCustomersQuery({ limit: 1 });
@@ -72,6 +73,19 @@ const BranchQueries = () => {
       accent: "#8b5cf6",
       action: { label: "Add Manager", href: "/admin/branches/managers" },
     },
+    {
+      title: "Service Admins",
+      value: branchManagersData?.count ?? 0,
+      icon: Settings,
+      loading: managersLoading,
+      description: "Active service admins",
+      accent: "#170C79",
+      action: {
+        label: "Add Service Admin",
+        href: "/admin/branches/service-admins",
+      },
+    },
+
     {
       title: "Value-Added Services",
       value: vasData?.total ?? "—",

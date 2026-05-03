@@ -8,26 +8,136 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Calendar,
   FileText,
   MessageSquare,
-  Package,
-  Settings,
   Users,
-  Wrench,
   DollarSign,
   Clock,
   Home,
   Building2,
+  Cog,
+  User,
+  Settings2,
+  TrendingUp,
+  Activity,
 } from "lucide-react";
 import { useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
+import { useGetAllStaffQuery } from "../../redux-store/services/adminApi";
+import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
+import { useGetAllCustomersQuery } from "@/redux-store/services/customer/customerApi";
+import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
+import { useGetAllStockItemsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+interface NavCardItem {
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  path: string;
+  color: string;
+}
+
+// ─── Customer & Reports tab items (simple nav cards) ─────────────────────────
+
+const customerItems: NavCardItem[] = [
+  {
+    title: "Enquiries",
+    description: "Manage customer enquiries",
+    icon: MessageSquare,
+    path: "/manager/enquiries",
+    color: "bg-green-500",
+  },
+  {
+    title: "Applications",
+    description: "Manage customer applications",
+    icon: Users,
+    path: "/manager/applications",
+    color: "bg-purple-500",
+  },
+  {
+    title: "Finance Queries",
+    description: "Manage finance enquiries",
+    icon: DollarSign,
+    path: "/manager/finance-queries",
+    color: "bg-yellow-500",
+  },
+  {
+    title: "Accident Reports",
+    description: "View and manage accident reports",
+    icon: FileText,
+    path: "/manager/accident-reports",
+    color: "bg-red-500",
+  },
+];
+
+// ─── Nav Card Grid Component ─────────────────────────────────────────────────
+
+const NavCardGrid = ({
+  items,
+  onNavigate,
+}: {
+  items: NavCardItem[];
+  onNavigate: (path: string) => void;
+}) => (
+  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+    {items.map((item) => {
+      const Icon = item.icon;
+      return (
+        <Card
+          key={item.path}
+          className='group cursor-pointer hover:shadow-lg transition-all duration-200 border border-gray-200 hover:border-gray-300'
+          onClick={() => onNavigate(item.path)}
+        >
+          <CardContent className='p-6'>
+            <div className='flex items-start gap-4'>
+              <div
+                className={`flex items-center justify-center h-12 w-12 rounded-xl ${item.color} text-white shadow-sm group-hover:scale-110 transition-transform duration-200`}
+              >
+                <Icon className='h-6 w-6' />
+              </div>
+              <div className='flex-1'>
+                <h3 className='font-semibold text-gray-900 mb-1'>
+                  {item.title}
+                </h3>
+                <p className='text-sm text-gray-500'>{item.description}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    })}
+  </div>
+);
+
+// ─── Main Component ──────────────────────────────────────────────────────────
 
 const BranchManagerDashboard = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAppSelector(selectAuth);
   const [currentTime, setCurrentTime] = useState(new Date());
+
+  // RTK Query hooks — skip until authenticated to avoid 401s
+  const { data: customersData, isLoading: customersLoading } =
+    useGetAllCustomersQuery({ page: 1, limit: 1 }, { skip: !isAuthenticated });
+
+  const { data: staffData, isLoading: staffLoading } = useGetAllStaffQuery(
+    undefined,
+    { skip: !isAuthenticated },
+  );
+
+  const { data: vasData, isLoading: vasLoading } = useGetAllVASQuery(
+    { page: 1, limit: 1 },
+    { skip: !isAuthenticated },
+  );
+
+  const { data: stockData, isLoading: stockLoading } = useGetAllStockItemsQuery(
+    { page: 1, limit: 1 },
+    { skip: !isAuthenticated },
+  );
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -54,62 +164,46 @@ const BranchManagerDashboard = () => {
     day: "numeric",
   });
 
-  const menuItems = [
+  // Stat cards built from live query data
+  const operationsStats: Omit<StatCardProps, "index">[] = [
     {
-      title: "Service Bookings",
-      description: "Manage service appointments",
-      icon: Calendar,
-      path: "/manager/service-bookings",
-      color: "bg-blue-500",
+      title: "Customers",
+      value: customersData?.pagination?.total ?? 0,
+      icon: User,
+      loading: customersLoading,
+      description: "Total registered",
+      accent: "#f97316",
+      action: { label: "Open Sign-up form", href: "/manager/customers/signup" },
     },
     {
-      title: "Accident Reports",
-      description: "View and manage accident reports",
-      icon: FileText,
-      path: "/manager/accident-reports",
-      color: "bg-red-500",
+      title: "Create Staff Memebers",
+      value: staffData?.count ?? 0,
+      icon: Settings2,
+      loading: staffLoading,
+      description: "Active other staff",
+      accent: "#427AB5",
+      action: {
+        label: "Add Other Staff",
+        href: "/manager/staff",
+      },
     },
     {
-      title: "Enquiries",
-      description: "Manage customer enquiries",
-      icon: MessageSquare,
-      path: "/manager/enquiries",
-      color: "bg-green-500",
+      title: "Value-Added Services",
+      value: vasData?.total ?? "—",
+      icon: TrendingUp,
+      loading: vasLoading,
+      description: "Activate VAS on vehicles",
+      accent: "#10b981",
+      action: { label: "Open VAS Manager", href: "/manager/vas/select" },
     },
     {
-      title: "Applications",
-      description: "Manage customer applications",
-      icon: Users,
-      path: "/manager/applications",
-      color: "bg-purple-500",
-    },
-    {
-      title: "Stock Management",
-      description: "Manage branch stock",
-      icon: Package,
-      path: "/manager/stock",
-      color: "bg-orange-500",
-    },
-    {
-      title: "Value Added Services",
-      description: "Manage VAS offerings",
-      icon: Wrench,
-      path: "/manager/vas",
-      color: "bg-cyan-500",
-    },
-    {
-      title: "Customer Vehicles",
-      description: "View customer vehicle information",
-      icon: Settings,
-      path: "/manager/customer-vehicles",
-      color: "bg-pink-500",
-    },
-    {
-      title: "Finance Queries",
-      description: "Manage finance enquiries",
-      icon: DollarSign,
-      path: "/manager/finance-queries",
-      color: "bg-yellow-500",
+      title: "Stock Queries",
+      value: stockData?.total ?? 0,
+      icon: Activity,
+      loading: stockLoading,
+      description: "Vehicles in branch",
+      accent: "#f59e0b",
+      action: { label: "Open Stock Manager", href: "/manager/stock/select" },
     },
   ];
 
@@ -158,7 +252,7 @@ const BranchManagerDashboard = () => {
               <h1 className='text-3xl md:text-4xl font-bold text-white tracking-tight'>
                 {greeting},{" "}
                 <span className='bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent'>
-                  {(user as any)?.applicationId || "Manager"}
+                  {user?.name || "Manager"}
                 </span>
               </h1>
               <p className='text-gray-400 mt-2 text-sm md:text-base max-w-lg'>
@@ -201,55 +295,74 @@ const BranchManagerDashboard = () => {
 
       {/* Main Content */}
       <div className='container px-4 py-8'>
-        <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
-          <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
-            <div className='flex items-center gap-3'>
-              <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white shadow-sm'>
-                <Building2 className='h-5 w-5' />
-              </div>
-              <div>
-                <CardTitle className='text-lg font-semibold text-gray-900'>
-                  Branch Operations
-                </CardTitle>
-                <CardDescription className='text-gray-500 mt-0.5'>
-                  Quick access to branch management features
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className='p-6'>
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-              {menuItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Card
-                    key={item.path}
-                    className='group cursor-pointer hover:shadow-lg transition-all duration-200 border border-gray-200 hover:border-gray-300'
-                    onClick={() => navigate(item.path)}
-                  >
-                    <CardContent className='p-6'>
-                      <div className='flex items-start gap-4'>
-                        <div
-                          className={`flex items-center justify-center h-12 w-12 rounded-xl ${item.color} text-white shadow-sm group-hover:scale-110 transition-transform duration-200`}
-                        >
-                          <Icon className='h-6 w-6' />
-                        </div>
-                        <div className='flex-1'>
-                          <h3 className='font-semibold text-gray-900 mb-1'>
-                            {item.title}
-                          </h3>
-                          <p className='text-sm text-gray-500'>
-                            {item.description}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+        <Tabs defaultValue='operations' className='w-full'>
+          <TabsList className='inline-flex h-12 w-full md:w-auto bg-white border border-gray-200 shadow-sm rounded-xl p-1 gap-1'>
+            <TabsTrigger
+              value='operations'
+              className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+            >
+              <Cog className='h-4 w-4' />
+              <span>Operations</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value='customer-reports'
+              className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+            >
+              <MessageSquare className='h-4 w-4' />
+              <span>Customer & Reports</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value='operations' className='mt-6'>
+            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
+                <div className='flex items-center gap-3'>
+                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white shadow-sm'>
+                    <Building2 className='h-5 w-5' />
+                  </div>
+                  <div>
+                    <CardTitle className='text-lg font-semibold text-gray-900'>
+                      Branch Operations
+                    </CardTitle>
+                    <CardDescription className='text-gray-500 mt-0.5'>
+                      Customers, staff, stock, and VAS overview
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className='p-6'>
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+                  {operationsStats.map((stat, i) => (
+                    <StatCard key={stat.title} {...stat} index={i} />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value='customer-reports' className='mt-6'>
+            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
+                <div className='flex items-center gap-3'>
+                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-red-600 text-white shadow-sm'>
+                    <MessageSquare className='h-5 w-5' />
+                  </div>
+                  <div>
+                    <CardTitle className='text-lg font-semibold text-gray-900'>
+                      Customer & Reports
+                    </CardTitle>
+                    <CardDescription className='text-gray-500 mt-0.5'>
+                      Enquiries, applications, finance, and accident reports
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className='p-6'>
+                <NavCardGrid items={customerItems} onNavigate={navigate} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

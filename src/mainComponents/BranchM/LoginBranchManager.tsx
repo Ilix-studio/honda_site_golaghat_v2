@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLoginBranchManagerMutation } from "@/redux-store/services/branchManagerApi";
+import { useLoginBranchAdminMutation } from "@/redux-store/services/adminApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 
 const LoginBranchManager = () => {
   const navigate = useNavigate();
-  const [loginBranchManager, { isLoading }] = useLoginBranchManagerMutation();
+  const [loginBranchManager, { isLoading }] = useLoginBranchAdminMutation();
 
   const [form, setForm] = useState({ applicationId: "", password: "" });
   const [error, setError] = useState<string | null>(null);

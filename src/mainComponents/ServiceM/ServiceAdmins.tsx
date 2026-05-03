@@ -1,7 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import {
-  Building,
+  Wrench,
   UserPlus,
   Search,
   Trash2,
@@ -51,16 +51,16 @@ import { Badge } from "@/components/ui/badge";
 import { useAppDispatch } from "../../hooks/redux";
 import { addNotification } from "../../redux-store/slices/uiSlice";
 import {
-  useGetAllBranchAdminsQuery,
-  useCreateBranchAdminMutation,
-  useDeleteBranchAdminMutation,
+  useGetAllServiceAdminsQuery,
+  useCreateServiceAdminMutation,
+  useDeleteServiceAdminMutation,
   type UserListItem,
 } from "../../redux-store/services/adminApi";
 import { useGetBranchesQuery } from "../../redux-store/services/branchApi";
 
 // ─── Form State ──────────────────────────────────────────────────────────────
 
-interface CreateBranchAdminForm {
+interface CreateServiceAdminForm {
   name: string;
   email: string;
   phoneNumber: string;
@@ -68,7 +68,7 @@ interface CreateBranchAdminForm {
   branch: string;
 }
 
-const INITIAL_FORM: CreateBranchAdminForm = {
+const INITIAL_FORM: CreateServiceAdminForm = {
   name: "",
   email: "",
   phoneNumber: "",
@@ -78,7 +78,7 @@ const INITIAL_FORM: CreateBranchAdminForm = {
 
 // ─── Credentials shown after creation ────────────────────────────────────────
 
-export interface CreatedCredentials {
+interface CreatedCredentials {
   applicationId: string;
   password: string;
   name: string;
@@ -88,7 +88,7 @@ export interface CreatedCredentials {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-const BranchManager: React.FC = () => {
+const ServiceAdmins: React.FC = () => {
   const dispatch = useAppDispatch();
 
   // UI state
@@ -97,31 +97,33 @@ const BranchManager: React.FC = () => {
   const [credentials, setCredentials] = useState<CreatedCredentials | null>(
     null,
   );
-  const [formData, setFormData] = useState<CreateBranchAdminForm>(INITIAL_FORM);
+  const [formData, setFormData] =
+    useState<CreateServiceAdminForm>(INITIAL_FORM);
   const [formErrors, setFormErrors] = useState<
-    Partial<Record<keyof CreateBranchAdminForm, string>>
+    Partial<Record<keyof CreateServiceAdminForm, string>>
   >({});
 
   // RTK Query
-  const { data: branchAdminsResponse, isLoading: isLoadingList } =
-    useGetAllBranchAdminsQuery();
+  const { data: serviceAdminsResponse, isLoading: isLoadingList } =
+    useGetAllServiceAdminsQuery();
 
   const { data: branchesData, isLoading: isLoadingBranches } =
     useGetBranchesQuery();
 
-  const [createBranchAdmin, { isLoading: isCreating }] =
-    useCreateBranchAdminMutation();
+  const [createServiceAdmin, { isLoading: isCreating }] =
+    useCreateServiceAdminMutation();
 
-  const [deleteBranchAdmin, { isLoading: isDeleting }] =
-    useDeleteBranchAdminMutation();
+  const [deleteServiceAdmin, { isLoading: isDeleting }] =
+    useDeleteServiceAdminMutation();
 
   // Derived
-  const branchAdmins = branchAdminsResponse?.data ?? [];
+  const serviceAdmins = serviceAdminsResponse?.data ?? [];
   const branches = branchesData?.data ?? [];
 
-  const filteredAdmins = branchAdmins.filter((admin) => {
+  const filteredAdmins = serviceAdmins.filter((admin) => {
     const term = searchTerm.toLowerCase();
     return (
+      admin.name.toLowerCase().includes(term) ||
       admin.applicationId.toLowerCase().includes(term) ||
       admin.email.toLowerCase().includes(term) ||
       admin.branch?.branchName?.toLowerCase().includes(term)
@@ -130,9 +132,8 @@ const BranchManager: React.FC = () => {
 
   // ─── Form helpers ──────────────────────────────────────────────────────
 
-  const updateField = (field: keyof CreateBranchAdminForm, value: string) => {
+  const updateField = (field: keyof CreateServiceAdminForm, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error on change
     if (formErrors[field]) {
       setFormErrors((prev) => {
         const next = { ...prev };
@@ -143,7 +144,7 @@ const BranchManager: React.FC = () => {
   };
 
   const validateForm = (): boolean => {
-    const errors: Partial<Record<keyof CreateBranchAdminForm, string>> = {};
+    const errors: Partial<Record<keyof CreateServiceAdminForm, string>> = {};
 
     if (!formData.name.trim()) errors.name = "Name is required";
     if (!formData.email.trim()) {
@@ -176,7 +177,7 @@ const BranchManager: React.FC = () => {
     if (!validateForm()) return;
 
     try {
-      const response = await createBranchAdmin({
+      const response = await createServiceAdmin({
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         phoneNumber: formData.phoneNumber.trim(),
@@ -195,14 +196,14 @@ const BranchManager: React.FC = () => {
       dispatch(
         addNotification({
           type: "success",
-          message: "Branch Admin created. Credentials sent via email.",
+          message: "Service Admin created. Credentials sent via email.",
         }),
       );
 
       resetForm();
       setIsCreateDialogOpen(false);
     } catch (error: any) {
-      const msg = error.data?.message || "Failed to create Branch Admin";
+      const msg = error.data?.message || "Failed to create Service Admin";
       dispatch(addNotification({ type: "error", message: msg }));
       toast.error(msg);
     }
@@ -210,21 +211,21 @@ const BranchManager: React.FC = () => {
 
   const handleDelete = async (id: string, name: string) => {
     if (
-      !window.confirm(`Delete Branch Admin "${name}"? This cannot be undone.`)
+      !window.confirm(`Delete Service Admin "${name}"? This cannot be undone.`)
     )
       return;
 
     try {
-      await deleteBranchAdmin(id).unwrap();
+      await deleteServiceAdmin(id).unwrap();
       dispatch(
         addNotification({
           type: "success",
-          message: "Branch Admin deleted",
+          message: "Service Admin deleted",
         }),
       );
-      toast.success("Branch Admin deleted");
+      toast.success("Service Admin deleted");
     } catch (error: any) {
-      const msg = error.data?.message || "Failed to delete Branch Admin";
+      const msg = error.data?.message || "Failed to delete Service Admin";
       dispatch(addNotification({ type: "error", message: msg }));
       toast.error(msg);
     }
@@ -245,11 +246,11 @@ const BranchManager: React.FC = () => {
           <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
             <div>
               <CardTitle className='text-2xl flex items-center gap-2'>
-                <Building className='h-6 w-6' />
-                Branch Admin Management
+                <Wrench className='h-6 w-6' />
+                Service Admin Management
               </CardTitle>
               <CardDescription>
-                Create and manage Branch Admin accounts across branches
+                Create and manage Service Admin accounts across branches
               </CardDescription>
             </div>
 
@@ -263,13 +264,13 @@ const BranchManager: React.FC = () => {
               <DialogTrigger asChild>
                 <Button className='gap-1'>
                   <UserPlus className='h-4 w-4' />
-                  New Branch Admin
+                  New Service Admin
                 </Button>
               </DialogTrigger>
 
               <DialogContent className='sm:max-w-[500px]'>
                 <DialogHeader>
-                  <DialogTitle>Create Branch Admin</DialogTitle>
+                  <DialogTitle>Create Service Admin</DialogTitle>
                   <DialogDescription>
                     Fill in the details. An Application ID and password will be
                     generated and sent to the provided email.
@@ -279,10 +280,10 @@ const BranchManager: React.FC = () => {
                 <div className='space-y-4 py-4'>
                   {/* Name */}
                   <div className='space-y-1.5'>
-                    <Label htmlFor='ba-name'>Full Name</Label>
+                    <Label htmlFor='sa-name'>Full Name</Label>
                     <Input
-                      id='ba-name'
-                      placeholder='e.g. Ilix ..'
+                      id='sa-name'
+                      placeholder='e.g. Ilix '
                       value={formData.name}
                       onChange={(e) => updateField("name", e.target.value)}
                     />
@@ -295,9 +296,9 @@ const BranchManager: React.FC = () => {
 
                   {/* Email */}
                   <div className='space-y-1.5'>
-                    <Label htmlFor='ba-email'>Email</Label>
+                    <Label htmlFor='sa-email'>Email</Label>
                     <Input
-                      id='ba-email'
+                      id='sa-email'
                       type='email'
                       placeholder='e.g. ilix@example.com'
                       value={formData.email}
@@ -312,9 +313,9 @@ const BranchManager: React.FC = () => {
 
                   {/* Phone */}
                   <div className='space-y-1.5'>
-                    <Label htmlFor='ba-phone'>Phone Number</Label>
+                    <Label htmlFor='sa-phone'>Phone Number</Label>
                     <Input
-                      id='ba-phone'
+                      id='sa-phone'
                       type='tel'
                       placeholder='e.g. 9876543210'
                       maxLength={10}
@@ -335,10 +336,10 @@ const BranchManager: React.FC = () => {
 
                   {/* Address */}
                   <div className='space-y-1.5'>
-                    <Label htmlFor='ba-address'>Address</Label>
+                    <Label htmlFor='sa-address'>Address</Label>
                     <Input
-                      id='ba-address'
-                      placeholder='e.g. Station Road, Golaghat'
+                      id='sa-address'
+                      placeholder='e.g. Main Road, Jorhat'
                       value={formData.address}
                       onChange={(e) => updateField("address", e.target.value)}
                     />
@@ -396,7 +397,7 @@ const BranchManager: React.FC = () => {
                     Cancel
                   </Button>
                   <Button onClick={handleCreate} disabled={isCreating}>
-                    {isCreating ? "Creating..." : "Create Branch Admin"}
+                    {isCreating ? "Creating..." : "Create Service Admin"}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -421,13 +422,13 @@ const BranchManager: React.FC = () => {
             {/* Table */}
             {isLoadingList ? (
               <div className='text-center py-8 text-muted-foreground'>
-                Loading branch admins...
+                Loading service admins...
               </div>
             ) : filteredAdmins.length === 0 ? (
               <div className='text-center py-8 text-muted-foreground'>
                 {searchTerm
-                  ? "No branch admins match your search"
-                  : "No branch admins yet. Create one to get started."}
+                  ? "No service admins match your search"
+                  : "No service admins yet. Create one to get started."}
               </div>
             ) : (
               <div className='rounded-md border overflow-x-auto'>
@@ -519,7 +520,7 @@ const BranchManager: React.FC = () => {
       >
         <DialogContent className='sm:max-w-[480px]'>
           <DialogHeader>
-            <DialogTitle>Branch Admin Created</DialogTitle>
+            <DialogTitle>Service Admin Created</DialogTitle>
             <DialogDescription>
               Credentials have been sent to{" "}
               <span className='font-medium'>{credentials?.email}</span>. Save
@@ -600,4 +601,4 @@ const BranchManager: React.FC = () => {
   );
 };
 
-export default BranchManager;
+export default ServiceAdmins;
