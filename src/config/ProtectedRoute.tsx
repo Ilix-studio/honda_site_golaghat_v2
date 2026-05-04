@@ -3,170 +3,231 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux-store/store";
 
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+type RequiredRole =
+  | "admin"
+  | "customer"
+  | "admin-or-customer"
+  | "super-admin-only"
+  | "branch-admin"
+  | "service-admin"
+  | "staff"
+  | "branch-admin-or-super-admin"
+  | "service-admin-or-super-admin";
+
+type AdminRole =
+  | "Super-Admin"
+  | "Branch-Admin"
+  | "Service-Admin"
+  | "Staff"
+  | null;
+
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?:
-    | "admin"
-    | "customer"
-    | "admin-or-customer"
-    | "super-admin-only"
-    | "branch-manager";
-  adminCanAccess?: boolean; // Allow admin access to customer routes
-  customerRestrictedPaths?: string[]; // Specific paths customers cannot access
+  requiredRole?: RequiredRole;
+  adminCanAccess?: boolean;
+  customerRestrictedPaths?: string[];
   redirectTo?: string;
 }
 
-// Define paths that only admins should access even in customer routes
-const ADMIN_ONLY_CUSTOMER_PATHS = [
+// ─── Customer setup paths — ONLY Branch-Admin can access these ───────────────
+// Super-Admin, Service-Admin, Staff, and Customers are all blocked.
+
+const BRANCH_ADMIN_ONLY_CUSTOMER_PATHS = [
   "/customer/first-dash",
   "/customer/initialize",
   "/customer/select/stock",
   "/customer/vehicle/info",
   "/customer/assign/csv-stock",
   "/customer/profile/create",
-  "/customer/assign/csv-stock",
   "/customer/services/vas",
   "/customer/attach-stickers",
-  // Admin assigns services
-  // Admin assigns vehicles
 ];
+
+// ─── Role → dashboard mapping ────────────────────────────────────────────────
+
+const ROLE_DASHBOARDS: Record<string, string> = {
+  "Super-Admin": "/admin/dashboard",
+  "Branch-Admin": "/manager/dashboard",
+  "Service-Admin": "/service/dashboard",
+  Staff: "/staff/dashboard",
+  customer: "/customer/dashboard",
+};
+
+// ─── Role → login path mapping ───────────────────────────────────────────────
+
+const ROLE_LOGIN_PATHS: Record<string, string> = {
+  admin: "/admin/login",
+  customer: "/customer/login",
+  "super-admin-only": "/admin/login",
+  "branch-admin": "/manager-login",
+  "service-admin": "/service-login",
+  staff: "/staff-login",
+  "branch-admin-or-super-admin": "/admin/login",
+  "service-admin-or-super-admin": "/admin/login",
+  "admin-or-customer": "/admin/login",
+};
+
+// ─── Component ───────────────────────────────────────────────────────────────
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requiredRole,
   adminCanAccess = true,
-  customerRestrictedPaths = ADMIN_ONLY_CUSTOMER_PATHS,
+  customerRestrictedPaths = BRANCH_ADMIN_ONLY_CUSTOMER_PATHS,
   redirectTo,
 }) => {
   const location = useLocation();
 
-  // Get auth state from Redux
   const authState = useSelector((state: RootState) => state.auth);
   const customerAuthState = useSelector(
     (state: RootState) => state.customerAuth,
   );
 
-  const { isAuthenticated, user, userType, adminRole } = {
-    isAuthenticated:
-      authState?.isAuthenticated || customerAuthState?.isAuthenticated || false,
-    user: authState?.user || customerAuthState?.customer || null,
-    userType: customerAuthState?.customer
-      ? "customer"
-      : authState?.user
-        ? "admin"
-        : null,
-    adminRole: authState?.user?.role || null, // "Super-Admin" or "Branch-Admin"
+  const isAuthenticated =
+    authState?.isAuthenticated || customerAuthState?.isAuthenticated || false;
+
+  const user = authState?.user || customerAuthState?.customer || null;
+
+  // Admin session ALWAYS takes priority.
+  // After CustomerSignUp, both authState.user (Branch-Admin) and
+  // customerAuthState.customer exist simultaneously. If we check
+  // customerAuthState first, userType becomes "customer" and the
+  // Branch-Admin gets blocked from setup paths.
+  const userType: "admin" | "customer" | null =
+    authState?.isAuthenticated && authState?.user
+      ? "admin"
+      : customerAuthState?.isAuthenticated && customerAuthState?.customer
+        ? "customer"
+        : null;
+
+  const adminRole: AdminRole = (authState?.user?.role as AdminRole) || null;
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+
+  const getDashboard = (): string => {
+    if (userType === "customer") return ROLE_DASHBOARDS.customer;
+    if (adminRole) return ROLE_DASHBOARDS[adminRole] || "/";
+    return "/";
   };
 
-  // Helper function to check if current path is admin-restricted
-  const isAdminRestrictedPath = (path: string): boolean => {
-    return customerRestrictedPaths.some((restrictedPath) =>
-      path.startsWith(restrictedPath),
-    );
-  };
+  const hasRole = (...roles: string[]): boolean =>
+    userType === "admin" && adminRole !== null && roles.includes(adminRole);
 
-  // Helper function to check admin privileges
-  const hasAdminPrivileges = (): boolean => {
-    return (
-      userType === "admin" &&
-      (adminRole === "Super-Admin" || adminRole === "Branch-Admin")
-    );
-  };
+  const hasAnyAdminRole = (): boolean =>
+    hasRole("Super-Admin", "Branch-Admin", "Service-Admin", "Staff");
 
-  // Helper function to check super admin privileges
-  const hasSuperAdminPrivileges = (): boolean => {
-    return userType === "admin" && adminRole === "Super-Admin";
-  };
+  const isBranchAdmin = (): boolean => hasRole("Branch-Admin");
 
-  // Not authenticated - redirect to appropriate login
+  const isBranchAdminRestrictedPath = (path: string): boolean =>
+    customerRestrictedPaths.some((p) => path.startsWith(p));
+
+  // ── Not authenticated ────────────────────────────────────────────────
+
   if (!isAuthenticated || !user) {
     const loginPath =
-      requiredRole === "customer"
-        ? "/customer/login"
-        : requiredRole === "branch-manager"
-          ? "/manager-login"
-          : "/admin/login";
-    const redirectPath = redirectTo || loginPath;
+      redirectTo || ROLE_LOGIN_PATHS[requiredRole || "admin"] || "/admin/login";
 
     return (
-      <Navigate to={redirectPath} state={{ from: location.pathname }} replace />
+      <Navigate to={loginPath} state={{ from: location.pathname }} replace />
     );
   }
 
-  // Role-based access control
-  if (requiredRole) {
-    switch (requiredRole) {
-      case "super-admin-only":
-        // Only Super-Admin can access
-        if (!hasSuperAdminPrivileges()) {
-          const fallbackPath =
-            userType === "admin"
-              ? "/admin/dashboard"
-              : userType === "customer"
-                ? "/customer/dashboard"
-                : "/";
-          return <Navigate to={fallbackPath} replace />;
+  // ── No role requirement ──────────────────────────────────────────────
+
+  if (!requiredRole) {
+    return <>{children}</>;
+  }
+
+  // ── Role-based access control ────────────────────────────────────────
+
+  switch (requiredRole) {
+    case "super-admin-only":
+      if (!hasRole("Super-Admin")) {
+        return <Navigate to={getDashboard()} replace />;
+      }
+      break;
+
+    case "admin":
+      if (!hasAnyAdminRole()) {
+        return <Navigate to={getDashboard()} replace />;
+      }
+      break;
+
+    case "branch-admin":
+      if (!hasRole("Branch-Admin")) {
+        return <Navigate to={getDashboard()} replace />;
+      }
+      break;
+
+    case "service-admin":
+      if (!hasRole("Service-Admin")) {
+        return <Navigate to={getDashboard()} replace />;
+      }
+      break;
+
+    case "staff":
+      if (!hasRole("Staff")) {
+        return <Navigate to={getDashboard()} replace />;
+      }
+      break;
+
+    case "branch-admin-or-super-admin":
+      if (!hasRole("Branch-Admin", "Super-Admin")) {
+        return <Navigate to={getDashboard()} replace />;
+      }
+      break;
+
+    case "service-admin-or-super-admin":
+      if (!hasRole("Service-Admin", "Super-Admin")) {
+        return <Navigate to={getDashboard()} replace />;
+      }
+      break;
+
+    case "customer": {
+      const currentPath = location.pathname;
+
+      if (userType === "customer") {
+        // Customers cannot access branch-admin-only setup paths
+        if (isBranchAdminRestrictedPath(currentPath)) {
+          return <Navigate to='/customer/dashboard' replace />;
         }
-        break;
+        return <>{children}</>;
+      }
 
-      case "admin":
-        // Only admins can access
-        if (!hasAdminPrivileges()) {
-          const fallbackPath =
-            userType === "customer" ? "/customer/dashboard" : "/";
-          return <Navigate to={fallbackPath} replace />;
-        }
-        break;
-
-      case "customer":
-        // Customer routes with admin override capability
-        const currentPath = location.pathname;
-
-        if (userType === "customer") {
-          // Customer accessing routes
-          if (isAdminRestrictedPath(currentPath)) {
-            // Customer trying to access admin-only customer route
-            return <Navigate to='/customer/dashboard' replace />;
-          }
-          // Customer can access their allowed routes
-          return <>{children}</>;
-        } else if (userType === "admin") {
-          // Admin accessing customer routes
-          if (adminCanAccess && hasAdminPrivileges()) {
-            // Admin has permission to access customer routes for administrative tasks
+      if (userType === "admin") {
+        // Branch-Admin-only customer setup paths
+        if (isBranchAdminRestrictedPath(currentPath)) {
+          if (isBranchAdmin()) {
             return <>{children}</>;
-          } else {
-            // Admin doesn't have permission or adminCanAccess is false
-            return <Navigate to='/admin/dashboard' replace />;
           }
-        } else {
-          // Neither customer nor admin
-          return <Navigate to='/' replace />;
+          // Super-Admin, Service-Admin, Staff → redirected to their dashboard
+          return <Navigate to={getDashboard()} replace />;
         }
-        break;
 
-      case "admin-or-customer":
-        // Both admin and customer can access
-        if (userType === "customer" || hasAdminPrivileges()) {
+        // Non-restricted customer paths (e.g. /customer/dashboard)
+        // Branch-Admin can access if adminCanAccess is true
+        if (adminCanAccess && isBranchAdmin()) {
           return <>{children}</>;
-        } else {
-          const fallbackPath = "/";
-          return <Navigate to={fallbackPath} replace />;
         }
-        break;
 
-      case "branch-manager":
-        // Only Branch-Admin can access
-        if (adminRole !== "Branch-Admin") {
-          const fallbackPath = "/";
-          return <Navigate to={fallbackPath} replace />;
-        }
-        break;
+        // All other admin roles → blocked from customer routes entirely
+        return <Navigate to={getDashboard()} replace />;
+      }
 
-      default:
-        console.warn(`Unknown requiredRole: ${requiredRole}`);
-        break;
+      return <Navigate to='/' replace />;
     }
+
+    case "admin-or-customer":
+      if (userType === "customer" || hasAnyAdminRole()) {
+        return <>{children}</>;
+      }
+      return <Navigate to='/' replace />;
+
+    default:
+      console.warn(`Unknown requiredRole: ${requiredRole}`);
+      break;
   }
 
   return <>{children}</>;

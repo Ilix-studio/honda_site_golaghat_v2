@@ -4,9 +4,14 @@ import { lazy } from "react";
 const LoginBranchManager = lazy(
   () => import("@/mainComponents/BranchM/LoginBranchManager"),
 );
+
 const BranchManagerDashboard = lazy(
   () => import("@/mainComponents/BranchM/BranchManagerDashboard"),
 );
+const CustomerSignUp = lazy(
+  () => import("@/mainComponents/CustomerSystem/CustomerSignUp"),
+);
+
 const BranchServiceBookings = lazy(
   () => import("@/mainComponents/BranchM/BranchServiceBookings"),
 );
@@ -38,6 +43,9 @@ export const branchManagerAuthRoutes = [
 
 export const branchManagerRoutes = [
   { path: "/manager/dashboard", component: BranchManagerDashboard },
+  { path: "/manager/customers/signup", component: CustomerSignUp },
+
+  //
   { path: "/manager/service-bookings", component: BranchServiceBookings },
   { path: "/manager/accident-reports", component: BranchAccidentReports },
   { path: "/manager/enquiries", component: BranchEnquiries },

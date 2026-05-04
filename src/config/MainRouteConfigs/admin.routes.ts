@@ -49,9 +49,7 @@ const GetCSVFiles = lazy(
 const GetAllStockFiles = lazy(
   () => import("@/mainComponents/CSVsystem/GetAllStockFiles"),
 );
-const CustomerSignUp = lazy(
-  () => import("@/mainComponents/CustomerSystem/CustomerSignUp"),
-);
+
 const AssignStock = lazy(
   () => import("@/mainComponents/CustomerSystem/ActivateFeature/AssignStock"),
 );
@@ -96,7 +94,7 @@ export const adminRoutes = [
   { path: "/admin/scootyimages/:bikeId", component: ViewScootyImages },
   { path: "/admin/bikes/add/:id/images", component: BikeImageManager },
   // Handling Customers
-  { path: "/admin/customers/signup", component: CustomerSignUp },
+
   { path: "/admin/vas/select", component: SelectVas },
   { path: "/admin/forms/vas", component: VASForm },
   { path: "/admin/stockC/select", component: SelectStockForm },

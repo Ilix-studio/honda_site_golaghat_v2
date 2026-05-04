@@ -19,7 +19,7 @@ import {
   loginSuccess,
   selectCustomerAuth,
 } from "@/redux-store/slices/customer/customerAuthSlice";
-import { setError } from "@/redux-store/slices/authSlice";
+import { selectIsBranchAdmin, setError } from "@/redux-store/slices/authSlice";
 import { useSaveAuthDataMutation } from "@/redux-store/services/customer/customerLoginApi";
 import PhoneNumberValidation from "./PhoneNoValidation";
 
@@ -32,6 +32,8 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { error } = useAppSelector(selectCustomerAuth);
+
+  const isBranchAdmin = useAppSelector(selectIsBranchAdmin);
 
   const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
   const [step, setStep] = useState<"phone" | "otp">("phone");
@@ -53,7 +55,7 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
               size: "invisible",
               callback: () => console.log("Recaptcha solved"),
               "expired-callback": () => console.warn("Recaptcha expired"),
-            }
+            },
           );
         }
       } catch (error) {
@@ -97,7 +99,7 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
       const confirmation = await signInWithPhoneNumber(
         auth,
         `+91${validatedPhoneNumber}`,
-        recaptchaRef.current
+        recaptchaRef.current,
       );
 
       setConfirmationResult(confirmation);
@@ -108,7 +110,7 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
         addNotification({
           type: "success",
           message: `OTP sent to +91${validatedPhoneNumber}`,
-        })
+        }),
       );
     } catch (error: any) {
       console.error("OTP sending error:", error);
@@ -167,14 +169,14 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
             isVerified: true,
           },
           firebaseToken: idToken,
-        })
+        }),
       );
 
       dispatch(
         addNotification({
           type: "success",
           message: "Login successful!",
-        })
+        }),
       );
 
       // Navigate to customer dashboard
@@ -340,6 +342,13 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
             Back to Homepage
           </p>
         </Link>
+        {isBranchAdmin && (
+          <Link to='/manager/dashboard'>
+            <p className='text-center text-xs text-gray-500 mt-4 hover:underline cursor-pointer'>
+              Back to Manager Dash
+            </p>
+          </Link>
+        )}
       </motion.div>
     </div>
   );

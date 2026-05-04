@@ -4,7 +4,6 @@ import {
   TrendingUp,
   Building2,
   Users,
-  User,
   Activity,
   Eye,
   Clock,
@@ -16,7 +15,6 @@ import { useGetAllBranchAdminsQuery } from "@/redux-store/services/adminApi";
 
 import { useGetVisitorStatsQuery } from "@/redux-store/services/visitorApi";
 import RecentMotorcycles from "./RecentMotocycles";
-import { useGetAllCustomersQuery } from "@/redux-store/services/customer/customerApi";
 import { formatTimeAgo, MetricTile, StatCard, StatCardProps } from "./StatCard";
 import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
 import { useGetCSVBatchesQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
@@ -32,8 +30,7 @@ const BranchQueries = () => {
   const { data: branchManagersData, isLoading: managersLoading } =
     useGetAllBranchAdminsQuery();
   const { data: visitorStatsData } = useGetVisitorStatsQuery();
-  const { data: customersData, isLoading: customersLoading } =
-    useGetAllCustomersQuery({ limit: 1 });
+
   const { data: vasData } = useGetAllVASQuery({});
   const { data: csvBatchData } = useGetCSVBatchesQuery({ page: 1, limit: 1 });
   const { data: stockData } = useGetAllStockItemsQuery({ page: 1, limit: 1 });
@@ -46,15 +43,6 @@ const BranchQueries = () => {
   });
 
   const stats: Omit<StatCardProps, "index">[] = [
-    {
-      title: "Customers",
-      value: customersData?.pagination?.total ?? 0,
-      icon: User,
-      loading: customersLoading,
-      description: "Total registered",
-      accent: "#f97316",
-      action: { label: "Open Sign-up form", href: "/admin/customers/signup" },
-    },
     {
       title: "Branches",
       value: branchesData?.count ?? 0,

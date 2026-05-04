@@ -9,11 +9,12 @@ const CustomerLogin = lazy(() =>
 const CustomerCreateProfile = lazy(
   () => import("@/mainComponents/CustomerSystem/CustomerCreateProfile"),
 );
-const FirstDash = lazy(
-  () => import("@/mainComponents/CustomerSystem/Dashboards/FirstDash"),
-);
+
 const InitialDashboard = lazy(
   () => import("@/mainComponents/CustomerSystem/Dashboards/InitialDashboard"),
+);
+const FirstDash = lazy(
+  () => import("@/mainComponents/CustomerSystem/Dashboards/FirstDash"),
 );
 const ChooseStock = lazy(
   () => import("@/mainComponents/CustomerSystem/SelectStock/ChooseStock"),

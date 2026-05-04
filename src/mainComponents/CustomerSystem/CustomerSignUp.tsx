@@ -23,10 +23,9 @@ import {
 } from "@/redux-store/slices/customer/customerAuthSlice";
 import {
   selectAuth,
-  selectIsAdmin,
+  selectIsBranchAdmin,
   setError,
 } from "@/redux-store/slices/authSlice";
-import { useSelector } from "react-redux";
 import NotFoundPage from "../NotFoundPage";
 import { useSaveAuthDataMutation } from "@/redux-store/services/customer/customerLoginApi";
 
@@ -35,23 +34,18 @@ export interface CustomerSignUpProps {
 }
 
 const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
-  const { isAuthenticated } = useSelector(selectAuth);
-  const isAdmin = useSelector(selectIsAdmin);
-
-  // Check if user is authenticated admin
-  if (!isAuthenticated || !isAdmin) {
-    return <NotFoundPage />;
-  }
-
-  const [saveAuthData] = useSaveAuthDataMutation();
+  // ── All hooks MUST be called before any conditional return ──────────
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { error } = useAppSelector(selectCustomerAuth);
 
-  // Add selector for real-time customer auth state
+  const { isAuthenticated } = useAppSelector(selectAuth);
+  const isBranchAdmin = useAppSelector(selectIsBranchAdmin);
+  const { error } = useAppSelector(selectCustomerAuth);
   const customerAuthState = useAppSelector(selectCustomerAuth);
 
-  const recaptchaRef = useRef<any>(null);
+  const [saveAuthData] = useSaveAuthDataMutation();
+
+  const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
@@ -59,40 +53,36 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
   const [otpTimer, setOtpTimer] = useState(0);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
 
-  // Watch for customer auth state changes and navigate when authenticated
+  // Navigate when customer auth completes
   useEffect(() => {
     if (customerAuthState.isAuthenticated && customerAuthState.customer) {
-      console.log("Customer authenticated, navigating to dashboard...");
-      // Use a longer delay to ensure all state is properly updated
       const timer = setTimeout(() => {
         navigate("/customer/first-dash", { replace: true });
       }, 1500);
-
       return () => clearTimeout(timer);
     }
   }, [customerAuthState.isAuthenticated, customerAuthState.customer, navigate]);
 
-  // Initialize reCAPTCHA once on mount
+  // Initialize reCAPTCHA
   useEffect(() => {
-    const initRecaptcha = () => {
-      try {
-        if (!recaptchaRef.current) {
-          recaptchaRef.current = new RecaptchaVerifier(
-            auth,
-            "recaptcha-container",
-            {
-              size: "invisible",
-              callback: () => console.log("Recaptcha solved"),
-              "expired-callback": () => console.warn("Recaptcha expired"),
-            }
-          );
-        }
-      } catch (error) {
-        console.error("Recaptcha setup error:", error);
-      }
-    };
+    // Skip recaptcha init if user doesn't have access
+    if (!isAuthenticated || !isBranchAdmin) return;
 
-    initRecaptcha();
+    try {
+      if (!recaptchaRef.current) {
+        recaptchaRef.current = new RecaptchaVerifier(
+          auth,
+          "recaptcha-container",
+          {
+            size: "invisible",
+            callback: () => {},
+            "expired-callback": () => {},
+          },
+        );
+      }
+    } catch (err) {
+      console.error("Recaptcha setup error:", err);
+    }
 
     return () => {
       if (recaptchaRef.current) {
@@ -100,24 +90,29 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
         recaptchaRef.current = null;
       }
     };
-  }, []);
+  }, [isAuthenticated, isBranchAdmin]);
 
-  // OTP Timer
+  // OTP countdown
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (otpTimer > 0) {
-      interval = setInterval(() => setOtpTimer((prev) => prev - 1), 1000);
-    }
+    if (otpTimer <= 0) return;
+    const interval = setInterval(() => setOtpTimer((prev) => prev - 1), 1000);
     return () => clearInterval(interval);
   }, [otpTimer]);
 
+  // Clear error on step change
   useEffect(() => {
     dispatch(clearError());
   }, [step, dispatch]);
 
-  const formatPhoneNumber = (value: string) => {
-    return value.replace(/\D/g, "").slice(0, 10);
-  };
+  // ── Access gate — rendered AFTER all hooks ─────────────────────────
+  if (!isAuthenticated || !isBranchAdmin) {
+    return <NotFoundPage />;
+  }
+
+  // ── Handlers ───────────────────────────────────────────────────────
+
+  const formatPhoneNumber = (value: string) =>
+    value.replace(/\D/g, "").slice(0, 10);
 
   const handleSendOtp = async () => {
     if (phoneNumber.length !== 10) {
@@ -125,7 +120,7 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
         addNotification({
           type: "error",
           message: "Please enter a valid 10-digit phone number",
-        })
+        }),
       );
       return;
     }
@@ -141,7 +136,7 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
       const confirmation = await signInWithPhoneNumber(
         auth,
         `+91${phoneNumber}`,
-        recaptchaRef.current
+        recaptchaRef.current,
       );
 
       setConfirmationResult(confirmation);
@@ -152,26 +147,17 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
         addNotification({
           type: "success",
           message: `OTP sent to +91${phoneNumber}`,
-        })
+        }),
       );
-    } catch (error: any) {
-      console.error("OTP sending error:", error);
-
+    } catch (err: any) {
       let errorMessage = "Failed to send OTP";
-      if (error.code) {
-        switch (error.code) {
-          case "auth/invalid-phone-number":
-            errorMessage = "Invalid phone number format";
-            break;
-          case "auth/too-many-requests":
-            errorMessage = "Too many requests. Try again later";
-            break;
-          case "auth/quota-exceeded":
-            errorMessage = "SMS quota exceeded. Try tomorrow";
-            break;
-          default:
-            errorMessage = error.message || errorMessage;
-        }
+      if (err.code) {
+        const messages: Record<string, string> = {
+          "auth/invalid-phone-number": "Invalid phone number format",
+          "auth/too-many-requests": "Too many requests. Try again later",
+          "auth/quota-exceeded": "SMS quota exceeded. Try tomorrow",
+        };
+        errorMessage = messages[err.code] || err.message || errorMessage;
       }
 
       dispatch(setError(errorMessage));
@@ -191,18 +177,12 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
       const firebaseUser = result.user;
       const idToken = await firebaseUser.getIdToken();
 
-      console.log("OTP verified, saving to backend...");
-
-      // ✅ Save to backend
       const backendResponse = await saveAuthData({
         phoneNumber:
           firebaseUser.phoneNumber?.replace("+91", "") || phoneNumber,
         firebaseUid: firebaseUser.uid,
       }).unwrap();
 
-      console.log("Backend response:", backendResponse);
-
-      // Save to store - this will trigger the useEffect above
       dispatch(
         loginSuccess({
           customer: {
@@ -212,31 +192,23 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
             isVerified: true,
           },
           firebaseToken: idToken,
-        })
+        }),
       );
 
       dispatch(
         addNotification({
           type: "success",
           message: "Login successful! Redirecting...",
-        })
+        }),
       );
 
-      console.log("Login success dispatched, waiting for state update...");
-
-      // Note: Navigation is now handled by the useEffect above
-      // that watches for customerAuthState changes
-
-      // Call the optional callback
       onSignUpSuccess?.();
-    } catch (error: any) {
-      console.error("OTP verification error:", error);
+    } catch (err: any) {
       let errorMessage = "Invalid OTP";
 
-      // Handle specific Firebase errors
-      if (error.code === "auth/invalid-verification-code") {
+      if (err.code === "auth/invalid-verification-code") {
         errorMessage = "Invalid OTP. Please check the code.";
-      } else if (error.code === "auth/code-expired") {
+      } else if (err.code === "auth/code-expired") {
         errorMessage = "OTP has expired. Please request a new one.";
       }
 
@@ -253,6 +225,8 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
     setOtpTimer(0);
     await handleSendOtp();
   };
+
+  // ── Render ─────────────────────────────────────────────────────────
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4'>
@@ -272,12 +246,12 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
               </div>
             </div>
             <CardTitle className='text-2xl font-bold text-center text-gray-900'>
-              {step === "phone" ? "Welcome" : "Verify OTP"}
+              {step === "phone" ? "Register Customer" : "Verify OTP"}
             </CardTitle>
             <p className='text-center text-gray-600 text-sm'>
               {step === "phone"
-                ? "Sign up or sign in to continue"
-                : "Enter the code sent to your phone"}
+                ? "Enter the customer's phone number to register"
+                : "Enter the code sent to the customer's phone"}
             </p>
 
             {error && (
@@ -295,14 +269,14 @@ const CustomerSignUp: React.FC<CustomerSignUpProps> = ({ onSignUpSuccess }) => {
                     htmlFor='phone'
                     className='text-sm font-medium text-gray-700'
                   >
-                    Phone Number
+                    Customer Phone Number
                   </Label>
                   <div className='relative'>
                     <Phone className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
                     <Input
                       id='phone'
                       type='tel'
-                      placeholder='Enter Mobile Number'
+                      placeholder='Enter Customer Mobile Number'
                       value={phoneNumber}
                       onChange={(e) =>
                         setPhoneNumber(formatPhoneNumber(e.target.value))
