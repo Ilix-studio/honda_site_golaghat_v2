@@ -5,6 +5,7 @@ import ManagerHeader from "../mainComponents/Home/Header/ManagerHeader";
 import { CustomerDashHeader } from "../mainComponents/Home/Header/CustomerDashHeader";
 import { Header } from "../mainComponents/Home/Header/Header";
 import ProtectedRoute from "./ProtectedRoute";
+import ServiceAdminsHeader from "@/mainComponents/Home/Header/ServiceAdminsHeader";
 
 // ─── Loading Fallback ────────────────────────────────────────────────────────
 
@@ -59,7 +60,7 @@ const ServiceAdminRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => (
   <ProtectedRoute requiredRole='service-admin'>
-    <ManagerHeader />
+    <ServiceAdminsHeader />
     {children}
   </ProtectedRoute>
 );

@@ -37,10 +37,15 @@ import {
   createCustomerRoute,
   createBranchManagerRoute,
   createAuthRoute,
+  createServiceAdminRoute,
 } from "./config/routeHelpers";
 
 import { usePageTitle } from "./hooks/usePageTitle";
 import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
+import {
+  serviceAdminAuthRoutes,
+  serviceAdminRoutes,
+} from "./config/MainRouteConfigs/serviceAdmins.routes";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -139,6 +144,15 @@ const App: React.FC = () => {
         {/* BRANCH MANAGER — protected, manager header */}
         {branchManagerRoutes.map(({ path, component }) =>
           createBranchManagerRoute(path, component),
+        )}
+        {/* SERVICE ADMIN AUTH — login page, no header */}
+        {serviceAdminAuthRoutes.map(({ path, component }) =>
+          createAuthRoute(path, component),
+        )}
+
+        {/* SERVICE ADMIN — protected, service admin header */}
+        {serviceAdminRoutes.map(({ path, component }) =>
+          createServiceAdminRoute(path, component),
         )}
 
         {/* FALLBACK — 404 */}
