@@ -1,0 +1,89 @@
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { ArrowUpRight, ChevronRight } from "lucide-react";
+
+export interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ElementType;
+  loading?: boolean;
+  description: string;
+  action: { label: string; href: string };
+  accent: string;
+  index: number;
+}
+
+export const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+  loading,
+  description,
+  action,
+  accent,
+  index,
+}: StatCardProps) => (
+  <motion.div
+    initial={{ opacity: 0, y: 24 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.45, delay: index * 0.07, ease: "easeOut" }}
+    className='group relative overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300'
+  >
+    <div
+      className='absolute top-0 left-0 h-1 w-full'
+      style={{ background: accent }}
+    />
+    <div
+      className='absolute inset-0 opacity-[0.025] pointer-events-none'
+      style={{
+        backgroundImage:
+          "repeating-linear-gradient(0deg,#000 0,#000 1px,transparent 1px,transparent 20px),repeating-linear-gradient(90deg,#000 0,#000 1px,transparent 1px,transparent 20px)",
+      }}
+    />
+
+    <div className='relative p-5 flex flex-col gap-4'>
+      <div className='flex items-start justify-between'>
+        <div
+          className='flex items-center justify-center w-11 h-11 rounded-xl'
+          style={{ background: `${accent}18` }}
+        >
+          <Icon className='w-5 h-5' style={{ color: accent }} />
+        </div>
+        <Link to={action.href}>
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: -5 }}
+            className='w-8 h-8 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200 cursor-pointer hover:border-gray-400 transition-colors'
+          >
+            <ArrowUpRight className='w-3.5 h-3.5 text-gray-500' />
+          </motion.div>
+        </Link>
+      </div>
+
+      <div>
+        <p className='text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1'>
+          {title}
+        </p>
+        {loading ? (
+          <div className='h-9 w-20 bg-gray-100 animate-pulse rounded-lg' />
+        ) : (
+          <p className='text-4xl font-black text-gray-900 leading-none tabular-nums'>
+            {typeof value === "number" ? value.toLocaleString() : value}
+          </p>
+        )}
+        <p className='text-xs text-gray-400 mt-1'>{description}</p>
+      </div>
+
+      <Link to={action.href}>
+        <Button
+          variant='ghost'
+          size='sm'
+          className='w-full justify-between px-3 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-all group/btn'
+        >
+          <span className='text-xs font-medium'>{action.label}</span>
+          <ChevronRight className='w-3 h-3 opacity-0 group-hover/btn:opacity-100 transition-opacity' />
+        </Button>
+      </Link>
+    </div>
+  </motion.div>
+);

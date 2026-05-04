@@ -10,10 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  FileText,
   MessageSquare,
-  Users,
-  DollarSign,
   Clock,
   Home,
   Building2,
@@ -30,90 +27,7 @@ import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 import { useGetAllCustomersQuery } from "@/redux-store/services/customer/customerApi";
 import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
 import { useGetAllStockItemsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface NavCardItem {
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-  path: string;
-  color: string;
-}
-
-// ─── Customer & Reports tab items (simple nav cards) ─────────────────────────
-
-const customerItems: NavCardItem[] = [
-  {
-    title: "Enquiries",
-    description: "Manage customer enquiries",
-    icon: MessageSquare,
-    path: "/manager/enquiries",
-    color: "bg-green-500",
-  },
-  {
-    title: "Applications",
-    description: "Manage customer applications",
-    icon: Users,
-    path: "/manager/applications",
-    color: "bg-purple-500",
-  },
-  {
-    title: "Finance Queries",
-    description: "Manage finance enquiries",
-    icon: DollarSign,
-    path: "/manager/finance-queries",
-    color: "bg-yellow-500",
-  },
-  {
-    title: "Accident Reports",
-    description: "View and manage accident reports",
-    icon: FileText,
-    path: "/manager/accident-reports",
-    color: "bg-red-500",
-  },
-];
-
-// ─── Nav Card Grid Component ─────────────────────────────────────────────────
-
-const NavCardGrid = ({
-  items,
-  onNavigate,
-}: {
-  items: NavCardItem[];
-  onNavigate: (path: string) => void;
-}) => (
-  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-    {items.map((item) => {
-      const Icon = item.icon;
-      return (
-        <Card
-          key={item.path}
-          className='group cursor-pointer hover:shadow-lg transition-all duration-200 border border-gray-200 hover:border-gray-300'
-          onClick={() => onNavigate(item.path)}
-        >
-          <CardContent className='p-6'>
-            <div className='flex items-start gap-4'>
-              <div
-                className={`flex items-center justify-center h-12 w-12 rounded-xl ${item.color} text-white shadow-sm group-hover:scale-110 transition-transform duration-200`}
-              >
-                <Icon className='h-6 w-6' />
-              </div>
-              <div className='flex-1'>
-                <h3 className='font-semibold text-gray-900 mb-1'>
-                  {item.title}
-                </h3>
-                <p className='text-sm text-gray-500'>{item.description}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    })}
-  </div>
-);
-
-// ─── Main Component ──────────────────────────────────────────────────────────
+import CustomerQueries from "./Tabs/CustomerQuery";
 
 const BranchManagerDashboard = () => {
   const navigate = useNavigate();
@@ -204,6 +118,16 @@ const BranchManagerDashboard = () => {
       description: "Vehicles in branch",
       accent: "#f59e0b",
       action: { label: "Open Stock Manager", href: "/manager/stock/select" },
+    },
+    {
+      title: "Vehicles Request",
+      //Add Badge
+      value: stockData?.total ?? 0,
+      icon: Activity,
+      loading: stockLoading,
+      description: "Vehicles in branch",
+      accent: "#f59e0b",
+      action: { label: "Open", href: "/manager/stock/select" },
     },
   ];
 
@@ -357,9 +281,7 @@ const BranchManagerDashboard = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className='p-6'>
-                <NavCardGrid items={customerItems} onNavigate={navigate} />
-              </CardContent>
+              <CustomerQueries />
             </Card>
           </TabsContent>
         </Tabs>

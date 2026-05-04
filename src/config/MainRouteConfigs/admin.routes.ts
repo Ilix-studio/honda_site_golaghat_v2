@@ -56,11 +56,7 @@ const AssignStock = lazy(
 const AdminBookingsManager = lazy(
   () => import("@/mainComponents/Admin/ServiceBookings/AdminBookingsManager"),
 );
-const FinanceQueries = lazy(
-  () =>
-    import("@/mainComponents/Admin/AdminDash/FinanceEnquiry/FinanceQueries"),
-);
-const SeeMessages = lazy(() => import("@/mainComponents/Admin/SeeMessages"));
+
 const GetAllAccidentReports = lazy(
   () => import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReports"),
 );
@@ -105,8 +101,7 @@ export const adminRoutes = [
   { path: "/admin/assign/stock-concept/:id", component: AssignStock },
   // Handling Dealer Queries
   { path: "/admin/service-bookings", component: AdminBookingsManager },
-  { path: "/admin/finanace-query", component: FinanceQueries },
-  { path: "/admin/any-messages", component: SeeMessages },
+
   { path: "/admin/accident-reports", component: GetAllAccidentReports },
   { path: "/admin/accident-reports/:id", component: GetAllAccidentReportsById },
 ];
