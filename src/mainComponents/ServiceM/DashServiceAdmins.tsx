@@ -17,6 +17,7 @@ import {
   Cog,
   User,
   Activity,
+  Wrench,
 } from "lucide-react";
 import { useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -24,6 +25,7 @@ import { selectAuth } from "../../redux-store/slices/authSlice";
 import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 
 import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
+import OpenJobCards from "./OpenJobCards";
 
 const DashServiceAdmins = () => {
   const navigate = useNavigate();
@@ -33,6 +35,10 @@ const DashServiceAdmins = () => {
   // RTK Query hooks — skip until authenticated to avoid 401s
   const { data: serviceBookingData, isLoading: serviceBookingLoading } =
     useGetAllBookingsQuery({ page: 1, limit: 1 }, { skip: !isAuthenticated });
+  const { data: bookingsData } = useGetAllBookingsQuery({
+    page: 1,
+    limit: 1,
+  });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -63,14 +69,14 @@ const DashServiceAdmins = () => {
   const operationsStats: Omit<StatCardProps, "index">[] = [
     {
       title: "Service Booking Requests",
-      value: serviceBookingData?.total ?? 0,
-      icon: User,
+      value: bookingsData?.total ?? "—",
+      icon: Wrench,
       loading: serviceBookingLoading,
       description: "Total registered",
-      accent: "#f97316",
+      accent: "#3b82f6",
       action: {
         label: "Open Service Booking form",
-        href: "/service-admin/service-booking",
+        href: "/service-admin/service-bookings",
       },
     },
     {
@@ -226,6 +232,9 @@ const DashServiceAdmins = () => {
                     <StatCard key={stat.title} {...stat} index={i} />
                   ))}
                 </div>
+              </CardContent>
+              <CardContent className='p-6'>
+                <OpenJobCards />
               </CardContent>
             </Card>
           </TabsContent>

@@ -53,9 +53,6 @@ const GetAllStockFiles = lazy(
 const AssignStock = lazy(
   () => import("@/mainComponents/CustomerSystem/ActivateFeature/AssignStock"),
 );
-const AdminBookingsManager = lazy(
-  () => import("@/mainComponents/Admin/ServiceBookings/AdminBookingsManager"),
-);
 
 const GetAllAccidentReports = lazy(
   () => import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReports"),
@@ -107,7 +104,7 @@ export const adminRoutes = [
   { path: "/admin/leave-requests", component: TabBased },
 
   // Handling Dealer Queries
-  { path: "/admin/service-bookings", component: AdminBookingsManager },
+
   { path: "/admin/accident-reports", component: GetAllAccidentReports },
   { path: "/admin/accident-reports/:id", component: GetAllAccidentReportsById },
 ];

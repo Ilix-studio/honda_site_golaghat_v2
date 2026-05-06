@@ -20,7 +20,7 @@ import {
   useUpdateBookingStatusMutation,
 } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
 
-const AdminBookingsManager: React.FC = () => {
+const ServiceBookingsManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"bookings" | "stats">("bookings");
   const [filters, setFilters] = useState({
     status: "",
@@ -65,7 +65,7 @@ const AdminBookingsManager: React.FC = () => {
         console.error("Failed to update booking status:", error);
       }
     },
-    [updateBookingStatus, refetchBookings, refetchStats]
+    [updateBookingStatus, refetchBookings, refetchStats],
   );
 
   const handleFilterChange = useCallback((key: string, value: string) => {
@@ -97,7 +97,7 @@ const AdminBookingsManager: React.FC = () => {
   const filteredBookings = bookings.filter(
     (booking) =>
       searchQuery === "" ||
-      booking.bookingId.toLowerCase().includes(searchQuery.toLowerCase())
+      booking.bookingId.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const selectClass =
@@ -308,7 +308,7 @@ const AdminBookingsManager: React.FC = () => {
                           </h3>
                           <Badge
                             className={`${getStatusColor(
-                              booking.status
+                              booking.status,
                             )} w-fit`}
                           >
                             {booking.status}
@@ -324,7 +324,7 @@ const AdminBookingsManager: React.FC = () => {
                             <Calendar className='h-4 w-4' />
                             <span>
                               {new Date(
-                                booking.appointmentDate
+                                booking.appointmentDate,
                               ).toLocaleDateString()}
                             </span>
                           </div>
@@ -393,7 +393,7 @@ const AdminBookingsManager: React.FC = () => {
                       onClick={() =>
                         handleFilterChange(
                           "page",
-                          (filters.page - 1).toString()
+                          (filters.page - 1).toString(),
                         )
                       }
                     >
@@ -409,7 +409,7 @@ const AdminBookingsManager: React.FC = () => {
                       onClick={() =>
                         handleFilterChange(
                           "page",
-                          (filters.page + 1).toString()
+                          (filters.page + 1).toString(),
                         )
                       }
                     >
@@ -426,4 +426,4 @@ const AdminBookingsManager: React.FC = () => {
   );
 };
 
-export default AdminBookingsManager;
+export default ServiceBookingsManager;

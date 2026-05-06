@@ -65,6 +65,11 @@ export const apiSlice = createApi({
     "AccidentReport",
     "Leave",
     "LeaveBalance",
+    "JobCard",
+    "JobCardList",
+    "JobCardInvoice",
+    "JobCardCatalog",
+    "JobCardCatalogItem",
   ],
   endpoints: () => ({}),
 });
