@@ -76,11 +76,11 @@ const bankPartners = [
 ];
 
 export function EmiCalculator({
-  selectedBikePrice = 1200000,
+  selectedBikePrice = 400000,
 }: EmiCalculatorProps) {
   const [bikePrice, setBikePrice] = useState<number>(selectedBikePrice);
   const [downPayment, setDownPayment] = useState<number>(
-    Math.round(selectedBikePrice * 0.2)
+    Math.round(selectedBikePrice * 0.2),
   );
   const [loanTerm, setLoanTerm] = useState<number>(36);
   const [interestRate, setInterestRate] = useState<number>(7.99);
@@ -136,30 +136,28 @@ export function EmiCalculator({
   return (
     <section id='finance' className='py-20 bg-gray-50'>
       <div className='container px-4 md:px-6'>
-   
-               <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6 }}
-                  className='text-center mb-12'
-                >
-                  <div className='flex items-center justify-center gap-2 mb-4'>
-                    <div className='h-1 w-12 bg-red-500 rounded-full' />
-                    <span className='text-red-600 text-sm font-semibold tracking-[0.2em] uppercase'>
-                           Finance Your Dream Ride
-                    </span>
-                    <div className='h-1 w-12 bg-red-500 rounded-full' />
-                  </div>
-                  <p className='text-3xl md:text-4xl font-bold tracking-tight mb-4'>
-                   Calculate your monthly payments and explore financing options for
-            your 
-                     <span className='bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent ml-2'>
-  new Honda motorcycle
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className='text-center mb-12'
+        >
+          <div className='flex items-center justify-center gap-2 mb-4'>
+            <div className='h-1 w-12 bg-red-500 rounded-full' />
+            <span className='text-red-600 text-sm font-semibold tracking-[0.2em] uppercase'>
+              Finance Your Dream Ride
             </span>
-                  </p>
-                
-                </motion.div>
+            <div className='h-1 w-12 bg-red-500 rounded-full' />
+          </div>
+          <p className='text-3xl md:text-4xl font-bold tracking-tight mb-4'>
+            Calculate your monthly payments and explore financing options for
+            your
+            <span className='bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent ml-2'>
+              new Honda motorcycle
+            </span>
+          </p>
+        </motion.div>
 
         {/* Bank Partners Section */}
         <motion.div
@@ -259,8 +257,8 @@ export function EmiCalculator({
                 <div className='flex items-center gap-4'>
                   <Slider
                     id='bike-price'
-                    min={100000}
-                    max={2000000}
+                    min={50000}
+                    max={400000}
                     step={10000}
                     value={[bikePrice]}
                     onValueChange={(value: number[]) => setBikePrice(value[0])}
@@ -325,7 +323,7 @@ export function EmiCalculator({
                   <Slider
                     id='loan-term'
                     min={12}
-                    max={84}
+                    max={36}
                     step={12}
                     value={[loanTerm]}
                     onValueChange={(value: number[]) => setLoanTerm(value[0])}
@@ -356,7 +354,7 @@ export function EmiCalculator({
                   <Slider
                     id='interest-rate'
                     min={5}
-                    max={18}
+                    max={15}
                     step={0.1}
                     value={[interestRate]}
                     onValueChange={(value: number[]) =>
@@ -466,7 +464,6 @@ export function EmiCalculator({
                 <Button asChild className='bg-red-600 hover:bg-red-700'>
                   <Link to='/finance'>Apply for Financing</Link>
                 </Button>
-                <Button variant='outline'>Download Payment Schedule</Button>
               </div>
             </CardContent>
           </Card>

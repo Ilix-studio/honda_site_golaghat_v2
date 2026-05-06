@@ -101,6 +101,15 @@ const BranchQueries = () => {
       accent: "#3b82f6",
       action: { label: "View All", href: "/admin/service-bookings" },
     },
+    {
+      title: "Leave Requests",
+      value: bookingsData?.total ?? "—",
+      icon: Wrench,
+      loading: false,
+      description: "Active bookings",
+      accent: "#3b82f6",
+      action: { label: "View All", href: "/admin/leave-requests" },
+    },
   ];
 
   const vs = visitorStatsData?.data;

@@ -70,6 +70,10 @@ const ServiceAdmins = lazy(
   () => import("@/mainComponents/ServiceM/ServiceAdmins"),
 );
 
+const TabBased = lazy(
+  () => import("@/mainComponents/Admin/LeaveApplication/TabBased"),
+);
+
 export const adminAuthRoutes = [
   { path: "/admin/login", component: LoginSuperAdmin },
 ];
@@ -99,9 +103,11 @@ export const adminRoutes = [
   { path: "/admin/get/all-stock", component: GetAllStockFiles },
   { path: "/admin/get/csv", component: GetCSVFiles },
   { path: "/admin/assign/stock-concept/:id", component: AssignStock },
+  // Leave Management
+  { path: "/admin/leave-requests", component: TabBased },
+
   // Handling Dealer Queries
   { path: "/admin/service-bookings", component: AdminBookingsManager },
-
   { path: "/admin/accident-reports", component: GetAllAccidentReports },
   { path: "/admin/accident-reports/:id", component: GetAllAccidentReportsById },
 ];
