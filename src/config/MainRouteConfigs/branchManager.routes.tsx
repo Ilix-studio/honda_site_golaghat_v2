@@ -1,5 +1,6 @@
 import OtherStaff from "@/mainComponents/StaffM/OtherStaff";
 import { lazy } from "react";
+import ApplyLeave from "@/mainComponents/shared/ApplyLeave";
 
 const LoginBranchManager = lazy(
   () => import("@/mainComponents/BranchM/LoginBranchManager"),
@@ -41,7 +42,9 @@ const BranchFinanceQueries = lazy(
   () => import("@/mainComponents/BranchM/BranchFinanceQueries"),
 );
 const SeeMessages = lazy(() => import("@/mainComponents/Admin/SeeMessages"));
-
+const BranchApplyLeave = () => (
+  <ApplyLeave dashboardPath='/manager/dashboard' />
+);
 export const branchManagerAuthRoutes = [
   { path: "/manager-login", component: LoginBranchManager },
 ];
@@ -61,4 +64,6 @@ export const branchManagerRoutes = [
   { path: "/manager/finance-queries", component: BranchFinanceQueries },
   { path: "/manager/any-messages", component: SeeMessages },
   { path: "/manager/staff", component: OtherStaff },
+  //
+  { path: "/manager/apply-leave", component: BranchApplyLeave },
 ];

@@ -28,7 +28,7 @@ import {
 import {
   branchManagerAuthRoutes,
   branchManagerRoutes,
-} from "./config/MainRouteConfigs/branchManager.routes";
+} from "./config/MainRouteConfigs/branchManager.routes.tsx";
 
 import {
   createImmediateRoute,

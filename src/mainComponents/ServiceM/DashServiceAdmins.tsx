@@ -9,7 +9,15 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, Clock, Home, Building2, Cog, User } from "lucide-react";
+import {
+  MessageSquare,
+  Clock,
+  Home,
+  Building2,
+  Cog,
+  User,
+  Activity,
+} from "lucide-react";
 import { useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
 
@@ -76,6 +84,16 @@ const DashServiceAdmins = () => {
         label: "Open Job Card form",
         href: "/service-admin/job-card",
       },
+    },
+    {
+      title: "Apply Leave",
+      //Add Badge
+      value: 0,
+      icon: Activity,
+      loading: false,
+      description: "Leave Application",
+      accent: "#f59e0b",
+      action: { label: "Open", href: "/service-admin/apply-leave" },
     },
   ];
 

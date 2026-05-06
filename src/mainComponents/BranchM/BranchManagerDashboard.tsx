@@ -129,6 +129,16 @@ const BranchManagerDashboard = () => {
       accent: "#f59e0b",
       action: { label: "Open", href: "/manager/stock/select" },
     },
+    {
+      title: "Apply Leave",
+      //Add Badge
+
+      icon: Activity,
+      loading: false,
+      description: "Leave Application",
+      accent: "#f59e0b",
+      action: { label: "Open", href: "/manager/apply-leave" },
+    },
   ];
 
   if (!isAuthenticated) {
