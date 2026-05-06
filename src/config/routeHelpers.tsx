@@ -6,6 +6,7 @@ import { CustomerDashHeader } from "../mainComponents/Home/Header/CustomerDashHe
 import { Header } from "../mainComponents/Home/Header/Header";
 import ProtectedRoute from "./ProtectedRoute";
 import ServiceAdminsHeader from "@/mainComponents/Home/Header/ServiceAdminsHeader";
+import StaffHeader from "@/mainComponents/Home/Header/StaffHeader";
 
 // ─── Loading Fallback ────────────────────────────────────────────────────────
 
@@ -69,7 +70,7 @@ const StaffRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => (
   <ProtectedRoute requiredRole='staff'>
-    <ManagerHeader />
+    <StaffHeader />
     {children}
   </ProtectedRoute>
 );

@@ -119,7 +119,7 @@ const ServiceAdminsHeader = () => {
         }),
       );
     } finally {
-      navigate("/manager-login", { replace: true });
+      navigate("/service-admin/login", { replace: true });
     }
   };
 
@@ -135,14 +135,14 @@ const ServiceAdminsHeader = () => {
           <div className='flex items-center gap-3'>
             {/* Logo mark */}
             <Link
-              to='/manager/dashboard'
+              to='/service-admin/dashboard'
               className='flex items-center gap-2 shrink-0'
             >
               <div className='w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center'>
-                <span className='text-white text-xs font-black'>H</span>
+                <span className='text-white text-xs font-black'>T</span>
               </div>
               <span className='text-sm font-black text-white tracking-tight hidden sm:block'>
-                Tsangpool <span className='text-red-500'>Manager</span>
+                Tsangpool <span className='text-red-500'>Service</span>
               </span>
             </Link>
 

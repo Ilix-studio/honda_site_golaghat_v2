@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 
 import { logout, selectAuth } from "@/redux-store/slices/authSlice";
 import { addNotification } from "@/redux-store/slices/uiSlice";
-import { useLogoutSuperAdminMutation } from "@/redux-store/services/adminApi";
+import { useLogoutUserMutation } from "@/redux-store/services/adminApi";
 
 const routeConfig: Record<
   string,
@@ -24,62 +24,82 @@ const routeConfig: Record<
     menuItems?: Array<{ label: string; href: string }>;
   }
 > = {
-  "/admin/dashboard": { title: "Admin Dashboard", subtitle: "" },
-  "/admin/branches/add": {
-    title: "Add New Branch",
-    subtitle: "",
-    showBack: true,
-    backTo: "/admin/dashboard",
-    menuItems: [
-      { label: "Add Bikes/Scooty", href: "/admin/bikes/add" },
-      { label: "Manage Branches", href: "/admin/branches" },
-    ],
+  "/manager/dashboard": {
+    title: "Manager Dashboard",
+    subtitle: "Branch Management",
   },
-  "/admin/bikes/add": {
-    title: "Add New Bike",
-    subtitle: "Add motorcycle to inventory",
+  "/manager/service-bookings": {
+    title: "Service Bookings",
+    subtitle: "Manage service appointments",
     showBack: true,
-    backTo: "/admin/dashboard",
-    menuItems: [
-      { label: "Add Branch", href: "/admin/branches/add" },
-      { label: "Manage Branches", href: "/admin/branches" },
-    ],
+    backTo: "/manager/dashboard",
   },
-  "/admin/editbikes": {
-    title: "Edit Bike",
-    subtitle: "Update motorcycle details",
+  "/manager/accident-reports": {
+    title: "Accident Reports",
+    subtitle: "View and manage accident cases",
     showBack: true,
-    backTo: "/admin/dashboard",
-    menuItems: [
-      { label: "Add Branch", href: "/admin/branches/add" },
-      { label: "Add Bikes/Scooty", href: "/admin/bikes/add" },
-      { label: "Manage Branches", href: "/admin/branches" },
-    ],
+    backTo: "/manager/dashboard",
+  },
+  "/manager/enquiries": {
+    title: "Customer Enquiries",
+    subtitle: "Handle customer queries",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/applications": {
+    title: "Applications",
+    subtitle: "Process loan and finance applications",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/stock": {
+    title: "Stock Management",
+    subtitle: "Manage branch inventory",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/vas": {
+    title: "Value Added Services",
+    subtitle: "Manage VAS offerings",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/customer-vehicles": {
+    title: "Customer Vehicles",
+    subtitle: "View customer vehicle information",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/finance-queries": {
+    title: "Finance Queries",
+    subtitle: "Handle finance-related requests",
+    showBack: true,
+    backTo: "/manager/dashboard",
   },
 };
 
-const AdminHeader = () => {
+const StaffHeader = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAppSelector(selectAuth);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [logoutAdmin, { isLoading: isLoggingOut }] =
-    useLogoutSuperAdminMutation();
+  const [logoutBranchManager, { isLoading: isLoggingOut }] =
+    useLogoutUserMutation();
 
   const currentRoute = routeConfig[location.pathname] || {
-    title: "Admin Panel",
+    title: "Staff Access",
     subtitle: "Honda Dealership Management",
   };
 
   useEffect(() => {
-    if (!isAuthenticated) navigate("/admin/login");
+    if (!isAuthenticated) navigate("/staff/login");
   }, [isAuthenticated, navigate]);
 
   const handleLogout = async () => {
     setIsMenuOpen(false);
     try {
-      const result = await logoutAdmin().unwrap();
+      const result = await logoutBranchManager().unwrap();
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       dispatch(
@@ -99,7 +119,7 @@ const AdminHeader = () => {
         }),
       );
     } finally {
-      navigate("/", { replace: true });
+      navigate("/manager-login", { replace: true });
     }
   };
 
@@ -115,14 +135,14 @@ const AdminHeader = () => {
           <div className='flex items-center gap-3'>
             {/* Logo mark */}
             <Link
-              to='/admin/dashboard'
+              to='/manager/dashboard'
               className='flex items-center gap-2 shrink-0'
             >
               <div className='w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center'>
                 <span className='text-white text-xs font-black'>T</span>
               </div>
               <span className='text-sm font-black text-white tracking-tight hidden sm:block'>
-                Tsangpool <span className='text-red-500'>Admin</span>
+                Tsangpool <span className='text-red-500'>Staff Member</span>
               </span>
             </Link>
 
@@ -210,4 +230,4 @@ const AdminHeader = () => {
   );
 };
 
-export default AdminHeader;
+export default StaffHeader;

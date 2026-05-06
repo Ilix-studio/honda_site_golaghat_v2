@@ -17,7 +17,7 @@ import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 
 import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
 
-const DashServiceAdmins = () => {
+const DashStaff = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAppSelector(selectAuth);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -33,7 +33,7 @@ const DashServiceAdmins = () => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate("/service-admin/login");
+      navigate("/staff/login");
     }
   }, [isAuthenticated, navigate]);
 
@@ -54,27 +54,39 @@ const DashServiceAdmins = () => {
   // Stat cards built from live query data
   const operationsStats: Omit<StatCardProps, "index">[] = [
     {
-      title: "Service Booking Requests",
+      title: "Apply Leave",
       value: serviceBookingData?.total ?? 0,
       icon: User,
       loading: serviceBookingLoading,
-      description: "Total registered",
+      description: "Apply for leave",
       accent: "#f97316",
       action: {
-        label: "Open Service Booking form",
-        href: "/service-admin/service-booking",
+        label: "Apply Leave",
+        href: "/apply-leave",
       },
     },
     {
-      title: "Job Card Stuff",
+      title: "Buy Scanfleet Stickers",
       value: serviceBookingData?.total ?? 0,
       icon: User,
       loading: serviceBookingLoading,
-      description: "Total registered",
+      description: "Number of tokens",
       accent: "#f97316",
       action: {
-        label: "Open Job Card form",
-        href: "/service-admin/job-card",
+        label: "Buy Stickers",
+        href: "/buy-stickers",
+      },
+    },
+    {
+      title: "Sell Scanfleet Stickers",
+      value: serviceBookingData?.total ?? 0,
+      icon: User,
+      loading: serviceBookingLoading,
+      description: "Number of stickers sold",
+      accent: "#f97316",
+      action: {
+        label: "Sell Stickers",
+        href: "/sell-stickers",
       },
     },
   ];
@@ -118,7 +130,7 @@ const DashServiceAdmins = () => {
               <div className='flex items-center gap-2 mb-3'>
                 <div className='h-1 w-8 bg-red-500 rounded-full' />
                 <span className='text-red-400 text-xs font-semibold tracking-[0.2em] uppercase'>
-                  Service Admin Panel
+                  Staff Access Panel
                 </span>
               </div>
               <h1 className='text-3xl md:text-4xl font-bold text-white tracking-tight'>
@@ -154,7 +166,7 @@ const DashServiceAdmins = () => {
                 <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10'>
                   <Building2 className='h-3 w-3 text-gray-400' />
                   <span className='text-gray-400 text-xs font-medium'>
-                    Branch Access
+                    Staff Access
                   </span>
                 </div>
               </div>
@@ -174,15 +186,15 @@ const DashServiceAdmins = () => {
               className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
             >
               <Cog className='h-4 w-4' />
-              <span>Operations</span>
+              <span>Basic Stuff</span>
             </TabsTrigger>
-            <TabsTrigger
+            {/* <TabsTrigger
               value='customer-reports'
               className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
             >
               <MessageSquare className='h-4 w-4' />
               <span>Customer & Reports</span>
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
 
           <TabsContent value='operations' className='mt-6'>
@@ -238,4 +250,4 @@ const DashServiceAdmins = () => {
   );
 };
 
-export default DashServiceAdmins;
+export default DashStaff;

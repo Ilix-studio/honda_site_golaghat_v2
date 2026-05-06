@@ -38,6 +38,7 @@ import {
   createBranchManagerRoute,
   createAuthRoute,
   createServiceAdminRoute,
+  createStaffRoute,
 } from "./config/routeHelpers";
 
 import { usePageTitle } from "./hooks/usePageTitle";
@@ -46,6 +47,10 @@ import {
   serviceAdminAuthRoutes,
   serviceAdminRoutes,
 } from "./config/MainRouteConfigs/serviceAdmins.routes";
+import {
+  staffAuthRoutes,
+  staffRoutes,
+} from "./config/MainRouteConfigs/staff.routes";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -153,6 +158,15 @@ const App: React.FC = () => {
         {/* SERVICE ADMIN — protected, service admin header */}
         {serviceAdminRoutes.map(({ path, component }) =>
           createServiceAdminRoute(path, component),
+        )}
+        {/* STAFF ADMIN AUTH — login page, no header */}
+        {staffAuthRoutes.map(({ path, component }) =>
+          createAuthRoute(path, component),
+        )}
+
+        {/* STAFF — protected, staff header */}
+        {staffRoutes.map(({ path, component }) =>
+          createStaffRoute(path, component),
         )}
 
         {/* FALLBACK — 404 */}
