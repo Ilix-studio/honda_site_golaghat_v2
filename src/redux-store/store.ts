@@ -14,12 +14,12 @@ import {
 import createIdbStorage from "redux-persist-indexeddb-storage";
 
 // Import reducers
-import authReducer from "./slices/authSlice";
+import authReducer from "@/redux-store/slices/authSlice";
 //New
-import bikesReducer from "./slices/BikeSystemSlice/bikesSlice";
-import bikeImageReducer from "./slices/BikeSystemSlice/bikeImageSlice";
+import bikesReducer from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
+import bikeImageReducer from "@/redux-store/slices/BikeSystemSlice/bikeImageSlice";
 
-import branchReducer from "./slices/branchSlice";
+import branchReducer from "@/redux-store/slices/branchSlice";
 import comparisonReducer from "./slices/comparisonSlice";
 import uiReducer from "./slices/uiSlice";
 import formReducer from "./slices/formSlice";

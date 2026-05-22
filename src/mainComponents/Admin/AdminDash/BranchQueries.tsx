@@ -4,18 +4,18 @@ import {
   TrendingUp,
   Building2,
   Users,
-  User,
   Activity,
   Eye,
   Clock,
   Wrench,
+  Settings,
+  PersonStanding,
 } from "lucide-react";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
-import { useGetAllBranchManagersQuery } from "@/redux-store/services/branchManagerApi";
+import { useGetAllBranchAdminsQuery, useGetAllServiceAdminsQuery, useGetAllStaffQuery } from "@/redux-store/services/adminApi";
 
 import { useGetVisitorStatsQuery } from "@/redux-store/services/visitorApi";
 import RecentMotorcycles from "./RecentMotocycles";
-import { useGetAllCustomersQuery } from "@/redux-store/services/customer/customerApi";
 import { formatTimeAgo, MetricTile, StatCard, StatCardProps } from "./StatCard";
 import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
 import { useGetCSVBatchesQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
@@ -29,10 +29,14 @@ const BranchQueries = () => {
   const { data: branchesData, isLoading: branchesLoading } =
     useGetBranchesQuery();
   const { data: branchManagersData, isLoading: managersLoading } =
-    useGetAllBranchManagersQuery();
+    useGetAllBranchAdminsQuery();
+  const { data: serviceManagersData, isLoading: serviceManagersLoading } =
+    useGetAllServiceAdminsQuery();
+  const { data: staffData, isLoading: staffLoading } =
+    useGetAllStaffQuery();
+
   const { data: visitorStatsData } = useGetVisitorStatsQuery();
-  const { data: customersData, isLoading: customersLoading } =
-    useGetAllCustomersQuery({ limit: 1 });
+
   const { data: vasData } = useGetAllVASQuery({});
   const { data: csvBatchData } = useGetCSVBatchesQuery({ page: 1, limit: 1 });
   const { data: stockData } = useGetAllStockItemsQuery({ page: 1, limit: 1 });
@@ -45,15 +49,6 @@ const BranchQueries = () => {
   });
 
   const stats: Omit<StatCardProps, "index">[] = [
-    {
-      title: "Customers",
-      value: customersData?.pagination?.total ?? 0,
-      icon: User,
-      loading: customersLoading,
-      description: "Total registered",
-      accent: "#f97316",
-      action: { label: "Open Sign-up form", href: "/admin/customers/signup" },
-    },
     {
       title: "Branches",
       value: branchesData?.count ?? 0,
@@ -73,13 +68,38 @@ const BranchQueries = () => {
       action: { label: "Add Manager", href: "/admin/branches/managers" },
     },
     {
+      title: "Service Admins",
+      value: serviceManagersData?.count ?? 0,
+      icon: Settings,
+      loading: serviceManagersLoading,
+      description: "Active service admins",
+      accent: "#170C79",
+      action: {
+        label: "Add Service Admin",
+        href: "/admin/branches/service-admins",
+      },
+    },
+    {
+      title: "Staff",
+      value: staffData?.count ?? 0,
+      icon: PersonStanding,
+      loading: staffLoading,
+      description: "Active staff",
+      accent: "#170C79",
+      action: {
+        label: "Add Service Admin",
+        href: "/admin/branches/service-admins",
+      },
+    },
+
+    {
       title: "Value-Added Services",
       value: vasData?.total ?? "—",
       icon: TrendingUp,
       loading: false,
       description: "Activate VAS on vehicles",
       accent: "#10b981",
-      action: { label: "Open VAS Manager", href: "/admin/vas/select" },
+      action: { label: "Open VAS Manager", href: "" },
     },
     {
       title: "Stock Queries",
@@ -88,16 +108,17 @@ const BranchQueries = () => {
       loading: false,
       description: "Vehicles in branch",
       accent: "#f59e0b",
-      action: { label: "Open Stock Manager", href: "/admin/stockC/select" },
+      action: { label: "Open Stock Manager", href: "" },
     },
+
     {
-      title: "Service Bookings",
+      title: "Leave Requests",
       value: bookingsData?.total ?? "—",
       icon: Wrench,
       loading: false,
       description: "Active bookings",
       accent: "#3b82f6",
-      action: { label: "View All", href: "/admin/service-bookings" },
+      action: { label: "View All", href: "/admin/leave-requests" },
     },
   ];
 
@@ -190,8 +211,8 @@ const BranchQueries = () => {
                   width: `${Math.min(
                     ((vs.todayVisitors ?? 0) /
                       Math.max(vs.totalVisitors ?? 1, 1)) *
-                      100 *
-                      10,
+                    100 *
+                    10,
                     100,
                   )}%`,
                 }}

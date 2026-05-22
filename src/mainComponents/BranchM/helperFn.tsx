@@ -1,16 +1,9 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import {
-  AlertTriangle,
-
-  ArrowUpRight,
-  ChevronRight,
-
-} from "lucide-react";
 import { Link } from "react-router-dom";
+import { ArrowUpRight, ChevronRight } from "lucide-react";
 
-
-interface StatCardProps {
+export interface StatCardProps {
   title: string;
   value: string | number;
   icon: React.ElementType;
@@ -21,7 +14,7 @@ interface StatCardProps {
   index: number;
 }
 
-const StatCard = ({
+export const StatCard = ({
   title,
   value,
   icon: Icon,
@@ -94,32 +87,3 @@ const StatCard = ({
     </div>
   </motion.div>
 );
-
-const CustomerQueries = () => {
-
-
-  const stats: Omit<StatCardProps, "index">[] = [
-
-
-    {
-      title: "Accident Reports",
-      value: 10,
-      icon: AlertTriangle,
-      loading: false,
-      description: "",
-      accent: "#ef4444",
-      action: { label: "View Reports", href: "/admin/accident-reports" },
-    },
-
-  ];
-
-  return (
-    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8'>
-      {stats.map((stat, i) => (
-        <StatCard key={stat.title} {...stat} index={i} />
-      ))}
-    </div>
-  );
-};
-
-export default CustomerQueries;

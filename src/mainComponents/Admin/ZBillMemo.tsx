@@ -59,7 +59,7 @@ const FRONTEND_ITEMS: LineItem[] = [
     scope:
       "RTK Query integration, filter/sort state, comparison slice, image carousel",
     complexity: "Complex",
-    charge: 7700,
+    charge: 5700,
     tag: "fe",
   },
   {
@@ -68,7 +68,7 @@ const FRONTEND_ITEMS: LineItem[] = [
       "CustomerLogin, CustomerSignUp, CustomerCreateProfile, CustomerMainDash, CustomerDashCompo, CustomerDashHeader, InitialDashboard, FirstDash",
     scope: "Firebase OTP flow, Redux persist, token refresh, protected routes",
     complexity: "Complex",
-    charge: 8400,
+    charge: 7400,
     tag: "fe",
   },
   {
@@ -184,10 +184,10 @@ const BACKEND_ITEMS: LineItem[] = [
 ];
 
 const TOTALS: TotalRow[] = [
-  { label: "Frontend Subtotal", value: "₹48,300" },
+  { label: "Frontend Subtotal", value: "₹45,300" },
   { label: "Backend Subtotal", value: "₹40,300" },
-  { label: "Gross Total", value: "₹88,600" },
-  { label: "Grand Total", value: "₹88,600", variant: "grand" },
+  { label: "Gross Total", value: "₹85,600" },
+  { label: "Grand Total", value: "₹85,600", variant: "grand" },
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -358,20 +358,6 @@ const formatBillForCopy = () => {
 
 const NOTE_BOXES: NoteBox[] = [
   {
-    title: "Payment Terms",
-    highlight: true,
-    content: (
-      <p className='text-sm text-gray-600 leading-relaxed'>
-        50% advance (₹44,300) before development start.
-        <br />
-        50% balance (₹44,300) on final delivery.
-        <br />
-        Payment via NEFT/UPI.
-      </p>
-    ),
-  },
-
-  {
     title: "What's Included",
     content: (
       <ul className='text-sm text-gray-600 list-disc pl-4 leading-loose'>
@@ -381,6 +367,7 @@ const NOTE_BOXES: NoteBox[] = [
         <li>Cloudinary image management</li>
         <li>Redux Toolkit Query API layer</li>
         <li>30-day post-delivery bug support</li>
+        <li>Domain Name and Frontend Hosting Fee</li>
       </ul>
     ),
   },
@@ -388,21 +375,11 @@ const NOTE_BOXES: NoteBox[] = [
     title: "Not Included",
     content: (
       <ul className='text-sm text-gray-600 list-disc pl-4 leading-loose'>
-        <li>Domain / hosting subscription fees</li>
-        <li>Firebase / Cloudinary plan costs</li>
+        <li>Backend hosting subscription fees</li>
+        <li>Firebase OTP Service / Cloudinary plan costs</li>
         <li>Future feature additions post-delivery</li>
         <li>Third-party API licensing fees</li>
         <li>Content creation / data entry</li>
-      </ul>
-    ),
-  },
-  {
-    title: "Additional Services you may apply",
-    content: (
-      <ul className='text-sm text-gray-600 list-disc pl-4 leading-loose'>
-        <li>Ecommerce system for Bike Parts</li>
-        <li>Payment Integration and Delivery Integration</li>
-        <li>Cibil Score checker for loan applications</li>
       </ul>
     ),
   },
@@ -471,12 +448,12 @@ const BillMemo: React.FC = () => {
                 className='text-white font-light'
                 style={{
                   fontFamily: "Georgia, serif",
-                  fontSize: "clamp(24px, 5vw, 38px)",
+                  fontSize: "clamp(18px, 5vw, 24px)",
                   letterSpacing: "-0.01em",
                   lineHeight: 1,
                 }}
               >
-                Bill Memo
+                Cost Breakdown
               </div>
             </div>
           </div>
@@ -486,15 +463,10 @@ const BillMemo: React.FC = () => {
             className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6 lg:gap-10 mt-6 sm:mt-7 pt-4 sm:pt-6 relative z-10'
             style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
           >
-            <MetaItem label='Issue Date' value='23 March 2026' />
-            <MetaItem label='Due Date' value='12 April 2026' />
+            <MetaItem label='Issue Date' value='05 May 2026' />
+            <MetaItem label='Due Date' value='07 May 2026' />
             <MetaItem label='Project' value='TsangPool Honda DMS' />
             <MetaItem label='Currency' value='INR (₹)' />
-            <MetaItem
-              label='Status'
-              value='PENDING'
-              valueClass='text-red-500'
-            />
           </div>
         </div>
 
@@ -539,13 +511,7 @@ const BillMemo: React.FC = () => {
               Tsangpool Honda
             </h3>
             <p className='text-sm text-gray-600 leading-7'>
-              Bengenakhowa GF Rd
-              <br />
-              Golaghat, Assam 785621
-              <br />
-              info@tsangpoolhonda.com
-              <br />
-              Honda Authorized Dealership
+              Bengenakhowa, Golaghat, Assam
             </p>
           </div>
         </div>
@@ -562,49 +528,81 @@ const BillMemo: React.FC = () => {
           />
         </div>
 
-        {/* ── Totals ── */}
-        <div className='flex justify-end px-12 pb-8'>
-          <div className='w-80 mt-2'>
-            {TOTALS.map((row) =>
-              row.variant === "grand" ? (
-                <div
-                  key={row.label}
-                  className='flex justify-between items-center bg-gray-900 text-white px-4 py-3.5 mt-2'
-                >
-                  <span
-                    className='font-black uppercase tracking-wide'
-                    style={{ fontSize: 11 }}
+        {/* ── Bank Details & Totals Grid ── */}
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-8 px-12 pb-8'>
+          {/* Bank Details Column */}
+
+          <div>
+            <div className='text-sm font-semibold mb-3 uppercase tracking-wide text-gray-800'>
+              Bank Details
+            </div>
+            <div className='space-y-1.5 text-sm text-gray-700 leading-relaxed'>
+              <p>
+                <span className='font-medium text-gray-900'>A/C Name:</span>{" "}
+                Himanku Borah
+              </p>
+              <p>
+                <span className='font-medium text-gray-900'>A/C No:</span> 2039
+                1331 265
+              </p>
+              <p>
+                <span className='font-medium text-gray-900'>IFSC Code:</span>{" "}
+                SBIN0005377
+              </p>
+              <p>
+                <span className='font-medium text-gray-900'>Branch:</span>{" "}
+                Numaligarh Refinery Complex,
+                <br />
+                State Bank of India
+              </p>
+            </div>
+          </div>
+
+          {/* Totals Column */}
+          <div className='flex justify-end'>
+            <div className='w-80 mt-2'>
+              {TOTALS.map((row) =>
+                row.variant === "grand" ? (
+                  <div
+                    key={row.label}
+                    className='flex justify-between items-center bg-gray-900 text-white px-4 py-3.5 mt-2'
                   >
-                    {row.label}
-                  </span>
-                  <span
-                    className='text-red-500 font-bold'
-                    style={{
-                      fontFamily: "monospace",
-                      fontSize: 20,
-                      letterSpacing: "-0.02em",
-                    }}
+                    <span
+                      className='font-black uppercase tracking-wide'
+                      style={{ fontSize: 11 }}
+                    >
+                      {row.label}
+                    </span>
+                    <span
+                      className='text-red-500 font-bold'
+                      style={{
+                        fontFamily: "monospace",
+                        fontSize: 20,
+                        letterSpacing: "-0.02em",
+                      }}
+                    >
+                      {row.value}
+                    </span>
+                  </div>
+                ) : (
+                  <div
+                    key={row.label}
+                    className='flex justify-between items-center py-2 border-b border-gray-100 text-sm'
                   >
-                    {row.value}
-                  </span>
-                </div>
-              ) : (
-                <div
-                  key={row.label}
-                  className='flex justify-between items-center py-2 border-b border-gray-100 text-sm'
-                >
-                  <span className='text-gray-600'>{row.label}</span>
-                  <span
-                    className={`font-medium ${row.variant === "discount" ? "text-green-700" : "text-gray-800"}`}
-                    style={{ fontFamily: "monospace" }}
-                  >
-                    {row.value}
-                  </span>
-                </div>
-              ),
-            )}
+                    <span className='text-gray-600'>{row.label}</span>
+                    <span
+                      className={`font-medium ${row.variant === "discount" ? "text-green-700" : "text-gray-800"}`}
+                      style={{ fontFamily: "monospace" }}
+                    >
+                      {row.value}
+                    </span>
+                  </div>
+                ),
+              )}
+            </div>
           </div>
         </div>
+
         <div className='bg-gray-100 px-3 sm:px-4 py-3 flex justify-center border-b'>
           <button
             onClick={handleCopyBill}

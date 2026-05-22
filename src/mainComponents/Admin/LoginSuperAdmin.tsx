@@ -23,9 +23,10 @@ import { motion } from "framer-motion";
 
 // Redux
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
-import { useLoginAdminMutation } from "../../redux-store/services/adminApi";
+
 import { selectAuth } from "../../redux-store/slices/authSlice";
 import { addNotification } from "../../redux-store/slices/uiSlice";
+import { useLoginSuperAdminMutation } from "@/redux-store/services/adminApi";
 
 const LoginSuperAdmin = () => {
   const [email, setEmail] = useState("");
@@ -39,7 +40,7 @@ const LoginSuperAdmin = () => {
   const { isAuthenticated, error } = useAppSelector(selectAuth);
 
   // Use the RTK Query mutation hook
-  const [loginAdmin, { isLoading }] = useLoginAdminMutation();
+  const [loginAdmin, { isLoading }] = useLoginSuperAdminMutation();
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -91,7 +92,7 @@ const LoginSuperAdmin = () => {
           addNotification({
             type: "success",
             message: `Welcome back, ${result.data.name}!`,
-          }),
+          })
         );
 
         // Store remember me preference
@@ -113,7 +114,7 @@ const LoginSuperAdmin = () => {
         addNotification({
           type: "error",
           message: errorMsg,
-        }),
+        })
       );
     }
   };
@@ -290,24 +291,38 @@ const LoginSuperAdmin = () => {
                 )}
               </Button>
             </form>
+            <br />
+            <div className='flex flex-col gap-3 '>
+              <Link
+                to='/manager-login'
+                className='flex items-center gap-2 text-gray-800 underline  transition-colors'
+              >
+                <ArrowLeft className='w-4 h-4' />
+                Sign in as Branch Admin
+              </Link>
+              <Link
+                to='/service-admin/login'
+                className='flex items-center gap-2 text-gray-800 underline  transition-colors'
+              >
+                <ArrowLeft className='w-4 h-4' />
+                Sign in as Service Admin
+              </Link>
 
-            <div className='mt-8 pt-6 border-t border-gray-200'>
-              <div className='text-center space-y-4'>
-                <Link
-                  to='/manager-login'
-                  className='inline-flex items-center text-sm font-medium text-gray-600 hover:text-red-600 transition-colors'
-                >
-                  Sign in as Branch Admin instead
-                </Link>
+              <Link
+                to='/staff/login'
+                className='flex items-center gap-2 text-gray-800 underline transition-colors'
+              >
+                <ArrowLeft className='w-4 h-4' />
+                Sign in as Staff Account
+              </Link>
 
-                <Link
-                  to='/'
-                  className='inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors'
-                >
-                  <ArrowLeft className='mr-1 h-4 w-4' />
-                  Back to Homepage
-                </Link>
-              </div>
+              <Link
+                to='/'
+                className='flex items-center gap-2 text-gray-800 underline  transition-colors'
+              >
+                <ArrowLeft className='w-4 h-4' />
+                Go to HomePage
+              </Link>
             </div>
 
             {/* Development Helper */}

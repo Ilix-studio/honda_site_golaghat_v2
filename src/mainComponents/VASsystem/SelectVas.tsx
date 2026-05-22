@@ -14,7 +14,7 @@ const SelectVas = () => {
       title: "Add VAS",
       description: "Add Value Added Service Info",
       icon: FileSpreadsheet,
-      route: "/admin/forms/vas",
+      route: "/manager/forms/vas",
       buttonText: "Add",
     },
     {
@@ -22,7 +22,7 @@ const SelectVas = () => {
       title: "View VAS",
       description: "Manage VAS from here",
       icon: Database,
-      route: "/admin/view/vas",
+      route: "/manager/view/vas",
       buttonText: "View VAS",
     },
   ];

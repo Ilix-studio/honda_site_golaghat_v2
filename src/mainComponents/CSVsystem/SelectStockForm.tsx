@@ -4,35 +4,36 @@ import { useNavigate } from "react-router-dom";
 import { FileSpreadsheet, Database, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
+import { useSelector } from "react-redux";
+import { selectAuth } from "../../redux-store/slices/authSlice";
 const SelectStockForm = () => {
   const navigate = useNavigate();
+  const { user } = useSelector(selectAuth);
+  const base = user?.role === "Branch-Admin" ? "/manager" : "/admin";
 
   const stockOptions = [
     {
       id: "csv",
       title: "CSV Stock Import",
-      description:
-        "Import stock data from CSV files. Best for bulk uploads from dealer management systems or spreadsheets.",
+      description: "Import stock data from CSV files. Best for bulk uploads from dealer management systems or spreadsheets.",
       icon: FileSpreadsheet,
-      route: "/admin/forms/stock-concept-csv",
+      route: `${base}/forms/stock-concept-csv`,
       buttonText: "Upload CSV",
     },
     {
       id: "manual",
       title: "Manual Stock Entry",
-      description:
-        "Add stock items individually with full control over all fields. Best for single entries or corrections.",
+      description: "Add stock items individually with full control over all fields. Best for single entries or corrections.",
       icon: Database,
-      route: "/admin/forms/stock-concept",
+      route: `${base}/forms/stock-concept`,
       buttonText: "Add Manually",
     },
     {
       id: "view_all",
       title: "View Stock Data",
-      description: "View All Manual Stock Entry and CSV Stock Import  ",
+      description: "View All Manual Stock Entry and CSV Stock Import",
       icon: Database,
-      route: "/admin/get/all-stock",
+      route: `${base}/get/all-stock`,
       buttonText: "View All Stock Entries",
     },
   ];

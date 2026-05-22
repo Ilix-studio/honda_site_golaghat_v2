@@ -12,9 +12,12 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGetMyVehiclesQuery } from "@/redux-store/services/customer/customerVehicleApi";
+import { useAppSelector } from "@/hooks/redux";
+import { selectIsBranchAdmin } from "@/redux-store/slices/authSlice";
 import { IPopulatedCustomerVehicle } from "@/types/superAd_Cu.types";
 
 // ─── Vehicle Card ─────────────────────────────────────────────────────────────
+
 function VehicleCard({
   vehicle,
   index,
@@ -40,7 +43,6 @@ function VehicleCard({
       onClick={() => navigate(`/customer/vehicle/${vehicle._id}`)}
       className='group relative overflow-hidden bg-white border border-gray-100 rounded-2xl p-4 cursor-pointer hover:border-red-200 hover:shadow-md transition-all duration-200'
     >
-      {/* accent bar */}
       <div className='absolute top-0 left-0 h-0.5 w-0 group-hover:w-full bg-gradient-to-r from-red-500 to-orange-400 transition-all duration-300 rounded-t-2xl' />
 
       <div className='flex items-center gap-3'>
@@ -91,6 +93,7 @@ function VehicleCard({
 }
 
 // ─── Action Card ──────────────────────────────────────────────────────────────
+
 function ActionCard({
   icon: Icon,
   label,
@@ -115,19 +118,16 @@ function ActionCard({
       onClick={() => navigate(to)}
       className='group w-full relative overflow-hidden flex items-center gap-4 bg-white border border-gray-100 rounded-2xl p-5 hover:border-gray-200 hover:shadow-md transition-all duration-200 text-left'
     >
-      {/* hover fill */}
       <div
         className='absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
         style={{ background: `${accent}06` }}
       />
-
       <div
         className='relative w-12 h-12 rounded-xl flex items-center justify-center shrink-0'
         style={{ background: `${accent}15` }}
       >
         <Icon className='w-5 h-5' style={{ color: accent }} />
       </div>
-
       <div className='relative flex-1 min-w-0'>
         <p className='font-bold text-gray-900 text-sm group-hover:text-gray-700 transition-colors'>
           {label}
@@ -136,13 +136,13 @@ function ActionCard({
           {description}
         </p>
       </div>
-
       <ArrowRight className='relative w-4 h-4 text-gray-300 group-hover:text-gray-500 group-hover:translate-x-0.5 transition-all shrink-0' />
     </motion.button>
   );
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
+
 const VehicleSkeleton = () => (
   <div className='space-y-3'>
     {[1, 2, 3].map((i) => (
@@ -166,25 +166,34 @@ const VehicleSkeleton = () => (
   </div>
 );
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-const ACTION_CARDS = [
-  {
-    icon: UserPlus,
-    label: "Initialize with New Vehicle",
-    description: "Update customer details with a newly assigned vehicle",
-    to: "/customer/initialize",
-    accent: "#3b82f6",
-  },
-  {
-    icon: Tag,
-    label: "Attach Safety Stickers",
-    description: "Assign Scanfleet safety stickers to a vehicle",
-    to: "/customer/attach-stickers",
-    accent: "#8b5cf6",
-  },
-] as const;
+// ─── Action card config ───────────────────────────────────────────────────────
+
+const getActionCards = (isBranchAdmin: boolean) =>
+  [
+    {
+      icon: UserPlus,
+      label: isBranchAdmin
+        ? "Initialize Customer Vehicle"
+        : "Initialize with New Vehicle",
+      description: isBranchAdmin
+        ? "Set up customer details and assign a vehicle"
+        : "Update customer details with a newly assigned vehicle",
+      to: "/customer/initialize",
+      accent: "#3b82f6",
+    },
+    {
+      icon: Tag,
+      label: "Attach Safety Stickers",
+      description: isBranchAdmin
+        ? "Assign Scanfleet safety stickers to the customer's vehicle"
+        : "Assign Scanfleet safety stickers to a vehicle",
+      to: "/customer/attach-stickers",
+      accent: "#8b5cf6",
+    },
+  ] as const;
 
 // ─── Tab Button ───────────────────────────────────────────────────────────────
+
 function TabBtn({
   active,
   onClick,
@@ -213,10 +222,12 @@ function TabBtn({
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
+
 type Tab = "vehicles" | "actions";
 
 export default function FirstDash() {
   const [activeTab, setActiveTab] = useState<Tab>("vehicles");
+  const isBranchAdmin = useAppSelector(selectIsBranchAdmin);
   const { data, isFetching, isError } = useGetMyVehiclesQuery();
 
   const vehicles = data?.data ?? [];
@@ -224,9 +235,23 @@ export default function FirstDash() {
   const noVehicles = !isFetching && vehicles.length === 0;
   const effectiveTab: Tab = noVehicles ? "actions" : activeTab;
 
+  const actionCards = getActionCards(!!isBranchAdmin);
+
   return (
     <div className='min-h-screen bg-gray-50'>
       <div className='px-4 sm:px-6 py-6 max-w-4xl mx-auto space-y-5'>
+        {/* Branch-Admin context banner */}
+        {isBranchAdmin && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className='flex items-center gap-2.5 bg-blue-50 border border-blue-200 rounded-2xl p-3.5 text-sm text-blue-700'
+          >
+            <Shield className='w-4 h-4 shrink-0' />
+            You are managing this customer's account as Branch Admin.
+          </motion.div>
+        )}
+
         {/* Alerts */}
         <AnimatePresence>
           {isError && (
@@ -248,14 +273,15 @@ export default function FirstDash() {
               className='flex items-center gap-2.5 bg-amber-50 border border-amber-200 rounded-2xl p-3.5 text-sm text-amber-800'
             >
               <AlertCircle className='w-4 h-4 shrink-0' />
-              No active vehicles found. Use the actions below to get started.
+              {isBranchAdmin
+                ? "No vehicles found for this customer. Use the actions below to set up."
+                : "No active vehicles found. Use the actions below to get started."}
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Tab bar */}
         <div className='bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden'>
-          {/* tabs header */}
           <div className='flex border-b border-gray-100 px-2'>
             {hasVehicles && (
               <TabBtn
@@ -276,7 +302,6 @@ export default function FirstDash() {
             </TabBtn>
           </div>
 
-          {/* tab content */}
           <div className='p-4'>
             <AnimatePresence mode='wait'>
               {effectiveTab === "vehicles" && (
@@ -288,7 +313,6 @@ export default function FirstDash() {
                   transition={{ duration: 0.2 }}
                   className='grid grid-cols-1 md:grid-cols-2 gap-4'
                 >
-                  {/* vehicle list */}
                   <div className='space-y-3'>
                     {isFetching && <VehicleSkeleton />}
                     {!isFetching &&
@@ -306,10 +330,8 @@ export default function FirstDash() {
                       </div>
                     )}
                   </div>
-
-                  {/* action cards alongside */}
                   <div className='flex flex-col gap-3'>
-                    {ACTION_CARDS.map((card, i) => (
+                    {actionCards.map((card, i) => (
                       <ActionCard key={card.to} {...card} index={i} />
                     ))}
                   </div>
@@ -325,7 +347,7 @@ export default function FirstDash() {
                   transition={{ duration: 0.2 }}
                   className='grid grid-cols-1 md:grid-cols-2 gap-3'
                 >
-                  {ACTION_CARDS.map((card, i) => (
+                  {actionCards.map((card, i) => (
                     <ActionCard key={card.to} {...card} index={i} />
                   ))}
                 </motion.div>
@@ -333,6 +355,9 @@ export default function FirstDash() {
             </AnimatePresence>
           </div>
         </div>
+        <p className='text-xs text-gray-500 underline'>
+          Never forgot to logout
+        </p>
       </div>
     </div>
   );

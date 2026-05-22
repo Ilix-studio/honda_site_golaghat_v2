@@ -16,42 +16,29 @@ import {
   Building2,
   Cog,
   User,
-  Settings2,
-  TrendingUp,
   Activity,
+  Wrench,
 } from "lucide-react";
 import { useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
-import { useGetAllStaffQuery } from "../../redux-store/services/adminApi";
-import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
-import { useGetAllCustomersQuery } from "@/redux-store/services/customer/customerApi";
-import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
-import { useGetAllStockItemsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
-import CustomerQueries from "./Tabs/CustomerQuery";
 
-const BranchManagerDashboard = () => {
+import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
+
+import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
+import OpenJobCards from "./OpenJobCards";
+
+const DashServiceAdmins = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAppSelector(selectAuth);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // RTK Query hooks — skip until authenticated to avoid 401s
-  const { data: customersData, isLoading: customersLoading } =
-    useGetAllCustomersQuery({ page: 1, limit: 1 }, { skip: !isAuthenticated });
-
-  const { data: staffData, isLoading: staffLoading } = useGetAllStaffQuery(
-    undefined,
-    { skip: !isAuthenticated },
-  );
-
-  const { data: vasData, isLoading: vasLoading } = useGetAllVASQuery(
-    { page: 1, limit: 1 },
-    { skip: !isAuthenticated },
-  );
-
-  const { data: stockData, isLoading: stockLoading } = useGetAllStockItemsQuery(
-    { page: 1, limit: 1 },
-    { skip: !isAuthenticated },
-  );
+  const { data: serviceBookingData, isLoading: serviceBookingLoading } =
+    useGetAllBookingsQuery({ page: 1, limit: 1 }, { skip: !isAuthenticated });
+  const { data: bookingsData } = useGetAllBookingsQuery({
+    page: 1,
+    limit: 1,
+  });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -60,7 +47,7 @@ const BranchManagerDashboard = () => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate("/manager-login");
+      navigate("/service-admin/login");
     }
   }, [isAuthenticated, navigate]);
 
@@ -81,63 +68,38 @@ const BranchManagerDashboard = () => {
   // Stat cards built from live query data
   const operationsStats: Omit<StatCardProps, "index">[] = [
     {
-      title: "Customers",
-      value: customersData?.pagination?.total ?? 0,
-      icon: User,
-      loading: customersLoading,
+      title: "Service Booking Requests",
+      value: bookingsData?.total ?? "—",
+      icon: Wrench,
+      loading: serviceBookingLoading,
       description: "Total registered",
-      accent: "#f97316",
-      action: { label: "Open Sign-up form", href: "/manager/customers/signup" },
-    },
-    {
-      title: "Create Staff Memebers",
-      value: staffData?.count ?? 0,
-      icon: Settings2,
-      loading: staffLoading,
-      description: "Active other staff",
-      accent: "#427AB5",
+      accent: "#3b82f6",
       action: {
-        label: "Add Other Staff",
-        href: "/manager/staff",
+        label: "Open Service Booking form",
+        href: "/service-admin/service-bookings",
       },
     },
     {
-      title: "Value-Added Services",
-      value: vasData?.total ?? "—",
-      icon: TrendingUp,
-      loading: vasLoading,
-      description: "Activate VAS on vehicles",
-      accent: "#10b981",
-      action: { label: "Open VAS Manager", href: "/manager/vas/select" },
-    },
-    {
-      title: "Stock Queries",
-      value: stockData?.total ?? 0,
-      icon: Activity,
-      loading: stockLoading,
-      description: "Vehicles in branch",
-      accent: "#f59e0b",
-      action: { label: "Open Stock Manager", href: "/manager/stockC/select" },
-    },
-    {
-      title: "Vehicles Request",
-      //Add Badge
-      value: stockData?.total ?? 0,
-      icon: Activity,
-      loading: stockLoading,
-      description: "Vehicles in branch",
-      accent: "#f59e0b",
-      action: { label: "Open", href: "/manager/stockC/select" },
+      title: "Job Card Stuff",
+      value: serviceBookingData?.total ?? 0,
+      icon: User,
+      loading: serviceBookingLoading,
+      description: "Total registered",
+      accent: "#f97316",
+      action: {
+        label: "Open Job Card form",
+        href: "/service-admin/job-card",
+      },
     },
     {
       title: "Apply Leave",
       //Add Badge
-
+      value: 0,
       icon: Activity,
       loading: false,
       description: "Leave Application",
       accent: "#f59e0b",
-      action: { label: "Open", href: "/manager/apply-leave" },
+      action: { label: "Open", href: "/service-admin/apply-leave" },
     },
   ];
 
@@ -180,7 +142,7 @@ const BranchManagerDashboard = () => {
               <div className='flex items-center gap-2 mb-3'>
                 <div className='h-1 w-8 bg-red-500 rounded-full' />
                 <span className='text-red-400 text-xs font-semibold tracking-[0.2em] uppercase'>
-                  Branch Admin Panel
+                  Service Admin Panel
                 </span>
               </div>
               <h1 className='text-3xl md:text-4xl font-bold text-white tracking-tight'>
@@ -190,8 +152,8 @@ const BranchManagerDashboard = () => {
                 </span>
               </h1>
               <p className='text-gray-400 mt-2 text-sm md:text-base max-w-lg'>
-                Manage your branch operations, track service bookings, and
-                monitor customer engagement.
+                Manage your service operations, track service bookings, and open
+                job cards for customers.
               </p>
             </div>
 
@@ -256,10 +218,10 @@ const BranchManagerDashboard = () => {
                   </div>
                   <div>
                     <CardTitle className='text-lg font-semibold text-gray-900'>
-                      Branch Operations
+                      Service Operations
                     </CardTitle>
                     <CardDescription className='text-gray-500 mt-0.5'>
-                      Customers, staff, stock, and VAS overview
+                      Service booking requests and Job Card Stuff overview
                     </CardDescription>
                   </div>
                 </div>
@@ -270,6 +232,9 @@ const BranchManagerDashboard = () => {
                     <StatCard key={stat.title} {...stat} index={i} />
                   ))}
                 </div>
+              </CardContent>
+              <CardContent className='p-6'>
+                <OpenJobCards />
               </CardContent>
             </Card>
           </TabsContent>
@@ -291,7 +256,7 @@ const BranchManagerDashboard = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CustomerQueries />
+              {/* <CustomerQueries /> */}
             </Card>
           </TabsContent>
         </Tabs>
@@ -300,4 +265,4 @@ const BranchManagerDashboard = () => {
   );
 };
 
-export default BranchManagerDashboard;
+export default DashServiceAdmins;

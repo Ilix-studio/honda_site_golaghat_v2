@@ -30,10 +30,22 @@ const PAGE_TITLES: Record<string, string> = {
   "/admin/bikes/add": "Add Bike | Tsangpool Honda",
   "/admin/branches/add": "Add Branch | Tsangpool Honda",
   "/admin/branches/view": "Branches | Tsangpool Honda",
-  "/admin/forms/vas": "VAS Form | Tsangpool Honda",
-  "/admin/view/vas": "View VAS | Tsangpool Honda",
+
+
   "/admin/forms/stock-concept": "Stock Concept | Tsangpool Honda",
   "/admin/view/stock-concept": "View Stock | Tsangpool Honda",
+
+  // Branch Manager
+  "/manager-login": "Manager Login | Tsangpool Honda",
+  "/manager/dashboard": "Manager Dashboard | Tsangpool Honda",
+  "/manager/forms/vas": "VAS Form | Tsangpool Honda",
+  "/manager/forms/stock-concept": "Stock Concept | Tsangpool Honda",
+  "/manager/forms/stock-concept-csv": "Upload CSV Stock | Tsangpool Honda",
+  "/manager/get/all-stock": "View Stock | Tsangpool Honda",
+  "/manager/get/csv": "CSV Files | Tsangpool Honda",
+  "/manager/vas/select": "VAS Manager | Tsangpool Honda",
+  "/manager/stockC/select": "Stock Manager | Tsangpool Honda",
+  "/manager/view/vas": "View VAS | Tsangpool Honda",
 };
 
 const FALLBACK_TITLE = "Tsangpool Honda";

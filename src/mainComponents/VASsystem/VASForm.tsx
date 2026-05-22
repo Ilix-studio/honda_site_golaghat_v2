@@ -49,8 +49,8 @@ const VASForm: React.FC = () => {
           type === "number"
             ? Number(value)
             : type === "date"
-            ? new Date(value)
-            : value,
+              ? new Date(value)
+              : value,
       }));
     }
   };
@@ -138,7 +138,7 @@ const VASForm: React.FC = () => {
     try {
       await createVAS(formData).unwrap();
       toast.success("VAS created successfully!");
-      navigate("/admin/view/vas");
+      navigate("/manager/view/vas");
     } catch (err: any) {
       toast.error(err?.data?.message || "Failed to create VAS");
     }

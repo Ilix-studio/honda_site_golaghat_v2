@@ -28,7 +28,7 @@ import {
 import {
   branchManagerAuthRoutes,
   branchManagerRoutes,
-} from "./config/MainRouteConfigs/branchManager.routes";
+} from "./config/MainRouteConfigs/branchManager.routes.tsx";
 
 import {
   createImmediateRoute,
@@ -37,10 +37,20 @@ import {
   createCustomerRoute,
   createBranchManagerRoute,
   createAuthRoute,
+  createServiceAdminRoute,
+  createStaffRoute,
 } from "./config/routeHelpers";
 
 import { usePageTitle } from "./hooks/usePageTitle";
 import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
+import {
+  serviceAdminAuthRoutes,
+  serviceAdminRoutes,
+} from "./config/MainRouteConfigs/serviceAdmins.routes";
+import {
+  staffAuthRoutes,
+  staffRoutes,
+} from "./config/MainRouteConfigs/staff.routes";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -139,6 +149,24 @@ const App: React.FC = () => {
         {/* BRANCH MANAGER — protected, manager header */}
         {branchManagerRoutes.map(({ path, component }) =>
           createBranchManagerRoute(path, component),
+        )}
+        {/* SERVICE ADMIN AUTH — login page, no header */}
+        {serviceAdminAuthRoutes.map(({ path, component }) =>
+          createAuthRoute(path, component),
+        )}
+
+        {/* SERVICE ADMIN — protected, service admin header */}
+        {serviceAdminRoutes.map(({ path, component }) =>
+          createServiceAdminRoute(path, component),
+        )}
+        {/* STAFF ADMIN AUTH — login page, no header */}
+        {staffAuthRoutes.map(({ path, component }) =>
+          createAuthRoute(path, component),
+        )}
+
+        {/* STAFF — protected, staff header */}
+        {staffRoutes.map(({ path, component }) =>
+          createStaffRoute(path, component),
         )}
 
         {/* FALLBACK — 404 */}

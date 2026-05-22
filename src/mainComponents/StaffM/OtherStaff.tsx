@@ -1,7 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import {
-  Building,
+  Users,
   UserPlus,
   Search,
   Trash2,
@@ -9,6 +9,7 @@ import {
   Mail,
   Phone,
   MapPin,
+  Briefcase,
 } from "lucide-react";
 
 import {
@@ -31,14 +32,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -48,48 +41,50 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
-import { useAppDispatch } from "../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { addNotification } from "../../redux-store/slices/uiSlice";
+import { selectUserBranch } from "../../redux-store/slices/authSlice";
 import {
-  useGetAllBranchAdminsQuery,
-  useCreateBranchAdminMutation,
-  useDeleteBranchAdminMutation,
+  useCreateStaffMutation,
+  useGetAllStaffQuery,
+  useDeleteStaffMutation,
   type UserListItem,
 } from "../../redux-store/services/adminApi";
-import { useGetBranchesQuery } from "../../redux-store/services/branchApi";
 
 // ─── Form State ──────────────────────────────────────────────────────────────
 
-interface CreateBranchAdminForm {
+interface CreateStaffForm {
   name: string;
   email: string;
   phoneNumber: string;
   address: string;
-  branch: string;
+  position: string;
 }
 
-const INITIAL_FORM: CreateBranchAdminForm = {
+const INITIAL_FORM: CreateStaffForm = {
   name: "",
   email: "",
   phoneNumber: "",
   address: "",
-  branch: "",
+  position: "",
 };
 
 // ─── Credentials shown after creation ────────────────────────────────────────
 
-export interface CreatedCredentials {
+interface CreatedCredentials {
   applicationId: string;
   password: string;
   name: string;
   email: string;
+  position: string;
   branch: string;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-const BranchManager: React.FC = () => {
+const OtherStaff: React.FC = () => {
   const dispatch = useAppDispatch();
+  const userBranch = useAppSelector(selectUserBranch);
 
   // UI state
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -97,42 +92,36 @@ const BranchManager: React.FC = () => {
   const [credentials, setCredentials] = useState<CreatedCredentials | null>(
     null,
   );
-  const [formData, setFormData] = useState<CreateBranchAdminForm>(INITIAL_FORM);
+  const [formData, setFormData] = useState<CreateStaffForm>(INITIAL_FORM);
   const [formErrors, setFormErrors] = useState<
-    Partial<Record<keyof CreateBranchAdminForm, string>>
+    Partial<Record<keyof CreateStaffForm, string>>
   >({});
 
-  // RTK Query
-  const { data: branchAdminsResponse, isLoading: isLoadingList } =
-    useGetAllBranchAdminsQuery();
+  // RTK Query — branch is auto-scoped on the backend for Branch-Admin
+  const { data: staffResponse, isLoading: isLoadingList } =
+    useGetAllStaffQuery();
 
-  const { data: branchesData, isLoading: isLoadingBranches } =
-    useGetBranchesQuery();
-
-  const [createBranchAdmin, { isLoading: isCreating }] =
-    useCreateBranchAdminMutation();
-
-  const [deleteBranchAdmin, { isLoading: isDeleting }] =
-    useDeleteBranchAdminMutation();
+  const [createStaff, { isLoading: isCreating }] = useCreateStaffMutation();
+  const [deleteStaff, { isLoading: isDeleting }] = useDeleteStaffMutation();
 
   // Derived
-  const branchAdmins = branchAdminsResponse?.data ?? [];
-  const branches = branchesData?.data ?? [];
+  const staffList = staffResponse?.data ?? [];
 
-  const filteredAdmins = branchAdmins.filter((admin) => {
+  const filteredStaff = staffList.filter((staff) => {
     const term = searchTerm.toLowerCase();
     return (
-      admin.applicationId.toLowerCase().includes(term) ||
-      admin.email.toLowerCase().includes(term) ||
-      admin.branch?.branchName?.toLowerCase().includes(term)
+      staff.name.toLowerCase().includes(term) ||
+      staff.applicationId.toLowerCase().includes(term) ||
+      staff.email.toLowerCase().includes(term) ||
+      staff.position?.toLowerCase().includes(term) ||
+      staff.branch?.branchName?.toLowerCase().includes(term)
     );
   });
 
   // ─── Form helpers ──────────────────────────────────────────────────────
 
-  const updateField = (field: keyof CreateBranchAdminForm, value: string) => {
+  const updateField = (field: keyof CreateStaffForm, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error on change
     if (formErrors[field]) {
       setFormErrors((prev) => {
         const next = { ...prev };
@@ -143,7 +132,7 @@ const BranchManager: React.FC = () => {
   };
 
   const validateForm = (): boolean => {
-    const errors: Partial<Record<keyof CreateBranchAdminForm, string>> = {};
+    const errors: Partial<Record<keyof CreateStaffForm, string>> = {};
 
     if (!formData.name.trim()) errors.name = "Name is required";
     if (!formData.email.trim()) {
@@ -159,7 +148,7 @@ const BranchManager: React.FC = () => {
       errors.phoneNumber = "Enter a valid 10-digit phone number";
     }
     if (!formData.address.trim()) errors.address = "Address is required";
-    if (!formData.branch) errors.branch = "Branch is required";
+    if (!formData.position.trim()) errors.position = "Position is required";
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -176,12 +165,12 @@ const BranchManager: React.FC = () => {
     if (!validateForm()) return;
 
     try {
-      const response = await createBranchAdmin({
+      const response = await createStaff({
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         phoneNumber: formData.phoneNumber.trim(),
         address: formData.address.trim(),
-        branch: formData.branch,
+        position: formData.position.trim(),
       }).unwrap();
 
       setCredentials({
@@ -189,20 +178,21 @@ const BranchManager: React.FC = () => {
         password: response.data.password,
         name: response.data.name,
         email: response.data.email,
+        position: response.data.position ?? formData.position.trim(),
         branch: response.data.branch,
       });
 
       dispatch(
         addNotification({
           type: "success",
-          message: "Branch Admin created. Credentials sent via email.",
+          message: "Staff member created. Credentials sent via email.",
         }),
       );
 
       resetForm();
       setIsCreateDialogOpen(false);
     } catch (error: any) {
-      const msg = error.data?.message || "Failed to create Branch Admin";
+      const msg = error.data?.message || "Failed to create staff member";
       dispatch(addNotification({ type: "error", message: msg }));
       toast.error(msg);
     }
@@ -210,21 +200,18 @@ const BranchManager: React.FC = () => {
 
   const handleDelete = async (id: string, name: string) => {
     if (
-      !window.confirm(`Delete Branch Admin "${name}"? This cannot be undone.`)
+      !window.confirm(`Delete staff member "${name}"? This cannot be undone.`)
     )
       return;
 
     try {
-      await deleteBranchAdmin(id).unwrap();
+      await deleteStaff(id).unwrap();
       dispatch(
-        addNotification({
-          type: "success",
-          message: "Branch Admin deleted",
-        }),
+        addNotification({ type: "success", message: "Staff member deleted" }),
       );
-      toast.success("Branch Admin deleted");
+      toast.success("Staff member deleted");
     } catch (error: any) {
-      const msg = error.data?.message || "Failed to delete Branch Admin";
+      const msg = error.data?.message || "Failed to delete staff member";
       dispatch(addNotification({ type: "error", message: msg }));
       toast.error(msg);
     }
@@ -245,11 +232,12 @@ const BranchManager: React.FC = () => {
           <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
             <div>
               <CardTitle className='text-2xl flex items-center gap-2'>
-                <Building className='h-6 w-6' />
-                Branch Admin Management
+                <Users className='h-6 w-6' />
+                Staff Management
               </CardTitle>
               <CardDescription>
-                Create and manage Branch Admin accounts across branches
+                Create and manage staff members for{" "}
+                {userBranch?.branchName ?? "your branch"}
               </CardDescription>
             </div>
 
@@ -263,26 +251,30 @@ const BranchManager: React.FC = () => {
               <DialogTrigger asChild>
                 <Button className='gap-1'>
                   <UserPlus className='h-4 w-4' />
-                  New Branch Admin
+                  Add Staff
                 </Button>
               </DialogTrigger>
 
               <DialogContent className='sm:max-w-[500px]'>
                 <DialogHeader>
-                  <DialogTitle>Create Branch Admin</DialogTitle>
+                  <DialogTitle>Add Staff Member</DialogTitle>
                   <DialogDescription>
-                    Fill in the details. An Application ID and password will be
-                    generated and sent to the provided email.
+                    Staff will be assigned to{" "}
+                    <span className='font-medium'>
+                      {userBranch?.branchName ?? "your branch"}
+                    </span>
+                    . An Application ID and password will be generated and sent
+                    to their email.
                   </DialogDescription>
                 </DialogHeader>
 
                 <div className='space-y-4 py-4'>
                   {/* Name */}
                   <div className='space-y-1.5'>
-                    <Label htmlFor='ba-name'>Full Name</Label>
+                    <Label htmlFor='st-name'>Full Name</Label>
                     <Input
-                      id='ba-name'
-                      placeholder='e.g. Ilix ..'
+                      id='st-name'
+                      placeholder='e.g. Ilix'
                       value={formData.name}
                       onChange={(e) => updateField("name", e.target.value)}
                     />
@@ -295,9 +287,9 @@ const BranchManager: React.FC = () => {
 
                   {/* Email */}
                   <div className='space-y-1.5'>
-                    <Label htmlFor='ba-email'>Email</Label>
+                    <Label htmlFor='st-email'>Email</Label>
                     <Input
-                      id='ba-email'
+                      id='st-email'
                       type='email'
                       placeholder='e.g. ilix@example.com'
                       value={formData.email}
@@ -312,9 +304,9 @@ const BranchManager: React.FC = () => {
 
                   {/* Phone */}
                   <div className='space-y-1.5'>
-                    <Label htmlFor='ba-phone'>Phone Number</Label>
+                    <Label htmlFor='st-phone'>Phone Number</Label>
                     <Input
-                      id='ba-phone'
+                      id='st-phone'
                       type='tel'
                       placeholder='e.g. 9876543210'
                       maxLength={10}
@@ -333,55 +325,34 @@ const BranchManager: React.FC = () => {
                     )}
                   </div>
 
+                  {/* Position */}
+                  <div className='space-y-1.5'>
+                    <Label htmlFor='st-position'>Position</Label>
+                    <Input
+                      id='st-position'
+                      placeholder='e.g. Sales Executive, Service Technician'
+                      value={formData.position}
+                      onChange={(e) => updateField("position", e.target.value)}
+                    />
+                    {formErrors.position && (
+                      <p className='text-sm text-destructive'>
+                        {formErrors.position}
+                      </p>
+                    )}
+                  </div>
+
                   {/* Address */}
                   <div className='space-y-1.5'>
-                    <Label htmlFor='ba-address'>Address</Label>
+                    <Label htmlFor='st-address'>Address</Label>
                     <Input
-                      id='ba-address'
-                      placeholder='e.g. Station Road, Golaghat'
+                      id='st-address'
+                      placeholder='e.g. Ward No. 5, Golaghat'
                       value={formData.address}
                       onChange={(e) => updateField("address", e.target.value)}
                     />
                     {formErrors.address && (
                       <p className='text-sm text-destructive'>
                         {formErrors.address}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Branch Select */}
-                  <div className='space-y-1.5'>
-                    <Label>Assign Branch</Label>
-                    <Select
-                      value={formData.branch}
-                      onValueChange={(val) => updateField("branch", val)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select a branch' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {isLoadingBranches ? (
-                            <SelectItem value='loading' disabled>
-                              Loading branches...
-                            </SelectItem>
-                          ) : branches.length === 0 ? (
-                            <SelectItem value='none' disabled>
-                              No branches available
-                            </SelectItem>
-                          ) : (
-                            branches.map((branch) => (
-                              <SelectItem key={branch._id} value={branch._id}>
-                                {branch.branchName}
-                              </SelectItem>
-                            ))
-                          )}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    {formErrors.branch && (
-                      <p className='text-sm text-destructive'>
-                        {formErrors.branch}
                       </p>
                     )}
                   </div>
@@ -396,7 +367,7 @@ const BranchManager: React.FC = () => {
                     Cancel
                   </Button>
                   <Button onClick={handleCreate} disabled={isCreating}>
-                    {isCreating ? "Creating..." : "Create Branch Admin"}
+                    {isCreating ? "Creating..." : "Add Staff"}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -411,7 +382,7 @@ const BranchManager: React.FC = () => {
               <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
               <Input
                 type='search'
-                placeholder='Search by name, application ID, email, or branch...'
+                placeholder='Search by name, application ID, email, or position...'
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className='pl-8'
@@ -421,13 +392,13 @@ const BranchManager: React.FC = () => {
             {/* Table */}
             {isLoadingList ? (
               <div className='text-center py-8 text-muted-foreground'>
-                Loading branch admins...
+                Loading staff members...
               </div>
-            ) : filteredAdmins.length === 0 ? (
+            ) : filteredStaff.length === 0 ? (
               <div className='text-center py-8 text-muted-foreground'>
                 {searchTerm
-                  ? "No branch admins match your search"
-                  : "No branch admins yet. Create one to get started."}
+                  ? "No staff members match your search"
+                  : "No staff members yet. Add one to get started."}
               </div>
             ) : (
               <div className='rounded-md border overflow-x-auto'>
@@ -435,6 +406,7 @@ const BranchManager: React.FC = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
+                      <TableHead>Position</TableHead>
                       <TableHead>Application ID</TableHead>
                       <TableHead className='hidden md:table-cell'>
                         Email
@@ -442,7 +414,9 @@ const BranchManager: React.FC = () => {
                       <TableHead className='hidden lg:table-cell'>
                         Phone
                       </TableHead>
-                      <TableHead>Branch</TableHead>
+                      <TableHead className='hidden sm:table-cell'>
+                        Branch
+                      </TableHead>
                       <TableHead className='hidden sm:table-cell'>
                         Status
                       </TableHead>
@@ -453,47 +427,53 @@ const BranchManager: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredAdmins.map((admin: UserListItem) => (
-                      <TableRow key={admin._id}>
+                    {filteredStaff.map((staff: UserListItem) => (
+                      <TableRow key={staff._id}>
                         <TableCell className='font-medium'>
-                          {admin.name}
+                          {staff.name}
+                        </TableCell>
+                        <TableCell>
+                          <span className='flex items-center gap-1 text-sm'>
+                            <Briefcase className='h-3.5 w-3.5 text-muted-foreground' />
+                            {staff.position ?? "—"}
+                          </span>
                         </TableCell>
                         <TableCell className='font-mono text-sm'>
-                          {admin.applicationId}
+                          {staff.applicationId}
                         </TableCell>
                         <TableCell className='hidden md:table-cell'>
                           <span className='flex items-center gap-1 text-sm'>
                             <Mail className='h-3.5 w-3.5 text-muted-foreground' />
-                            {admin.email}
+                            {staff.email}
                           </span>
                         </TableCell>
                         <TableCell className='hidden lg:table-cell'>
                           <span className='flex items-center gap-1 text-sm'>
                             <Phone className='h-3.5 w-3.5 text-muted-foreground' />
-                            {admin.phoneNumber}
+                            {staff.phoneNumber}
                           </span>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className='hidden sm:table-cell'>
                           <span className='flex items-center gap-1 text-sm'>
                             <MapPin className='h-3.5 w-3.5 text-muted-foreground' />
-                            {admin.branch?.branchName ?? "—"}
+                            {staff.branch?.branchName ?? "—"}
                           </span>
                         </TableCell>
                         <TableCell className='hidden sm:table-cell'>
                           <Badge
-                            variant={admin.isActive ? "default" : "secondary"}
+                            variant={staff.isActive ? "default" : "secondary"}
                           >
-                            {admin.isActive ? "Active" : "Inactive"}
+                            {staff.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>
                         <TableCell className='hidden md:table-cell text-sm text-muted-foreground'>
-                          {new Date(admin.createdAt).toLocaleDateString()}
+                          {new Date(staff.createdAt).toLocaleDateString()}
                         </TableCell>
                         <TableCell className='text-right'>
                           <Button
                             variant='ghost'
                             size='icon'
-                            onClick={() => handleDelete(admin._id, admin.name)}
+                            onClick={() => handleDelete(staff._id, staff.name)}
                             disabled={isDeleting}
                             title='Delete'
                           >
@@ -510,7 +490,7 @@ const BranchManager: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* ── Credentials Modal (shown after successful creation) ──────── */}
+      {/* ── Credentials Modal ─────────────────────────────────────────── */}
       <Dialog
         open={credentials !== null}
         onOpenChange={(open) => {
@@ -519,7 +499,7 @@ const BranchManager: React.FC = () => {
       >
         <DialogContent className='sm:max-w-[480px]'>
           <DialogHeader>
-            <DialogTitle>Branch Admin Created</DialogTitle>
+            <DialogTitle>Staff Member Created</DialogTitle>
             <DialogDescription>
               Credentials have been sent to{" "}
               <span className='font-medium'>{credentials?.email}</span>. Save
@@ -528,10 +508,18 @@ const BranchManager: React.FC = () => {
           </DialogHeader>
 
           <div className='space-y-4 py-2'>
-            {/* Name */}
-            <div className='space-y-1.5'>
-              <Label className='text-muted-foreground text-xs'>Name</Label>
-              <p className='font-medium'>{credentials?.name}</p>
+            {/* Name + Position */}
+            <div className='flex gap-6'>
+              <div className='space-y-1.5 flex-1'>
+                <Label className='text-muted-foreground text-xs'>Name</Label>
+                <p className='font-medium'>{credentials?.name}</p>
+              </div>
+              <div className='space-y-1.5 flex-1'>
+                <Label className='text-muted-foreground text-xs'>
+                  Position
+                </Label>
+                <p className='font-medium'>{credentials?.position}</p>
+              </div>
             </div>
 
             {/* Branch */}
@@ -600,4 +588,4 @@ const BranchManager: React.FC = () => {
   );
 };
 
-export default BranchManager;
+export default OtherStaff;
