@@ -33,26 +33,7 @@ const ViewScootyImages = lazy(
 const BikeImageManager = lazy(
   () => import("@/mainComponents/Admin/AdminDash/BikeImageManager"),
 );
-const VASForm = lazy(() => import("@/mainComponents/VASsystem/VASForm"));
-const StockConceptForm = lazy(
-  () => import("@/mainComponents/CSVsystem/StockConceptForm"),
-);
-const UploadCSVForm = lazy(
-  () => import("@/mainComponents/CSVsystem/UploadCSVForm"),
-);
-const SelectStockForm = lazy(
-  () => import("@/mainComponents/CSVsystem/SelectStockForm"),
-);
-const GetCSVFiles = lazy(
-  () => import("@/mainComponents/CSVsystem/GetCSVFiles"),
-);
-const GetAllStockFiles = lazy(
-  () => import("@/mainComponents/CSVsystem/GetAllStockFiles"),
-);
 
-const AssignStock = lazy(
-  () => import("@/mainComponents/CustomerSystem/ActivateFeature/AssignStock"),
-);
 
 const GetAllAccidentReports = lazy(
   () => import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReports"),
@@ -61,7 +42,6 @@ const GetAllAccidentReportsById = lazy(
   () =>
     import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReportsById"),
 );
-const SelectVas = lazy(() => import("@/mainComponents/VASsystem/SelectVas"));
 
 const ServiceAdmins = lazy(
   () => import("@/mainComponents/ServiceM/ServiceAdmins"),
@@ -90,16 +70,7 @@ export const adminRoutes = [
   { path: "/admin/bikeimages/:bikeId", component: ViewBikeImages },
   { path: "/admin/scootyimages/:bikeId", component: ViewScootyImages },
   { path: "/admin/bikes/add/:id/images", component: BikeImageManager },
-  // Handling Customers
 
-  { path: "/admin/vas/select", component: SelectVas },
-  { path: "/admin/forms/vas", component: VASForm },
-  { path: "/admin/stockC/select", component: SelectStockForm },
-  { path: "/admin/forms/stock-concept", component: StockConceptForm },
-  { path: "/admin/forms/stock-concept-csv", component: UploadCSVForm },
-  { path: "/admin/get/all-stock", component: GetAllStockFiles },
-  { path: "/admin/get/csv", component: GetCSVFiles },
-  { path: "/admin/assign/stock-concept/:id", component: AssignStock },
   // Leave Management
   { path: "/admin/leave-requests", component: TabBased },
 

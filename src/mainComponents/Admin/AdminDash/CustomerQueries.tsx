@@ -2,15 +2,13 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   AlertTriangle,
-  Package,
+
   ArrowUpRight,
   ChevronRight,
-  BanknoteIcon,
-  MessageCircleCode,
+
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useGetAllApplicationsQuery } from "@/redux-store/services/customer/getApprovedApi";
-import { useGetContactMessagesQuery } from "@/redux-store/services/contactApi";
+
 
 interface StatCardProps {
   title: string;
@@ -98,34 +96,11 @@ const StatCard = ({
 );
 
 const CustomerQueries = () => {
-  const { data: financeData, isLoading: financeLoading } =
-    useGetAllApplicationsQuery({
-      page: 1,
-      limit: 1,
-      sortBy: "createdAt",
-      sortOrder: "desc",
-    });
-  const { data: messagesData } = useGetContactMessagesQuery({ limit: 1 });
+
 
   const stats: Omit<StatCardProps, "index">[] = [
-    {
-      title: "Finance Enquiry",
-      value: financeData?.total ?? "—",
-      icon: BanknoteIcon,
-      loading: financeLoading,
-      description: "Total finance applications",
-      accent: "#f97316",
-      action: { label: "View Finance Enquiry", href: "/admin/finanace-query" },
-    },
-    {
-      title: "Message by Users",
-      value: messagesData?.pagination.total ?? 0,
-      icon: MessageCircleCode,
-      loading: false,
-      description: "Pending review",
-      accent: "#ef4444",
-      action: { label: "View Reports", href: "/admin/any-messages" },
-    },
+
+
     {
       title: "Accident Reports",
       value: 10,
@@ -135,15 +110,7 @@ const CustomerQueries = () => {
       accent: "#ef4444",
       action: { label: "View Reports", href: "/admin/accident-reports" },
     },
-    {
-      title: "Parts Ordered",
-      value: 33,
-      icon: Package,
-      loading: false,
-      description: "Orders in pipeline",
-      accent: "#8b5cf6",
-      action: { label: "View Orders", href: "/admin/orders" },
-    },
+
   ];
 
   return (

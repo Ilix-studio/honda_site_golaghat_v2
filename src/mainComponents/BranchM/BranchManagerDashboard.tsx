@@ -117,7 +117,7 @@ const BranchManagerDashboard = () => {
       loading: stockLoading,
       description: "Vehicles in branch",
       accent: "#f59e0b",
-      action: { label: "Open Stock Manager", href: "/manager/stock/select" },
+      action: { label: "Open Stock Manager", href: "/manager/stockC/select" },
     },
     {
       title: "Vehicles Request",
@@ -127,7 +127,7 @@ const BranchManagerDashboard = () => {
       loading: stockLoading,
       description: "Vehicles in branch",
       accent: "#f59e0b",
-      action: { label: "Open", href: "/manager/stock/select" },
+      action: { label: "Open", href: "/manager/stockC/select" },
     },
     {
       title: "Apply Leave",

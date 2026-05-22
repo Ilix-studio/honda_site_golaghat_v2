@@ -35,7 +35,7 @@ const ViewAllBranches = lazy(
   () => import("@/mainComponents/ViewBS2/ViewAllBranches"),
 );
 
-const ViewVAS = lazy(() => import("@/mainComponents/ViewBS2/ViewVAS"));
+
 const ViewStockConcept = lazy(
   () => import("@/mainComponents/ViewBS2/ViewStockConcept"),
 );
@@ -58,7 +58,7 @@ export const publicRoutes = [
   { path: "/dealership-locator", component: DealershipLocator },
   { path: "/dealership-reviews", component: DealershipReviews },
   { path: "/admin/branches/view", component: ViewAllBranches },
-  { path: "/admin/view/vas", component: ViewVAS },
+
   { path: "/view/stock-concept", component: ViewStockConcept },
   {
     path: "/download/safety-feature-stickers",

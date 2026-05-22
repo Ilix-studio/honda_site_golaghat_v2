@@ -17,6 +17,33 @@ const FinanceQueries = lazy(
     import("@/mainComponents/Admin/AdminDash/FinanceEnquiry/FinanceQueries"),
 );
 
+const VASForm = lazy(() => import("@/mainComponents/VASsystem/VASForm"));
+const StockConceptForm = lazy(
+  () => import("@/mainComponents/CSVsystem/StockConceptForm"),
+);
+const UploadCSVForm = lazy(
+  () => import("@/mainComponents/CSVsystem/UploadCSVForm"),
+);
+const SelectStockForm = lazy(
+  () => import("@/mainComponents/CSVsystem/SelectStockForm"),
+);
+const GetCSVFiles = lazy(
+  () => import("@/mainComponents/CSVsystem/GetCSVFiles"),
+);
+const GetAllStockFiles = lazy(
+  () => import("@/mainComponents/CSVsystem/GetAllStockFiles"),
+);
+
+const AssignStock = lazy(
+  () => import("@/mainComponents/CustomerSystem/ActivateFeature/AssignStock"),
+);
+const ViewVAS = lazy(() => import("@/mainComponents/ViewBS2/ViewVAS"));
+
+
+const SelectVas = lazy(() => import("@/mainComponents/VASsystem/SelectVas"));
+
+
+
 const BranchServiceBookings = lazy(
   () => import("@/mainComponents/BranchM/BranchServiceBookings"),
 );
@@ -52,6 +79,16 @@ export const branchManagerAuthRoutes = [
 export const branchManagerRoutes = [
   { path: "/manager/dashboard", component: BranchManagerDashboard },
   { path: "/manager/customers/signup", component: CustomerSignUp },
+  // Handling Customers
+
+  { path: "/manager/vas/select", component: SelectVas },
+  { path: "/manager/forms/vas", component: VASForm },
+  { path: "/manager/stockC/select", component: SelectStockForm },
+  { path: "/manager/forms/stock-concept", component: StockConceptForm },
+  { path: "/manager/forms/stock-concept-csv", component: UploadCSVForm },
+  { path: "/manager/get/all-stock", component: GetAllStockFiles },
+  { path: "/manager/get/csv", component: GetCSVFiles },
+  { path: "/manager/assign/stock-concept/:id", component: AssignStock },
   //
   { path: "/manager/service-bookings", component: BranchServiceBookings },
   { path: "/manager/accident-reports", component: BranchAccidentReports },
@@ -60,6 +97,7 @@ export const branchManagerRoutes = [
   { path: "/manager/applications", component: BranchApplications },
   { path: "/manager/stock", component: BranchStockManagement },
   { path: "/manager/vas", component: BranchVASManagement },
+  { path: "/manager/view/vas", component: ViewVAS },
   { path: "/manager/customer-vehicles", component: BranchCustomerVehicles },
   { path: "/manager/finance-queries", component: BranchFinanceQueries },
   { path: "/manager/any-messages", component: SeeMessages },

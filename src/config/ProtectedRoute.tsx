@@ -62,7 +62,7 @@ const ROLE_LOGIN_PATHS: Record<string, string> = {
   customer: "/customer/login",
   "super-admin-only": "/admin/login",
   "branch-admin": "/manager-login",
-  "service-admin": "/service-login",
+  "service-admin": "/service-admin/login",
   staff: "/staff-login",
   "branch-admin-or-super-admin": "/admin/login",
   "service-admin-or-super-admin": "/admin/login",
@@ -82,7 +82,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   const authState = useSelector((state: RootState) => state.auth);
   const customerAuthState = useSelector(
-    (state: RootState) => state.customerAuth,
+    (state: RootState) => state.customerAuth
   );
 
   const isAuthenticated =

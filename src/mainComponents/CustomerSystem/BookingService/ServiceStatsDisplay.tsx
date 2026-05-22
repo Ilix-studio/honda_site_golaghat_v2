@@ -14,7 +14,9 @@ import {
   CheckCircle,
   AlertCircle,
   RefreshCw,
+  Plus,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface ServiceStatsDisplayProps {}
 
@@ -117,6 +119,21 @@ const ServiceStatsDisplay: React.FC<ServiceStatsDisplayProps> = () => {
             </div>
           ) : (
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+              <Link to='/customer/book-service' className='group'>
+                <Card className='border-dashed border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-200 cursor-pointer'>
+                  <CardContent className='p-6 flex flex-col items-center justify-center text-center min-h-[120px]'>
+                    <div className='w-12 h-12 rounded-full bg-gray-100 group-hover:bg-blue-100 flex items-center justify-center mb-3 transition-colors'>
+                      <Plus className='w-6 h-6 text-gray-500 group-hover:text-blue-600 transition-colors' />
+                    </div>
+                    <CardTitle className='text-sm font-medium text-gray-700 group-hover:text-blue-700 transition-colors'>
+                      Book New Service
+                    </CardTitle>
+                    <p className='text-xs text-gray-500 mt-1 group-hover:text-blue-600 transition-colors'>
+                      Schedule your next service
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
               <Card>
                 <CardHeader className='pb-2'>
                   <CardTitle className='text-sm font-medium text-muted-foreground'>

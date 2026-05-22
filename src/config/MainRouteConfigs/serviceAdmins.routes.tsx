@@ -1,4 +1,3 @@
-import OpenJobCards from "@/mainComponents/ServiceM/OpenJobCards";
 import ApplyLeave from "@/mainComponents/shared/ApplyLeave";
 import { lazy } from "react";
 const ServiceApplyLeave = () => (
@@ -14,7 +13,7 @@ const LoginServiceAdmins = lazy(
 );
 
 const ServiceBookingsManager = lazy(
-  () => import("@/mainComponents/Admin/ServiceBookings/ServiceBookingsManager"),
+  () => import("@/mainComponents/ServiceM/ServiceBookingsManager"),
 );
 
 export const serviceAdminAuthRoutes = [
@@ -23,12 +22,10 @@ export const serviceAdminAuthRoutes = [
 
 export const serviceAdminRoutes = [
   { path: "/service-admin/dashboard", component: DashServiceAdmins },
-  { path: "/service-admin/job-card", component: JobCardForm },
-  //
   { path: "/service-admin/apply-leave", component: ServiceApplyLeave },
   {
     path: "/service-admin/service-bookings",
     component: ServiceBookingsManager,
   },
-  { path: "/service-admin/job-cards", component: OpenJobCards },
+  { path: "/service-admin/job-card", component: JobCardForm },
 ];

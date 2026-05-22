@@ -233,7 +233,7 @@ export const jobCardApi = apiSlice.injectEndpoints({
 });
 
 export const {
-  // Admin mutations
+  // SAdmin mutations
   useCreateJobCardMutation,
   useAddLineItemMutation,
   useRemoveLineItemMutation,
@@ -241,13 +241,10 @@ export const {
   useAcknowledgeReviewMutation,
   useSendFinalBillMutation,
   useCancelJobCardMutation,
-  // Admin queries
+  // SAdmin queries
   useListJobCardsQuery,
-  useLazyListJobCardsQuery,
   useGetJobCardAdminQuery,
-  useLazyGetJobCardAdminQuery,
   useGetInvoiceAdminQuery,
-  useLazyGetInvoiceAdminQuery,
   // Customer mutations
   useCustomerReviewBillMutation,
   useRequestConfirmationOtpMutation,

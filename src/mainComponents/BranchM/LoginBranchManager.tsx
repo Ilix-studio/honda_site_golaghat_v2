@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useLoginBranchAdminMutation } from "@/redux-store/services/adminApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 
 const LoginBranchManager = () => {
   const navigate = useNavigate();
@@ -115,6 +115,31 @@ const LoginBranchManager = () => {
               </form>
             </CardContent>
           </Card>
+          <div className='flex flex-col gap-3'>
+            <Link
+              to='/service-admin/login'
+              className='flex items-center gap-2 text-gray-300 underline hover:text-white transition-colors'
+            >
+              <ArrowLeft className='w-4 h-4' />
+              Sign in as Service Admin
+            </Link>
+
+            <Link
+              to='/staff/login'
+              className='flex items-center gap-2 text-gray-300 underline hover:text-white transition-colors'
+            >
+              <ArrowLeft className='w-4 h-4' />
+              Sign in as Staff Account
+            </Link>
+
+            <Link
+              to='/'
+              className='flex items-center gap-2 text-gray-300 underline hover:text-white transition-colors'
+            >
+              <ArrowLeft className='w-4 h-4' />
+              Go to HomePage
+            </Link>
+          </div>
         </div>
       </section>
     </>

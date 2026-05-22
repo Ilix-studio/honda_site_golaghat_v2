@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useLoginStaffMutation } from "@/redux-store/services/adminApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 
 const LoginStaffs = () => {
   const navigate = useNavigate();
@@ -114,6 +114,21 @@ const LoginStaffs = () => {
               </form>
             </CardContent>
           </Card>
+          <Link to='/manager-login' className='flex text-gray-300 underline'>
+            {" "}
+            <ArrowLeft /> Sign in as Branch Admin
+          </Link>
+          <Link
+            to='/service-admin/login'
+            className='flex text-gray-300 underline'
+          >
+            {" "}
+            <ArrowLeft /> Sign in as Service Admin
+          </Link>
+          <Link to='/' className='flex text-gray-300 underline'>
+            {" "}
+            <ArrowLeft /> Go to HomePage
+          </Link>
         </div>
       </section>
     </>

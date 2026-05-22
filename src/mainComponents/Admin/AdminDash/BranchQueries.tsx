@@ -9,9 +9,10 @@ import {
   Clock,
   Wrench,
   Settings,
+  PersonStanding,
 } from "lucide-react";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
-import { useGetAllBranchAdminsQuery } from "@/redux-store/services/adminApi";
+import { useGetAllBranchAdminsQuery, useGetAllServiceAdminsQuery, useGetAllStaffQuery } from "@/redux-store/services/adminApi";
 
 import { useGetVisitorStatsQuery } from "@/redux-store/services/visitorApi";
 import RecentMotorcycles from "./RecentMotocycles";
@@ -29,6 +30,11 @@ const BranchQueries = () => {
     useGetBranchesQuery();
   const { data: branchManagersData, isLoading: managersLoading } =
     useGetAllBranchAdminsQuery();
+  const { data: serviceManagersData, isLoading: serviceManagersLoading } =
+    useGetAllServiceAdminsQuery();
+  const { data: staffData, isLoading: staffLoading } =
+    useGetAllStaffQuery();
+
   const { data: visitorStatsData } = useGetVisitorStatsQuery();
 
   const { data: vasData } = useGetAllVASQuery({});
@@ -63,10 +69,22 @@ const BranchQueries = () => {
     },
     {
       title: "Service Admins",
-      value: branchManagersData?.count ?? 0,
+      value: serviceManagersData?.count ?? 0,
       icon: Settings,
-      loading: managersLoading,
+      loading: serviceManagersLoading,
       description: "Active service admins",
+      accent: "#170C79",
+      action: {
+        label: "Add Service Admin",
+        href: "/admin/branches/service-admins",
+      },
+    },
+    {
+      title: "Staff",
+      value: staffData?.count ?? 0,
+      icon: PersonStanding,
+      loading: staffLoading,
+      description: "Active staff",
       accent: "#170C79",
       action: {
         label: "Add Service Admin",
@@ -81,7 +99,7 @@ const BranchQueries = () => {
       loading: false,
       description: "Activate VAS on vehicles",
       accent: "#10b981",
-      action: { label: "Open VAS Manager", href: "/admin/vas/select" },
+      action: { label: "Open VAS Manager", href: "" },
     },
     {
       title: "Stock Queries",
@@ -90,7 +108,7 @@ const BranchQueries = () => {
       loading: false,
       description: "Vehicles in branch",
       accent: "#f59e0b",
-      action: { label: "Open Stock Manager", href: "/admin/stockC/select" },
+      action: { label: "Open Stock Manager", href: "" },
     },
 
     {
@@ -193,8 +211,8 @@ const BranchQueries = () => {
                   width: `${Math.min(
                     ((vs.todayVisitors ?? 0) /
                       Math.max(vs.totalVisitors ?? 1, 1)) *
-                      100 *
-                      10,
+                    100 *
+                    10,
                     100,
                   )}%`,
                 }}
