@@ -41,7 +41,7 @@ const CustomerQueries = () => {
       accent: "#f97316",
       action: {
         label: "View Vehicles Enquiry",
-        href: "/admin/vehicles-enquiry",
+        href: "/manager/vehicles-enquiry",
       },
     },
     {

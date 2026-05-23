@@ -126,6 +126,41 @@ export interface StockConceptFilters {
   category?: "Bike" | "Scooty";
   search?: string;
 }
+export interface AssignedStockFilters {
+  page?: number;
+  limit?: number;
+  branchId?: string;
+  search?: string;
+}
+
+export interface AssignedStockItem extends Omit<IStockConcept, "salesInfo"> {
+  salesInfo: {
+    soldTo: { _id: string; phoneNumber: string };
+    soldDate: Date;
+    salePrice: number;
+    salesPerson?: { _id: string; name: string; applicationId: string };
+    invoiceNumber?: string;
+    paymentStatus?: "Paid" | "Partial" | "Pending";
+    customerVehicleId?: {
+      _id: string;
+      numberPlate?: string;
+      registeredOwnerName?: string;
+      registrationDate?: string;
+      isPaid: boolean;
+      isFinance: boolean;
+      insurance: boolean;
+    };
+  };
+}
+
+export interface AssignedStockListResponse {
+  success: boolean;
+  count: number;
+  total: number;
+  pages: number;
+  currentPage: number;
+  data: AssignedStockItem[];
+}
 
 import { apiSlice } from "../apiSlice";
 import { handleApiError } from "../../../lib/apiConfig";
@@ -192,6 +227,20 @@ export const stockConceptApi = apiSlice.injectEndpoints({
       ],
       transformErrorResponse: (response) => handleApiError(response),
     }),
+    // inside injectEndpoints
+getAssignedStock: builder.query<AssignedStockListResponse, AssignedStockFilters>({
+  query: (filters = {}) => {
+    const params = new URLSearchParams();
+    if (filters.page) params.append("page", filters.page.toString());
+    if (filters.limit) params.append("limit", filters.limit.toString());
+    if (filters.branchId) params.append("branchId", filters.branchId);
+    if (filters.search) params.append("search", filters.search);
+    const qs = params.toString();
+    return `/stock-concept/assigned${qs ? `?${qs}` : ""}`;
+  },
+  providesTags: ["StockConcept"],
+  transformErrorResponse: (response) => handleApiError(response),
+}),
   }),
 });
 
@@ -203,4 +252,6 @@ export const {
   useAssignToCustomerMutation,
   useLazyGetAllStockItemsQuery,
   useLazyGetStockItemByIdQuery,
+   useGetAssignedStockQuery,       // new
+  useLazyGetAssignedStockQuery,   // new
 } = stockConceptApi;

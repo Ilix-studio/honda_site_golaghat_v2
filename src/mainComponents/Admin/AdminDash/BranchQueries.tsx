@@ -87,8 +87,8 @@ const BranchQueries = () => {
       description: "Active staff",
       accent: "#170C79",
       action: {
-        label: "Add Service Admin",
-        href: "/admin/branches/service-admins",
+        label: "View Staff",
+        href: "/admin/viewStaff",
       },
     },
 
@@ -99,16 +99,25 @@ const BranchQueries = () => {
       loading: false,
       description: "Activate VAS on vehicles",
       accent: "#10b981",
-      action: { label: "Open VAS Manager", href: "" },
+      action: { label: "View Total VAS ", href: "/admin/view-total-vas" },
     },
     {
-      title: "Stock Queries",
+      title: "Manual Stock Management",
       value: stockTotal,
       icon: Activity,
       loading: false,
       description: "Vehicles in branch",
       accent: "#f59e0b",
-      action: { label: "Open Stock Manager", href: "" },
+      action: { label: "Open Stock Manager", href: "/admin/view-assigned-stock" },
+    },
+    {
+      title: "Excel Entry Stock Management",
+      value: stockTotal,
+      icon: Activity,
+      loading: false,
+      description: "Vehicles in branch",
+      accent: "#f59e0b",
+      action: { label: "Open Excel Entry Stock Manager", href: "" },
     },
 
     {
