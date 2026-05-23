@@ -119,20 +119,10 @@ const BranchManagerDashboard = () => {
       accent: "#f59e0b",
       action: { label: "Open Stock Manager", href: "/manager/stockC/select" },
     },
-    {
-      title: "Vehicles Request",
-      //Add Badge
-      value: stockData?.total ?? 0,
-      icon: Activity,
-      loading: stockLoading,
-      description: "Vehicles in branch",
-      accent: "#f59e0b",
-      action: { label: "Open", href: "/manager/stockC/select" },
-    },
+
     {
       title: "Apply Leave",
       //Add Badge
-
       icon: Activity,
       loading: false,
       description: "Leave Application",
@@ -265,7 +255,7 @@ const BranchManagerDashboard = () => {
                 </div>
               </CardHeader>
               <CardContent className='p-6'>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                   {operationsStats.map((stat, i) => (
                     <StatCard key={stat.title} {...stat} index={i} />
                   ))}
