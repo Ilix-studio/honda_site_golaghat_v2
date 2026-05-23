@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import { ViewBikeImage } from "@/mainComponents/Admin/Bikes/ViewBikeImage";
+import BranchManagement from "@/mainComponents/Admin/AdminDash/BranchManagement";
 
 
 
@@ -73,6 +74,9 @@ export const adminRoutes = [
   { path: "/admin/branches/add", component: AddBranch },
   { path: "/admin/branches/managers", component: BranchManager },
   { path: "/admin/branches/service-admins", component: ServiceAdmins },
+
+  //
+  { path: "/admin/branches", component: BranchManagement },
 
   //Handling Bikes
   { path: "/admin/bikes/add", component: AddBikes },

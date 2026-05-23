@@ -6,6 +6,7 @@ import {
   Activity,
   Wrench,
   ChevronRight,
+  BringToFront,
 } from "lucide-react";
 
 
@@ -75,8 +76,8 @@ const SeparateStats = () => {
     {
       title: "Excel Entry Stock",
       description: "vehicles • Bulk import",
-      icon: Activity,
-      accent: "#f59e0b",
+      icon: BringToFront,
+      accent: "#382c18ff",
       href: "",
     },
     {
@@ -101,10 +102,10 @@ const SeparateStats = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.4 }}
-        className="space-y-3"
+        className="space-y-3 border border-gray-500 p-4 rounded-xl bg-white"
       >
         <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-0.5">
-          Quick Access
+         Sales Details and Leave Requests
         </h3>
         <QuickActions items={quickActions} />
       </motion.div>

@@ -37,7 +37,8 @@ const BranchQueries = () => {
       loading: branchesLoading,
       description: "Service locations",
       accent: "#3b82f6",
-      action: { label: "Add Branch", href: "/admin/branches/add" },
+      // action: { label: "Add Branch", href: "/admin/branches/add" },
+      action: { label: "View Branches", href: "/admin/branches" },
     },
     {
       title: "Branch Admins",
@@ -66,7 +67,7 @@ const BranchQueries = () => {
       icon: PersonStanding,
       loading: staffLoading,
       description: "Active staff",
-      accent: "#170C79",
+      accent: "#ba723eff",
       action: {
         label: "View Staff",
         href: "/admin/viewStaff",
@@ -86,7 +87,7 @@ const BranchQueries = () => {
           <StatCard key={s.title} {...s} index={i} />
         ))}
       </div>
-      <SeparateStats />
+    <SeparateStats/>
 
       {/* ── visitor analytics ── */}
       {vs && (

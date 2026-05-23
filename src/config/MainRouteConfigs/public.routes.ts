@@ -31,9 +31,6 @@ const DealershipLocator = lazy(
 const DealershipReviews = lazy(
   () => import("@/mainComponents/Location/DealershipReviews"),
 );
-const ViewAllBranches = lazy(
-  () => import("@/mainComponents/ViewBS2/ViewAllBranches"),
-);
 
 
 const ViewStockConcept = lazy(
@@ -57,7 +54,7 @@ export const publicRoutes = [
   { path: "/search", component: SearchResults },
   { path: "/dealership-locator", component: DealershipLocator },
   { path: "/dealership-reviews", component: DealershipReviews },
-  { path: "/admin/branches/view", component: ViewAllBranches },
+
 
   { path: "/view/stock-concept", component: ViewStockConcept },
   {
