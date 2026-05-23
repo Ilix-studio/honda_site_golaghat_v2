@@ -114,6 +114,7 @@ const LoginStaffs = () => {
               </form>
             </CardContent>
           </Card>
+            <div className='flex flex-col gap-3'>
           <Link to='/manager-login' className='flex text-gray-300 underline'>
             {" "}
             <ArrowLeft /> Sign in as Branch Admin
@@ -129,6 +130,7 @@ const LoginStaffs = () => {
             {" "}
             <ArrowLeft /> Go to HomePage
           </Link>
+          </div>
         </div>
       </section>
     </>
