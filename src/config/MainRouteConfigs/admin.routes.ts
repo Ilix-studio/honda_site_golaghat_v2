@@ -1,6 +1,8 @@
 import { lazy } from "react";
 import { ViewBikeImage } from "@/mainComponents/Admin/Bikes/ViewBikeImage";
 
+
+
 const LoginSuperAdmin = lazy(
   () => import("@/mainComponents/Admin/LoginSuperAdmin"),
 );
@@ -50,7 +52,18 @@ const ServiceAdmins = lazy(
 const TabBased = lazy(
   () => import("@/mainComponents/Admin/LeaveApplication/TabBased"),
 );
+const ViewStaff = lazy(
+  () => import("@/mainComponents/Admin/NewUpdate/ViewStaff"),
+);
+const ViewTotalVAS = lazy(
+  () => import("@/mainComponents/Admin/NewUpdate/ViewTotalVAS"),
+);
 
+const ViewAssignedStock = lazy(
+  () => import("@/mainComponents/Admin/NewUpdate/ViewAssignedStock"),
+);
+
+//
 export const adminAuthRoutes = [
   { path: "/admin/login", component: LoginSuperAdmin },
 ];
@@ -70,6 +83,11 @@ export const adminRoutes = [
   { path: "/admin/bikeimages/:bikeId", component: ViewBikeImages },
   { path: "/admin/scootyimages/:bikeId", component: ViewScootyImages },
   { path: "/admin/bikes/add/:id/images", component: BikeImageManager },
+
+  //
+  { path: "/admin/viewStaff", component: ViewStaff },
+    { path: "/admin/view-total-vas", component: ViewTotalVAS },
+    { path: "/admin/view-assigned-stock", component: ViewAssignedStock },
 
   // Leave Management
   { path: "/admin/leave-requests", component: TabBased },
