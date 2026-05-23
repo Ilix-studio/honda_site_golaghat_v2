@@ -98,7 +98,7 @@ const ViewAssignedStock: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Stock ID</TableHead>
+               
                     <TableHead>Model</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>
@@ -106,7 +106,7 @@ const ViewAssignedStock: React.FC = () => {
                         <Phone className="h-3.5 w-3.5" /> Customer
                       </span>
                     </TableHead>
-                    <TableHead className="hidden md:table-cell">Number Plate</TableHead>
+                   
                     <TableHead className="hidden md:table-cell">Registered Owner</TableHead>
                     <TableHead className="hidden lg:table-cell">Sale Price</TableHead>
                     <TableHead className="hidden lg:table-cell">Invoice</TableHead>
@@ -124,9 +124,7 @@ const ViewAssignedStock: React.FC = () => {
                     const cv = item.salesInfo?.customerVehicleId;
                     return (
                       <TableRow key={item._id}>
-                        <TableCell className="font-mono text-sm">
-                          {item.stockId}
-                        </TableCell>
+                       
                         <TableCell className="font-medium">
                           {item.modelName}
                           <span className="block text-xs text-muted-foreground">
@@ -138,9 +136,6 @@ const ViewAssignedStock: React.FC = () => {
                         </TableCell>
                         <TableCell className="text-sm">
                           {item.salesInfo?.soldTo?.phoneNumber ?? "—"}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell font-mono text-sm">
-                          {cv?.numberPlate ?? "—"}
                         </TableCell>
                         <TableCell className="hidden md:table-cell text-sm">
                           {cv?.registeredOwnerName ?? "—"}
