@@ -24,59 +24,28 @@ const routeConfig: Record<
     menuItems?: Array<{ label: string; href: string }>;
   }
 > = {
-  "/manager/dashboard": {
-    title: "Manager Dashboard",
-    subtitle: "Branch Management",
+  "/service-admin/dashboard": {
+    title: "Service Admin Dashboard",
+    subtitle: "Service Management",
   },
-  "/manager/service-bookings": {
+  "/service-admin/service-bookings": {
     title: "Service Bookings",
     subtitle: "Manage service appointments",
     showBack: true,
-    backTo: "/manager/dashboard",
+    backTo: "/service-admin/dashboard",
   },
-  "/manager/accident-reports": {
-    title: "Accident Reports",
-    subtitle: "View and manage accident cases",
+  "/service-admin/job-card": {
+    title: "Job Card",
+    subtitle: "Manage job card",
     showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/enquiries": {
-    title: "Customer Enquiries",
-    subtitle: "Handle customer queries",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/applications": {
-    title: "Applications",
-    subtitle: "Process loan and finance applications",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/stock": {
-    title: "Stock Management",
-    subtitle: "Manage branch inventory",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/vas": {
-    title: "Value Added Services",
-    subtitle: "Manage VAS offerings",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/customer-vehicles": {
-    title: "Customer Vehicles",
-    subtitle: "View customer vehicle information",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/finance-queries": {
-    title: "Finance Queries",
-    subtitle: "Handle finance-related requests",
-    showBack: true,
-    backTo: "/manager/dashboard",
+    backTo: "/service-admin/dashboard",
+     menuItems: [
+      { label: "Service Bookings", href: "/service-admin/service-bookings" },
+    
+    ],
   },
 };
+// SB-20260523-0001
 
 const ServiceAdminsHeader = () => {
   const dispatch = useAppDispatch();

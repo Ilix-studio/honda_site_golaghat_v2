@@ -54,13 +54,13 @@ const routeConfig: Record<
     title: " Create Value Added Services",
     subtitle: "",
     showBack: true,
-    backTo: "/manager/dashboard",
+    backTo: "/manager/vas/select",
   },
   "/manager/view/vas" : {
     title: " List Value Added Services",
     subtitle: "",
     showBack: true,
-    backTo: "/manager/dashboard",
+    backTo: "/manager/vas/select",
   },
   "/manager/stockC/select" : {
     title: " List Value Added Services",
@@ -72,19 +72,19 @@ const routeConfig: Record<
     title: " Upload Stock Concept Excel",
     subtitle: "",
     showBack: true,
-    backTo: "/manager/dashboard",
+    backTo: "/manager/stockC/select",
   },
   "/manager/forms/stock-concept" : {
     title: " Create Stock Concept",
     subtitle: "",
     showBack: true,
-    backTo: "/manager/dashboard",
+    backTo: "/manager/stockC/select",
   },
   "/manager/get/all-stock" : {
     title: "List of All Stock",
     subtitle: "",
     showBack: true,
-    backTo: "/manager/dashboard",
+    backTo: "/manager/stockC/select",
   },
   "/manager/service-bookings": {
     title: "Service Bookings",
