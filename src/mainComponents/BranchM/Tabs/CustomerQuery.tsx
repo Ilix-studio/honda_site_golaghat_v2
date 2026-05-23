@@ -2,7 +2,7 @@ import {
   AlertTriangle,
   BanknoteIcon,
   MessageCircleCode,
-  Bike,
+ 
 } from "lucide-react";
 
 import { useGetAllApplicationsQuery } from "@/redux-store/services/customer/getApprovedApi";
@@ -32,18 +32,7 @@ const CustomerQueries = () => {
         href: "/manager/finanace-query",
       },
     },
-    {
-      title: "Vehicles Enquiry",
-      value: financeData?.total ?? "—",
-      icon: Bike,
-      loading: financeLoading,
-      description: "Total vehicles enquiries",
-      accent: "#f97316",
-      action: {
-        label: "View Vehicles Enquiry",
-        href: "/manager/vehicles-enquiry",
-      },
-    },
+    
     {
       title: "Message by Users",
       value: messagesData?.pagination.total ?? 0,
@@ -65,7 +54,7 @@ const CustomerQueries = () => {
   ];
 
   return (
-    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8'>
+    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8'>
       {stats.map((stat, i) => (
         <StatCard key={stat.title} {...stat} index={i} />
       ))}

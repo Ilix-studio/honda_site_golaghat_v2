@@ -1,13 +1,11 @@
 import { motion } from "framer-motion";
-
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import {
-  TrendingUp,
   Building2,
   Users,
-  Activity,
   Eye,
   Clock,
-  Wrench,
   Settings,
   PersonStanding,
 } from "lucide-react";
@@ -17,12 +15,8 @@ import { useGetAllBranchAdminsQuery, useGetAllServiceAdminsQuery, useGetAllStaff
 import { useGetVisitorStatsQuery } from "@/redux-store/services/visitorApi";
 import RecentMotorcycles from "./RecentMotocycles";
 import { formatTimeAgo, MetricTile, StatCard, StatCardProps } from "./StatCard";
-import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
-import { useGetCSVBatchesQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
-import { useGetAllStockItemsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
-import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+
+import SeparateStats from "./StatsUI/SeparateStats";
 
 // ─── main ────────────────────────────────────────────────────────────────────
 const BranchQueries = () => {
@@ -34,20 +28,7 @@ const BranchQueries = () => {
     useGetAllServiceAdminsQuery();
   const { data: staffData, isLoading: staffLoading } =
     useGetAllStaffQuery();
-
   const { data: visitorStatsData } = useGetVisitorStatsQuery();
-
-  const { data: vasData } = useGetAllVASQuery({});
-  const { data: csvBatchData } = useGetCSVBatchesQuery({ page: 1, limit: 1 });
-  const { data: stockData } = useGetAllStockItemsQuery({ page: 1, limit: 1 });
-
-  const stockTotal =
-    (csvBatchData?.pagination?.total ?? 0) + (stockData?.total ?? 0);
-  const { data: bookingsData } = useGetAllBookingsQuery({
-    page: 1,
-    limit: 1,
-  });
-
   const stats: Omit<StatCardProps, "index">[] = [
     {
       title: "Branches",
@@ -56,7 +37,8 @@ const BranchQueries = () => {
       loading: branchesLoading,
       description: "Service locations",
       accent: "#3b82f6",
-      action: { label: "Add Branch", href: "/admin/branches/add" },
+      // action: { label: "Add Branch", href: "/admin/branches/add" },
+      action: { label: "View Branches", href: "/admin/branches" },
     },
     {
       title: "Branch Admins",
@@ -85,50 +67,14 @@ const BranchQueries = () => {
       icon: PersonStanding,
       loading: staffLoading,
       description: "Active staff",
-      accent: "#170C79",
+      accent: "#ba723eff",
       action: {
         label: "View Staff",
         href: "/admin/viewStaff",
       },
     },
 
-    {
-      title: "Value-Added Services",
-      value: vasData?.total ?? "—",
-      icon: TrendingUp,
-      loading: false,
-      description: "Activate VAS on vehicles",
-      accent: "#10b981",
-      action: { label: "View Total VAS ", href: "/admin/view-total-vas" },
-    },
-    {
-      title: "Manual Stock Management",
-      value: stockTotal,
-      icon: Activity,
-      loading: false,
-      description: "Vehicles in branch",
-      accent: "#f59e0b",
-      action: { label: "Open Stock Manager", href: "/admin/view-assigned-stock" },
-    },
-    {
-      title: "Excel Entry Stock Management",
-      value: stockTotal,
-      icon: Activity,
-      loading: false,
-      description: "Vehicles in branch",
-      accent: "#f59e0b",
-      action: { label: "Open Excel Entry Stock Manager", href: "" },
-    },
-
-    {
-      title: "Leave Requests",
-      value: bookingsData?.total ?? "—",
-      icon: Wrench,
-      loading: false,
-      description: "Active bookings",
-      accent: "#3b82f6",
-      action: { label: "View All", href: "/admin/leave-requests" },
-    },
+  
   ];
 
   const vs = visitorStatsData?.data;
@@ -136,11 +82,12 @@ const BranchQueries = () => {
 
   return (
     <div className='space-y-8'>
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4'>
         {stats.map((s, i) => (
           <StatCard key={s.title} {...s} index={i} />
         ))}
       </div>
+    <SeparateStats/>
 
       {/* ── visitor analytics ── */}
       {vs && (

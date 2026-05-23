@@ -25,16 +25,78 @@ const routeConfig: Record<
   }
 > = {
   "/admin/dashboard": { title: "Admin Dashboard", subtitle: "" },
-  "/admin/branches/add": {
-    title: "Add New Branch",
-    subtitle: "",
-    showBack: true,
-    backTo: "/admin/dashboard",
-    menuItems: [
-      { label: "Add Bikes/Scooty", href: "/admin/bikes/add" },
-      { label: "Manage Branches", href: "/admin/branches" },
-    ],
-  },
+"/admin/branches": {
+  title: "Branch Management",
+  subtitle: "View and manage dealership branches",
+  showBack: true,
+  backTo: "/admin/dashboard",
+  menuItems: [
+    { label: "Add Branch", href: "/admin/branches/add" },
+    { label: "Branch Managers", href: "/admin/branches/managers" },
+    { label: "Service Admins", href: "/admin/branches/service-admins" },
+  ],
+},
+"/admin/branches/managers": {
+  title: "Branch Managers",
+  subtitle: "",
+  showBack: true,
+  backTo: "/admin/dashboard",
+  menuItems: [
+    { label: "Add Branch", href: "/admin/branches/add" },
+    { label: "Service Admins", href: "/admin/branches/service-admins" },
+  ],
+},
+"/admin/branches/service-admins": {
+  title: "Service Admins",
+  subtitle: "",
+  showBack: true,
+  backTo: "/admin/dashboard",
+  menuItems: [
+    { label: "Add Branch", href: "/admin/branches/add" },
+    { label: "Branch Managers", href: "/admin/branches/managers" },
+  ],
+},
+"/admin/viewStaff": {
+  title: "View Staff",
+  subtitle: "",
+  showBack: true,
+  backTo: "/admin/dashboard",
+  menuItems: [
+    { label: "Branch Managers", href: "/admin/branches/managers" },
+    { label: "Service Admins", href: "/admin/branches/service-admins" },
+  ],
+},
+
+"/admin/view-total-vas": {
+  title: "View Total VAS",
+  subtitle: "",
+  showBack: true,
+  backTo: "/admin/dashboard",
+  menuItems: [
+    { label: "Branch Managers", href: "/admin/branches/managers" },
+    { label: "Service Admins", href: "/admin/branches/service-admins" },
+  ],
+},
+"/admin/view-assigned-stock": {
+  title: "View Customer Assigned Stock",
+  subtitle: "",
+  showBack: true,
+  backTo: "/admin/dashboard",
+  menuItems: [
+    { label: "Branch Managers", href: "/admin/branches/managers" },
+    { label: "Service Admins", href: "/admin/branches/service-admins" },
+  ],
+},
+"/admin/leave-requests": {
+  title: "All Leave Requests",
+  subtitle: "",
+  showBack: true,
+  backTo: "/admin/dashboard",
+  menuItems: [
+    { label: "Branch Managers", href: "/admin/branches/managers" },
+    { label: "Service Admins", href: "/admin/branches/service-admins" },
+  ],
+},
   "/admin/bikes/add": {
     title: "Add New Bike",
     subtitle: "Add motorcycle to inventory",

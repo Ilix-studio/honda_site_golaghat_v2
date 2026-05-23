@@ -17,7 +17,7 @@ export const ROUTES = {
     BRANCHES: {
       ADD: "/admin/branches/add",
       MANAGERS: "/admin/branches/managers",
-      VIEW: "/admin/branches/view",
+      VIEW: "/admin/branches",
     },
     SERVICE_ADMINS: {
       ADD: "/admin/service-admins/add",

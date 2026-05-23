@@ -28,6 +28,64 @@ const routeConfig: Record<
     title: "Manager Dashboard",
     subtitle: "Branch Management",
   },
+  "/manager/customers/signup": {
+    title: "New Customer Signup",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+    menuItems: [
+      { label: "Service Bookings", href: "/manager/service-bookings" },
+      { label: "Accident Reports", href: "/manager/accident-reports" },
+    ],
+  },
+  "/manager/staff" : {
+    title: " Create Staff",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/vas/select" : {
+    title: "Manage Value Added Services",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/forms/vas" : {
+    title: " Create Value Added Services",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/view/vas" : {
+    title: " List Value Added Services",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/stockC/select" : {
+    title: " List Value Added Services",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/forms/stock-concept-csv" : {
+    title: " Upload Stock Concept Excel",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/forms/stock-concept" : {
+    title: " Create Stock Concept",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/get/all-stock" : {
+    title: "List of All Stock",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
   "/manager/service-bookings": {
     title: "Service Bookings",
     subtitle: "Manage service appointments",
@@ -37,6 +95,18 @@ const routeConfig: Record<
   "/manager/accident-reports": {
     title: "Accident Reports",
     subtitle: "View and manage accident cases",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/apply-leave": {
+    title: "Apply Leave",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/finanace-query": {
+    title: "Finance Query",
+    subtitle: "Handle Finance Related Requests",
     showBack: true,
     backTo: "/manager/dashboard",
   },

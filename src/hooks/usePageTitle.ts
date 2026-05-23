@@ -29,7 +29,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/admin/dashboard": "Admin Dashboard | Tsangpool Honda",
   "/admin/bikes/add": "Add Bike | Tsangpool Honda",
   "/admin/branches/add": "Add Branch | Tsangpool Honda",
-  "/admin/branches/view": "Branches | Tsangpool Honda",
+  "/admin/branches": "Branches | Tsangpool Honda",
 
 
   "/admin/forms/stock-concept": "Stock Concept | Tsangpool Honda",
