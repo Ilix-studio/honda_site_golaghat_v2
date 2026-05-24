@@ -17,6 +17,7 @@ import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 import { useCreateAccidentReportMutation } from "@/redux-store/services/accidentReportApi";
+import ViewAccidentReport from "./ViewAccidentReport";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -426,6 +427,7 @@ const AccidentReport: React.FC = () => {
             </p>
           </div>
         </motion.div>
+        <ViewAccidentReport />
       </div>
     </div>
   );

@@ -24,6 +24,7 @@ export interface ServiceBooking {
   updatedAt: string;
   confirmedAt?: string;
   completedAt?: string;
+  jobCard?: string;
 }
 
 export interface CreateBookingRequest {

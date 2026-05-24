@@ -1,6 +1,7 @@
 import { lazy } from "react";
 import { SimpleBookService } from "@/mainComponents/BookService/SimpleBookService";
 
+
 const CustomerLogin = lazy(() =>
   import("@/mainComponents/CustomerSystem/CustomerLogin").then((m) => ({
     default: m.default,
@@ -48,6 +49,10 @@ const ActivateVAS = lazy(
 );
 const UseToken = lazy(() => import("@/mainComponents/Scanfleet/UseToken"));
 
+const CustomerFinalBillConfirm = lazy(
+  () => import("@/mainComponents/CustomerSystem/JobCard/CustomerFinalBillConfirm"),
+);
+
 export const customerAuthRoutes = [
   { path: "/customer/login", component: CustomerLogin },
 ];
@@ -67,4 +72,5 @@ export const customerRoutes = [
   { path: "/customer/services/vas", component: ActivateVAS },
   { path: "/customer/book-service", component: SimpleBookService },
   { path: "/customer/attach-stickers", component: UseToken },
+  { path: "/customer/job-card/:jobCardId/confirm", component: CustomerFinalBillConfirm },
 ];

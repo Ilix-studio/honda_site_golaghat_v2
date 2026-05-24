@@ -27,6 +27,26 @@ export interface ListJobCardsArgs {
   limit?: number;
 }
 
+export interface RevenueStatsResponse {
+  success: boolean;
+  data: {
+    year: number;
+    monthly: {
+      month: string;
+      revenue: number;
+      subtotal: number;
+      taxTotal: number;
+      invoiceCount: number;
+    }[];
+    totals: {
+      totalRevenue: number;
+      totalTax: number;
+      totalInvoices: number;
+      avgInvoiceValue: number;
+    };
+  };
+}
+
 // ─── API Slice ────────────────────────────────────────────────────────────────
 
 export const jobCardApi = apiSlice.injectEndpoints({
@@ -229,6 +249,20 @@ export const jobCardApi = apiSlice.injectEndpoints({
         "JobCardList",
       ],
     }),
+    // inside injectEndpoints:
+getRevenueStats: builder.query<
+  RevenueStatsResponse,
+  { year?: number; branchId?: string }
+>({
+  query: ({ year, branchId } = {}) => {
+    const p = new URLSearchParams();
+    if (year) p.append("year", String(year));
+    if (branchId) p.append("branchId", branchId);
+    const qs = p.toString();
+    return `/job-cards/stats/revenue${qs ? `?${qs}` : ""}`;
+  },
+  providesTags: ["JobCardInvoice"],
+}),
   }),
 });
 
@@ -255,4 +289,6 @@ export const {
   useLazyGetJobCardCustomerQuery,
   useGetInvoiceCustomerQuery,
   useLazyGetInvoiceCustomerQuery,
+  //Super Admin Revenue
+  useGetRevenueStatsQuery
 } = jobCardApi;

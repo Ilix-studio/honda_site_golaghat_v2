@@ -10,20 +10,24 @@ import {
 import {
   BarChart3,
   Calendar,
-  Clock,
-  CheckCircle,
   AlertCircle,
   RefreshCw,
   Plus,
+  CheckCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import CustomerTempBillReview from "../JobCard/CustomerTempBillReview";
+
+import CustomerFinalBillConfirm from "../JobCard/CustomerFinalBillConfirm";
+import { useGetJobCardCustomerQuery } from "@/redux-store/services/ServiceM/jobCardApi";
+import BookingData from "./BookingData";
 
 interface ServiceStatsDisplayProps {}
 
 const ServiceStatsDisplay: React.FC<ServiceStatsDisplayProps> = () => {
-  const [activeTab, setActiveTab] = useState<"stats" | "bookings">("stats");
-  const [bookingsPage, setBookingsPage] = useState(1);
-
+  const [activeTab, setActiveTab] = useState<
+    "stats"  | "bill-info"
+  >("stats");
   const {
     data: statsData,
     isLoading: statsLoading,
@@ -31,36 +35,48 @@ const ServiceStatsDisplay: React.FC<ServiceStatsDisplayProps> = () => {
     refetch: refetchStats,
   } = useGetMyServiceStatsQuery();
 
-  const {
-    data: bookingsData,
-    isLoading: bookingsLoading,
-    error: bookingsError,
-    refetch: refetchBookings,
-  } = useGetMyBookingsQuery({
-    page: bookingsPage,
-    limit: 10,
-    sortBy: "createdAt",
-    sortOrder: "desc",
-  });
+    const {
+      data: bookingsData,   
+    } = useGetMyBookingsQuery({limit: 50,
+  sortBy: "createdAt",
+  sortOrder: "desc",});
 
-  const stats = statsData?.data;
+
   const bookings = bookingsData?.data || [];
+  const stats = statsData?.data;
 
-  const getStatusColor = (status: string) => {
-    const statusColors = {
-      pending: "bg-yellow-100 text-yellow-800",
-      confirmed: "bg-blue-100 text-blue-800",
-      "in-progress": "bg-purple-100 text-purple-800",
-      completed: "bg-green-100 text-green-800",
-      cancelled: "bg-red-100 text-red-800",
-    };
-    return (
-      statusColors[status as keyof typeof statusColors] ||
-      "bg-gray-100 text-gray-800"
-    );
-  };
+  const ACTIONABLE_JOB_STATUSES = [
+  "temp_bill_sent",
+  "final_bill_sent",
+  "customer_reviewed",
+  "in_progress",
+  "draft",
+];
 
-  if (statsError || bookingsError) {
+const activeBookingWithJobCard =
+  bookings.find(
+    (b) =>
+      b.jobCard &&
+      !["completed", "cancelled"].includes(b.status) &&
+      ACTIONABLE_JOB_STATUSES.includes((b as any).jobCardStatus ?? "")
+  ) ??
+  // Fallback: any non-completed booking with a job card (newest first)
+  bookings.find(
+    (b) =>
+      b.jobCard && !["completed", "cancelled"].includes(b.status)
+  );
+
+
+  const {
+    data: jobCardData,
+    isLoading: jobCardLoading,
+  } = useGetJobCardCustomerQuery(
+    activeBookingWithJobCard?.jobCard || "",
+    { skip: !activeBookingWithJobCard?.jobCard }
+  );
+  const jobCard = jobCardData?.data;
+
+  if (statsError) {
     return (
       <Card className='border-red-200'>
         <CardContent className='p-6 text-center'>
@@ -70,7 +86,6 @@ const ServiceStatsDisplay: React.FC<ServiceStatsDisplayProps> = () => {
             variant='outline'
             onClick={() => {
               refetchStats();
-              refetchBookings();
             }}
             className='mt-2'
           >
@@ -86,19 +101,22 @@ const ServiceStatsDisplay: React.FC<ServiceStatsDisplayProps> = () => {
     <div className='w-full max-w-6xl mx-auto space-y-6'>
       <Tabs
         value={activeTab}
-        onValueChange={(value) => setActiveTab(value as "stats" | "bookings")}
+        onValueChange={(value) =>
+          setActiveTab(value as "stats"  | "bill-info")
+        }
         className='w-full'
       >
-        <TabsList className='grid w-full grid-cols-2 lg:w-96'>
+        <TabsList className='grid w-full grid-cols-2 lg:w-96 border rounded-full bg-white  '>
           <TabsTrigger value='stats' className='flex items-center gap-2'>
             <BarChart3 className='h-4 w-4' />
             <span className='hidden sm:inline'>Service Stats</span>
             <span className='sm:hidden'>Stats</span>
           </TabsTrigger>
-          <TabsTrigger value='bookings' className='flex items-center gap-2'>
+  
+          <TabsTrigger value='bill-info' className='flex items-center gap-2'>
             <Calendar className='h-4 w-4' />
-            <span className='hidden sm:inline'>My Bookings</span>
-            <span className='sm:hidden'>Bookings</span>
+            <span className='hidden sm:inline'>Bill Info</span>
+            <span className='sm:hidden'>Bill Info</span>
           </TabsTrigger>
         </TabsList>
 
@@ -228,116 +246,75 @@ const ServiceStatsDisplay: React.FC<ServiceStatsDisplayProps> = () => {
               </Card>
             </div>
           )}
+             <BookingData />
         </TabsContent>
 
         {/* Bookings Tab */}
-        <TabsContent value='bookings' className='mt-6'>
-          {bookingsLoading ? (
-            <div className='space-y-4'>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Card key={i}>
-                  <CardContent className='p-6'>
-                    <div className='animate-pulse space-y-3'>
-                      <div className='h-4 bg-gray-200 rounded w-1/4' />
-                      <div className='h-3 bg-gray-200 rounded w-1/2' />
-                      <div className='h-3 bg-gray-200 rounded w-1/3' />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+       
+
+        {/* Bill Info Tab */}
+        <TabsContent value='bill-info' className='mt-6'>
+          { jobCardLoading ? (
+            <div className='flex items-center justify-center min-h-[300px]'>
+              <p className='text-gray-500 text-sm animate-pulse'>
+                Checking for active service bills...
+              </p>
             </div>
-          ) : bookings.length === 0 ? (
+          ) : !activeBookingWithJobCard?.jobCard || !jobCard ? (
             <Card>
               <CardContent className='p-12 text-center'>
-                <Calendar className='h-12 w-12 mx-auto mb-4 text-gray-400' />
+                <AlertCircle className='h-12 w-12 mx-auto mb-4 text-gray-400' />
                 <h3 className='text-lg font-semibold mb-2'>
-                  No Bookings Found
+                  No Pending Bills
                 </h3>
                 <p className='text-muted-foreground'>
-                  You haven't made any service bookings yet.
+                  There are no active service bills pending your review at this time.
+                </p>
+              </CardContent>
+            </Card>
+          ) : jobCard.status === "temp_bill_sent" ? (
+            <CustomerTempBillReview jobCardId={activeBookingWithJobCard.jobCard} />
+          ) : jobCard.status === "final_bill_sent" ? (
+            <CustomerFinalBillConfirm jobCardId={activeBookingWithJobCard.jobCard} />
+          ) : jobCard.status === "customer_reviewed" ? (
+            <Card>
+              <CardContent className='p-12 text-center'>
+                <CheckCircle className='h-12 w-12 mx-auto mb-4 text-green-500' />
+                <h3 className='text-lg font-semibold mb-2'>
+                  Review Submitted
+                </h3>
+                <p className='text-muted-foreground'>
+                  You've already submitted your review. The service team has been notified and will proceed with the approved items.
+                </p>
+              </CardContent>
+            </Card>
+          ) : ["customer_confirmed", "invoice_generated", "closed"].includes(jobCard.status) ? (
+            <Card>
+              <CardContent className='p-12 text-center'>
+                <CheckCircle className='h-12 w-12 mx-auto mb-4 text-green-500' />
+                <h3 className='text-lg font-semibold mb-2'>
+                  Bill Confirmed
+                </h3>
+                <p className='text-muted-foreground mb-3'>
+                  You have already confirmed this bill.
+                </p>
+                <p className='text-sm text-gray-500'>
+                  Please collect your vehicle and settle payment at the counter.
                 </p>
               </CardContent>
             </Card>
           ) : (
-            <div className='space-y-4'>
-              {bookings.map((booking) => (
-                <Card
-                  key={booking._id}
-                  className='hover:shadow-md transition-shadow'
-                >
-                  <CardContent className='p-4 sm:p-6'>
-                    <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
-                      <div className='space-y-2'>
-                        <div className='flex items-center gap-2'>
-                          <h3 className='font-semibold text-lg'>
-                            {booking.bookingId}
-                          </h3>
-                          <Badge className={getStatusColor(booking.status)}>
-                            {booking.status}
-                          </Badge>
-                        </div>
-                        <p className='text-sm text-muted-foreground'>
-                          Service: {booking.serviceType}
-                        </p>
-                        <div className='flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm text-muted-foreground'>
-                          <div className='flex items-center gap-1'>
-                            <Calendar className='h-4 w-4' />
-                            {new Date(
-                              booking.appointmentDate,
-                            ).toLocaleDateString()}
-                          </div>
-                          <div className='flex items-center gap-1'>
-                            <Clock className='h-4 w-4' />
-                            {booking.appointmentTime}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className='flex items-center gap-2'>
-                        {booking.status === "completed" && (
-                          <CheckCircle className='h-5 w-5 text-green-500' />
-                        )}
-                        {booking.estimatedCost && (
-                          <div className='text-right'>
-                            <p className='text-sm text-muted-foreground'>
-                              Estimated Cost
-                            </p>
-                            <p className='font-semibold'>
-                              ₹{booking.estimatedCost}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-
-              {/* Pagination */}
-              {bookingsData && bookingsData.totalPages > 1 && (
-                <div className='flex justify-center gap-2 mt-6'>
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    disabled={bookingsPage === 1}
-                    onClick={() => setBookingsPage((prev) => prev - 1)}
-                  >
-                    Previous
-                  </Button>
-                  <span className='flex items-center px-3 text-sm'>
-                    {bookingsPage} of {bookingsData.totalPages}
-                  </span>
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    disabled={bookingsPage === bookingsData.totalPages}
-                    onClick={() => setBookingsPage((prev) => prev + 1)}
-                  >
-                    Next
-                  </Button>
-                </div>
-              )}
-            </div>
+            <Card>
+              <CardContent className='p-12 text-center'>
+                <AlertCircle className='h-12 w-12 mx-auto mb-4 text-gray-400' />
+                <h3 className='text-lg font-semibold mb-2'>
+                  No Pending Actions
+                </h3>
+                <p className='text-muted-foreground'>
+                  There are no active service bills pending your action at this time.
+                </p>
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
       </Tabs>
