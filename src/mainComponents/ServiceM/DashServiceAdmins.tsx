@@ -26,6 +26,8 @@ import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 
 import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
 import OpenJobCards from "./OpenJobCards";
+import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
+
 
 const DashServiceAdmins = () => {
   const navigate = useNavigate();
@@ -39,6 +41,9 @@ const DashServiceAdmins = () => {
     page: 1,
     limit: 1,
   });
+  const {data: myLeaveData,isLoading: myLeaveLoading} = useGetMyLeavesQuery({
+ 
+  }, { skip: !isAuthenticated })
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -94,12 +99,21 @@ const DashServiceAdmins = () => {
     {
       title: "Apply Leave",
       //Add Badge
-      value: 0,
+      value: myLeaveData?.data?.length ?? 0,
       icon: Activity,
-      loading: false,
-      description: "Leave Application",
+      loading: myLeaveLoading,
+      description: "My Leave Application",
       accent: "#f59e0b",
       action: { label: "Open", href: "/service-admin/apply-leave" },
+    },
+    {
+      title: "Job Card Catalog",
+      value: 0,
+      icon: Wrench,
+      loading: false,
+      description: "Job card catalog",
+      accent: "#f59e0b",
+      action: { label: "Open", href: "/service-admin/catalog" },
     },
   ];
 
@@ -226,14 +240,14 @@ const DashServiceAdmins = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className='p-6'>
+              <CardContent className='p-2'>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
                   {operationsStats.map((stat, i) => (
                     <StatCard key={stat.title} {...stat} index={i} />
                   ))}
                 </div>
               </CardContent>
-              <CardContent className='p-6'>
+              <CardContent className='p-2 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm'>
                 <OpenJobCards />
               </CardContent>
             </Card>

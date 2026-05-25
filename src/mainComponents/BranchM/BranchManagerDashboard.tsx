@@ -28,6 +28,8 @@ import { useGetAllCustomersQuery } from "@/redux-store/services/customer/custome
 import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
 import { useGetAllStockItemsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import CustomerQueries from "./Tabs/CustomerQuery";
+import JobCardCatalogManager from "../CustomerSystem/JobCard/JobCardCatalogManager";
+import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
 
 const BranchManagerDashboard = () => {
   const navigate = useNavigate();
@@ -52,6 +54,11 @@ const BranchManagerDashboard = () => {
     { page: 1, limit: 1 },
     { skip: !isAuthenticated },
   );
+
+   const {data: myLeaveData,isLoading: myLeaveLoading} = useGetMyLeavesQuery({
+   
+    }, { skip: !isAuthenticated })
+  
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -120,12 +127,13 @@ const BranchManagerDashboard = () => {
       action: { label: "Open Stock Manager", href: "/manager/stockC/select" },
     },
 
-    {
-      title: "Apply Leave",
-      //Add Badge
-      icon: Activity,
-      loading: false,
-      description: "Leave Application",
+     {
+          title: "Apply Leave",
+          //Add Badge
+          value: myLeaveData?.data?.length ?? 0,
+          icon: Activity,
+          loading: myLeaveLoading,
+          description: "My Leave Application",
       accent: "#f59e0b",
       action: { label: "Open", href: "/manager/apply-leave" },
     },
@@ -285,6 +293,9 @@ const BranchManagerDashboard = () => {
             </Card>
           </TabsContent>
         </Tabs>
+        <div className='mt-10 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm p-5'>
+          <JobCardCatalogManager />
+        </div>
       </div>
     </div>
   );
