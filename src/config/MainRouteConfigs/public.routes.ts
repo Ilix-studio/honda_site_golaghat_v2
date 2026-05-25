@@ -33,9 +33,7 @@ const DealershipReviews = lazy(
 );
 
 
-const ViewStockConcept = lazy(
-  () => import("@/mainComponents/ViewBS2/ViewStockConcept"),
-);
+
 const DownloadSafetyfeature = lazy(
   () => import("@/mainComponents/ViewBS2/DownloadSafetyfeature"),
 );
@@ -56,7 +54,7 @@ export const publicRoutes = [
   { path: "/dealership-reviews", component: DealershipReviews },
 
 
-  { path: "/view/stock-concept", component: ViewStockConcept },
+
   {
     path: "/download/safety-feature-stickers",
     component: DownloadSafetyfeature,
