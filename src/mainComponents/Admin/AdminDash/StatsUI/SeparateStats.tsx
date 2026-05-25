@@ -7,6 +7,7 @@ import {
   Wrench,
   ChevronRight,
   BringToFront,
+  BarChart,
 } from "lucide-react";
 
 
@@ -79,6 +80,13 @@ const SeparateStats = () => {
       icon: BringToFront,
       accent: "#382c18ff",
       href: "",
+    },
+    {
+      title: "Service Revenue",
+      description: "all Service Revenue Data",
+      icon: BarChart,
+      accent: "#382c18ff",
+      href: "/admin/service-revenue-stats",
     },
     {
       title: "Leave Requests",

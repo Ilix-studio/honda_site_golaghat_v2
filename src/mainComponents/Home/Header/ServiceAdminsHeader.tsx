@@ -34,16 +34,7 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/service-admin/dashboard",
   },
-  "/service-admin/job-card": {
-    title: "Job Card",
-    subtitle: "Manage job card",
-    showBack: true,
-    backTo: "/service-admin/dashboard",
-     menuItems: [
-      { label: "Service Bookings", href: "/service-admin/service-bookings" },
-    
-    ],
-  },
+ 
 };
 // SB-20260523-0001
 

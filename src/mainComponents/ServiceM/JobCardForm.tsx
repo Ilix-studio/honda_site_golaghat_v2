@@ -26,6 +26,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, AppDispatch } from "@/redux-store/store";
+import {
+  setView,
+  selectJobCard,
+  openInvoice,
+  goBack,
+  reset,
+} from "@/redux-store/slices/jobCardSlice";
 
 import {
   Select,
@@ -52,11 +61,10 @@ import {
   useCancelJobCardMutation,
   useListJobCardsQuery,
   useGetJobCardAdminQuery,
-  useGetInvoiceAdminQuery,
 } from "@/redux-store/services/ServiceM/jobCardApi";
 import { useListCatalogItemsQuery } from "@/redux-store/services/ServiceM/jobCardCatalogApi";
 import { useGetVehiclesByCustomerQuery } from "@/redux-store/services/BikeSystemApi2/AdminVehicleApi";
-
+import { useGetInvoiceByIdAdminQuery } from "@/redux-store/services/ServiceM/invoiceApi";
 import {
   JobCard,
   JobCardStatus,
@@ -69,7 +77,7 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ViewMode = "list" | "create" | "detail" | "invoice";
+
 type FilterTab = "all" | "ongoing" | "completed" | "cancelled";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -1466,7 +1474,17 @@ function DetailView({ jobCardId, onBack, onViewInvoice }: DetailViewProps) {
             onAcknowledge={handleAcknowledge}
             onSendFinal={handleSendFinal}
             onCancel={() => setCancelDialogOpen(true)}
-            onViewInvoice={() => onViewInvoice(card._id)}
+            onViewInvoice={() => {
+  const ref = card.invoiceRef;
+  const invoiceId =
+    ref && typeof ref === "object" && "_id" in ref
+      ? (ref as any)._id.toString()
+      : typeof ref === "string"
+        ? ref
+        : "";
+  if (invoiceId) onViewInvoice(invoiceId);
+}}
+
             loading={isBusy}
           />
         </div>
@@ -1751,12 +1769,12 @@ function DetailView({ jobCardId, onBack, onViewInvoice }: DetailViewProps) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface InvoiceViewProps {
-  jobCardId: string;
+  invoiceId: string;
   onBack: () => void;
 }
 
-function InvoiceView({ jobCardId, onBack }: InvoiceViewProps) {
-  const { data, isLoading } = useGetInvoiceAdminQuery(jobCardId);
+function InvoiceView({ invoiceId, onBack }: InvoiceViewProps) {
+  const { data, isLoading } = useGetInvoiceByIdAdminQuery(invoiceId);
   const invoice = data?.data;
 
   if (isLoading) {
@@ -1905,7 +1923,7 @@ function InvoiceView({ jobCardId, onBack }: InvoiceViewProps) {
             </p>
           </div>
           <div className='flex items-center gap-2'>
-            {invoice.pdfUrl ? (
+            {invoice.pdfUrl && (
               <a
                 href={invoice.pdfUrl}
                 target='_blank'
@@ -1915,12 +1933,8 @@ function InvoiceView({ jobCardId, onBack }: InvoiceViewProps) {
                 <FileText className='w-3.5 h-3.5' />
                 Download PDF
               </a>
-            ) : (
-              <span className='flex items-center gap-1.5 text-xs text-gray-400'>
-                <Loader2 className='w-3.5 h-3.5 animate-spin' />
-                PDF generating...
-              </span>
-            )}
+            ) }
+            {/* When you implement Cloudinary PDF upload and pdfUrl gets set, the button appears automatically. */}
           </div>
         </div>
       </div>
@@ -1934,32 +1948,20 @@ function InvoiceView({ jobCardId, onBack }: InvoiceViewProps) {
 
 const JobCardForm = () => {
   const navigate = useNavigate();
-  const [view, setView] = useState<ViewMode>("list");
-  const [activeJobCardId, setActiveJobCardId] = useState<string | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+  const { view, activeJobCardId, activeInvoiceId } = useSelector(
+    (state: RootState) => state.jobCard,
+  );
 
-  const handleSelect = (id: string) => {
-    setActiveJobCardId(id);
-    setView("detail");
+  const handleSelect = (id: string) => dispatch(selectJobCard(id));
+  const handleCreated = (id: string) => dispatch(selectJobCard(id));
+
+  const handleViewInvoice = (invoiceId: string) => {
+    if (!invoiceId) return;
+    dispatch(openInvoice(invoiceId));
   };
 
-  const handleCreated = (id: string) => {
-    setActiveJobCardId(id);
-    setView("detail");
-  };
-
-  const handleViewInvoice = (id: string) => {
-    setActiveJobCardId(id);
-    setView("invoice");
-  };
-
-  const handleBack = () => {
-    if (view === "invoice" && activeJobCardId) {
-      setView("detail");
-    } else {
-      setView("list");
-      setActiveJobCardId(null);
-    }
-  };
+  const handleBack = () => dispatch(goBack());
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -1967,7 +1969,10 @@ const JobCardForm = () => {
       <div className='sticky top-0 z-10 bg-white border-b border-gray-200 px-4 sm:px-6 h-12 flex items-center justify-between'>
         <div className='flex items-center gap-2'>
           <button
-            onClick={() => navigate("/service-admin/dashboard")}
+            onClick={() => {
+              dispatch(reset());
+              navigate("/service-admin/dashboard");
+            }}
             className='w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors'
           >
             <ArrowLeft className='w-3.5 h-3.5 text-gray-600' />
@@ -1975,10 +1980,7 @@ const JobCardForm = () => {
           <div className='flex items-center gap-1.5 text-xs text-gray-400'>
             <span
               className='hover:text-gray-700 cursor-pointer font-medium'
-              onClick={() => {
-                setView("list");
-                setActiveJobCardId(null);
-              }}
+              onClick={() => dispatch(reset())}
             >
               Job Cards
             </span>
@@ -1987,7 +1989,7 @@ const JobCardForm = () => {
                 <ChevronRight className='w-3 h-3' />
                 <span
                   className={`font-medium ${view === "detail" ? "text-gray-900" : "hover:text-gray-700 cursor-pointer"}`}
-                  onClick={() => view === "invoice" && setView("detail")}
+                  onClick={() => view === "invoice" && dispatch(setView("detail"))}
                 >
                   Detail
                 </span>
@@ -2023,27 +2025,24 @@ const JobCardForm = () => {
         {view === "list" && (
           <ListView
             onSelect={handleSelect}
-            onCreate={() => setView("create")}
+            onCreate={() => dispatch(setView("create"))}
           />
         )}
         {view === "create" && (
           <CreateView
-            onBack={() => setView("list")}
+            onBack={() => dispatch(setView("list"))}
             onCreated={handleCreated}
           />
         )}
         {view === "detail" && activeJobCardId && (
           <DetailView
             jobCardId={activeJobCardId}
-            onBack={() => {
-              setView("list");
-              setActiveJobCardId(null);
-            }}
+            onBack={() => dispatch(reset())}
             onViewInvoice={handleViewInvoice}
           />
         )}
-        {view === "invoice" && activeJobCardId && (
-          <InvoiceView jobCardId={activeJobCardId} onBack={handleBack} />
+        {view === "invoice" && activeInvoiceId && (
+          <InvoiceView invoiceId={activeInvoiceId} onBack={handleBack} />
         )}
       </div>
     </div>

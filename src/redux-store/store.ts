@@ -26,6 +26,7 @@ import formReducer from "./slices/formSlice";
 import getApprovedReducer from "./slices/getApprovedSlice";
 //
 import serviceBookingReducer from "./slices/bookingServiceSlice";
+import jobCardReducer from "./slices/jobCardSlice";
 //new
 import customerAuthReducer from "./slices/customer/customerAuthSlice";
 //
@@ -57,6 +58,7 @@ const rootReducer = combineReducers({
   customerAuth: customerAuthReducer,
   setupProgress: persistedSetupProgressReducer,
   serviceBooking: serviceBookingReducer,
+  jobCard: jobCardReducer,
   [apiSlice.reducerPath]: apiSlice.reducer,
 });
 

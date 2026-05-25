@@ -118,6 +118,12 @@ const routeConfig: Record<
       { label: "Manage Branches", href: "/admin/branches" },
     ],
   },
+  "/admin/service-revenue-stats" : {
+    title: "Service Revenue Stats",
+    subtitle: "",
+    showBack: true,
+    backTo: "/admin/dashboard",
+  }
 };
 
 const AdminHeader = () => {

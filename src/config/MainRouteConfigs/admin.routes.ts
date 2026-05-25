@@ -4,6 +4,7 @@ import BranchManagement from "@/mainComponents/Admin/AdminDash/BranchManagement"
 
 
 
+
 const LoginSuperAdmin = lazy(
   () => import("@/mainComponents/Admin/LoginSuperAdmin"),
 );
@@ -63,7 +64,9 @@ const ViewTotalVAS = lazy(
 const ViewAssignedStock = lazy(
   () => import("@/mainComponents/Admin/NewUpdate/ViewAssignedStock"),
 );
-
+const ServiceRevenueStats = lazy(
+  () => import("@/mainComponents/Admin/ServiceBookingsData/ServiceRevenueStats"),
+);
 //
 export const adminAuthRoutes = [
   { path: "/admin/login", component: LoginSuperAdmin },
@@ -74,7 +77,6 @@ export const adminRoutes = [
   { path: "/admin/branches/add", component: AddBranch },
   { path: "/admin/branches/managers", component: BranchManager },
   { path: "/admin/branches/service-admins", component: ServiceAdmins },
-
   //
   { path: "/admin/branches", component: BranchManagement },
 
@@ -97,9 +99,10 @@ export const adminRoutes = [
   { path: "/admin/leave-requests", component: TabBased },
 
   // Handling Dealer Queries
-
   { path: "/admin/accident-reports", component: GetAllAccidentReports },
   { path: "/admin/accident-reports/:id", component: GetAllAccidentReportsById },
+  //
+  { path: "/admin/service-revenue-stats", component: ServiceRevenueStats },
 ];
 
 // Kept separate for LoginBranchManager — used in manager auth flow
