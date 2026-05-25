@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   useGetJobCardCustomerQuery,
   useRequestConfirmationOtpMutation,
@@ -48,18 +48,11 @@ const ITEM_ICON: Record<string, React.ReactNode> = {
   custom:    <FileText className="w-3.5 h-3.5" />,
 };
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
-interface CustomerFinalBillConfirmProps {
-  jobCardId: string;
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function CustomerFinalBillConfirm({
-  jobCardId,
-}: CustomerFinalBillConfirmProps) {
+export default function CustomerFinalBillConfirm() {
   const navigate = useNavigate();
+  const { jobCardId = "" } = useParams<{ jobCardId: string }>();
 
   const { data, isLoading, isError } = useGetJobCardCustomerQuery(jobCardId);
 
