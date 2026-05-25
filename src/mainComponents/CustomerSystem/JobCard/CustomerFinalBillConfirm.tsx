@@ -48,13 +48,24 @@ const ITEM_ICON: Record<string, React.ReactNode> = {
   custom:    <FileText className="w-3.5 h-3.5" />,
 };
 
+// ─── Props ────────────────────────────────────────────────────────────────────
+
+interface CustomerFinalBillConfirmProps {
+  /** Pass directly when rendering inline; omit when rendered as a route component. */
+  jobCardId?: string;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function CustomerFinalBillConfirm() {
+export default function CustomerFinalBillConfirm({
+  jobCardId: propJobCardId,
+}: CustomerFinalBillConfirmProps = {}) {
   const navigate = useNavigate();
-  const { jobCardId = "" } = useParams<{ jobCardId: string }>();
+  const params = useParams<{ jobCardId: string }>();
+  const jobCardId = propJobCardId ?? params.jobCardId ?? "";
 
   const { data, isLoading, isError } = useGetJobCardCustomerQuery(jobCardId);
+
 
   const [requestOtp, { isLoading: isRequestingOtp }] =
     useRequestConfirmationOtpMutation();

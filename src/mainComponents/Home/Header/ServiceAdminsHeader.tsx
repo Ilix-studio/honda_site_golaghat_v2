@@ -34,7 +34,12 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/service-admin/dashboard",
   },
- 
+ "/service-admin/catalog" : {
+  title: "Job Card Catalog",
+  subtitle: "Manage job card catalog",
+  showBack: true,
+  backTo: "/service-admin/dashboard",
+ }
 };
 // SB-20260523-0001
 

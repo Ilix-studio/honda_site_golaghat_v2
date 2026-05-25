@@ -15,6 +15,10 @@ import {
 
 import { useListJobCardsQuery } from "@/redux-store/services/ServiceM/jobCardApi";
 import { JobCard, JobCardStatus } from "@/types/jobCard.types";
+// Add imports:
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux-store/store";
+import { selectJobCard } from "@/redux-store/slices/jobCardSlice";
 
 // ─── Status config ────────────────────────────────────────────────────────────
 
@@ -76,6 +80,7 @@ const STATUS_PILL: Record<JobCardStatus, { label: string; className: string }> =
 
 function JobCardRow({ card }: { card: JobCard }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const pill = STATUS_PILL[card.status];
   const vehicleName =
     card.vehicle?.stockConcept?.modelName ?? card.vehicle?.numberPlate ?? "—";
@@ -92,7 +97,10 @@ function JobCardRow({ card }: { card: JobCard }) {
 
   return (
     <button
-      onClick={() => navigate(`/service-admin/job-card/${card._id}`)}
+      onClick={() => {
+        dispatch(selectJobCard(card._id));
+        navigate("/service-admin/job-card");
+      }}
       className='w-full group flex items-center gap-3 px-4 py-3 rounded-xl
                  bg-gray-50 border border-gray-200
                  hover:bg-gray-100 hover:border-gray-300
