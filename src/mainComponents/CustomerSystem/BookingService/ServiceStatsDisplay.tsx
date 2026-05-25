@@ -14,6 +14,7 @@ import {
   RefreshCw,
   Plus,
   CheckCircle,
+  Receipt,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import CustomerTempBillReview from "../JobCard/CustomerTempBillReview";
@@ -21,13 +22,14 @@ import CustomerTempBillReview from "../JobCard/CustomerTempBillReview";
 import CustomerFinalBillConfirm from "../JobCard/CustomerFinalBillConfirm";
 import { useGetJobCardCustomerQuery } from "@/redux-store/services/ServiceM/jobCardApi";
 import BookingData from "./BookingData";
+import CustomerInvoiceHistory from "./CustomerInvoiceHistory";
 
 interface ServiceStatsDisplayProps {}
 
 const ServiceStatsDisplay: React.FC<ServiceStatsDisplayProps> = () => {
-  const [activeTab, setActiveTab] = useState<
-    "stats"  | "bill-info"
-  >("stats");
+  const [activeTab, setActiveTab] = useState<"stats" | "bill-info" | "history">(
+    "stats",
+  );
   const {
     data: statsData,
     isLoading: statsLoading,
@@ -35,45 +37,39 @@ const ServiceStatsDisplay: React.FC<ServiceStatsDisplayProps> = () => {
     refetch: refetchStats,
   } = useGetMyServiceStatsQuery();
 
-    const {
-      data: bookingsData,   
-    } = useGetMyBookingsQuery({limit: 50,
-  sortBy: "createdAt",
-  sortOrder: "desc",});
-
+  const { data: bookingsData } = useGetMyBookingsQuery({
+    limit: 50,
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
 
   const bookings = bookingsData?.data || [];
   const stats = statsData?.data;
 
   const ACTIONABLE_JOB_STATUSES = [
-  "temp_bill_sent",
-  "final_bill_sent",
-  "customer_reviewed",
-  "in_progress",
-  "draft",
-];
+    "temp_bill_sent",
+    "final_bill_sent",
+    "customer_reviewed",
+    "in_progress",
+    "draft",
+  ];
 
-const activeBookingWithJobCard =
-  bookings.find(
-    (b) =>
-      b.jobCard &&
-      !["completed", "cancelled"].includes(b.status) &&
-      ACTIONABLE_JOB_STATUSES.includes((b as any).jobCardStatus ?? "")
-  ) ??
-  // Fallback: any non-completed booking with a job card (newest first)
-  bookings.find(
-    (b) =>
-      b.jobCard && !["completed", "cancelled"].includes(b.status)
-  );
+  const activeBookingWithJobCard =
+    bookings.find(
+      (b) =>
+        b.jobCard &&
+        !["completed", "cancelled"].includes(b.status) &&
+        ACTIONABLE_JOB_STATUSES.includes((b as any).jobCardStatus ?? ""),
+    ) ??
+    // Fallback: any non-completed booking with a job card (newest first)
+    bookings.find(
+      (b) => b.jobCard && !["completed", "cancelled"].includes(b.status),
+    );
 
-
-  const {
-    data: jobCardData,
-    isLoading: jobCardLoading,
-  } = useGetJobCardCustomerQuery(
-    activeBookingWithJobCard?.jobCard || "",
-    { skip: !activeBookingWithJobCard?.jobCard }
-  );
+  const { data: jobCardData, isLoading: jobCardLoading } =
+    useGetJobCardCustomerQuery(activeBookingWithJobCard?.jobCard || "", {
+      skip: !activeBookingWithJobCard?.jobCard,
+    });
   const jobCard = jobCardData?.data;
 
   if (statsError) {
@@ -101,22 +97,25 @@ const activeBookingWithJobCard =
     <div className='w-full max-w-6xl mx-auto space-y-6'>
       <Tabs
         value={activeTab}
-        onValueChange={(value) =>
-          setActiveTab(value as "stats"  | "bill-info")
-        }
+        onValueChange={(value) => setActiveTab(value as "stats" | "bill-info")}
         className='w-full'
       >
-        <TabsList className='grid w-full grid-cols-2 lg:w-96 border rounded-full bg-white  '>
+        <TabsList className='grid w-full grid-cols-3 lg:w-96 border rounded-full bg-white gap-4 '>
           <TabsTrigger value='stats' className='flex items-center gap-2'>
             <BarChart3 className='h-4 w-4' />
             <span className='hidden sm:inline'>Service Stats</span>
             <span className='sm:hidden'>Stats</span>
           </TabsTrigger>
-  
+
           <TabsTrigger value='bill-info' className='flex items-center gap-2'>
             <Calendar className='h-4 w-4' />
             <span className='hidden sm:inline'>Bill Info</span>
             <span className='sm:hidden'>Bill Info</span>
+          </TabsTrigger>
+          <TabsTrigger value='history' className='flex items-center gap-2'>
+            <Receipt className='h-4 w-4' />
+            <span className='hidden sm:inline'>Bill History</span>
+            <span className='sm:hidden'>History</span>
           </TabsTrigger>
         </TabsList>
 
@@ -246,15 +245,14 @@ const activeBookingWithJobCard =
               </Card>
             </div>
           )}
-             <BookingData />
+          <BookingData />
         </TabsContent>
 
         {/* Bookings Tab */}
-       
 
         {/* Bill Info Tab */}
         <TabsContent value='bill-info' className='mt-6'>
-          { jobCardLoading ? (
+          {jobCardLoading ? (
             <div className='flex items-center justify-center min-h-[300px]'>
               <p className='text-gray-500 text-sm animate-pulse'>
                 Checking for active service bills...
@@ -264,37 +262,39 @@ const activeBookingWithJobCard =
             <Card>
               <CardContent className='p-12 text-center'>
                 <AlertCircle className='h-12 w-12 mx-auto mb-4 text-gray-400' />
-                <h3 className='text-lg font-semibold mb-2'>
-                  No Pending Bills
-                </h3>
+                <h3 className='text-lg font-semibold mb-2'>No Pending Bills</h3>
                 <p className='text-muted-foreground'>
-                  There are no active service bills pending your review at this time.
+                  There are no active service bills pending your review at this
+                  time.
                 </p>
               </CardContent>
             </Card>
           ) : jobCard.status === "temp_bill_sent" ? (
-            <CustomerTempBillReview jobCardId={activeBookingWithJobCard.jobCard} />
+            <CustomerTempBillReview
+              jobCardId={activeBookingWithJobCard.jobCard}
+            />
           ) : jobCard.status === "final_bill_sent" ? (
-            <CustomerFinalBillConfirm jobCardId={activeBookingWithJobCard.jobCard} />
+            <CustomerFinalBillConfirm
+              jobCardId={activeBookingWithJobCard.jobCard}
+            />
           ) : jobCard.status === "customer_reviewed" ? (
             <Card>
               <CardContent className='p-12 text-center'>
                 <CheckCircle className='h-12 w-12 mx-auto mb-4 text-green-500' />
-                <h3 className='text-lg font-semibold mb-2'>
-                  Review Submitted
-                </h3>
+                <h3 className='text-lg font-semibold mb-2'>Review Submitted</h3>
                 <p className='text-muted-foreground'>
-                  You've already submitted your review. The service team has been notified and will proceed with the approved items.
+                  You've already submitted your review. The service team has
+                  been notified and will proceed with the approved items.
                 </p>
               </CardContent>
             </Card>
-          ) : ["customer_confirmed", "invoice_generated", "closed"].includes(jobCard.status) ? (
+          ) : ["customer_confirmed", "invoice_generated", "closed"].includes(
+              jobCard.status,
+            ) ? (
             <Card>
               <CardContent className='p-12 text-center'>
                 <CheckCircle className='h-12 w-12 mx-auto mb-4 text-green-500' />
-                <h3 className='text-lg font-semibold mb-2'>
-                  Bill Confirmed
-                </h3>
+                <h3 className='text-lg font-semibold mb-2'>Bill Confirmed</h3>
                 <p className='text-muted-foreground mb-3'>
                   You have already confirmed this bill.
                 </p>
@@ -311,11 +311,15 @@ const activeBookingWithJobCard =
                   No Pending Actions
                 </h3>
                 <p className='text-muted-foreground'>
-                  There are no active service bills pending your action at this time.
+                  There are no active service bills pending your action at this
+                  time.
                 </p>
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+        <TabsContent value='history' className='mt-6'>
+          <CustomerInvoiceHistory />
         </TabsContent>
       </Tabs>
     </div>
