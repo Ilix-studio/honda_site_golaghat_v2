@@ -59,6 +59,10 @@ export interface SetPrimaryImageResponse {
   message: string;
   data: BikeImage;
 }
+export interface GetPrimaryImageByModelResponse {
+  success: boolean;
+  data: { src: string; alt: string } | null;
+}
 
 export const bikeImageApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -162,6 +166,16 @@ export const bikeImageApi = apiSlice.injectEndpoints({
         { type: "BikeImageList", id: bikeId },
       ],
     }),
+    getPrimaryImageByModelName: builder.query<
+  GetPrimaryImageByModelResponse,
+  string
+>({
+  query: (modelName) =>
+    `bike-images/by-model/${encodeURIComponent(modelName)}`,
+  providesTags: (_result, _error, modelName) => [
+    { type: "BikeImageList", id: `model-${modelName}` },
+  ],
+}),
   }),
 });
 
@@ -206,6 +220,7 @@ export const {
   useDeleteBikeImageMutation,
   useDeleteAllBikeImagesMutation,
   useSetPrimaryImageMutation,
+  useGetPrimaryImageByModelNameQuery,
 
   // Lazy queries for manual triggering
   useLazyGetBikeImagesQuery,

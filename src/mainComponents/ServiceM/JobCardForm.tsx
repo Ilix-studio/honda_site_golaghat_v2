@@ -77,7 +77,6 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-
 type FilterTab = "all" | "ongoing" | "completed" | "cancelled";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -1036,7 +1035,7 @@ function CreateView({ onBack, onCreated }: CreateViewProps) {
                   onChange={(e) =>
                     setForm((p) => ({ ...p, serviceBookingId: e.target.value }))
                   }
-                  placeholder='MongoDB ObjectId from service booking'
+                  placeholder='Enter Booking ID'
                   className='h-9 rounded-xl text-sm border-gray-200 font-mono'
                 />
                 <p className='text-[11px] text-gray-400'>
@@ -1475,16 +1474,15 @@ function DetailView({ jobCardId, onBack, onViewInvoice }: DetailViewProps) {
             onSendFinal={handleSendFinal}
             onCancel={() => setCancelDialogOpen(true)}
             onViewInvoice={() => {
-  const ref = card.invoiceRef;
-  const invoiceId =
-    ref && typeof ref === "object" && "_id" in ref
-      ? (ref as any)._id.toString()
-      : typeof ref === "string"
-        ? ref
-        : "";
-  if (invoiceId) onViewInvoice(invoiceId);
-}}
-
+              const ref = card.invoiceRef;
+              const invoiceId =
+                ref && typeof ref === "object" && "_id" in ref
+                  ? (ref as any)._id.toString()
+                  : typeof ref === "string"
+                    ? ref
+                    : "";
+              if (invoiceId) onViewInvoice(invoiceId);
+            }}
             loading={isBusy}
           />
         </div>
@@ -1933,7 +1931,7 @@ function InvoiceView({ invoiceId, onBack }: InvoiceViewProps) {
                 <FileText className='w-3.5 h-3.5' />
                 Download PDF
               </a>
-            ) }
+            )}
             {/* When you implement Cloudinary PDF upload and pdfUrl gets set, the button appears automatically. */}
           </div>
         </div>
@@ -1989,7 +1987,9 @@ const JobCardForm = () => {
                 <ChevronRight className='w-3 h-3' />
                 <span
                   className={`font-medium ${view === "detail" ? "text-gray-900" : "hover:text-gray-700 cursor-pointer"}`}
-                  onClick={() => view === "invoice" && dispatch(setView("detail"))}
+                  onClick={() =>
+                    view === "invoice" && dispatch(setView("detail"))
+                  }
                 >
                   Detail
                 </span>

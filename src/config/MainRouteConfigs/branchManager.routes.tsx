@@ -41,7 +41,9 @@ const ViewVAS = lazy(() => import("@/mainComponents/ViewBS2/ViewVAS"));
 
 
 const SelectVas = lazy(() => import("@/mainComponents/VASsystem/SelectVas"));
-
+const ViewStockConcept = lazy(
+  () => import("@/mainComponents/ViewBS2/ViewStockConcept"),
+);
 
 
 const BranchServiceBookings = lazy(
@@ -102,6 +104,7 @@ export const branchManagerRoutes = [
   { path: "/manager/finance-queries", component: BranchFinanceQueries },
   { path: "/manager/any-messages", component: SeeMessages },
   { path: "/manager/staff", component: OtherStaff },
+    { path: "/manager/view/stock-concept", component: ViewStockConcept },
   //
   { path: "/manager/apply-leave", component: BranchApplyLeave },
 ];
