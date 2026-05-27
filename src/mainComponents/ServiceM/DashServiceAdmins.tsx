@@ -28,7 +28,6 @@ import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/Se
 import OpenJobCards from "./OpenJobCards";
 import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
 
-
 const DashServiceAdmins = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAppSelector(selectAuth);
@@ -41,9 +40,10 @@ const DashServiceAdmins = () => {
     page: 1,
     limit: 1,
   });
-  const {data: myLeaveData,isLoading: myLeaveLoading} = useGetMyLeavesQuery({
- 
-  }, { skip: !isAuthenticated })
+  const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
+    {},
+    { skip: !isAuthenticated },
+  );
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -114,6 +114,21 @@ const DashServiceAdmins = () => {
       description: "Job card catalog",
       accent: "#f59e0b",
       action: { label: "Open", href: "/service-admin/catalog" },
+    },
+  ];
+
+  const InvoiceStats: Omit<StatCardProps, "index">[] = [
+    {
+      title: "Total",
+      value: 1000,
+      icon: Wrench,
+      loading: false,
+      description: "Total registered",
+      accent: "#3b82f6",
+      action: {
+        label: "Open Service Booking form",
+        href: "/service-admin/customer-invoices",
+      },
     },
   ];
 
@@ -219,7 +234,7 @@ const DashServiceAdmins = () => {
               className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
             >
               <MessageSquare className='h-4 w-4' />
-              <span>Customer & Reports</span>
+              <span>Customer Invoices & Reports</span>
             </TabsTrigger>
           </TabsList>
 
@@ -262,7 +277,7 @@ const DashServiceAdmins = () => {
                   </div>
                   <div>
                     <CardTitle className='text-lg font-semibold text-gray-900'>
-                      Customer & Reports
+                      Customer Invoices
                     </CardTitle>
                     <CardDescription className='text-gray-500 mt-0.5'>
                       Enquiries, applications, finance, and accident reports
@@ -270,7 +285,13 @@ const DashServiceAdmins = () => {
                   </div>
                 </div>
               </CardHeader>
-              {/* <CustomerQueries /> */}
+              <CardContent className='p-2'>
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+                  {InvoiceStats.map((stat, i) => (
+                    <StatCard key={stat.title} {...stat} index={i} />
+                  ))}
+                </div>
+              </CardContent>
             </Card>
           </TabsContent>
         </Tabs>

@@ -1,12 +1,23 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux-store/store";
 import {
-  useGetMyInvoicesQuery,
-  useGetInvoiceByIdCustomerQuery,
+  useListInvoicesAdminQuery,
+  useGetInvoiceByIdAdminQuery,
   InvoiceListItem,
 } from "@/redux-store/services/ServiceM/invoiceApi";
+import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -30,6 +41,8 @@ import {
   RefreshCw,
   ArrowLeft,
   ArrowRight,
+  Search,
+  SlidersHorizontal,
 } from "lucide-react";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -75,10 +88,9 @@ function InvoiceDetailSheet({
   open: boolean;
   onClose: () => void;
 }) {
-  const { data, isLoading, isError } = useGetInvoiceByIdCustomerQuery(
-    invoiceId,
-    { skip: !invoiceId || !open },
-  );
+  const { data, isLoading, isError } = useGetInvoiceByIdAdminQuery(invoiceId, {
+    skip: !invoiceId || !open,
+  });
 
   const invoice = data?.data;
 
@@ -120,7 +132,7 @@ function InvoiceDetailSheet({
 
           {invoice && (
             <>
-              {/* Meta cards */}
+              {/* Meta */}
               <div className='grid grid-cols-2 gap-3'>
                 {invoice.branch && (
                   <div className='rounded-xl border border-gray-100 bg-gray-50 px-3 py-2.5 flex items-start gap-2'>
@@ -135,7 +147,32 @@ function InvoiceDetailSheet({
                     </div>
                   </div>
                 )}
-
+                {invoice.customer && (
+                  <div className='rounded-xl border border-gray-100 bg-gray-50 px-3 py-2.5 flex items-start gap-2'>
+                    <IndianRupee className='w-3.5 h-3.5 text-gray-400 mt-0.5 shrink-0' />
+                    <div className='min-w-0'>
+                      <p className='text-[10px] text-gray-400 font-medium uppercase tracking-wide'>
+                        Customer
+                      </p>
+                      <p className='text-xs font-semibold text-gray-900 truncate'>
+                        {(invoice.customer as any).phoneNumber}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {invoice.vehicle && (
+                  <div className='rounded-xl border border-gray-100 bg-gray-50 px-3 py-2.5 flex items-start gap-2'>
+                    <Bike className='w-3.5 h-3.5 text-gray-400 mt-0.5 shrink-0' />
+                    <div className='min-w-0'>
+                      <p className='text-[10px] text-gray-400 font-medium uppercase tracking-wide'>
+                        Vehicle
+                      </p>
+                      <p className='text-xs font-semibold text-gray-900 truncate'>
+                        {(invoice.vehicle as any).numberPlate ?? "—"}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <div className='rounded-xl border border-gray-100 bg-gray-50 px-3 py-2.5 flex items-start gap-2'>
                   <Calendar className='w-3.5 h-3.5 text-gray-400 mt-0.5 shrink-0' />
                   <div>
@@ -144,17 +181,6 @@ function InvoiceDetailSheet({
                     </p>
                     <p className='text-xs font-semibold text-gray-900'>
                       {fmtDate(String(invoice.issuedAt))}
-                    </p>
-                  </div>
-                </div>
-                <div className='rounded-xl border border-gray-100 bg-gray-50 px-3 py-2.5 flex items-start gap-2'>
-                  <IndianRupee className='w-3.5 h-3.5 text-gray-400 mt-0.5 shrink-0' />
-                  <div>
-                    <p className='text-[10px] text-gray-400 font-medium uppercase tracking-wide'>
-                      Total Paid
-                    </p>
-                    <p className='text-xs font-black text-red-600'>
-                      {fmt(invoice.grandTotal)}
                     </p>
                   </div>
                 </div>
@@ -228,11 +254,21 @@ function InvoiceDetailSheet({
                   <span>{fmt(invoice.taxTotal)}</span>
                 </div>
                 <div className='flex justify-between text-sm font-black text-gray-900 border-t border-gray-200 pt-2 mt-1'>
-                  <span>Total Paid</span>
+                  <span>Grand Total</span>
                   <span className='text-red-600'>
                     {fmt(invoice.grandTotal)}
                   </span>
                 </div>
+              </div>
+
+              {/* Signature token */}
+              <div className='rounded-xl border border-gray-100 bg-gray-50 px-4 py-3'>
+                <p className='text-[10px] text-gray-400 font-medium uppercase tracking-wide mb-1'>
+                  Verification Token
+                </p>
+                <p className='text-[10px] font-mono text-gray-500 break-all'>
+                  {invoice.digitalSignatureToken}
+                </p>
               </div>
             </>
           )}
@@ -247,9 +283,11 @@ function InvoiceDetailSheet({
 function InvoiceRow({
   invoice,
   onOpen,
+  showBranch,
 }: {
   invoice: InvoiceListItem;
   onOpen: (id: string) => void;
+  showBranch: boolean;
 }) {
   return (
     <button
@@ -259,12 +297,10 @@ function InvoiceRow({
                  hover:bg-gray-50 hover:border-gray-300
                  transition-all duration-150 text-left'
     >
-      {/* Icon */}
-      <div className='shrink-0 flex items-center justify-center w-9 h-9 rounded-xl bg-red-50 border border-red-100 group-hover:border-red-200 transition-colors'>
+      <div className='shrink-0 flex items-center justify-center w-9 h-9 rounded-xl bg-red-50 border border-red-100'>
         <Receipt className='w-4 h-4 text-red-500' />
       </div>
 
-      {/* Info */}
       <div className='flex-1 min-w-0'>
         <div className='flex items-center gap-2'>
           <span className='text-xs font-black text-gray-900 tracking-tight'>
@@ -278,16 +314,21 @@ function InvoiceRow({
           </Badge>
         </div>
         <div className='flex items-center gap-3 mt-0.5 flex-wrap'>
-          {invoice.branch && (
+          {showBranch && invoice.branch && (
             <span className='flex items-center gap-1 text-[11px] text-gray-400'>
               <Building2 className='w-3 h-3' />
-              {(invoice.branch as any).branchName}
+              {invoice.branch.branchName}
+            </span>
+          )}
+          {invoice.customer && (
+            <span className='flex items-center gap-1 text-[11px] text-gray-400'>
+              {invoice.customer.phoneNumber}
             </span>
           )}
           {invoice.vehicle && (
             <span className='flex items-center gap-1 text-[11px] text-gray-400'>
               <Bike className='w-3 h-3' />
-              {(invoice.vehicle as any).numberPlate ?? "—"}
+              {invoice.vehicle.numberPlate}
             </span>
           )}
           <span className='flex items-center gap-1 text-[11px] text-gray-400'>
@@ -297,7 +338,6 @@ function InvoiceRow({
         </div>
       </div>
 
-      {/* Amount */}
       <div className='shrink-0 flex items-center gap-2'>
         <span className='text-sm font-black text-gray-900'>
           {fmt(invoice.grandTotal)}
@@ -310,37 +350,176 @@ function InvoiceRow({
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function CustomerInvoiceHistory() {
+export default function CustomerInvoices() {
+  const user = useSelector((state: RootState) => state.auth.user);
+  const isSuperAdmin = user?.role === "Super-Admin";
+
   const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [branchFilter, setBranchFilter] = useState<string | undefined>(
+    undefined,
+  );
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [search, setSearch] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
-  const { data, isLoading, isError, refetch } = useGetMyInvoicesQuery({
+  const { data, isLoading, isError, refetch } = useListInvoicesAdminQuery({
     page,
-    limit: 10,
+    limit: 15,
+    branchId: branchFilter,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
   });
 
-  const invoices = data?.data ?? [];
+  const { data: branchData } = useGetBranchesQuery(undefined, {
+    skip: !isSuperAdmin,
+  });
+
+  const invoices = (data?.data ?? []).filter((inv) =>
+    search
+      ? inv.invoiceNumber.toLowerCase().includes(search.toLowerCase()) ||
+        inv.customer?.phoneNumber.includes(search) ||
+        inv.vehicle?.numberPlate
+          ?.toLowerCase()
+          .includes(search.toLowerCase()) ||
+        inv.branch?.branchName.toLowerCase().includes(search.toLowerCase())
+      : true,
+  );
+
   const totalPages = data?.pages ?? 1;
 
+  const handleClearFilters = () => {
+    setBranchFilter(undefined);
+    setStartDate("");
+    setEndDate("");
+    setSearch("");
+    setPage(1);
+  };
+
+  const hasActiveFilters = !!(branchFilter || startDate || endDate || search);
+
   return (
-    <div className='space-y-4'>
+    <div className='space-y-4 p-10'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div>
-          <h2 className='text-base font-black text-gray-900'>
-            Service Bill History
-          </h2>
+          <h2 className='text-base font-black text-gray-900'>Invoices</h2>
           <p className='text-xs text-gray-400 mt-px'>
             {data?.total ?? 0} invoice{(data?.total ?? 0) !== 1 ? "s" : ""}
+            {!isSuperAdmin && " · branch-scoped"}
           </p>
         </div>
-        <button
-          onClick={() => refetch()}
-          className='w-8 h-8 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors'
-        >
-          <RefreshCw className='w-3.5 h-3.5 text-gray-400' />
-        </button>
+        <div className='flex items-center gap-2'>
+          <button
+            onClick={() => setShowFilters((p) => !p)}
+            className={`flex items-center gap-1.5 h-8 px-3 rounded-xl border text-xs font-semibold transition-all ${
+              showFilters || hasActiveFilters
+                ? "bg-gray-900 text-white border-gray-900"
+                : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
+            }`}
+          >
+            <SlidersHorizontal className='w-3.5 h-3.5' />
+            Filters
+            {hasActiveFilters && (
+              <span className='flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-black'>
+                !
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => refetch()}
+            className='w-8 h-8 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors'
+          >
+            <RefreshCw className='w-3.5 h-3.5 text-gray-400' />
+          </button>
+        </div>
       </div>
+
+      {/* Search */}
+      <div className='relative'>
+        <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400' />
+        <Input
+          placeholder='Search invoice, phone, plate...'
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className='pl-9 h-9 text-sm rounded-xl border-gray-200'
+        />
+      </div>
+
+      {/* Filters panel */}
+      {showFilters && (
+        <div className='rounded-2xl border border-gray-200 bg-gray-50 p-4 space-y-3'>
+          <div className='flex flex-wrap gap-3'>
+            {/* Branch filter — Super-Admin only */}
+            {isSuperAdmin && (
+              <div className='flex-1 min-w-[160px]'>
+                <p className='text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5'>
+                  Branch
+                </p>
+                <Select
+                  value={branchFilter ?? "all"}
+                  onValueChange={(v) => {
+                    setBranchFilter(v === "all" ? undefined : v);
+                    setPage(1);
+                  }}
+                >
+                  <SelectTrigger className='h-9 text-xs rounded-xl bg-white'>
+                    <SelectValue placeholder='All Branches' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All Branches</SelectItem>
+                    {branchData?.data?.map((b) => (
+                      <SelectItem key={b._id} value={b._id}>
+                        {b.branchName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Date range */}
+            <div className='flex-1 min-w-[140px]'>
+              <p className='text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5'>
+                From
+              </p>
+              <Input
+                type='date'
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  setPage(1);
+                }}
+                className='h-9 text-xs rounded-xl bg-white'
+              />
+            </div>
+            <div className='flex-1 min-w-[140px]'>
+              <p className='text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5'>
+                To
+              </p>
+              <Input
+                type='date'
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  setPage(1);
+                }}
+                className='h-9 text-xs rounded-xl bg-white'
+              />
+            </div>
+          </div>
+
+          {hasActiveFilters && (
+            <button
+              onClick={handleClearFilters}
+              className='text-xs text-red-500 font-semibold hover:underline'
+            >
+              Clear all filters
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Loading */}
       {isLoading && (
@@ -376,11 +555,12 @@ export default function CustomerInvoiceHistory() {
               <Receipt className='w-5 h-5 text-gray-300' />
             </div>
             <h3 className='text-sm font-semibold text-gray-900 mb-1'>
-              No invoices yet
+              No invoices found
             </h3>
             <p className='text-xs text-gray-400'>
-              Your service invoices will appear here once a job card is
-              confirmed.
+              {hasActiveFilters
+                ? "Try adjusting your filters."
+                : "Invoices will appear here after job cards are confirmed."}
             </p>
           </CardContent>
         </Card>
@@ -394,6 +574,7 @@ export default function CustomerInvoiceHistory() {
               key={invoice._id}
               invoice={invoice}
               onOpen={setSelectedId}
+              showBranch={isSuperAdmin}
             />
           ))}
         </div>

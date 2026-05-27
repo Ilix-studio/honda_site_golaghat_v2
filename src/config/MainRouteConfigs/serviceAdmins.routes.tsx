@@ -1,7 +1,11 @@
 import ApplyLeave from "@/mainComponents/shared/ApplyLeave";
+
 import { lazy } from "react";
 const ServiceApplyLeave = () => (
   <ApplyLeave dashboardPath='/service-admin/dashboard' />
+);
+const CustomerInvoices = lazy(
+  () => import("@/mainComponents/shared/CustomerInvoices"),
 );
 
 const DashServiceAdmins = lazy(
@@ -31,4 +35,5 @@ export const serviceAdminRoutes = [
   },
   { path: "/service-admin/job-card", component: JobCardForm },
   { path: "/service-admin/catalog", component: JobCardCatalogManager },
+  { path: "/service-admin/customer-invoices", component: CustomerInvoices },
 ];
