@@ -72,7 +72,7 @@ const INITIAL_FORM: CreateStaffForm = {
 // ─── Credentials shown after creation ────────────────────────────────────────
 
 interface CreatedCredentials {
-  applicationId: string;
+  phoneNumber: string;
   password: string;
   name: string;
   email: string;
@@ -111,7 +111,7 @@ const OtherStaff: React.FC = () => {
     const term = searchTerm.toLowerCase();
     return (
       staff.name.toLowerCase().includes(term) ||
-      staff.applicationId.toLowerCase().includes(term) ||
+      staff.phoneNumber.toLowerCase().includes(term) ||
       staff.email.toLowerCase().includes(term) ||
       staff.position?.toLowerCase().includes(term) ||
       staff.branch?.branchName?.toLowerCase().includes(term)
@@ -174,7 +174,7 @@ const OtherStaff: React.FC = () => {
       }).unwrap();
 
       setCredentials({
-        applicationId: response.data.applicationId,
+        phoneNumber: response.data.phoneNumber,
         password: response.data.password,
         name: response.data.name,
         email: response.data.email,
@@ -438,9 +438,7 @@ const OtherStaff: React.FC = () => {
                             {staff.position ?? "—"}
                           </span>
                         </TableCell>
-                        <TableCell className='font-mono text-sm'>
-                          {staff.applicationId}
-                        </TableCell>
+
                         <TableCell className='hidden md:table-cell'>
                           <span className='flex items-center gap-1 text-sm'>
                             <Mail className='h-3.5 w-3.5 text-muted-foreground' />
@@ -535,7 +533,7 @@ const OtherStaff: React.FC = () => {
               </Label>
               <div className='flex items-center gap-2'>
                 <Input
-                  value={credentials?.applicationId ?? ""}
+                  value={credentials?.phoneNumber ?? ""}
                   readOnly
                   className='font-mono'
                 />
@@ -544,7 +542,7 @@ const OtherStaff: React.FC = () => {
                   size='icon'
                   onClick={() =>
                     copyToClipboard(
-                      credentials?.applicationId ?? "",
+                      credentials?.phoneNumber ?? "",
                       "Application ID",
                     )
                   }
