@@ -11,14 +11,14 @@ const LoginBranchManager = () => {
   const navigate = useNavigate();
   const [loginBranchManager, { isLoading }] = useLoginBranchAdminMutation();
 
-  const [form, setForm] = useState({ applicationId: "", password: "" });
+  const [form, setForm] = useState({ phoneNumber: "", password: "" });
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (!form.applicationId.trim() || !form.password.trim()) {
+    if (!form.phoneNumber.trim() || !form.password.trim()) {
       setError("Please provide both application ID and password.");
       return;
     }
@@ -56,19 +56,19 @@ const LoginBranchManager = () => {
               <form onSubmit={handleSubmit} className='space-y-4'>
                 <div className='space-y-1.5'>
                   <Label
-                    htmlFor='applicationId'
+                    htmlFor='phoneNumber'
                     className='text-gray-300 text-sm'
                   >
-                    Application ID
+                    Phone Number
                   </Label>
                   <Input
-                    id='applicationId'
+                    id='phoneNumber'
                     type='text'
                     autoComplete='username'
-                    placeholder='e.g. BM-XXXX'
-                    value={form.applicationId}
+                    placeholder='e.g. 8880000000'
+                    value={form.phoneNumber}
                     onChange={(e) =>
-                      setForm((p) => ({ ...p, applicationId: e.target.value }))
+                      setForm((p) => ({ ...p, phoneNumber: e.target.value }))
                     }
                     className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-red-500'
                   />

@@ -12,7 +12,7 @@ export interface User {
   name: string;
   email?: string;
   role: string;
-  applicationId?: string;
+  phoneNumber?: string;
   branch?: UserBranch;
   position?: string;
 }

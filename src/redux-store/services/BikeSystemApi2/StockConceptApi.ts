@@ -1,5 +1,3 @@
-
-
 // ===================== TYPES & INTERFACES =====================
 
 export interface IStockConcept {
@@ -138,7 +136,7 @@ export interface AssignedStockItem extends Omit<IStockConcept, "salesInfo"> {
     soldTo: { _id: string; phoneNumber: string };
     soldDate: Date;
     salePrice: number;
-    salesPerson?: { _id: string; name: string; applicationId: string };
+    salesPerson?: { _id: string; name: string; phoneNumber: string };
     invoiceNumber?: string;
     paymentStatus?: "Paid" | "Partial" | "Pending";
     customerVehicleId?: {
@@ -228,19 +226,22 @@ export const stockConceptApi = apiSlice.injectEndpoints({
       transformErrorResponse: (response) => handleApiError(response),
     }),
     // inside injectEndpoints
-getAssignedStock: builder.query<AssignedStockListResponse, AssignedStockFilters>({
-  query: (filters = {}) => {
-    const params = new URLSearchParams();
-    if (filters.page) params.append("page", filters.page.toString());
-    if (filters.limit) params.append("limit", filters.limit.toString());
-    if (filters.branchId) params.append("branchId", filters.branchId);
-    if (filters.search) params.append("search", filters.search);
-    const qs = params.toString();
-    return `/stock-concept/assigned${qs ? `?${qs}` : ""}`;
-  },
-  providesTags: ["StockConcept"],
-  transformErrorResponse: (response) => handleApiError(response),
-}),
+    getAssignedStock: builder.query<
+      AssignedStockListResponse,
+      AssignedStockFilters
+    >({
+      query: (filters = {}) => {
+        const params = new URLSearchParams();
+        if (filters.page) params.append("page", filters.page.toString());
+        if (filters.limit) params.append("limit", filters.limit.toString());
+        if (filters.branchId) params.append("branchId", filters.branchId);
+        if (filters.search) params.append("search", filters.search);
+        const qs = params.toString();
+        return `/stock-concept/assigned${qs ? `?${qs}` : ""}`;
+      },
+      providesTags: ["StockConcept"],
+      transformErrorResponse: (response) => handleApiError(response),
+    }),
   }),
 });
 
@@ -252,6 +253,6 @@ export const {
   useAssignToCustomerMutation,
   useLazyGetAllStockItemsQuery,
   useLazyGetStockItemByIdQuery,
-   useGetAssignedStockQuery,       // new
-  useLazyGetAssignedStockQuery,   // new
+  useGetAssignedStockQuery, // new
+  useLazyGetAssignedStockQuery, // new
 } = stockConceptApi;
