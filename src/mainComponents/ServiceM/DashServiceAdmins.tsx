@@ -32,6 +32,7 @@ const DashServiceAdmins = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAppSelector(selectAuth);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const branchName = user?.branch?.branchName ?? null; // ← add this
 
   // RTK Query hooks — skip until authenticated to avoid 401s
   const { data: serviceBookingData, isLoading: serviceBookingLoading } =
@@ -198,16 +199,16 @@ const DashServiceAdmins = () => {
                 <Home className='h-3 w-3 text-gray-400' /> Visit Homepage
               </Button>
               <div className='flex items-center gap-4'>
+                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10'>
+                  <Building2 className='h-3 w-3 text-gray-400' />
+                  <span className='text-gray-400 text-xs font-medium'>
+                    {branchName ?? "Branch Access"}
+                  </span>
+                </div>
                 <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20'>
                   <div className='h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse' />
                   <span className='text-emerald-400 text-xs font-medium'>
                     System Online
-                  </span>
-                </div>
-                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10'>
-                  <Building2 className='h-3 w-3 text-gray-400' />
-                  <span className='text-gray-400 text-xs font-medium'>
-                    Branch Access
                   </span>
                 </div>
               </div>
