@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Plus, X, Trash2 } from "lucide-react";
+import { Plus, X, Trash2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 // Redux
@@ -210,7 +210,7 @@ const AddBikes = () => {
   const removeFeature = (index: number) => {
     setValue(
       "features",
-      watchedFeatures.filter((_, i) => i !== index)
+      watchedFeatures.filter((_, i) => i !== index),
     );
   };
 
@@ -225,7 +225,7 @@ const AddBikes = () => {
   const removeColor = (index: number) => {
     setValue(
       "colors",
-      watchedColors.filter((_, i) => i !== index)
+      watchedColors.filter((_, i) => i !== index),
     );
   };
 
@@ -246,7 +246,7 @@ const AddBikes = () => {
     if (watchedVariants.length > 1) {
       setValue(
         "variants",
-        watchedVariants.filter((_, i) => i !== index)
+        watchedVariants.filter((_, i) => i !== index),
       );
     }
   };
@@ -286,11 +286,11 @@ const AddBikes = () => {
           message: `${
             data.mainCategory === "bike" ? "Bike" : "Scooter"
           } created successfully!`,
-        })
+        }),
       );
 
       // Navigate to image upload page with the created bike ID
-      navigate(`/admin/bikes/add/${result.data.bikeId}/images`);
+      navigate(`/bikes/add/${result.data.bikeId}/images`);
     } catch (error: any) {
       dispatch(
         addNotification({
@@ -299,7 +299,7 @@ const AddBikes = () => {
             error?.data?.error ||
             error?.message ||
             `Failed to create ${data.mainCategory}`,
-        })
+        }),
       );
     }
   };
@@ -307,15 +307,6 @@ const AddBikes = () => {
   return (
     <div className='min-h-screen bg-gray-50'>
       <div className='container max-w-6xl px-4 py-8'>
-        <div className='mb-6'>
-          <Link to='/admin/dashboard'>
-            <Button variant='ghost' className='pl-0'>
-              <ArrowLeft className='h-4 w-4 mr-2' />
-              Back to Dashboard
-            </Button>
-          </Link>
-        </div>
-
         <Card>
           <CardHeader>
             <CardTitle>Add New Vehicle</CardTitle>
@@ -387,7 +378,7 @@ const AddBikes = () => {
                             <SelectItem key={option} value={option}>
                               {option.charAt(0).toUpperCase() + option.slice(1)}
                             </SelectItem>
-                          )
+                          ),
                         )}
                       </SelectContent>
                     </Select>
@@ -460,7 +451,7 @@ const AddBikes = () => {
                         const value = e.target.value;
                         setValue(
                           "priceBreakdown.exShowroomPrice",
-                          value === "" ? 0 : parseFloat(value)
+                          value === "" ? 0 : parseFloat(value),
                         );
                       }}
                       className={
@@ -485,7 +476,7 @@ const AddBikes = () => {
                         const value = e.target.value;
                         setValue(
                           "priceBreakdown.rtoCharges",
-                          value === "" ? 0 : parseFloat(value)
+                          value === "" ? 0 : parseFloat(value),
                         );
                       }}
                       className={formErrors.rtoCharges ? "border-red-500" : ""}
@@ -512,7 +503,7 @@ const AddBikes = () => {
                         const value = e.target.value;
                         setValue(
                           "priceBreakdown.insuranceComprehensive",
-                          value === "" ? 0 : parseFloat(value)
+                          value === "" ? 0 : parseFloat(value),
                         );
                       }}
                       className={

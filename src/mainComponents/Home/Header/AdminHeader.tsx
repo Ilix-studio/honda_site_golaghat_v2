@@ -103,27 +103,7 @@ const routeConfig: Record<
       { label: "Service Admins", href: "/admin/branches/service-admins" },
     ],
   },
-  "/admin/bikes/add": {
-    title: "Add New Bike",
-    subtitle: "Add motorcycle to inventory",
-    showBack: true,
-    backTo: "/admin/dashboard",
-    menuItems: [
-      { label: "Add Branch", href: "/admin/branches/add" },
-      { label: "Manage Branches", href: "/admin/branches" },
-    ],
-  },
-  "/admin/editbikes": {
-    title: "Edit Bike",
-    subtitle: "Update motorcycle details",
-    showBack: true,
-    backTo: "/admin/dashboard",
-    menuItems: [
-      { label: "Add Branch", href: "/admin/branches/add" },
-      { label: "Add Bikes/Scooty", href: "/admin/bikes/add" },
-      { label: "Manage Branches", href: "/admin/branches" },
-    ],
-  },
+
   "/admin/service-revenue-stats": {
     title: "Service Revenue Stats",
     subtitle: "",

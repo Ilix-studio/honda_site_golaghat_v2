@@ -16,6 +16,7 @@ import { publicRoutes } from "./config/MainRouteConfigs/public.routes";
 import {
   adminAuthRoutes,
   adminRoutes,
+  sharedBikeRoutes,
 } from "./config/MainRouteConfigs/admin.routes";
 
 // Customer
@@ -34,6 +35,7 @@ import {
   createImmediateRoute,
   createPublicRoute,
   createAdminRoute,
+  createSharedBikeRoute,
   createCustomerRoute,
   createBranchManagerRoute,
   createAuthRoute,
@@ -129,6 +131,11 @@ const App: React.FC = () => {
         {/* ADMIN — protected, admin header */}
         {adminRoutes.map(({ path, component }) =>
           createAdminRoute(path, component),
+        )}
+
+        {/* SHARED BIKE — accessible by Super-Admin + Branch-Admin */}
+        {sharedBikeRoutes.map(({ path, component }) =>
+          createSharedBikeRoute(path, component),
         )}
 
         {/* CUSTOMER AUTH — login page, no header */}

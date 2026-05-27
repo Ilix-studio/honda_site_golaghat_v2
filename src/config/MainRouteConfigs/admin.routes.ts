@@ -17,6 +17,7 @@ const AddBranch = lazy(
 const BranchManager = lazy(
   () => import("@/mainComponents/BranchM/BranchManager"),
 );
+
 const AddBikes = lazy(() => import("@/mainComponents/Admin/Bikes/AddBikes"));
 const EditBikes = lazy(() => import("@/mainComponents/Admin/Bikes/EditBikes"));
 const AddBikeImage = lazy(
@@ -34,6 +35,7 @@ const ViewScootyImages = lazy(
 const BikeImageManager = lazy(
   () => import("@/mainComponents/Admin/AdminDash/BikeImageManager"),
 );
+const ViewAll = lazy(() => import("@/mainComponents/Admin/AdminDash/ViewAll"));
 
 const GetAllAccidentReports = lazy(
   () => import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReports"),
@@ -76,16 +78,6 @@ export const adminRoutes = [
   //
   { path: "/admin/branches", component: BranchManagement },
 
-  //Handling Bikes
-  { path: "/admin/bikes/add", component: AddBikes },
-  { path: "/admin/bikes/edit/:id", component: EditBikes },
-  { path: "/admin/bikes/:bikeId/images/add", component: AddBikeImage },
-  { path: "/admin/bikes/:bikeId/images/edit", component: EditBikeImage },
-  { path: "/admin/bikes/images/:id", component: ViewBikeImage },
-  { path: "/admin/bikeimages/:bikeId", component: ViewBikeImages },
-  { path: "/admin/scootyimages/:bikeId", component: ViewScootyImages },
-  { path: "/admin/bikes/add/:id/images", component: BikeImageManager },
-
   //
   { path: "/admin/viewStaff", component: ViewStaff },
   { path: "/admin/view-total-vas", component: ViewTotalVAS },
@@ -99,6 +91,19 @@ export const adminRoutes = [
   { path: "/admin/accident-reports/:id", component: GetAllAccidentReportsById },
   //
   { path: "/admin/service-revenue-stats", component: DataTabsBP },
+];
+
+// Write-access bike routes — Super-Admin + Branch-Admin (gated by SharedBikeRouteWrapper)
+export const sharedBikeRoutes = [
+  { path: "/bikes/add", component: AddBikes },
+  { path: "/bikes/edit/:id", component: EditBikes },
+  { path: "/bikes/:bikeId/images/add", component: AddBikeImage },
+  { path: "/bikes/:bikeId/images/edit", component: EditBikeImage },
+  { path: "/bikes/images/:id", component: ViewBikeImage },
+  { path: "/bikeimages/:bikeId", component: ViewBikeImages },
+  { path: "/scootyimages/:bikeId", component: ViewScootyImages },
+  { path: "/bikes/add/:id/images", component: BikeImageManager },
+  { path: "/viewAll", component: ViewAll },
 ];
 
 // Kept separate for LoginBranchManager — used in manager auth flow

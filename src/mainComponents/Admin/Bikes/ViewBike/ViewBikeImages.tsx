@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { ArrowLeft, ImageIcon, RefreshCw, Edit, Plus } from "lucide-react";
+import { ImageIcon, RefreshCw, Edit, Plus } from "lucide-react";
 import { toast } from "react-hot-toast";
 import {
   useGetBikeImagesQuery,
@@ -24,7 +24,6 @@ import { ImageCard, Lightbox } from "./LightBox";
 
 const ViewBikeImages = () => {
   const { bikeId } = useParams<{ bikeId: string }>();
-  const navigate = useNavigate();
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
@@ -39,7 +38,7 @@ const ViewBikeImages = () => {
   } = useGetBikeImagesQuery(bikeId ?? skipToken);
 
   const { data: bikeResponse, isLoading: bikeLoading } = useGetBikeByIdQuery(
-    bikeId ?? skipToken
+    bikeId ?? skipToken,
   );
 
   const [setPrimary] = useSetPrimaryImageMutation();
@@ -79,7 +78,7 @@ const ViewBikeImages = () => {
 
   const prevImage = () =>
     setLightboxIndex((i) =>
-      i !== null ? (i - 1 + images.length) % images.length : null
+      i !== null ? (i - 1 + images.length) % images.length : null,
     );
   const nextImage = () =>
     setLightboxIndex((i) => (i !== null ? (i + 1) % images.length : null));
@@ -159,14 +158,6 @@ const ViewBikeImages = () => {
         {/* Header */}
         <div className='flex items-start justify-between gap-4'>
           <div className='flex items-center gap-3'>
-            <Button
-              variant='ghost'
-              size='icon'
-              onClick={() => navigate(-1)}
-              className='shrink-0'
-            >
-              <ArrowLeft className='h-4 w-4' />
-            </Button>
             <div>
               <h2 className='text-xl font-semibold text-gray-900'>
                 {bike?.modelName ?? "Bike"} — Images
@@ -182,13 +173,13 @@ const ViewBikeImages = () => {
             <Button variant='outline' size='sm' onClick={refetch}>
               <RefreshCw className='h-4 w-4' />
             </Button>
-            <Link to={`/admin/bikes/${bikeId}/images/edit`}>
+            <Link to={`/bikes/${bikeId}/images/edit`}>
               <Button variant='outline' size='sm' className='gap-1'>
                 <Edit className='h-4 w-4' />
                 Edit
               </Button>
             </Link>
-            <Link to={`/admin/bikes/${bikeId}/images/add`}>
+            <Link to={`/bikes/${bikeId}/images/add`}>
               <Button
                 size='sm'
                 className='gap-1 bg-red-600 hover:bg-red-700 text-white'
@@ -257,7 +248,7 @@ const ViewBikeImages = () => {
                   Add images to showcase this bike
                 </p>
               </div>
-              <Link to={`/admin/bikes/${bikeId}/images/add`}>
+              <Link to={`/bikes/${bikeId}/images/add`}>
                 <Button
                   size='sm'
                   className='gap-1 bg-red-600 hover:bg-red-700 text-white'

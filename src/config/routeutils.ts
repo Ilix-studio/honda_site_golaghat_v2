@@ -24,17 +24,6 @@ export const ROUTES = {
       MANAGERS: "/admin/service-admins/managers",
       VIEW: "/admin/service-admins/view",
     },
-    BIKES: {
-      ADD: "/admin/bikes/add",
-      EDIT: (id: string) => `/admin/bikes/edit/${id}`,
-      IMAGES: {
-        ADD: (bikeId: string) => `/admin/bikes/${bikeId}/images/add`,
-        EDIT: (bikeId: string) => `/admin/bikes/${bikeId}/images/edit`,
-        VIEW: (id: string) => `/admin/bikes/images/${id}`,
-      },
-    },
-
-
   },
 
   BRANCH_MANAGER: {
@@ -71,7 +60,6 @@ export const ROUTES = {
       VAS: "/manager/view/vas",
       STOCK_CONCEPT: "/manager/view/stock-concept",
     },
-
   },
 
   SERVICE_ADMIN: {
@@ -166,7 +154,7 @@ export const isPublicRoute = (path: string): boolean => {
     "/download",
   ];
   return publicPaths.some(
-    (publicPath) => path === publicPath || path.startsWith(`${publicPath}/`)
+    (publicPath) => path === publicPath || path.startsWith(`${publicPath}/`),
   );
 };
 
@@ -184,7 +172,7 @@ const ROLE_DASHBOARDS: Record<UserRole, string> = {
 
 export const canAccessRoute = (
   path: string,
-  user: NavigationUser | null
+  user: NavigationUser | null,
 ): { canAccess: boolean; redirectTo?: string; reason?: string } => {
   // Public routes — always accessible
   if (isPublicRoute(path)) return { canAccess: true };
@@ -302,7 +290,7 @@ export const getDefaultRoute = (user: NavigationUser | null): string => {
 export const safeNavigate = (
   navigate: NavigateFunction,
   path: string,
-  user: NavigationUser | null
+  user: NavigationUser | null,
 ): void => {
   const { canAccess, redirectTo } = canAccessRoute(path, user);
   navigate(canAccess ? path : redirectTo || ROUTES.HOME);

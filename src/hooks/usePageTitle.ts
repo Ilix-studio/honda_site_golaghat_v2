@@ -27,10 +27,9 @@ const PAGE_TITLES: Record<string, string> = {
   // Admin
   "/admin/login": "Admin Login | Tsangpool Honda",
   "/admin/dashboard": "Admin Dashboard | Tsangpool Honda",
-  "/admin/bikes/add": "Add Bike | Tsangpool Honda",
+  "/bikes/add": "Add Bike | Tsangpool Honda",
   "/admin/branches/add": "Add Branch | Tsangpool Honda",
   "/admin/branches": "Branches | Tsangpool Honda",
-
 
   "/admin/forms/stock-concept": "Stock Concept | Tsangpool Honda",
   "/admin/view/stock-concept": "View Stock | Tsangpool Honda",
@@ -61,7 +60,7 @@ export const usePageTitle = () => {
       return;
     }
 
-    // Prefix match for dynamic segments (e.g. /admin/bikes/edit/:id)
+    // Prefix match for dynamic segments (e.g. /bikes/edit/:id)
     const prefix = Object.keys(PAGE_TITLES)
       .filter((key) => pathname.startsWith(key) && key !== "/")
       .sort((a, b) => b.length - a.length)[0]; // longest match wins

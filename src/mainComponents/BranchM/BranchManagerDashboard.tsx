@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -30,6 +31,7 @@ import { useGetAllStockItemsQuery } from "@/redux-store/services/BikeSystemApi2/
 import CustomerQueries from "./Tabs/CustomerQuery";
 import JobCardCatalogManager from "../CustomerSystem/JobCard/JobCardCatalogManager";
 import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
+import RecentMotorcycles from "../Admin/AdminDash/RecentMotocycles";
 
 const BranchManagerDashboard = () => {
   const navigate = useNavigate();
@@ -55,10 +57,10 @@ const BranchManagerDashboard = () => {
     { skip: !isAuthenticated },
   );
 
-   const {data: myLeaveData,isLoading: myLeaveLoading} = useGetMyLeavesQuery({
-   
-    }, { skip: !isAuthenticated })
-  
+  const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
+    {},
+    { skip: !isAuthenticated },
+  );
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -127,13 +129,13 @@ const BranchManagerDashboard = () => {
       action: { label: "Open Stock Manager", href: "/manager/stockC/select" },
     },
 
-     {
-          title: "Apply Leave",
-          //Add Badge
-          value: myLeaveData?.data?.length ?? 0,
-          icon: Activity,
-          loading: myLeaveLoading,
-          description: "My Leave Application",
+    {
+      title: "Apply Leave",
+      //Add Badge
+      value: myLeaveData?.data?.length ?? 0,
+      icon: Activity,
+      loading: myLeaveLoading,
+      description: "My Leave Application",
       accent: "#f59e0b",
       action: { label: "Open", href: "/manager/apply-leave" },
     },
@@ -241,7 +243,7 @@ const BranchManagerDashboard = () => {
               className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
             >
               <MessageSquare className='h-4 w-4' />
-              <span>Customer & Reports</span>
+              <span>Add Vehicles & Reports</span>
             </TabsTrigger>
           </TabsList>
 
@@ -270,6 +272,9 @@ const BranchManagerDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+            <div className='mt-10 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm p-5'>
+              <JobCardCatalogManager />
+            </div>
           </TabsContent>
 
           <TabsContent value='customer-reports' className='mt-6'>
@@ -281,7 +286,7 @@ const BranchManagerDashboard = () => {
                   </div>
                   <div>
                     <CardTitle className='text-lg font-semibold text-gray-900'>
-                      Customer & Reports
+                      Add Vehicles & Reports
                     </CardTitle>
                     <CardDescription className='text-gray-500 mt-0.5'>
                       Enquiries, applications, finance, and accident reports
@@ -291,11 +296,15 @@ const BranchManagerDashboard = () => {
               </CardHeader>
               <CustomerQueries />
             </Card>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.45 }}
+            >
+              <RecentMotorcycles />
+            </motion.div>
           </TabsContent>
         </Tabs>
-        <div className='mt-10 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm p-5'>
-          <JobCardCatalogManager />
-        </div>
       </div>
     </div>
   );

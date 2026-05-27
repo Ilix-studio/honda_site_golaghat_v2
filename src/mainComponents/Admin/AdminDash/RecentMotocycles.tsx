@@ -223,7 +223,7 @@ const VehicleList = ({
         <p className='text-sm text-gray-500 mb-4'>
           No {vehicleType.toLowerCase()}s added yet
         </p>
-        <Link to='/admin/bikes/add'>
+        <Link to='/bikes/add'>
           <Button size='sm' className='bg-red-600 hover:bg-red-700 rounded-xl'>
             <Plus className='h-3.5 w-3.5 mr-1.5' />
             Add First {vehicleType}
@@ -249,15 +249,13 @@ const VehicleList = ({
 
       {vehicles.data.bikes.length >= 5 && (
         <div className='pt-2 flex justify-center'>
-          <Link
-            to={vehicleType === "Bike" ? "/admin/bikes" : "/admin/scooters"}
-          >
+          <Link to='/viewAll'>
             <Button
               variant='ghost'
               size='sm'
               className='text-xs text-gray-500 hover:text-gray-900 rounded-xl'
             >
-              View all {vehicleType}s
+              View all
               <ArrowRight className='h-3 w-3 ml-1' />
             </Button>
           </Link>
@@ -322,7 +320,7 @@ const RecentMotorcycles = () => {
             <p className='text-xs text-gray-400'>Honda dealership inventory</p>
           </div>
         </div>
-        <Link to='/admin/bikes/add'>
+        <Link to='/bikes/add'>
           <Button
             size='sm'
             className='bg-red-600 hover:bg-red-700 rounded-xl h-8 text-xs'
@@ -370,9 +368,9 @@ const RecentMotorcycles = () => {
               isError={bikesError}
               vehicleType='Bike'
               icon={Bike}
-              editPath='/admin/bikes/edit'
-              addPath='/admin/bikes/add'
-              imagePath='/admin/bikeimages'
+              editPath='/bikes/edit'
+              addPath='/bikes/add'
+              imagePath='/bikeimages'
               deletingId={deletingId}
               onDelete={handleDelete}
             />
@@ -385,9 +383,9 @@ const RecentMotorcycles = () => {
               isError={scootiesError}
               vehicleType='Scooty'
               icon={Zap}
-              editPath='/admin/bikes/edit'
-              addPath='/admin/addscooties'
-              imagePath='/admin/scootyimages'
+              editPath='/bikes/edit'
+              addPath='/scooties/add'
+              imagePath='/scootyimages'
               deletingId={deletingId}
               onDelete={handleDelete}
             />

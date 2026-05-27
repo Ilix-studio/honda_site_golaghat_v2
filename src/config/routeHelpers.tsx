@@ -1,5 +1,7 @@
 import React, { Suspense } from "react";
 import { Route } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectUserRole } from "../redux-store/slices/authSlice";
 import AdminHeader from "../mainComponents/Home/Header/AdminHeader";
 import ManagerHeader from "../mainComponents/Home/Header/ManagerHeader";
 import { CustomerDashHeader } from "../mainComponents/Home/Header/CustomerDashHeader";
@@ -56,6 +58,21 @@ const BranchManagerRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
     {children}
   </ProtectedRoute>
 );
+
+// Accessible by Super-Admin AND Branch-Admin — header is role-aware
+const SharedBikeRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const role = useSelector(selectUserRole);
+  const Header = role === "Branch-Admin" ? ManagerHeader : AdminHeader;
+
+  return (
+    <ProtectedRoute requiredRole='branch-admin-or-super-admin'>
+      <Header />
+      {children}
+    </ProtectedRoute>
+  );
+};
 
 const ServiceAdminRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -264,6 +281,23 @@ export const createAuthRoute = (
   />
 );
 
+export const createSharedBikeRoute = (
+  path: string,
+  Component: React.ComponentType,
+) => (
+  <Route
+    key={path}
+    path={path}
+    element={
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <SharedBikeRouteWrapper>
+          <Component />
+        </SharedBikeRouteWrapper>
+      </Suspense>
+    }
+  />
+);
+
 // ─── Route Type Detection ────────────────────────────────────────────────────
 
 type RouteType =
@@ -274,6 +308,7 @@ type RouteType =
   | "auth"
   | "super-admin"
   | "branch-admin"
+  | "shared-bike"
   | "service-admin"
   | "staff";
 
@@ -313,6 +348,7 @@ export const createSmartRoute = (
     admin: () => createAdminRoute(path, Component),
     "super-admin": () => createSuperAdminRoute(path, Component),
     "branch-admin": () => createBranchManagerRoute(path, Component),
+    "shared-bike": () => createSharedBikeRoute(path, Component),
     "service-admin": () => createServiceAdminRoute(path, Component),
     staff: () => createStaffRoute(path, Component),
     customer: () => createCustomerRoute(path, Component, options),
@@ -339,6 +375,7 @@ const ROUTE_CREATOR_MAP: Record<
   admin: (p, c) => createAdminRoute(p, c),
   "super-admin": (p, c) => createSuperAdminRoute(p, c),
   "branch-admin": (p, c) => createBranchManagerRoute(p, c),
+  "shared-bike": (p, c) => createSharedBikeRoute(p, c),
   "service-admin": (p, c) => createServiceAdminRoute(p, c),
   staff: (p, c) => createStaffRoute(p, c),
   customer: (p, c, o) => createCustomerRoute(p, c, o),

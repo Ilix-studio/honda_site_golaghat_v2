@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Plus, X, Loader2, AlertCircle, Images } from "lucide-react";
+import { Plus, X, Loader2, AlertCircle, Images } from "lucide-react";
 
 // Redux
 import { useAppDispatch } from "../../../hooks/redux";
@@ -256,12 +256,6 @@ const EditBikes = () => {
             <p className='text-muted-foreground mb-6'>
               No vehicle ID was provided in the URL.
             </p>
-            <Link to='/admin/dashboard'>
-              <Button>
-                <ArrowLeft className='h-4 w-4 mr-2' />
-                Back to Dashboard
-              </Button>
-            </Link>
           </div>
         </div>
       </div>
@@ -295,12 +289,6 @@ const EditBikes = () => {
               The vehicle you're trying to edit doesn't exist or has been
               removed.
             </p>
-            <Link to='/admin/dashboard'>
-              <Button>
-                <ArrowLeft className='h-4 w-4 mr-2' />
-                Back to Dashboard
-              </Button>
-            </Link>
           </div>
         </div>
       </div>
@@ -313,12 +301,6 @@ const EditBikes = () => {
         {/* Header */}
         <div className='flex items-center justify-between mb-6'>
           <div className='flex items-center gap-4'>
-            <Link to='/admin/dashboard'>
-              <Button variant='outline' size='sm'>
-                <ArrowLeft className='h-4 w-4 mr-2' />
-                Back to Dashboard
-              </Button>
-            </Link>
             <div>
               <h1 className='text-2xl font-semibold'>Edit Vehicle</h1>
               <p className='text-muted-foreground'>
@@ -328,7 +310,7 @@ const EditBikes = () => {
           </div>
 
           {/* Manage Images Button */}
-          <Link to={`/admin/bikes/${bike._id}/images/edit`}>
+          <Link to={`/bikes/${bike._id}/images/edit`}>
             <Button variant='outline'>
               <Images className='h-4 w-4 mr-2' />
               Manage Images

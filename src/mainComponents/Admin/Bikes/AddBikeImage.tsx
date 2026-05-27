@@ -57,7 +57,7 @@ const AddBikeImage = () => {
   const [uploadStatuses, setUploadStatuses] = useState<UploadStatus[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadMode, setUploadMode] = useState<"multiple" | "single">(
-    "multiple"
+    "multiple",
   );
 
   // API hooks
@@ -119,7 +119,7 @@ const AddBikeImage = () => {
           addNotification({
             type: "error",
             message: error,
-          })
+          }),
         );
       });
     }
@@ -166,7 +166,7 @@ const AddBikeImage = () => {
             addNotification({
               type: "error",
               message: `Failed to read ${file.name}`,
-            })
+            }),
           );
           processedCount++;
         };
@@ -194,7 +194,7 @@ const AddBikeImage = () => {
   // Update image alt text
   const updateImageAlt = (imageId: string, alt: string) => {
     setSelectedImages((prev) =>
-      prev.map((img) => (img.id === imageId ? { ...img, alt } : img))
+      prev.map((img) => (img.id === imageId ? { ...img, alt } : img)),
     );
   };
 
@@ -207,13 +207,13 @@ const AddBikeImage = () => {
         prev.map((status) =>
           status.id === imageFile.id
             ? { ...status, status: "uploading", progress: 50 }
-            : status
-        )
+            : status,
+        ),
       );
 
       const formData = createSingleImageUploadFormData(
         imageFile.file,
-        imageFile.alt
+        imageFile.alt,
       );
 
       await uploadSingleBikeImage({
@@ -225,8 +225,8 @@ const AddBikeImage = () => {
         prev.map((status) =>
           status.id === imageFile.id
             ? { ...status, status: "completed", progress: 100 }
-            : status
-        )
+            : status,
+        ),
       );
 
       // Remove from selection after successful upload
@@ -245,8 +245,8 @@ const AddBikeImage = () => {
                 progress: 0,
                 error: error?.data?.error || "Upload failed",
               }
-            : status
-        )
+            : status,
+        ),
       );
     }
   };
@@ -263,7 +263,11 @@ const AddBikeImage = () => {
 
       // Update all statuses to uploading
       setUploadStatuses((prev) =>
-        prev.map((status) => ({ ...status, status: "uploading", progress: 50 }))
+        prev.map((status) => ({
+          ...status,
+          status: "uploading",
+          progress: 50,
+        })),
       );
 
       const formData = createImageUploadFormData(files, altTexts);
@@ -279,14 +283,14 @@ const AddBikeImage = () => {
           ...status,
           status: "completed",
           progress: 100,
-        }))
+        })),
       );
 
       dispatch(
         addNotification({
           type: "success",
           message: `${selectedImages.length} image(s) uploaded successfully!`,
-        })
+        }),
       );
 
       // Clear selections after successful upload
@@ -303,14 +307,14 @@ const AddBikeImage = () => {
           status: "error",
           progress: 0,
           error: error?.data?.error || "Upload failed",
-        }))
+        })),
       );
 
       dispatch(
         addNotification({
           type: "error",
           message: error?.data?.error || "Failed to upload images",
-        })
+        }),
       );
     } finally {
       setIsUploading(false);
@@ -327,7 +331,7 @@ const AddBikeImage = () => {
         addNotification({
           type: "success",
           message: "Primary image updated successfully!",
-        })
+        }),
       );
       refetchImages();
     } catch (error: any) {
@@ -335,7 +339,7 @@ const AddBikeImage = () => {
         addNotification({
           type: "error",
           message: error?.data?.error || "Failed to set primary image",
-        })
+        }),
       );
     }
   };
@@ -348,7 +352,7 @@ const AddBikeImage = () => {
         addNotification({
           type: "success",
           message: "Image deleted successfully!",
-        })
+        }),
       );
       refetchImages();
     } catch (error: any) {
@@ -356,7 +360,7 @@ const AddBikeImage = () => {
         addNotification({
           type: "error",
           message: error?.data?.error || "Failed to delete image",
-        })
+        }),
       );
     }
   };
@@ -561,7 +565,7 @@ const AddBikeImage = () => {
                   <div className='grid grid-cols-1 gap-4'>
                     {selectedImages.map((imageFile) => {
                       const status = uploadStatuses.find(
-                        (s) => s.id === imageFile.id
+                        (s) => s.id === imageFile.id,
                       );
                       return (
                         <div
@@ -728,7 +732,7 @@ const AddBikeImage = () => {
 
         {/* Action Buttons */}
         <div className='flex justify-between items-center mt-8 pt-6 border-t'>
-          <Link to={`/admin/bikes/add`}>
+          <Link to={`/bikes/add`}>
             <Button variant='outline'>Add Another Vehicle</Button>
           </Link>
 

@@ -14,7 +14,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  ArrowLeft,
   Upload,
   Camera,
   Star,
@@ -99,7 +98,7 @@ const EditBikeImage = () => {
         addNotification({
           type: "error",
           message: "Invalid file type. Only JPEG, PNG, and WebP are allowed.",
-        })
+        }),
       );
       return;
     }
@@ -109,7 +108,7 @@ const EditBikeImage = () => {
         addNotification({
           type: "error",
           message: "File size too large. Maximum size is 10MB.",
-        })
+        }),
       );
       return;
     }
@@ -122,7 +121,7 @@ const EditBikeImage = () => {
       if (e.target?.result && typeof e.target.result === "string") {
         setPreviewUrl(e.target.result);
         setNewImageAlt(
-          `${bike?.modelName || "Vehicle"} - Image ${images.length + 1}`
+          `${bike?.modelName || "Vehicle"} - Image ${images.length + 1}`,
         );
       }
     };
@@ -138,7 +137,7 @@ const EditBikeImage = () => {
     try {
       const formData = createSingleImageUploadFormData(
         selectedImage,
-        newImageAlt
+        newImageAlt,
       );
 
       await uploadSingleImage({
@@ -150,7 +149,7 @@ const EditBikeImage = () => {
         addNotification({
           type: "success",
           message: "Image uploaded successfully!",
-        })
+        }),
       );
 
       // Clear form
@@ -164,7 +163,7 @@ const EditBikeImage = () => {
         addNotification({
           type: "error",
           message: error?.data?.error || "Failed to upload image",
-        })
+        }),
       );
     }
   };
@@ -195,7 +194,7 @@ const EditBikeImage = () => {
         addNotification({
           type: "success",
           message: "Image updated successfully!",
-        })
+        }),
       );
 
       setEditingImage(null);
@@ -205,7 +204,7 @@ const EditBikeImage = () => {
         addNotification({
           type: "error",
           message: error?.data?.error || "Failed to update image",
-        })
+        }),
       );
     }
   };
@@ -220,7 +219,7 @@ const EditBikeImage = () => {
         addNotification({
           type: "success",
           message: "Primary image updated successfully!",
-        })
+        }),
       );
       refetchImages();
     } catch (error: any) {
@@ -228,7 +227,7 @@ const EditBikeImage = () => {
         addNotification({
           type: "error",
           message: error?.data?.error || "Failed to set primary image",
-        })
+        }),
       );
     }
   };
@@ -241,7 +240,7 @@ const EditBikeImage = () => {
         addNotification({
           type: "success",
           message: "Image deleted successfully!",
-        })
+        }),
       );
       setDeleteConfirmId(null);
       refetchImages();
@@ -250,7 +249,7 @@ const EditBikeImage = () => {
         addNotification({
           type: "error",
           message: error?.data?.error || "Failed to delete image",
-        })
+        }),
       );
     }
   };
@@ -275,12 +274,6 @@ const EditBikeImage = () => {
             <p className='text-muted-foreground mb-4'>
               No vehicle ID was provided in the URL.
             </p>
-            <Link to='/admin/dashboard'>
-              <Button>
-                <ArrowLeft className='h-4 w-4 mr-2' />
-                Back to Dashboard
-              </Button>
-            </Link>
           </CardContent>
         </Card>
       </div>
@@ -314,12 +307,6 @@ const EditBikeImage = () => {
               The vehicle you're trying to edit images for doesn't exist.
             </p>
             <div className='flex gap-2 justify-center'>
-              <Link to='/admin/dashboard'>
-                <Button>
-                  <ArrowLeft className='h-4 w-4 mr-2' />
-                  Back to Dashboard
-                </Button>
-              </Link>
               <Button
                 variant='outline'
                 onClick={() => window.location.reload()}
@@ -339,12 +326,6 @@ const EditBikeImage = () => {
         {/* Header */}
         <div className='flex items-center justify-between mb-6'>
           <div className='flex items-center gap-4'>
-            <Link to='/admin/dashboard'>
-              <Button variant='outline' size='sm'>
-                <ArrowLeft className='h-4 w-4 mr-2' />
-                Back to Dashboard
-              </Button>
-            </Link>
             <div>
               <h1 className='text-2xl font-semibold'>Manage Images</h1>
               <p className='text-muted-foreground'>
@@ -499,7 +480,7 @@ const EditBikeImage = () => {
                                   setEditingImage((prev) =>
                                     prev
                                       ? { ...prev, alt: e.target.value }
-                                      : null
+                                      : null,
                                   )
                                 }
                                 className='text-sm'
