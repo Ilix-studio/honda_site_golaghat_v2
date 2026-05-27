@@ -79,7 +79,7 @@ const INITIAL_FORM: CreateBranchAdminForm = {
 // ─── Credentials shown after creation ────────────────────────────────────────
 
 export interface CreatedCredentials {
-  applicationId: string;
+  phoneNumber: string;
   password: string;
   name: string;
   email: string;
@@ -122,7 +122,7 @@ const BranchManager: React.FC = () => {
   const filteredAdmins = branchAdmins.filter((admin) => {
     const term = searchTerm.toLowerCase();
     return (
-      admin.applicationId.toLowerCase().includes(term) ||
+      admin.phoneNumber.toLowerCase().includes(term) ||
       admin.email.toLowerCase().includes(term) ||
       admin.branch?.branchName?.toLowerCase().includes(term)
     );
@@ -185,7 +185,7 @@ const BranchManager: React.FC = () => {
       }).unwrap();
 
       setCredentials({
-        applicationId: response.data.applicationId,
+        phoneNumber: response.data.phoneNumber,
         password: response.data.password,
         name: response.data.name,
         email: response.data.email,
@@ -271,7 +271,7 @@ const BranchManager: React.FC = () => {
                 <DialogHeader>
                   <DialogTitle>Create Branch Admin</DialogTitle>
                   <DialogDescription>
-                    Fill in the details. An Application ID and password will be
+                    Fill in the details. An Phone Number and password will be
                     generated and sent to the provided email.
                   </DialogDescription>
                 </DialogHeader>
@@ -411,7 +411,7 @@ const BranchManager: React.FC = () => {
               <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
               <Input
                 type='search'
-                placeholder='Search by name, application ID, email, or branch...'
+                placeholder='Search by name, phone number, email, or branch...'
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className='pl-8'
@@ -435,7 +435,7 @@ const BranchManager: React.FC = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
-                      <TableHead>Application ID</TableHead>
+
                       <TableHead className='hidden md:table-cell'>
                         Email
                       </TableHead>
@@ -457,9 +457,6 @@ const BranchManager: React.FC = () => {
                       <TableRow key={admin._id}>
                         <TableCell className='font-medium'>
                           {admin.name}
-                        </TableCell>
-                        <TableCell className='font-mono text-sm'>
-                          {admin.applicationId}
                         </TableCell>
                         <TableCell className='hidden md:table-cell'>
                           <span className='flex items-center gap-1 text-sm'>
@@ -540,14 +537,14 @@ const BranchManager: React.FC = () => {
               <p className='font-medium'>{credentials?.branch}</p>
             </div>
 
-            {/* Application ID */}
+            {/* Phone Number*/}
             <div className='space-y-1.5'>
               <Label className='text-muted-foreground text-xs'>
-                Application ID
+                Phone Number
               </Label>
               <div className='flex items-center gap-2'>
                 <Input
-                  value={credentials?.applicationId ?? ""}
+                  value={credentials?.phoneNumber ?? ""}
                   readOnly
                   className='font-mono'
                 />
@@ -556,8 +553,8 @@ const BranchManager: React.FC = () => {
                   size='icon'
                   onClick={() =>
                     copyToClipboard(
-                      credentials?.applicationId ?? "",
-                      "Application ID",
+                      credentials?.phoneNumber ?? "",
+                      "Phone Number",
                     )
                   }
                 >

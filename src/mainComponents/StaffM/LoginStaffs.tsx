@@ -11,14 +11,14 @@ const LoginStaffs = () => {
   const navigate = useNavigate();
   const [loginStaff, { isLoading }] = useLoginStaffMutation();
 
-  const [form, setForm] = useState({ applicationId: "", password: "" });
+  const [form, setForm] = useState({ phoneNumber: "", password: "" });
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (!form.applicationId.trim() || !form.password.trim()) {
+    if (!form.phoneNumber.trim() || !form.password.trim()) {
       setError("Please provide both application ID and password.");
       return;
     }
@@ -55,19 +55,19 @@ const LoginStaffs = () => {
               <form onSubmit={handleSubmit} className='space-y-4'>
                 <div className='space-y-1.5'>
                   <Label
-                    htmlFor='applicationId'
+                    htmlFor='phoneNumber'
                     className='text-gray-300 text-sm'
                   >
-                    Application ID
+                    Phone Number
                   </Label>
                   <Input
-                    id='applicationId'
+                    id='phoneNumber'
                     type='text'
                     autoComplete='username'
-                    placeholder='e.g. BM-XXXX'
-                    value={form.applicationId}
+                    placeholder='e.g. 8880000000'
+                    value={form.phoneNumber}
                     onChange={(e) =>
-                      setForm((p) => ({ ...p, applicationId: e.target.value }))
+                      setForm((p) => ({ ...p, phoneNumber: e.target.value }))
                     }
                     className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-red-500'
                   />
@@ -114,22 +114,22 @@ const LoginStaffs = () => {
               </form>
             </CardContent>
           </Card>
-            <div className='flex flex-col gap-3'>
-          <Link to='/manager-login' className='flex text-gray-300 underline'>
-            {" "}
-            <ArrowLeft /> Sign in as Branch Admin
-          </Link>
-          <Link
-            to='/service-admin/login'
-            className='flex text-gray-300 underline'
-          >
-            {" "}
-            <ArrowLeft /> Sign in as Service Admin
-          </Link>
-          <Link to='/' className='flex text-gray-300 underline'>
-            {" "}
-            <ArrowLeft /> Go to HomePage
-          </Link>
+          <div className='flex flex-col gap-3'>
+            <Link to='/manager-login' className='flex text-gray-300 underline'>
+              {" "}
+              <ArrowLeft /> Sign in as Branch Admin
+            </Link>
+            <Link
+              to='/service-admin/login'
+              className='flex text-gray-300 underline'
+            >
+              {" "}
+              <ArrowLeft /> Sign in as Service Admin
+            </Link>
+            <Link to='/' className='flex text-gray-300 underline'>
+              {" "}
+              <ArrowLeft /> Go to HomePage
+            </Link>
           </div>
         </div>
       </section>

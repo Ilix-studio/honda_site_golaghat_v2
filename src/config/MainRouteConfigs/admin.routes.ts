@@ -2,9 +2,6 @@ import { lazy } from "react";
 import { ViewBikeImage } from "@/mainComponents/Admin/Bikes/ViewBikeImage";
 import BranchManagement from "@/mainComponents/Admin/AdminDash/BranchManagement";
 
-
-
-
 const LoginSuperAdmin = lazy(
   () => import("@/mainComponents/Admin/LoginSuperAdmin"),
 );
@@ -38,7 +35,6 @@ const BikeImageManager = lazy(
   () => import("@/mainComponents/Admin/AdminDash/BikeImageManager"),
 );
 
-
 const GetAllAccidentReports = lazy(
   () => import("@/mainComponents/Admin/AcidentReport/GetAllAccidentReports"),
 );
@@ -64,8 +60,8 @@ const ViewTotalVAS = lazy(
 const ViewAssignedStock = lazy(
   () => import("@/mainComponents/Admin/NewUpdate/ViewAssignedStock"),
 );
-const ServiceRevenueStats = lazy(
-  () => import("@/mainComponents/Admin/ServiceBookingsData/ServiceRevenueStats"),
+const DataTabsBP = lazy(
+  () => import("@/mainComponents/Admin/ServiceBookingsData/DataTabsBP"),
 );
 //
 export const adminAuthRoutes = [
@@ -92,8 +88,8 @@ export const adminRoutes = [
 
   //
   { path: "/admin/viewStaff", component: ViewStaff },
-    { path: "/admin/view-total-vas", component: ViewTotalVAS },
-    { path: "/admin/view-assigned-stock", component: ViewAssignedStock },
+  { path: "/admin/view-total-vas", component: ViewTotalVAS },
+  { path: "/admin/view-assigned-stock", component: ViewAssignedStock },
 
   // Leave Management
   { path: "/admin/leave-requests", component: TabBased },
@@ -102,7 +98,7 @@ export const adminRoutes = [
   { path: "/admin/accident-reports", component: GetAllAccidentReports },
   { path: "/admin/accident-reports/:id", component: GetAllAccidentReportsById },
   //
-  { path: "/admin/service-revenue-stats", component: ServiceRevenueStats },
+  { path: "/admin/service-revenue-stats", component: DataTabsBP },
 ];
 
 // Kept separate for LoginBranchManager — used in manager auth flow

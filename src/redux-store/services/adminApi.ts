@@ -10,7 +10,7 @@ export interface SuperAdminLoginRequest {
 }
 
 export interface ApplicationLoginRequest {
-  applicationId: string;
+  phoneNumber: string;
   password: string;
 }
 
@@ -59,7 +59,7 @@ export interface BranchAdminLoginResponse extends BaseResponse {
   data: {
     id: string;
     name: string;
-    applicationId: string;
+    phoneNumber: string;
     branch: UserBranch;
     role: string;
     token: string;
@@ -70,7 +70,7 @@ export interface ServiceAdminLoginResponse extends BaseResponse {
   data: {
     id: string;
     name: string;
-    applicationId: string;
+    phoneNumber: string;
     branch: UserBranch;
     role: string;
     token: string;
@@ -81,7 +81,7 @@ export interface StaffLoginResponse extends BaseResponse {
   data: {
     id: string;
     name: string;
-    applicationId: string;
+    phoneNumber: string;
     branch: UserBranch;
     position: string;
     role: string;
@@ -94,7 +94,7 @@ export interface CreatedUserResponse extends BaseResponse {
     id: string;
     name: string;
     email: string;
-    applicationId: string;
+    phoneNumber: string;
     password: string;
     branch: string;
     position?: string;
@@ -107,11 +107,10 @@ export interface UserListItem {
   email: string;
   phoneNumber: string;
   address: string;
-  applicationId: string;
   isActive: boolean;
   branch: UserBranch;
   position?: string;
-  createdBy: { name: string; email?: string; applicationId?: string };
+  createdBy: { name: string; email?: string; phoneNumber?: string };
   createdAt: string;
 }
 
@@ -179,7 +178,7 @@ export const adminAuthApi = apiSlice.injectEndpoints({
             const userData: User = {
               id: data.data.id,
               name: data.data.name,
-              applicationId: data.data.applicationId,
+              phoneNumber: data.data.phoneNumber,
               branch: data.data.branch,
               role: data.data.role,
             };
@@ -207,7 +206,7 @@ export const adminAuthApi = apiSlice.injectEndpoints({
             const userData: User = {
               id: data.data.id,
               name: data.data.name,
-              applicationId: data.data.applicationId,
+              phoneNumber: data.data.phoneNumber,
               branch: data.data.branch,
               role: data.data.role,
             };
@@ -232,7 +231,7 @@ export const adminAuthApi = apiSlice.injectEndpoints({
             const userData: User = {
               id: data.data.id,
               name: data.data.name,
-              applicationId: data.data.applicationId,
+              phoneNumber: data.data.phoneNumber,
               branch: data.data.branch,
               position: data.data.position,
               role: data.data.role,

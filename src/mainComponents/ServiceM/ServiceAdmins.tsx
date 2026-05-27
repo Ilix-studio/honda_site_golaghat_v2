@@ -79,7 +79,7 @@ const INITIAL_FORM: CreateServiceAdminForm = {
 // ─── Credentials shown after creation ────────────────────────────────────────
 
 interface CreatedCredentials {
-  applicationId: string;
+  phoneNumber: string;
   password: string;
   name: string;
   email: string;
@@ -124,7 +124,7 @@ const ServiceAdmins: React.FC = () => {
     const term = searchTerm.toLowerCase();
     return (
       admin.name.toLowerCase().includes(term) ||
-      admin.applicationId.toLowerCase().includes(term) ||
+      admin.phoneNumber.toLowerCase().includes(term) ||
       admin.email.toLowerCase().includes(term) ||
       admin.branch?.branchName?.toLowerCase().includes(term)
     );
@@ -186,7 +186,7 @@ const ServiceAdmins: React.FC = () => {
       }).unwrap();
 
       setCredentials({
-        applicationId: response.data.applicationId,
+        phoneNumber: response.data.phoneNumber,
         password: response.data.password,
         name: response.data.name,
         email: response.data.email,
@@ -459,9 +459,7 @@ const ServiceAdmins: React.FC = () => {
                         <TableCell className='font-medium'>
                           {admin.name}
                         </TableCell>
-                        <TableCell className='font-mono text-sm'>
-                          {admin.applicationId}
-                        </TableCell>
+
                         <TableCell className='hidden md:table-cell'>
                           <span className='flex items-center gap-1 text-sm'>
                             <Mail className='h-3.5 w-3.5 text-muted-foreground' />
@@ -544,11 +542,11 @@ const ServiceAdmins: React.FC = () => {
             {/* Application ID */}
             <div className='space-y-1.5'>
               <Label className='text-muted-foreground text-xs'>
-                Application ID
+                Phone Number
               </Label>
               <div className='flex items-center gap-2'>
                 <Input
-                  value={credentials?.applicationId ?? ""}
+                  value={credentials?.phoneNumber ?? ""}
                   readOnly
                   className='font-mono'
                 />
@@ -557,8 +555,8 @@ const ServiceAdmins: React.FC = () => {
                   size='icon'
                   onClick={() =>
                     copyToClipboard(
-                      credentials?.applicationId ?? "",
-                      "Application ID",
+                      credentials?.phoneNumber ?? "",
+                      "Phone Number",
                     )
                   }
                 >

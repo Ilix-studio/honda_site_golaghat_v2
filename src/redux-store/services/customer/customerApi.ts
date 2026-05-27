@@ -24,7 +24,7 @@ export const customerApi = apiSlice.injectEndpoints({
         }),
         extraOptions: { isCustomer: true },
         invalidatesTags: ["Customer"],
-      }
+      },
     ),
 
     // Update customer profile
@@ -50,28 +50,32 @@ export const customerApi = apiSlice.injectEndpoints({
       ],
     }),
 
-    // Get all customers (admin only - likely uses Admin auth, but let's check original behavior. Original used customerBaseQuery so maybe mixed? Admin usually uses admin auth. 
-    // Wait, the original file imported `customerBaseQuery`. So it used Firebase token. 
+    // Get all customers (admin only - likely uses Admin auth, but let's check original behavior. Original used customerBaseQuery so maybe mixed? Admin usually uses admin auth.
+    // Wait, the original file imported `customerBaseQuery`. So it used Firebase token.
     // If Admin uses this endpoint, Admin needs Firebase token? Or is this endpoint actually for Admin usage?
-    // "Get all customers (admin only)" comment implies Admin. 
+    // "Get all customers (admin only)" comment implies Admin.
     // If the backend expects Admin Bearer token, then we shouldn't use `isCustomer: true`.
-    // However, the original code used `customerBaseQuery` for the WHOLE file. 
+    // However, the original code used `customerBaseQuery` for the WHOLE file.
     // Let's assume for now everything in this file was using Firebase Auth.
-getAllCustomers: builder.query<
-  { success: boolean; data: Customer[]; pagination?: { page: number; limit: number; total: number } },
-  { page?: number; limit?: number; isVerified?: boolean }
->({
-  query: (params = {}) => {
-    const searchParams = new URLSearchParams();
-    if (params.page) searchParams.append("page", params.page.toString());
-    if (params.limit) searchParams.append("limit", params.limit.toString());
-    if (params.isVerified !== undefined)
-      searchParams.append("isVerified", params.isVerified.toString());
-    return `/customer-profile?${searchParams.toString()}`;
-  },
-  // No isCustomer — admin JWT route
-  providesTags: ["Customer"],
-}),
+    getAllCustomers: builder.query<
+      {
+        success: boolean;
+        data: Customer[];
+        pagination?: { page: number; limit: number; total: number };
+      },
+      { page?: number; limit?: number; isVerified?: boolean }
+    >({
+      query: (params = {}) => {
+        const searchParams = new URLSearchParams();
+        if (params.page) searchParams.append("page", params.page.toString());
+        if (params.limit) searchParams.append("limit", params.limit.toString());
+        if (params.isVerified !== undefined)
+          searchParams.append("isVerified", params.isVerified.toString());
+        return `/customer-profile?${searchParams.toString()}`;
+      },
+      // No isCustomer — admin JWT route
+      providesTags: ["Customer"],
+    }),
   }),
 });
 
@@ -82,5 +86,3 @@ export const {
   useGetCustomerByIdQuery,
   useGetAllCustomersQuery,
 } = customerApi;
-
-
