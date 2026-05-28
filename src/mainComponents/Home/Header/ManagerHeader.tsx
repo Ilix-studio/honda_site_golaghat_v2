@@ -38,49 +38,49 @@ const routeConfig: Record<
       { label: "Accident Reports", href: "/manager/accident-reports" },
     ],
   },
-  "/manager/staff" : {
+  "/manager/staff": {
     title: " Create Staff",
     subtitle: "",
     showBack: true,
     backTo: "/manager/dashboard",
   },
-  "/manager/vas/select" : {
+  "/manager/vas/select": {
     title: "Manage Value Added Services",
     subtitle: "",
     showBack: true,
     backTo: "/manager/dashboard",
   },
-  "/manager/forms/vas" : {
+  "/manager/forms/vas": {
     title: " Create Value Added Services",
     subtitle: "",
     showBack: true,
     backTo: "/manager/vas/select",
   },
-  "/manager/view/vas" : {
+  "/manager/view/vas": {
     title: " List Value Added Services",
     subtitle: "",
     showBack: true,
     backTo: "/manager/vas/select",
   },
-  "/manager/stockC/select" : {
+  "/manager/stockC/select": {
     title: " List Value Added Services",
     subtitle: "",
     showBack: true,
     backTo: "/manager/dashboard",
   },
-  "/manager/forms/stock-concept-csv" : {
+  "/manager/forms/stock-concept-csv": {
     title: " Upload Stock Concept Excel",
     subtitle: "",
     showBack: true,
     backTo: "/manager/stockC/select",
   },
-  "/manager/forms/stock-concept" : {
+  "/manager/forms/stock-concept": {
     title: " Create Stock Concept",
     subtitle: "",
     showBack: true,
     backTo: "/manager/stockC/select",
   },
-  "/manager/get/all-stock" : {
+  "/manager/get/all-stock": {
     title: "List of All Stock",
     subtitle: "",
     showBack: true,
@@ -145,6 +145,12 @@ const routeConfig: Record<
     subtitle: "Handle finance-related requests",
     showBack: true,
     backTo: "/manager/dashboard",
+  },
+  "/manager/view/stock-concept": {
+    title: "View Stock Concept",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/stockC/select",
   },
 };
 

@@ -71,7 +71,7 @@ const CustomerCreateProfile: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -499,7 +499,7 @@ const CustomerCreateProfile: React.FC = () => {
             <button
               type='submit'
               disabled={isLoading || !customerAuth.isAuthenticated}
-              className='w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200'
+              className='w-full bg-black text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200'
             >
               {isLoading ? (
                 <div className='flex items-center justify-center'>
