@@ -126,7 +126,7 @@ const BranchQueries = () => {
             <MetricTile
               index={0}
               label='Total Visitors'
-              value={vs.totalVisitors?.toLocaleString() ?? "0"}
+              value={vs.totalVisitors?.toLocaleString("en-IN") ?? "0"}
               bg='bg-orange-50'
               text='text-orange-900'
               sub='text-orange-400'

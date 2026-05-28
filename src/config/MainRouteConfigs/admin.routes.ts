@@ -103,6 +103,7 @@ export const sharedBikeRoutes = [
   { path: "/scootyimages/:bikeId", component: ViewScootyImages },
   { path: "/bikes/add/:id/images", component: BikeImageManager },
   { path: "/viewAll", component: ViewAll },
+
   { path: "/accident-reports", component: GetAllAccidentReports },
   { path: "/accident-reports/:id", component: GetAllAccidentReportsById },
 ];

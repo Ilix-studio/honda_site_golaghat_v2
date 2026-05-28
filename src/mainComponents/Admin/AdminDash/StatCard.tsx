@@ -94,7 +94,7 @@ export const StatCard = ({
           <div className='h-9 w-20 bg-gray-100 animate-pulse rounded-lg' />
         ) : value !== undefined ? (
           <p className='text-4xl font-black text-gray-900 leading-none tabular-nums'>
-            {typeof value === "number" ? value.toLocaleString() : value}
+            {typeof value === "number" ? value.toLocaleString("en-IN") : value}
           </p>
         ) : (
           <p className='text-sm text-gray-800 italic'>{description}</p>

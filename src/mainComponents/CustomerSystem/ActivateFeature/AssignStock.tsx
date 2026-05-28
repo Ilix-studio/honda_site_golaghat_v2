@@ -28,7 +28,7 @@ const AssignStock = () => {
   const { customer } = useAuthForCustomer(); // Get authenticated customer
 
   const { data: stockData, isLoading: stockLoading } = useGetStockItemByIdQuery(
-    id!
+    id!,
   );
   const [assignToCustomer, { isLoading: assignLoading }] =
     useAssignToCustomerMutation();
@@ -71,7 +71,7 @@ const AssignStock = () => {
   }, [customer]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value, type } = e.target;
 
@@ -187,7 +187,7 @@ const AssignStock = () => {
           </div>
           <div>
             <span className='font-medium'>Price:</span> ₹
-            {stock.priceInfo.onRoadPrice.toLocaleString()}
+            {stock.priceInfo.onRoadPrice.toLocaleString("en-IN")}
           </div>
         </div>
       </div>

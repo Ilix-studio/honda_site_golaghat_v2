@@ -145,7 +145,8 @@ export function Footer() {
                         <span className='animate-pulse'>Loading...</span>
                       ) : (
                         <>
-                          {currentVisitorData?.count?.toLocaleString() || "0"}{" "}
+                          {currentVisitorData?.count?.toLocaleString("en-IN") ||
+                            "0"}{" "}
                           visitors
                         </>
                       )}

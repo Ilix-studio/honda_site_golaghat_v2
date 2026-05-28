@@ -23,9 +23,9 @@ import toast from "react-hot-toast";
 // ─── helpers ────────────────────────────────────────────────────────────────
 const formatPrice = (priceBreakdown: any): string => {
   if (priceBreakdown?.onRoadPrice)
-    return `₹${priceBreakdown.onRoadPrice.toLocaleString()}`;
+    return `₹${priceBreakdown.onRoadPrice.toLocaleString("en-IN")}`;
   if (priceBreakdown?.exShowroomPrice)
-    return `₹${priceBreakdown.exShowroomPrice.toLocaleString()}`;
+    return `₹${priceBreakdown.exShowroomPrice.toLocaleString("en-IN")}`;
   return "Price on request";
 };
 

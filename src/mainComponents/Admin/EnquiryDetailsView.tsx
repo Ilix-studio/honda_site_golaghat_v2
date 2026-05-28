@@ -118,7 +118,7 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
   // State management
   const [enquiry, setEnquiry] = useState<EnquiryData | null>(null);
   const [recommendations, setRecommendations] = useState<BikeRecommendation[]>(
-    []
+    [],
   );
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -187,7 +187,7 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -566,7 +566,7 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
                           <p className='text-xs text-gray-500'>
                             Valid until:{" "}
                             {new Date(
-                              enquiry.preApprovalValidUntil
+                              enquiry.preApprovalValidUntil,
                             ).toLocaleDateString()}
                           </p>
                         )}
@@ -579,7 +579,9 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
                         <p className='font-medium'>{enquiry.reviewedBy.name}</p>
                         <p className='text-xs text-gray-500'>
                           {enquiry.reviewedAt &&
-                            new Date(enquiry.reviewedAt).toLocaleString()}
+                            new Date(enquiry.reviewedAt).toLocaleString(
+                              "en-IN",
+                            )}
                         </p>
                       </div>
                     )}
@@ -728,7 +730,7 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
                       <p className='font-medium capitalize'>
                         {enquiry.bikeEnquiry.previousBikeExperience.replace(
                           "-",
-                          " "
+                          " ",
                         )}
                       </p>
                     </div>
@@ -763,7 +765,7 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
                               >
                                 {feature}
                               </Badge>
-                            )
+                            ),
                           )}
                         </div>
                       </div>
@@ -822,7 +824,7 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
                         <p className='text-sm text-gray-600'>Estimated Value</p>
                         <p className='font-medium text-lg text-green-600'>
                           {formatCurrency(
-                            enquiry.bikeEnquiry.tradeInBike.estimatedValue
+                            enquiry.bikeEnquiry.tradeInBike.estimatedValue,
                           )}
                         </p>
                       </div>
@@ -904,8 +906,8 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
                                 bike.affordabilityScore >= 0.8
                                   ? "bg-green-600"
                                   : bike.affordabilityScore >= 0.6
-                                  ? "bg-yellow-600"
-                                  : "bg-red-600"
+                                    ? "bg-yellow-600"
+                                    : "bg-red-600"
                               }`}
                               style={{
                                 width: `${bike.affordabilityScore * 100}%`,
@@ -994,15 +996,15 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
                     <div className='flex items-center justify-between'>
                       <h4 className='font-medium'>Application Submitted</h4>
                       <span className='text-sm text-gray-500'>
-                        {new Date(enquiry.createdAt).toLocaleString()}
+                        {new Date(enquiry.createdAt).toLocaleString("en-IN")}
                       </span>
                     </div>
                     <p className='text-sm text-gray-600'>
                       {enquiry.enquiryType === "specific-bike"
                         ? "Bike-specific financing"
                         : enquiry.enquiryType === "trade-in"
-                        ? "Trade-in financing"
-                        : "General financing"}{" "}
+                          ? "Trade-in financing"
+                          : "General financing"}{" "}
                       enquiry submitted
                     </p>
                   </div>
@@ -1020,7 +1022,7 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
                       <div className='flex items-center justify-between'>
                         <h4 className='font-medium'>Application Reviewed</h4>
                         <span className='text-sm text-gray-500'>
-                          {new Date(enquiry.reviewedAt).toLocaleString()}
+                          {new Date(enquiry.reviewedAt).toLocaleString("en-IN")}
                         </span>
                       </div>
                       <p className='text-sm text-gray-600'>
@@ -1043,10 +1045,10 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
                         enquiry.status === "approved"
                           ? "bg-green-100"
                           : enquiry.status === "pre-approved"
-                          ? "bg-blue-100"
-                          : enquiry.status === "rejected"
-                          ? "bg-red-100"
-                          : "bg-gray-100"
+                            ? "bg-blue-100"
+                            : enquiry.status === "rejected"
+                              ? "bg-red-100"
+                              : "bg-gray-100"
                       }`}
                     >
                       {enquiry.status === "approved" ||
@@ -1071,7 +1073,7 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
                         Current Status: {enquiry.status.toUpperCase()}
                       </h4>
                       <span className='text-sm text-gray-500'>
-                        {new Date(enquiry.updatedAt).toLocaleString()}
+                        {new Date(enquiry.updatedAt).toLocaleString("en-IN")}
                       </span>
                     </div>
                     {enquiry.preApprovalAmount && (
@@ -1103,11 +1105,11 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
                 </div>
                 <div>
                   <p className='text-gray-600'>Created At</p>
-                  <p>{new Date(enquiry.createdAt).toLocaleString()}</p>
+                  <p>{new Date(enquiry.createdAt).toLocaleString("en-IN")}</p>
                 </div>
                 <div>
                   <p className='text-gray-600'>Last Updated</p>
-                  <p>{new Date(enquiry.updatedAt).toLocaleString()}</p>
+                  <p>{new Date(enquiry.updatedAt).toLocaleString("en-IN")}</p>
                 </div>
                 <div>
                   <p className='text-gray-600'>Terms Accepted</p>

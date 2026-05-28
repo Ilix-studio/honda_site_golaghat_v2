@@ -196,7 +196,9 @@ const ServiceBookingsManager: React.FC = () => {
                   </CardHeader>
                   <CardContent className='pt-0'>
                     <div className='text-2xl font-bold text-green-600'>
-                      ₹{stats?.revenue?.totalRevenue?.toLocaleString() || 0}
+                      ₹
+                      {stats?.revenue?.totalRevenue?.toLocaleString("en-IN") ||
+                        0}
                     </div>
                   </CardContent>
                 </Card>

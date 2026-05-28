@@ -142,7 +142,7 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
       "automatic",
       "gearless",
     ],
-    []
+    [],
   );
 
   const features = useMemo(
@@ -163,7 +163,7 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
       "Liquid Cooled",
       "Air Cooled",
     ],
-    []
+    [],
   );
 
   const intendedUses = useMemo(
@@ -175,7 +175,7 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
       { value: "leisure", label: "Leisure Riding" },
       { value: "business", label: "Business Use" },
     ],
-    []
+    [],
   );
 
   const experienceLevels = useMemo(
@@ -185,7 +185,7 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
       { value: "intermediate", label: "Intermediate (3-5 years)" },
       { value: "experienced", label: "Experienced (5+ years)" },
     ],
-    []
+    [],
   );
 
   const urgencyOptions = useMemo(
@@ -195,7 +195,7 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
       { value: "within-3months", label: "Within 3 months" },
       { value: "exploring", label: "Just exploring options" },
     ],
-    []
+    [],
   );
 
   const employmentTypes = useMemo(
@@ -206,7 +206,7 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
       { value: "retired", label: "Retired" },
       { value: "student", label: "Student" },
     ],
-    []
+    [],
   );
 
   const creditScoreRanges = useMemo(
@@ -216,7 +216,7 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
       { value: "fair", label: "Fair (650-699)" },
       { value: "poor", label: "Poor (below 650)" },
     ],
-    []
+    [],
   );
 
   // Form handlers
@@ -233,7 +233,7 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
         });
       }
     },
-    [errors]
+    [errors],
   );
 
   const updateNestedField = useCallback(
@@ -246,7 +246,7 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
         },
       }));
     },
-    []
+    [],
   );
 
   const toggleFeature = useCallback((feature: string) => {
@@ -313,7 +313,7 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
       setErrors(newErrors);
       return Object.keys(newErrors).length === 0;
     },
-    [formData]
+    [formData],
   );
 
   // Form submission
@@ -362,8 +362,8 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
         enquiryType: formData.bikeId
           ? "specific-bike"
           : formData.hasTradeIn
-          ? "trade-in"
-          : "general-financing",
+            ? "trade-in"
+            : "general-financing",
       };
 
       const response = await fetch("/api/getapproved/with-bike", {
@@ -622,7 +622,9 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
                         </h3>
                         <p className='text-sm text-gray-600'>
                           ₹
-                          {selectedBike.priceBreakdown.exShowroomPrice?.toLocaleString()}
+                          {selectedBike.priceBreakdown.exShowroomPrice?.toLocaleString(
+                            "en-IN",
+                          )}
                         </p>
                         <Badge variant='secondary'>
                           {selectedBike.category}
@@ -667,7 +669,9 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
                               </div>
                               <div className='text-xs text-gray-600'>
                                 ₹
-                                {bike.priceBreakdown.exShowroomPrice?.toLocaleString()}
+                                {bike.priceBreakdown.exShowroomPrice?.toLocaleString(
+                                  "en-IN",
+                                )}
                               </div>
                             </CardContent>
                           </Card>
@@ -878,7 +882,7 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
                       <SelectContent>
                         {Array.from(
                           { length: 20 },
-                          (_, i) => new Date().getFullYear() - i
+                          (_, i) => new Date().getFullYear() - i,
                         ).map((year) => (
                           <SelectItem key={year} value={year.toString()}>
                             {year}
@@ -947,9 +951,9 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
                     <p>{formData.phone}</p>
                     <p>
                       Income: ₹
-                      {parseFloat(
-                        formData.monthlyIncome || "0"
-                      ).toLocaleString()}
+                      {parseFloat(formData.monthlyIncome || "0").toLocaleString(
+                        "en-IN",
+                      )}
                       /month
                     </p>
                   </div>
@@ -962,7 +966,7 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
                       Intended Use:{" "}
                       {
                         intendedUses.find(
-                          (u) => u.value === formData.intendedUse
+                          (u) => u.value === formData.intendedUse,
                         )?.label
                       }
                     </p>
@@ -970,7 +974,7 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
                       Experience:{" "}
                       {
                         experienceLevels.find(
-                          (e) => e.value === formData.previousBikeExperience
+                          (e) => e.value === formData.previousBikeExperience,
                         )?.label
                       }
                     </p>

@@ -71,7 +71,7 @@ function StatusBadge({
   colorClass?: string;
 }) {
   const base = active
-    ? colorClass ?? "bg-green-50 text-green-700 border-green-200"
+    ? (colorClass ?? "bg-green-50 text-green-700 border-green-200")
     : "bg-gray-50 text-gray-400 border-gray-200";
   return (
     <span
@@ -109,7 +109,7 @@ export default function CustomerVehicleDetail() {
     vehicleId!,
     {
       skip: !vehicleId,
-    }
+    },
   );
 
   const vehicle = data?.data;
@@ -244,8 +244,8 @@ export default function CustomerVehicleDetail() {
               vehicle.isPaid
                 ? "Paid"
                 : vehicle.isFinance
-                ? "Finance"
-                : "Pending"
+                  ? "Finance"
+                  : "Pending"
             }
             icon={CreditCard}
           />
@@ -286,7 +286,7 @@ export default function CustomerVehicleDetail() {
             label='Kilometers'
             value={
               vehicle.serviceStatus?.kilometers != null
-                ? `${vehicle.serviceStatus.kilometers.toLocaleString()} km`
+                ? `${vehicle.serviceStatus.kilometers.toLocaleString("en-IN")} km`
                 : undefined
             }
             icon={Wrench}

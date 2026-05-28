@@ -69,7 +69,7 @@ const StatCard = ({
           <div className='h-9 w-20 bg-gray-100 animate-pulse rounded-lg' />
         ) : (
           <p className='text-4xl font-black text-gray-900 leading-none tabular-nums'>
-            {typeof value === "number" ? value.toLocaleString() : value}
+            {typeof value === "number" ? value.toLocaleString("en-IN") : value}
           </p>
         )}
         <p className='text-xs text-gray-400 mt-1'>{description}</p>

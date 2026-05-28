@@ -459,7 +459,7 @@ const AddBikes = () => {
                         (watchedPriceBreakdown.exShowroomPrice || 0) +
                         (watchedPriceBreakdown.rtoCharges || 0) +
                         (watchedPriceBreakdown.insuranceComprehensive || 0)
-                      ).toLocaleString()}
+                      ).toLocaleString("en-IN")}
                     </p>
                   </div>
                 )}

@@ -27,7 +27,7 @@ const CustomerVehicleInfo = () => {
   const { data, isLoading, error } = useGetAllStockItemsQuery(filters);
 
   const handleFilterChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFilters((prev) => ({
@@ -212,7 +212,7 @@ const CustomerVehicleInfo = () => {
                           {stock.stockStatus.location}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                          ₹{stock.priceInfo.onRoadPrice.toLocaleString()}
+                          ₹{stock.priceInfo.onRoadPrice.toLocaleString("en-IN")}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
                           <button

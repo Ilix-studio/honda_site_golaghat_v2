@@ -43,7 +43,7 @@ export function CustomerBikeInfo() {
 
   const { data: bikeImageData } = useGetPrimaryImageByModelNameQuery(
     firstVehicleModelName,
-    { skip: !firstVehicleModelName }
+    { skip: !firstVehicleModelName },
   );
 
   const vehicleImageSrc = bikeImageData?.data?.src ?? null;
@@ -51,9 +51,9 @@ export function CustomerBikeInfo() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-        <span className="ml-2 text-gray-600">Loading your vehicles...</span>
+      <div className='flex items-center justify-center min-h-[400px]'>
+        <Loader2 className='w-8 h-8 animate-spin text-blue-600' />
+        <span className='ml-2 text-gray-600'>Loading your vehicles...</span>
       </div>
     );
   }
@@ -64,25 +64,25 @@ export function CustomerBikeInfo() {
     const isAuthError = (error as any)?.status === 401;
 
     return (
-      <Card className="border-red-200">
-        <CardContent className="p-8 text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 font-semibold mb-2">
+      <Card className='border-red-200'>
+        <CardContent className='p-8 text-center'>
+          <AlertCircle className='w-12 h-12 text-red-500 mx-auto mb-4' />
+          <p className='text-red-600 font-semibold mb-2'>
             {isAuthError ? "Authentication Error" : "Error Loading Vehicles"}
           </p>
-          <p className="text-gray-600 mb-4">{errorMessage}</p>
+          <p className='text-gray-600 mb-4'>{errorMessage}</p>
           {isAuthError ? (
             <Button
               onClick={() => navigate("/customer/login")}
-              className="bg-red-600 hover:bg-red-700"
+              className='bg-red-600 hover:bg-red-700'
             >
               Go to Login
             </Button>
           ) : (
             <Button
               onClick={() => refetch()}
-              variant="outline"
-              className="border-red-300 hover:bg-red-50"
+              variant='outline'
+              className='border-red-300 hover:bg-red-50'
             >
               Try Again
             </Button>
@@ -95,14 +95,14 @@ export function CustomerBikeInfo() {
   if (!vehiclesData?.data || vehiclesData.data.length === 0) {
     return (
       <Card>
-        <CardContent className="p-8 text-center">
-          <div className="mb-4">
-            <Camera className="w-16 h-16 text-gray-300 mx-auto" />
+        <CardContent className='p-8 text-center'>
+          <div className='mb-4'>
+            <Camera className='w-16 h-16 text-gray-300 mx-auto' />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <h3 className='text-xl font-semibold text-gray-900 mb-2'>
             No Vehicles Found
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className='text-gray-600 mb-4'>
             You don't have any vehicles registered yet. Contact your dealer to
             add your motorcycle.
           </p>
@@ -114,20 +114,18 @@ export function CustomerBikeInfo() {
   const vehicle = vehiclesData.data[0];
 
   return (
-    <div className="space-y-6">
-
-
+    <div className='space-y-6'>
       <Card>
-        <CardHeader className="bg-white border-b">
-          <div className="flex items-center justify-between">
+        <CardHeader className='bg-white border-b'>
+          <div className='flex items-center justify-between'>
             <div>
-              <CardTitle className="text-2xl text-gray-900">
+              <CardTitle className='text-2xl text-gray-900'>
                 {vehicle.modelName}
               </CardTitle>
-              <p className="text-gray-600 mt-1">Stock ID: {vehicle.stockId}</p>
+              <p className='text-gray-600 mt-1'>Stock ID: {vehicle.stockId}</p>
             </div>
             <Badge
-              variant="outline"
+              variant='outline'
               className={
                 vehicle.isActive
                   ? "bg-green-50 text-green-700 border-green-200"
@@ -138,62 +136,64 @@ export function CustomerBikeInfo() {
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
+        <CardContent className='p-6'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            <div className='relative aspect-video bg-gray-100 rounded-lg overflow-hidden'>
               {vehicleImageSrc ? (
                 <img
                   src={vehicleImageSrc}
                   alt={vehicleImageAlt}
-                  className="object-contain w-full h-full"
+                  className='object-contain w-full h-full'
                 />
               ) : (
-                <div className="flex items-center justify-center w-full h-full text-gray-400">
-                  <Camera className="w-12 h-12" />
+                <div className='flex items-center justify-center w-full h-full text-gray-400'>
+                  <Camera className='w-12 h-12' />
                 </div>
               )}
             </div>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className='space-y-4'>
+              <div className='grid grid-cols-2 gap-4'>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className='text-sm font-medium text-gray-500'>
                     Category
                   </label>
-                  <p className="text-lg font-semibold text-gray-900">
+                  <p className='text-lg font-semibold text-gray-900'>
                     {vehicle.category}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className='text-sm font-medium text-gray-500'>
                     Engine CC
                   </label>
-                  <p className="text-lg font-semibold text-gray-900">
+                  <p className='text-lg font-semibold text-gray-900'>
                     {vehicle.engineCC}cc
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className='text-sm font-medium text-gray-500'>
                     Color
                   </label>
-                  <p className="text-lg font-semibold text-gray-900">
+                  <p className='text-lg font-semibold text-gray-900'>
                     {vehicle.color}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className='text-sm font-medium text-gray-500'>
                     Year
                   </label>
-                  <p className="text-lg font-semibold text-gray-900">
+                  <p className='text-lg font-semibold text-gray-900'>
                     {vehicle.yearOfManufacture}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className='text-sm font-medium text-gray-500'>
                     Sale Price
                   </label>
-                  <p className="text-lg font-semibold text-gray-900">
-                    ₹{vehicle.salesInfo?.salePrice?.toLocaleString() || "N/A"}
+                  <p className='text-lg font-semibold text-gray-900'>
+                    ₹
+                    {vehicle.salesInfo?.salePrice?.toLocaleString("en-IN") ||
+                      "N/A"}
                   </p>
                 </div>
               </div>
@@ -202,47 +202,47 @@ export function CustomerBikeInfo() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Settings className="w-5 h-5 mr-2 text-red-600" />
+            <CardTitle className='flex items-center'>
+              <Settings className='w-5 h-5 mr-2 text-red-600' />
               Technical Details
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className='space-y-4'>
             <div>
-              <label className="text-sm font-medium text-gray-500 flex items-center">
-                <Hash className="w-4 h-4 mr-1" />
+              <label className='text-sm font-medium text-gray-500 flex items-center'>
+                <Hash className='w-4 h-4 mr-1' />
                 Engine Number
               </label>
-              <p className="text-lg font-mono text-gray-900 bg-gray-50 p-2 rounded border">
+              <p className='text-lg font-mono text-gray-900 bg-gray-50 p-2 rounded border'>
                 {vehicle.engineNumber || "N/A"}
               </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-500 flex items-center">
-                <Hash className="w-4 h-4 mr-1" />
+              <label className='text-sm font-medium text-gray-500 flex items-center'>
+                <Hash className='w-4 h-4 mr-1' />
                 Chassis Number
               </label>
-              <p className="text-lg font-mono text-gray-900 bg-gray-50 p-2 rounded border">
+              <p className='text-lg font-mono text-gray-900 bg-gray-50 p-2 rounded border'>
                 {vehicle.chassisNumber || "N/A"}
               </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-500">
+              <label className='text-sm font-medium text-gray-500'>
                 Variant
               </label>
-              <p className="text-lg font-semibold text-gray-900">
+              <p className='text-lg font-semibold text-gray-900'>
                 {vehicle.variant || "N/A"}
               </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-500">
+              <label className='text-sm font-medium text-gray-500'>
                 Stock Status
               </label>
               <Badge
-                variant="outline"
+                variant='outline'
                 className={
                   vehicle.stockStatus.status === "Sold"
                     ? "bg-green-50 text-green-700 border-green-200"
@@ -257,30 +257,30 @@ export function CustomerBikeInfo() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <User className="w-5 h-5 mr-2 text-red-600" />
+            <CardTitle className='flex items-center'>
+              <User className='w-5 h-5 mr-2 text-red-600' />
               Sales Information
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className='space-y-4'>
             <div>
-              <label className="text-sm font-medium text-gray-500">
+              <label className='text-sm font-medium text-gray-500'>
                 Invoice Number
               </label>
-              <p className="text-lg font-semibold text-gray-900">
+              <p className='text-lg font-semibold text-gray-900'>
                 {vehicle.salesInfo?.invoiceNumber || "N/A"}
               </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-500 flex items-center">
-                <Calendar className="w-4 h-4 mr-1" />
+              <label className='text-sm font-medium text-gray-500 flex items-center'>
+                <Calendar className='w-4 h-4 mr-1' />
                 Sale Date
               </label>
-              <p className="text-lg font-semibold text-gray-900">
+              <p className='text-lg font-semibold text-gray-900'>
                 {vehicle.salesInfo?.soldDate
                   ? new Date(vehicle.salesInfo.soldDate).toLocaleDateString(
                       "en-IN",
-                      { day: "numeric", month: "long", year: "numeric" }
+                      { day: "numeric", month: "long", year: "numeric" },
                     )
                   : "N/A"}
               </p>
@@ -291,35 +291,35 @@ export function CustomerBikeInfo() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <FileText className="w-5 h-5 mr-2 text-red-600" />
+          <CardTitle className='flex items-center'>
+            <FileText className='w-5 h-5 mr-2 text-red-600' />
             Price Information
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
             <div>
-              <label className="text-sm font-medium text-gray-500">
+              <label className='text-sm font-medium text-gray-500'>
                 Ex-Showroom Price
               </label>
-              <p className="text-lg font-semibold text-gray-900">
-                ₹{vehicle.priceInfo.exShowroomPrice.toLocaleString()}
+              <p className='text-lg font-semibold text-gray-900'>
+                ₹{vehicle.priceInfo.exShowroomPrice.toLocaleString("en-IN")}
               </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-500">
+              <label className='text-sm font-medium text-gray-500'>
                 Road Tax
               </label>
-              <p className="text-lg font-semibold text-gray-900">
-                ₹{vehicle.priceInfo.roadTax.toLocaleString()}
+              <p className='text-lg font-semibold text-gray-900'>
+                ₹{vehicle.priceInfo.roadTax.toLocaleString("en-IN")}
               </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-500">
+              <label className='text-sm font-medium text-gray-500'>
                 On-Road Price
               </label>
-              <p className="text-lg font-semibold text-green-700">
-                ₹{vehicle.priceInfo.onRoadPrice.toLocaleString()}
+              <p className='text-lg font-semibold text-green-700'>
+                ₹{vehicle.priceInfo.onRoadPrice.toLocaleString("en-IN")}
               </p>
             </div>
           </div>
