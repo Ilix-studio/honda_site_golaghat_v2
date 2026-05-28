@@ -32,12 +32,9 @@ const DealershipReviews = lazy(
   () => import("@/mainComponents/Location/DealershipReviews"),
 );
 
-
-
 const DownloadSafetyfeature = lazy(
   () => import("@/mainComponents/ViewBS2/DownloadSafetyfeature"),
 );
-const BillMemo = lazy(() => import("@/mainComponents/Admin/ZBillMemo"));
 
 export const publicRoutes = [
   { path: "/finance", component: Finance },
@@ -48,12 +45,9 @@ export const publicRoutes = [
   { path: "/bikes/:bikeId", component: BikeDetailsPage },
   { path: "/scooters/:bikeId", component: ScooterDetailPage },
   { path: "/compare", component: CompareBike },
-  { path: "/see-bill-memo", component: BillMemo },
   { path: "/search", component: SearchResults },
   { path: "/dealership-locator", component: DealershipLocator },
   { path: "/dealership-reviews", component: DealershipReviews },
-
-
 
   {
     path: "/download/safety-feature-stickers",

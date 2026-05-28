@@ -7,6 +7,8 @@ const LoginStaffs = lazy(() => import("@/mainComponents/StaffM/LoginStaffs"));
 
 const StaffApplyLeave = () => <ApplyLeave dashboardPath='/staff/dashboard' />;
 
+const BuyStickers = lazy(() => import("@/Scanfleet/BuyStickers"));
+
 export const staffAuthRoutes = [
   { path: "/staff/login", component: LoginStaffs },
 ];
@@ -14,4 +16,5 @@ export const staffAuthRoutes = [
 export const staffRoutes = [
   { path: "/staff/dashboard", component: DashStaff },
   { path: "/staff/apply-leave", component: StaffApplyLeave },
+  { path: "/buy-sticker", component: BuyStickers },
 ];

@@ -50,7 +50,7 @@ const BRANCH_ADMIN_ONLY_CUSTOMER_PATHS = [
 const ROLE_DASHBOARDS: Record<string, string> = {
   "Super-Admin": "/admin/dashboard",
   "Branch-Admin": "/manager/dashboard",
-  "Service-Admin": "/service/dashboard",
+  "Service-Admin": "/service-admin/dashboard",
   Staff: "/staff/dashboard",
   customer: "/customer/dashboard",
 };
@@ -82,7 +82,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   const authState = useSelector((state: RootState) => state.auth);
   const customerAuthState = useSelector(
-    (state: RootState) => state.customerAuth
+    (state: RootState) => state.customerAuth,
   );
 
   const isAuthenticated =

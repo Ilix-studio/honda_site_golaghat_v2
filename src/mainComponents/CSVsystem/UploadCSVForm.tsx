@@ -69,7 +69,7 @@ const UploadCSVForm = () => {
   const [progress, setProgress] = useState(0);
   const [duplicates, setDuplicates] = useState<DuplicateError[]>([]);
   const [redirectCountdown, setRedirectCountdown] = useState<number | null>(
-    null
+    null,
   );
 
   const { data: branchesResponse, isLoading: branchesLoading } =
@@ -110,7 +110,7 @@ const UploadCSVForm = () => {
       const hasDuplicates =
         importResult.data.failureCount > 0 &&
         importResult.data.errors.some((err) =>
-          err.error.toLowerCase().includes("duplicate")
+          err.error.toLowerCase().includes("duplicate"),
         );
 
       const delay = hasDuplicates ? 10000 : 2000;
@@ -140,7 +140,7 @@ const UploadCSVForm = () => {
   useEffect(() => {
     if (importResult?.data?.errors) {
       const duplicateErrors = importResult.data.errors.filter((err) =>
-        err.error.toLowerCase().includes("duplicate")
+        err.error.toLowerCase().includes("duplicate"),
       );
       setDuplicates(duplicateErrors);
     }
@@ -251,56 +251,57 @@ const UploadCSVForm = () => {
     uploadStage !== "idle" ? uploadStages[uploadStage] : null;
 
   return (
-    <Card className='max-w-4xl mx-auto'>
-      <CardHeader>
-        <CardTitle className='flex items-center gap-2'>
-          <FileSpreadsheet className='h-5 w-5' />
-          Import CSV Stock
-        </CardTitle>
-      </CardHeader>
+    <div className='min-h-screen bg-gray-50'>
+      <Card className='max-w-4xl mx-auto'>
+        <CardHeader>
+          <CardTitle className='flex items-center gap-2'>
+            <FileSpreadsheet className='h-5 w-5' />
+            Import CSV Stock
+          </CardTitle>
+        </CardHeader>
 
-      <CardContent className='space-y-6'>
-        {/* Branch Selection */}
-        {uploadStage !== "success" && (
-          <div className='space-y-2'>
-            <Label htmlFor='branch'>Select Branch *</Label>
-            <Select
-              value={branchId}
-              onValueChange={setBranchId}
-              disabled={importing}
-            >
-              <SelectTrigger id='branch'>
-                <SelectValue placeholder='Select a branch' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {branchesLoading ? (
-                    <SelectItem value='loading' disabled>
-                      Loading branches...
-                    </SelectItem>
-                  ) : branches.length === 0 ? (
-                    <SelectItem value='none' disabled>
-                      No branches available
-                    </SelectItem>
-                  ) : (
-                    branches.map((branch) => (
-                      <SelectItem key={branch._id} value={branch._id}>
-                        {branch.branchName}
+        <CardContent className='space-y-6'>
+          {/* Branch Selection */}
+          {uploadStage !== "success" && (
+            <div className='space-y-2'>
+              <Label htmlFor='branch'>Select Branch *</Label>
+              <Select
+                value={branchId}
+                onValueChange={setBranchId}
+                disabled={importing}
+              >
+                <SelectTrigger id='branch'>
+                  <SelectValue placeholder='Select a branch' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {branchesLoading ? (
+                      <SelectItem value='loading' disabled>
+                        Loading branches...
                       </SelectItem>
-                    ))
-                  )}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+                    ) : branches.length === 0 ? (
+                      <SelectItem value='none' disabled>
+                        No branches available
+                      </SelectItem>
+                    ) : (
+                      branches.map((branch) => (
+                        <SelectItem key={branch._id} value={branch._id}>
+                          {branch.branchName}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
-        {/* File Upload Zone */}
-        {uploadStage !== "success" && (
-          <div className='space-y-2'>
-            <Label>CSV File *</Label>
-            <div
-              className={`
+          {/* File Upload Zone */}
+          {uploadStage !== "success" && (
+            <div className='space-y-2'>
+              <Label>CSV File *</Label>
+              <div
+                className={`
               border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer
               ${
                 dragActive
@@ -310,193 +311,201 @@ const UploadCSVForm = () => {
               ${file ? "border-green-500 bg-green-50" : ""}
               ${validationError ? "border-destructive bg-destructive/5" : ""}
             `}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <input
-                ref={fileInputRef}
-                type='file'
-                accept='.csv'
-                onChange={handleInputChange}
-                className='hidden'
-                disabled={importing}
-              />
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  ref={fileInputRef}
+                  type='file'
+                  accept='.csv'
+                  onChange={handleInputChange}
+                  className='hidden'
+                  disabled={importing}
+                />
 
-              {file ? (
-                <div className='flex items-center justify-center gap-3'>
-                  <CheckCircle2 className='h-8 w-8 text-green-600' />
-                  <div className='text-left'>
-                    <p className='font-medium text-green-700'>{file.name}</p>
-                    <p className='text-sm text-muted-foreground'>
-                      {(file.size / 1024).toFixed(1)} KB
-                    </p>
+                {file ? (
+                  <div className='flex items-center justify-center gap-3'>
+                    <CheckCircle2 className='h-8 w-8 text-green-600' />
+                    <div className='text-left'>
+                      <p className='font-medium text-green-700'>{file.name}</p>
+                      <p className='text-sm text-muted-foreground'>
+                        {(file.size / 1024).toFixed(1)} KB
+                      </p>
+                    </div>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='icon'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        clearFile();
+                      }}
+                      disabled={importing}
+                    >
+                      <X className='h-4 w-4' />
+                    </Button>
                   </div>
-                  <Button
-                    type='button'
-                    variant='ghost'
-                    size='icon'
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      clearFile();
-                    }}
-                    disabled={importing}
-                  >
-                    <X className='h-4 w-4' />
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <Upload className='h-10 w-10 text-muted-foreground mx-auto mb-3' />
-                  <p className='font-medium mb-1'>
-                    Drop CSV file here or click to select
-                  </p>
-                  <p className='text-sm text-muted-foreground'>
-                    Maximum file size: 5MB
-                  </p>
-                </>
+                ) : (
+                  <>
+                    <Upload className='h-10 w-10 text-muted-foreground mx-auto mb-3' />
+                    <p className='font-medium mb-1'>
+                      Drop CSV file here or click to select
+                    </p>
+                    <p className='text-sm text-muted-foreground'>
+                      Maximum file size: 5MB
+                    </p>
+                  </>
+                )}
+              </div>
+
+              {validationError && (
+                <Alert variant='destructive'>
+                  <AlertCircle className='h-4 w-4' />
+                  <AlertDescription>{validationError}</AlertDescription>
+                </Alert>
               )}
             </div>
+          )}
 
-            {validationError && (
-              <Alert variant='destructive'>
-                <AlertCircle className='h-4 w-4' />
-                <AlertDescription>{validationError}</AlertDescription>
-              </Alert>
-            )}
-          </div>
-        )}
-
-        {/* Upload Progress */}
-        {currentStageInfo && (
-          <div className='space-y-3'>
-            <div className='flex items-center gap-3'>
-              <currentStageInfo.icon
-                className={`h-5 w-5 ${
-                  uploadStage === "success"
-                    ? "text-green-600"
-                    : uploadStage === "error"
-                    ? "text-destructive"
-                    : "text-primary animate-pulse"
-                }`}
-              />
-              <p className='text-sm font-medium'>{currentStageInfo.text}</p>
+          {/* Upload Progress */}
+          {currentStageInfo && (
+            <div className='space-y-3'>
+              <div className='flex items-center gap-3'>
+                <currentStageInfo.icon
+                  className={`h-5 w-5 ${
+                    uploadStage === "success"
+                      ? "text-green-600"
+                      : uploadStage === "error"
+                        ? "text-destructive"
+                        : "text-primary animate-pulse"
+                  }`}
+                />
+                <p className='text-sm font-medium'>{currentStageInfo.text}</p>
+              </div>
+              <Progress value={progress} className='h-2' />
             </div>
-            <Progress value={progress} className='h-2' />
-          </div>
-        )}
+          )}
 
-        {/* Import Result Summary */}
-        {importResult?.data && uploadStage === "success" && (
-          <Alert
-            variant={
-              importResult.data.failureCount === 0 ? "default" : "destructive"
-            }
-          >
-            <AlertDescription>
-              <div className='space-y-1'>
-                <p>
-                  Imported {importResult.data.successCount} of{" "}
-                  {importResult.data.totalRows} records
-                </p>
-                {importResult.data.failureCount > 0 && (
-                  <p className='text-sm'>
-                    {importResult.data.failureCount} rows failed.
+          {/* Import Result Summary */}
+          {importResult?.data && uploadStage === "success" && (
+            <Alert
+              variant={
+                importResult.data.failureCount === 0 ? "default" : "destructive"
+              }
+            >
+              <AlertDescription>
+                <div className='space-y-1'>
+                  <p>
+                    Imported {importResult.data.successCount} of{" "}
+                    {importResult.data.totalRows} records
                   </p>
-                )}
-                <p className='text-xs text-muted-foreground'>
-                  Batch ID: {importResult.data.batchId}
-                </p>
-                {redirectCountdown !== null && (
-                  <p className='text-xs text-muted-foreground mt-2'>
-                    Redirecting to CSV stocks in {redirectCountdown} seconds...
+                  {importResult.data.failureCount > 0 && (
+                    <p className='text-sm'>
+                      {importResult.data.failureCount} rows failed.
+                    </p>
+                  )}
+                  <p className='text-xs text-muted-foreground'>
+                    Batch ID: {importResult.data.batchId}
                   </p>
-                )}
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Duplicates Warning */}
-        {duplicates.length > 0 && uploadStage === "success" && (
-          <Alert variant='destructive'>
-            <AlertTriangle className='h-4 w-4' />
-            <AlertDescription>
-              <div className='space-y-3'>
-                <p className='font-semibold'>
-                  Found {duplicates.length} duplicate
-                  {duplicates.length > 1 ? "s" : ""}
-                </p>
-                <div className='max-h-60 overflow-y-auto'>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className='w-20'>Row</TableHead>
-                        <TableHead>Error</TableHead>
-                        <TableHead>Data</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {duplicates.map((dup, idx) => (
-                        <TableRow key={idx}>
-                          <TableCell className='font-medium'>
-                            {dup.row}
-                          </TableCell>
-                          <TableCell className='text-xs'>{dup.error}</TableCell>
-                          <TableCell className='text-xs'>
-                            <div className='space-y-1'>
-                              {Object.entries(dup.data).map(([key, value]) => (
-                                <div key={key}>
-                                  <span className='font-semibold'>{key}:</span>{" "}
-                                  {String(value)}
-                                </div>
-                              ))}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                  {redirectCountdown !== null && (
+                    <p className='text-xs text-muted-foreground mt-2'>
+                      Redirecting to CSV stocks in {redirectCountdown}{" "}
+                      seconds...
+                    </p>
+                  )}
                 </div>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
+              </AlertDescription>
+            </Alert>
+          )}
 
-        {/* Error Message */}
-        {uploadStage === "error" && (
-          <Alert variant='destructive'>
-            <AlertCircle className='h-4 w-4' />
-            <AlertDescription>
-              Unable to upload. Please check your file and try again.
-            </AlertDescription>
-          </Alert>
-        )}
+          {/* Duplicates Warning */}
+          {duplicates.length > 0 && uploadStage === "success" && (
+            <Alert variant='destructive'>
+              <AlertTriangle className='h-4 w-4' />
+              <AlertDescription>
+                <div className='space-y-3'>
+                  <p className='font-semibold'>
+                    Found {duplicates.length} duplicate
+                    {duplicates.length > 1 ? "s" : ""}
+                  </p>
+                  <div className='max-h-60 overflow-y-auto'>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className='w-20'>Row</TableHead>
+                          <TableHead>Error</TableHead>
+                          <TableHead>Data</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {duplicates.map((dup, idx) => (
+                          <TableRow key={idx}>
+                            <TableCell className='font-medium'>
+                              {dup.row}
+                            </TableCell>
+                            <TableCell className='text-xs'>
+                              {dup.error}
+                            </TableCell>
+                            <TableCell className='text-xs'>
+                              <div className='space-y-1'>
+                                {Object.entries(dup.data).map(
+                                  ([key, value]) => (
+                                    <div key={key}>
+                                      <span className='font-semibold'>
+                                        {key}:
+                                      </span>{" "}
+                                      {String(value)}
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
 
-        {/* Submit Button - Hidden on Success */}
-        {uploadStage !== "success" && (
-          <Button
-            onClick={handleSubmit}
-            disabled={isSubmitDisabled}
-            className='w-full'
-          >
-            {importing ? (
-              <>
-                <Loader2 className='h-4 w-4 mr-2 animate-spin' />
-                Processing...
-              </>
-            ) : (
-              <>
-                <Upload className='h-4 w-4 mr-2' />
-                Import CSV
-              </>
-            )}
-          </Button>
-        )}
-      </CardContent>
-    </Card>
+          {/* Error Message */}
+          {uploadStage === "error" && (
+            <Alert variant='destructive'>
+              <AlertCircle className='h-4 w-4' />
+              <AlertDescription>
+                Unable to upload. Please check your file and try again.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Submit Button - Hidden on Success */}
+          {uploadStage !== "success" && (
+            <Button
+              onClick={handleSubmit}
+              disabled={isSubmitDisabled}
+              className='w-full'
+            >
+              {importing ? (
+                <>
+                  <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Upload className='h-4 w-4 mr-2' />
+                  Import CSV
+                </>
+              )}
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

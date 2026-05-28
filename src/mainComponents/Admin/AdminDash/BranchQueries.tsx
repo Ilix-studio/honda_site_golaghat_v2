@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+
 import {
   Building2,
   Users,
@@ -10,10 +9,14 @@ import {
   PersonStanding,
 } from "lucide-react";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
-import { useGetAllBranchAdminsQuery, useGetAllServiceAdminsQuery, useGetAllStaffQuery } from "@/redux-store/services/adminApi";
+import {
+  useGetAllBranchAdminsQuery,
+  useGetAllServiceAdminsQuery,
+  useGetAllStaffQuery,
+} from "@/redux-store/services/adminApi";
 
 import { useGetVisitorStatsQuery } from "@/redux-store/services/visitorApi";
-import RecentMotorcycles from "./RecentMotocycles";
+
 import { formatTimeAgo, MetricTile, StatCard, StatCardProps } from "./StatCard";
 
 import SeparateStats from "./StatsUI/SeparateStats";
@@ -26,8 +29,7 @@ const BranchQueries = () => {
     useGetAllBranchAdminsQuery();
   const { data: serviceManagersData, isLoading: serviceManagersLoading } =
     useGetAllServiceAdminsQuery();
-  const { data: staffData, isLoading: staffLoading } =
-    useGetAllStaffQuery();
+  const { data: staffData, isLoading: staffLoading } = useGetAllStaffQuery();
   const { data: visitorStatsData } = useGetVisitorStatsQuery();
   const stats: Omit<StatCardProps, "index">[] = [
     {
@@ -73,8 +75,6 @@ const BranchQueries = () => {
         href: "/admin/viewStaff",
       },
     },
-
-  
   ];
 
   const vs = visitorStatsData?.data;
@@ -87,7 +87,7 @@ const BranchQueries = () => {
           <StatCard key={s.title} {...s} index={i} />
         ))}
       </div>
-    <SeparateStats/>
+      <SeparateStats />
 
       {/* ── visitor analytics ── */}
       {vs && (
@@ -167,8 +167,8 @@ const BranchQueries = () => {
                   width: `${Math.min(
                     ((vs.todayVisitors ?? 0) /
                       Math.max(vs.totalVisitors ?? 1, 1)) *
-                    100 *
-                    10,
+                      100 *
+                      10,
                     100,
                   )}%`,
                 }}
@@ -183,16 +183,6 @@ const BranchQueries = () => {
       )}
 
       {/* ── recent motorcycles ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.45 }}
-      >
-        <RecentMotorcycles />
-      </motion.div>
-      <Link to='/see-bill-memo' className='text-red-600 hover:underline'>
-        <Button variant='outline'>See Bill Memo</Button>
-      </Link>
     </div>
   );
 };

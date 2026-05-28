@@ -1,14 +1,8 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import {
-  AlertTriangle,
-
-  ArrowUpRight,
-  ChevronRight,
-
-} from "lucide-react";
+import { AlertTriangle, ArrowUpRight, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-
+import RecentMotorcycles from "./RecentMotocycles";
 
 interface StatCardProps {
   title: string;
@@ -96,11 +90,7 @@ const StatCard = ({
 );
 
 const CustomerQueries = () => {
-
-
   const stats: Omit<StatCardProps, "index">[] = [
-
-
     {
       title: "Accident Reports",
       value: 10,
@@ -108,17 +98,25 @@ const CustomerQueries = () => {
       loading: false,
       description: "",
       accent: "#ef4444",
-      action: { label: "View Reports", href: "/admin/accident-reports" },
+      action: { label: "View Reports", href: "/accident-reports" },
     },
-
   ];
 
   return (
-    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8'>
-      {stats.map((stat, i) => (
-        <StatCard key={stat.title} {...stat} index={i} />
-      ))}
-    </div>
+    <>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8'>
+        {stats.map((stat, i) => (
+          <StatCard key={stat.title} {...stat} index={i} />
+        ))}
+      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.45 }}
+      >
+        <RecentMotorcycles />
+      </motion.div>
+    </>
   );
 };
 

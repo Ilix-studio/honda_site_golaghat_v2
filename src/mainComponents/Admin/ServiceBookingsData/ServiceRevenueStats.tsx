@@ -3,13 +3,6 @@ import { useGetRevenueStatsQuery } from "@/redux-store/services/ServiceM/jobCard
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   BarChart,
   Bar,
   XAxis,
@@ -37,13 +30,16 @@ function formatCurrencyFull(n: number) {
 const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = [CURRENT_YEAR, CURRENT_YEAR - 1, CURRENT_YEAR - 2];
 
+const SELECT_CLS =
+  "h-9 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-900/20 focus:border-gray-400 cursor-pointer";
+
 export default function ServiceRevenueStats() {
   const [year, setYear] = useState(CURRENT_YEAR);
-  const [branchId, setBranchId] = useState<string | undefined>(undefined);
+  const [branchId, setBranchId] = useState<string>("");
 
   const { data: revenueData, isLoading } = useGetRevenueStatsQuery({
     year,
-    branchId,
+    branchId: branchId || undefined,
   });
 
   const { data: branchData } = useGetBranchesQuery(undefined);
@@ -81,35 +77,30 @@ export default function ServiceRevenueStats() {
     <div className='space-y-6 p-10'>
       {/* Filters */}
       <div className='flex items-center gap-3 flex-wrap'>
-        <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
-          <SelectTrigger className='w-32'>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {YEAR_OPTIONS.map((y) => (
-              <SelectItem key={y} value={String(y)}>
-                {y}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={branchId ?? "all"}
-          onValueChange={(v) => setBranchId(v === "all" ? undefined : v)}
+        <select
+          value={String(year)}
+          onChange={(e) => setYear(Number(e.target.value))}
+          className={SELECT_CLS}
         >
-          <SelectTrigger className='w-48'>
-            <SelectValue placeholder='All Branches' />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value='all'>All Branches</SelectItem>
-            {branchData?.data?.map((b: any) => (
-              <SelectItem key={b._id} value={b._id}>
-                {b.branchName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {YEAR_OPTIONS.map((y) => (
+            <option key={y} value={String(y)}>
+              {y}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={branchId}
+          onChange={(e) => setBranchId(e.target.value)}
+          className={SELECT_CLS}
+        >
+          <option value=''>All Branches</option>
+          {branchData?.data?.map((b: any) => (
+            <option key={b._id} value={b._id}>
+              {b.branchName}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Stat cards */}

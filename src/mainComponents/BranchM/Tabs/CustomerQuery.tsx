@@ -1,9 +1,4 @@
-import {
-  AlertTriangle,
-  BanknoteIcon,
-  MessageCircleCode,
- 
-} from "lucide-react";
+import { AlertTriangle, BanknoteIcon, MessageCircleCode } from "lucide-react";
 
 import { useGetAllApplicationsQuery } from "@/redux-store/services/customer/getApprovedApi";
 import { useGetContactMessagesQuery } from "@/redux-store/services/contactApi";
@@ -32,7 +27,7 @@ const CustomerQueries = () => {
         href: "/manager/finanace-query",
       },
     },
-    
+
     {
       title: "Message by Users",
       value: messagesData?.pagination.total ?? 0,
@@ -49,7 +44,7 @@ const CustomerQueries = () => {
       loading: false,
       description: "",
       accent: "#ef4444",
-      action: { label: "View Reports", href: "/admin/accident-reports" },
+      action: { label: "View Reports", href: "/accident-reports" },
     },
   ];
 

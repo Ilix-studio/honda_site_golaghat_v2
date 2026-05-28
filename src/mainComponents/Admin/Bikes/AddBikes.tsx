@@ -4,18 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, X, Trash2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-
-// Redux
 import { useAppDispatch } from "../../../hooks/redux";
 import { addNotification } from "../../../redux-store/slices/uiSlice";
 import { useCreateBikeMutation } from "@/redux-store/services/BikeSystemApi/bikeApi";
@@ -24,7 +15,6 @@ import {
   PriceBreakdown,
 } from "@/redux-store/slices/BikeSystemSlice/bikesSlice";
 
-// Enhanced form data interface matching backend model
 interface BikeFormData {
   modelName: string;
   mainCategory: "bike" | "scooter";
@@ -37,7 +27,6 @@ interface BikeFormData {
     | "electric"
     | "commuter"
     | "automatic"
-    | "commuter"
     | "gearless";
   year: number;
   variants: BikeVariant[];
@@ -53,86 +42,66 @@ interface BikeFormData {
   isNewModel: boolean;
 }
 
-// Form validation function
 const validateForm = (data: BikeFormData): Record<string, string> => {
   const errors: Record<string, string> = {};
-
-  if (!data.modelName?.trim()) {
-    errors.modelName = "Model name is required";
-  }
-
-  if (!data.mainCategory) {
-    errors.mainCategory = "Main category is required";
-  }
-
-  if (!data.category) {
-    errors.category = "Category is required";
-  }
-
+  if (!data.modelName?.trim()) errors.modelName = "Model name is required";
+  if (!data.mainCategory) errors.mainCategory = "Main category is required";
+  if (!data.category) errors.category = "Category is required";
   if (
     !data.year ||
     data.year < 2000 ||
     data.year > new Date().getFullYear() + 2
-  ) {
-    errors.year = `Year must be between 2000 and ${
-      new Date().getFullYear() + 2
-    }`;
-  }
-
+  )
+    errors.year = `Year must be between 2000 and ${new Date().getFullYear() + 2}`;
   if (
     !data.priceBreakdown?.exShowroomPrice ||
     data.priceBreakdown.exShowroomPrice <= 0
-  ) {
+  )
     errors.exShowroomPrice = "Ex-showroom price must be greater than 0";
-  }
-
-  if (!data.priceBreakdown?.rtoCharges || data.priceBreakdown.rtoCharges < 0) {
+  if (!data.priceBreakdown?.rtoCharges || data.priceBreakdown.rtoCharges < 0)
     errors.rtoCharges = "RTO charges cannot be negative";
-  }
-
   if (
     !data.priceBreakdown?.insuranceComprehensive ||
     data.priceBreakdown.insuranceComprehensive < 0
-  ) {
+  )
     errors.insuranceComprehensive = "Insurance amount cannot be negative";
-  }
-
-  if (!data.engineSize?.trim()) {
+  if (!data.engineSize?.trim())
     errors.engineSize = "Engine details are required";
-  }
-
-  if (!data.power || data.power <= 0) {
-    errors.power = "Power is required";
-  }
-
-  if (!data.transmission?.trim()) {
+  if (!data.power || data.power <= 0) errors.power = "Power is required";
+  if (!data.transmission?.trim())
     errors.transmission = "Transmission details are required";
-  }
-
-  if (!data.fuelNorms) {
-    errors.fuelNorms = "Fuel norms are required";
-  }
-
-  if (data.stockAvailable < 0) {
+  if (!data.fuelNorms) errors.fuelNorms = "Fuel norms are required";
+  if (data.stockAvailable < 0)
     errors.stockAvailable = "Stock cannot be negative";
-  }
-
-  if (!data.colors || data.colors.length === 0) {
+  if (!data.colors || data.colors.length === 0)
     errors.colors = "At least one color is required";
-  }
-
-  if (!data.variants || data.variants.length === 0) {
+  if (!data.variants || data.variants.length === 0)
     errors.variants = "At least one variant is required";
-  }
-
   return errors;
+};
+
+const SELECT_CLS =
+  "w-full h-9 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-900/20 focus:border-gray-400 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed";
+
+const getCategoryOptions = (mainCategory: string) => {
+  if (mainCategory === "bike")
+    return [
+      "sport",
+      "adventure",
+      "cruiser",
+      "touring",
+      "naked",
+      "electric",
+      "commuter",
+    ];
+  if (mainCategory === "scooter") return ["automatic", "gearless", "electric"];
+  return [];
 };
 
 const AddBikes = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  // State management
   const [currentFeature, setCurrentFeature] = useState("");
   const [currentColor, setCurrentColor] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -178,25 +147,6 @@ const AddBikes = () => {
   const watchedMainCategory = watch("mainCategory");
   const watchedPriceBreakdown = watch("priceBreakdown");
 
-  // Category options based on main category
-  const getCategoryOptions = (mainCategory: string) => {
-    if (mainCategory === "bike") {
-      return [
-        "sport",
-        "adventure",
-        "cruiser",
-        "touring",
-        "naked",
-        "electric",
-        "commuter",
-      ];
-    } else if (mainCategory === "scooter") {
-      return ["automatic", "gearless", "electric"];
-    }
-    return [];
-  };
-
-  // Feature management
   const addFeature = () => {
     if (
       currentFeature.trim() &&
@@ -207,14 +157,12 @@ const AddBikes = () => {
     }
   };
 
-  const removeFeature = (index: number) => {
+  const removeFeature = (index: number) =>
     setValue(
       "features",
       watchedFeatures.filter((_, i) => i !== index),
     );
-  };
 
-  // Color management
   const addColor = () => {
     if (currentColor.trim() && !watchedColors.includes(currentColor.trim())) {
       setValue("colors", [...watchedColors, currentColor.trim()]);
@@ -222,14 +170,12 @@ const AddBikes = () => {
     }
   };
 
-  const removeColor = (index: number) => {
+  const removeColor = (index: number) =>
     setValue(
       "colors",
       watchedColors.filter((_, i) => i !== index),
     );
-  };
 
-  // Variant management
   const addVariant = () => {
     if (currentVariant.name.trim()) {
       setValue("variants", [...watchedVariants, { ...currentVariant }]);
@@ -243,53 +189,42 @@ const AddBikes = () => {
   };
 
   const removeVariant = (index: number) => {
-    if (watchedVariants.length > 1) {
+    if (watchedVariants.length > 1)
       setValue(
         "variants",
         watchedVariants.filter((_, i) => i !== index),
       );
-    }
   };
 
   const addVariantFeature = (feature: string) => {
-    if (feature.trim()) {
+    if (feature.trim())
       setCurrentVariant((prev) => ({
         ...prev,
         features: [...prev.features, feature.trim()],
       }));
-    }
   };
 
-  const removeVariantFeature = (index: number) => {
+  const removeVariantFeature = (index: number) =>
     setCurrentVariant((prev) => ({
       ...prev,
       features: prev.features.filter((_, i) => i !== index),
     }));
-  };
 
-  // Form submission
   const onSubmit = async (data: BikeFormData) => {
     setFormErrors({});
-
     const errors = validateForm(data);
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
-
     try {
       const result = await createBike(data).unwrap();
-
       dispatch(
         addNotification({
           type: "success",
-          message: `${
-            data.mainCategory === "bike" ? "Bike" : "Scooter"
-          } created successfully!`,
+          message: `${data.mainCategory === "bike" ? "Bike" : "Scooter"} created successfully!`,
         }),
       );
-
-      // Navigate to image upload page with the created bike ID
       navigate(`/bikes/add/${result.data.bikeId}/images`);
     } catch (error: any) {
       dispatch(
@@ -334,24 +269,22 @@ const AddBikes = () => {
 
                   <div className='space-y-2'>
                     <Label htmlFor='mainCategory'>Main Category *</Label>
-                    <Select
-                      onValueChange={(value) =>
-                        setValue("mainCategory", value as "bike" | "scooter")
-                      }
-                      defaultValue='bike'
+                    <select
+                      id='mainCategory'
+                      value={watchedMainCategory}
+                      onChange={(e) => {
+                        setValue(
+                          "mainCategory",
+                          e.target.value as "bike" | "scooter",
+                        );
+                        // reset category when main category changes
+                        setValue("category", "" as any);
+                      }}
+                      className={`${SELECT_CLS} ${formErrors.mainCategory ? "border-red-500" : ""}`}
                     >
-                      <SelectTrigger
-                        className={
-                          formErrors.mainCategory ? "border-red-500" : ""
-                        }
-                      >
-                        <SelectValue placeholder='Select main category' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='bike'>Bike</SelectItem>
-                        <SelectItem value='scooter'>Scooter</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <option value='bike'>Bike</option>
+                      <option value='scooter'>Scooter</option>
+                    </select>
                     {formErrors.mainCategory && (
                       <p className='text-red-500 text-sm'>
                         {formErrors.mainCategory}
@@ -361,27 +294,24 @@ const AddBikes = () => {
 
                   <div className='space-y-2'>
                     <Label htmlFor='category'>Category *</Label>
-                    <Select
-                      onValueChange={(value) =>
-                        setValue("category", value as any)
+                    <select
+                      id='category'
+                      value={watch("category") ?? ""}
+                      onChange={(e) =>
+                        setValue("category", e.target.value as any)
                       }
                       disabled={!watchedMainCategory}
+                      className={`${SELECT_CLS} ${formErrors.category ? "border-red-500" : ""}`}
                     >
-                      <SelectTrigger
-                        className={formErrors.category ? "border-red-500" : ""}
-                      >
-                        <SelectValue placeholder='Select category' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getCategoryOptions(watchedMainCategory).map(
-                          (option) => (
-                            <SelectItem key={option} value={option}>
-                              {option.charAt(0).toUpperCase() + option.slice(1)}
-                            </SelectItem>
-                          ),
-                        )}
-                      </SelectContent>
-                    </Select>
+                      <option value='' disabled>
+                        Select category
+                      </option>
+                      {getCategoryOptions(watchedMainCategory).map((option) => (
+                        <option key={option} value={option}>
+                          {option.charAt(0).toUpperCase() + option.slice(1)}
+                        </option>
+                      ))}
+                    </select>
                     {formErrors.category && (
                       <p className='text-red-500 text-sm'>
                         {formErrors.category}
@@ -406,24 +336,22 @@ const AddBikes = () => {
 
                   <div className='space-y-2'>
                     <Label htmlFor='fuelNorms'>Fuel Norms *</Label>
-                    <Select
-                      onValueChange={(value) =>
-                        setValue("fuelNorms", value as any)
+                    <select
+                      id='fuelNorms'
+                      value={watch("fuelNorms")}
+                      onChange={(e) =>
+                        setValue(
+                          "fuelNorms",
+                          e.target.value as BikeFormData["fuelNorms"],
+                        )
                       }
-                      defaultValue='BS6'
+                      className={`${SELECT_CLS} ${formErrors.fuelNorms ? "border-red-500" : ""}`}
                     >
-                      <SelectTrigger
-                        className={formErrors.fuelNorms ? "border-red-500" : ""}
-                      >
-                        <SelectValue placeholder='Select fuel norms' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='BS4'>BS4</SelectItem>
-                        <SelectItem value='BS6'>BS6</SelectItem>
-                        <SelectItem value='BS6 Phase 2'>BS6 Phase 2</SelectItem>
-                        <SelectItem value='Electric'>Electric</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <option value='BS4'>BS4</option>
+                      <option value='BS6'>BS6</option>
+                      <option value='BS6 Phase 2'>BS6 Phase 2</option>
+                      <option value='Electric'>Electric</option>
+                    </select>
                     {formErrors.fuelNorms && (
                       <p className='text-red-500 text-sm'>
                         {formErrors.fuelNorms}
@@ -447,13 +375,14 @@ const AddBikes = () => {
                       type='number'
                       step='0.01'
                       value={watchedPriceBreakdown?.exShowroomPrice || ""}
-                      onChange={(e) => {
-                        const value = e.target.value;
+                      onChange={(e) =>
                         setValue(
                           "priceBreakdown.exShowroomPrice",
-                          value === "" ? 0 : parseFloat(value),
-                        );
-                      }}
+                          e.target.value === ""
+                            ? 0
+                            : parseFloat(e.target.value),
+                        )
+                      }
                       className={
                         formErrors.exShowroomPrice ? "border-red-500" : ""
                       }
@@ -472,13 +401,14 @@ const AddBikes = () => {
                       type='number'
                       step='0.01'
                       value={watchedPriceBreakdown?.rtoCharges || ""}
-                      onChange={(e) => {
-                        const value = e.target.value;
+                      onChange={(e) =>
                         setValue(
                           "priceBreakdown.rtoCharges",
-                          value === "" ? 0 : parseFloat(value),
-                        );
-                      }}
+                          e.target.value === ""
+                            ? 0
+                            : parseFloat(e.target.value),
+                        )
+                      }
                       className={formErrors.rtoCharges ? "border-red-500" : ""}
                     />
                     {formErrors.rtoCharges && (
@@ -499,13 +429,14 @@ const AddBikes = () => {
                       value={
                         watchedPriceBreakdown?.insuranceComprehensive || ""
                       }
-                      onChange={(e) => {
-                        const value = e.target.value;
+                      onChange={(e) =>
                         setValue(
                           "priceBreakdown.insuranceComprehensive",
-                          value === "" ? 0 : parseFloat(value),
-                        );
-                      }}
+                          e.target.value === ""
+                            ? 0
+                            : parseFloat(e.target.value),
+                        )
+                      }
                       className={
                         formErrors.insuranceComprehensive
                           ? "border-red-500"
@@ -662,7 +593,7 @@ const AddBikes = () => {
                   <div className='flex gap-2'>
                     <Input
                       placeholder='Add variant feature'
-                      onKeyPress={(e) => {
+                      onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
                           addVariantFeature(e.currentTarget.value);
@@ -680,14 +611,13 @@ const AddBikes = () => {
                           className='flex items-center gap-1 bg-gray-100 px-2 py-1 rounded'
                         >
                           <span className='text-sm'>{feature}</span>
-                          <Button
+                          <button
                             type='button'
-                            variant='ghost'
-                            size='sm'
                             onClick={() => removeVariantFeature(index)}
+                            className='text-gray-400 hover:text-gray-700 transition-colors'
                           >
                             <X className='h-3 w-3' />
-                          </Button>
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -717,7 +647,7 @@ const AddBikes = () => {
                     value={currentFeature}
                     onChange={(e) => setCurrentFeature(e.target.value)}
                     placeholder='Add a feature'
-                    onKeyPress={(e) =>
+                    onKeyDown={(e) =>
                       e.key === "Enter" && (e.preventDefault(), addFeature())
                     }
                   />
@@ -733,14 +663,13 @@ const AddBikes = () => {
                       className='flex items-center gap-1 bg-blue-100 px-2 py-1 rounded'
                     >
                       <span className='text-sm'>{feature}</span>
-                      <Button
+                      <button
                         type='button'
-                        variant='ghost'
-                        size='sm'
                         onClick={() => removeFeature(index)}
+                        className='text-gray-400 hover:text-gray-700 transition-colors'
                       >
                         <X className='h-3 w-3' />
-                      </Button>
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -755,7 +684,7 @@ const AddBikes = () => {
                     value={currentColor}
                     onChange={(e) => setCurrentColor(e.target.value)}
                     placeholder='Add a color'
-                    onKeyPress={(e) =>
+                    onKeyDown={(e) =>
                       e.key === "Enter" && (e.preventDefault(), addColor())
                     }
                   />
@@ -771,14 +700,13 @@ const AddBikes = () => {
                       className='flex items-center gap-1 bg-green-100 px-2 py-1 rounded'
                     >
                       <span className='text-sm'>{color}</span>
-                      <Button
+                      <button
                         type='button'
-                        variant='ghost'
-                        size='sm'
                         onClick={() => removeColor(index)}
+                        className='text-gray-400 hover:text-gray-700 transition-colors'
                       >
                         <X className='h-3 w-3' />
-                      </Button>
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -837,9 +765,7 @@ const AddBikes = () => {
                 >
                   {isLoading
                     ? "Creating..."
-                    : `Create ${
-                        watch("mainCategory") === "bike" ? "Bike" : "Scooter"
-                      }`}
+                    : `Create ${watch("mainCategory") === "bike" ? "Bike" : "Scooter"}`}
                 </Button>
               </div>
             </form>

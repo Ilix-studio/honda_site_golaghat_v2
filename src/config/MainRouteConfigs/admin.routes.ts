@@ -87,8 +87,7 @@ export const adminRoutes = [
   { path: "/admin/leave-requests", component: TabBased },
 
   // Handling Dealer Queries
-  { path: "/admin/accident-reports", component: GetAllAccidentReports },
-  { path: "/admin/accident-reports/:id", component: GetAllAccidentReportsById },
+
   //
   { path: "/admin/service-revenue-stats", component: DataTabsBP },
 ];
@@ -104,6 +103,8 @@ export const sharedBikeRoutes = [
   { path: "/scootyimages/:bikeId", component: ViewScootyImages },
   { path: "/bikes/add/:id/images", component: BikeImageManager },
   { path: "/viewAll", component: ViewAll },
+  { path: "/accident-reports", component: GetAllAccidentReports },
+  { path: "/accident-reports/:id", component: GetAllAccidentReportsById },
 ];
 
 // Kept separate for LoginBranchManager — used in manager auth flow

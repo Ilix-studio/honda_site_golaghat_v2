@@ -64,7 +64,7 @@ export const ROUTES = {
 
   SERVICE_ADMIN: {
     LOGIN: "/service-admin/login",
-    DASHBOARD: "/service/dashboard",
+    DASHBOARD: "/service-admin/dashboard",
   },
 
   STAFF: {

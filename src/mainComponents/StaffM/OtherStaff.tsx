@@ -225,363 +225,371 @@ const OtherStaff: React.FC = () => {
   // ─── Render ────────────────────────────────────────────────────────────
 
   return (
-    <div className='container py-6 space-y-6'>
-      {/* ── Main Card ─────────────────────────────────────────────────── */}
-      <Card className='shadow-md'>
-        <CardHeader className='bg-muted/50'>
-          <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
-            <div>
-              <CardTitle className='text-2xl flex items-center gap-2'>
-                <Users className='h-6 w-6' />
-                Staff Management
-              </CardTitle>
-              <CardDescription>
-                Create and manage staff members for{" "}
-                {userBranch?.branchName ?? "your branch"}
-              </CardDescription>
+    <div className='min-h-screen bg-gray-50'>
+      <div className='container py-6 space-y-6'>
+        {/* ── Main Card ─────────────────────────────────────────────────── */}
+        <Card className='shadow-md'>
+          <CardHeader className='bg-muted/50'>
+            <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+              <div>
+                <CardTitle className='text-2xl flex items-center gap-2'>
+                  <Users className='h-6 w-6' />
+                  Staff Management
+                </CardTitle>
+                <CardDescription>
+                  Create and manage staff members for{" "}
+                  {userBranch?.branchName ?? "your branch"}
+                </CardDescription>
+              </div>
+
+              <Dialog
+                open={isCreateDialogOpen}
+                onOpenChange={(open) => {
+                  setIsCreateDialogOpen(open);
+                  if (!open) resetForm();
+                }}
+              >
+                <DialogTrigger asChild>
+                  <Button className='gap-1'>
+                    <UserPlus className='h-4 w-4' />
+                    Add Staff
+                  </Button>
+                </DialogTrigger>
+
+                <DialogContent className='sm:max-w-[500px]'>
+                  <DialogHeader>
+                    <DialogTitle>Add Staff Member</DialogTitle>
+                    <DialogDescription>
+                      Staff will be assigned to{" "}
+                      <span className='font-medium'>
+                        {userBranch?.branchName ?? "your branch"}
+                      </span>
+                      . An Application ID and password will be generated and
+                      sent to their email.
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <div className='space-y-4 py-4'>
+                    {/* Name */}
+                    <div className='space-y-1.5'>
+                      <Label htmlFor='st-name'>Full Name</Label>
+                      <Input
+                        id='st-name'
+                        placeholder='e.g. Ilix'
+                        value={formData.name}
+                        onChange={(e) => updateField("name", e.target.value)}
+                      />
+                      {formErrors.name && (
+                        <p className='text-sm text-destructive'>
+                          {formErrors.name}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Email */}
+                    <div className='space-y-1.5'>
+                      <Label htmlFor='st-email'>Email</Label>
+                      <Input
+                        id='st-email'
+                        type='email'
+                        placeholder='e.g. ilix@example.com'
+                        value={formData.email}
+                        onChange={(e) => updateField("email", e.target.value)}
+                      />
+                      {formErrors.email && (
+                        <p className='text-sm text-destructive'>
+                          {formErrors.email}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Phone */}
+                    <div className='space-y-1.5'>
+                      <Label htmlFor='st-phone'>Phone Number</Label>
+                      <Input
+                        id='st-phone'
+                        type='tel'
+                        placeholder='e.g. 9876543210'
+                        maxLength={10}
+                        value={formData.phoneNumber}
+                        onChange={(e) =>
+                          updateField(
+                            "phoneNumber",
+                            e.target.value.replace(/\D/g, ""),
+                          )
+                        }
+                      />
+                      {formErrors.phoneNumber && (
+                        <p className='text-sm text-destructive'>
+                          {formErrors.phoneNumber}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Position */}
+                    <div className='space-y-1.5'>
+                      <Label htmlFor='st-position'>Position</Label>
+                      <Input
+                        id='st-position'
+                        placeholder='e.g. Sales Executive, Service Technician'
+                        value={formData.position}
+                        onChange={(e) =>
+                          updateField("position", e.target.value)
+                        }
+                      />
+                      {formErrors.position && (
+                        <p className='text-sm text-destructive'>
+                          {formErrors.position}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Address */}
+                    <div className='space-y-1.5'>
+                      <Label htmlFor='st-address'>Address</Label>
+                      <Input
+                        id='st-address'
+                        placeholder='e.g. Ward No. 5, Golaghat'
+                        value={formData.address}
+                        onChange={(e) => updateField("address", e.target.value)}
+                      />
+                      {formErrors.address && (
+                        <p className='text-sm text-destructive'>
+                          {formErrors.address}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <DialogFooter>
+                    <Button
+                      variant='outline'
+                      onClick={() => setIsCreateDialogOpen(false)}
+                      disabled={isCreating}
+                    >
+                      Cancel
+                    </Button>
+                    <Button onClick={handleCreate} disabled={isCreating}>
+                      {isCreating ? "Creating..." : "Add Staff"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
+          </CardHeader>
 
-            <Dialog
-              open={isCreateDialogOpen}
-              onOpenChange={(open) => {
-                setIsCreateDialogOpen(open);
-                if (!open) resetForm();
-              }}
-            >
-              <DialogTrigger asChild>
-                <Button className='gap-1'>
-                  <UserPlus className='h-4 w-4' />
-                  Add Staff
-                </Button>
-              </DialogTrigger>
+          <CardContent className='p-6'>
+            <div className='space-y-6'>
+              {/* Search */}
+              <div className='relative'>
+                <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+                <Input
+                  type='search'
+                  placeholder='Search by name, application ID, email, or position...'
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className='pl-8'
+                />
+              </div>
 
-              <DialogContent className='sm:max-w-[500px]'>
-                <DialogHeader>
-                  <DialogTitle>Add Staff Member</DialogTitle>
-                  <DialogDescription>
-                    Staff will be assigned to{" "}
-                    <span className='font-medium'>
-                      {userBranch?.branchName ?? "your branch"}
-                    </span>
-                    . An Application ID and password will be generated and sent
-                    to their email.
-                  </DialogDescription>
-                </DialogHeader>
-
-                <div className='space-y-4 py-4'>
-                  {/* Name */}
-                  <div className='space-y-1.5'>
-                    <Label htmlFor='st-name'>Full Name</Label>
-                    <Input
-                      id='st-name'
-                      placeholder='e.g. Ilix'
-                      value={formData.name}
-                      onChange={(e) => updateField("name", e.target.value)}
-                    />
-                    {formErrors.name && (
-                      <p className='text-sm text-destructive'>
-                        {formErrors.name}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Email */}
-                  <div className='space-y-1.5'>
-                    <Label htmlFor='st-email'>Email</Label>
-                    <Input
-                      id='st-email'
-                      type='email'
-                      placeholder='e.g. ilix@example.com'
-                      value={formData.email}
-                      onChange={(e) => updateField("email", e.target.value)}
-                    />
-                    {formErrors.email && (
-                      <p className='text-sm text-destructive'>
-                        {formErrors.email}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Phone */}
-                  <div className='space-y-1.5'>
-                    <Label htmlFor='st-phone'>Phone Number</Label>
-                    <Input
-                      id='st-phone'
-                      type='tel'
-                      placeholder='e.g. 9876543210'
-                      maxLength={10}
-                      value={formData.phoneNumber}
-                      onChange={(e) =>
-                        updateField(
-                          "phoneNumber",
-                          e.target.value.replace(/\D/g, ""),
-                        )
-                      }
-                    />
-                    {formErrors.phoneNumber && (
-                      <p className='text-sm text-destructive'>
-                        {formErrors.phoneNumber}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Position */}
-                  <div className='space-y-1.5'>
-                    <Label htmlFor='st-position'>Position</Label>
-                    <Input
-                      id='st-position'
-                      placeholder='e.g. Sales Executive, Service Technician'
-                      value={formData.position}
-                      onChange={(e) => updateField("position", e.target.value)}
-                    />
-                    {formErrors.position && (
-                      <p className='text-sm text-destructive'>
-                        {formErrors.position}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Address */}
-                  <div className='space-y-1.5'>
-                    <Label htmlFor='st-address'>Address</Label>
-                    <Input
-                      id='st-address'
-                      placeholder='e.g. Ward No. 5, Golaghat'
-                      value={formData.address}
-                      onChange={(e) => updateField("address", e.target.value)}
-                    />
-                    {formErrors.address && (
-                      <p className='text-sm text-destructive'>
-                        {formErrors.address}
-                      </p>
-                    )}
-                  </div>
+              {/* Table */}
+              {isLoadingList ? (
+                <div className='text-center py-8 text-muted-foreground'>
+                  Loading staff members...
                 </div>
+              ) : filteredStaff.length === 0 ? (
+                <div className='text-center py-8 text-muted-foreground'>
+                  {searchTerm
+                    ? "No staff members match your search"
+                    : "No staff members yet. Add one to get started."}
+                </div>
+              ) : (
+                <div className='rounded-md border overflow-x-auto'>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Position</TableHead>
+                        <TableHead>Application ID</TableHead>
+                        <TableHead className='hidden md:table-cell'>
+                          Email
+                        </TableHead>
+                        <TableHead className='hidden lg:table-cell'>
+                          Phone
+                        </TableHead>
+                        <TableHead className='hidden sm:table-cell'>
+                          Branch
+                        </TableHead>
+                        <TableHead className='hidden sm:table-cell'>
+                          Status
+                        </TableHead>
+                        <TableHead className='hidden md:table-cell'>
+                          Created
+                        </TableHead>
+                        <TableHead className='text-right'>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredStaff.map((staff: UserListItem) => (
+                        <TableRow key={staff._id}>
+                          <TableCell className='font-medium'>
+                            {staff.name}
+                          </TableCell>
+                          <TableCell>
+                            <span className='flex items-center gap-1 text-sm'>
+                              <Briefcase className='h-3.5 w-3.5 text-muted-foreground' />
+                              {staff.position ?? "—"}
+                            </span>
+                          </TableCell>
 
-                <DialogFooter>
+                          <TableCell className='hidden md:table-cell'>
+                            <span className='flex items-center gap-1 text-sm'>
+                              <Mail className='h-3.5 w-3.5 text-muted-foreground' />
+                              {staff.email}
+                            </span>
+                          </TableCell>
+                          <TableCell className='hidden lg:table-cell'>
+                            <span className='flex items-center gap-1 text-sm'>
+                              <Phone className='h-3.5 w-3.5 text-muted-foreground' />
+                              {staff.phoneNumber}
+                            </span>
+                          </TableCell>
+                          <TableCell className='hidden sm:table-cell'>
+                            <span className='flex items-center gap-1 text-sm'>
+                              <MapPin className='h-3.5 w-3.5 text-muted-foreground' />
+                              {staff.branch?.branchName ?? "—"}
+                            </span>
+                          </TableCell>
+                          <TableCell className='hidden sm:table-cell'>
+                            <Badge
+                              variant={staff.isActive ? "default" : "secondary"}
+                            >
+                              {staff.isActive ? "Active" : "Inactive"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className='hidden md:table-cell text-sm text-muted-foreground'>
+                            {new Date(staff.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className='text-right'>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              onClick={() =>
+                                handleDelete(staff._id, staff.name)
+                              }
+                              disabled={isDeleting}
+                              title='Delete'
+                            >
+                              <Trash2 className='h-4 w-4 text-destructive' />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ── Credentials Modal ─────────────────────────────────────────── */}
+        <Dialog
+          open={credentials !== null}
+          onOpenChange={(open) => {
+            if (!open) setCredentials(null);
+          }}
+        >
+          <DialogContent className='sm:max-w-[480px]'>
+            <DialogHeader>
+              <DialogTitle>Staff Member Created</DialogTitle>
+              <DialogDescription>
+                Credentials have been sent to{" "}
+                <span className='font-medium'>{credentials?.email}</span>. Save
+                these now — the password will not be shown again.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className='space-y-4 py-2'>
+              {/* Name + Position */}
+              <div className='flex gap-6'>
+                <div className='space-y-1.5 flex-1'>
+                  <Label className='text-muted-foreground text-xs'>Name</Label>
+                  <p className='font-medium'>{credentials?.name}</p>
+                </div>
+                <div className='space-y-1.5 flex-1'>
+                  <Label className='text-muted-foreground text-xs'>
+                    Position
+                  </Label>
+                  <p className='font-medium'>{credentials?.position}</p>
+                </div>
+              </div>
+
+              {/* Branch */}
+              <div className='space-y-1.5'>
+                <Label className='text-muted-foreground text-xs'>Branch</Label>
+                <p className='font-medium'>{credentials?.branch}</p>
+              </div>
+
+              {/* Application ID */}
+              <div className='space-y-1.5'>
+                <Label className='text-muted-foreground text-xs'>
+                  Application ID
+                </Label>
+                <div className='flex items-center gap-2'>
+                  <Input
+                    value={credentials?.phoneNumber ?? ""}
+                    readOnly
+                    className='font-mono'
+                  />
                   <Button
                     variant='outline'
-                    onClick={() => setIsCreateDialogOpen(false)}
-                    disabled={isCreating}
+                    size='icon'
+                    onClick={() =>
+                      copyToClipboard(
+                        credentials?.phoneNumber ?? "",
+                        "Application ID",
+                      )
+                    }
                   >
-                    Cancel
+                    <Copy className='h-4 w-4' />
                   </Button>
-                  <Button onClick={handleCreate} disabled={isCreating}>
-                    {isCreating ? "Creating..." : "Add Staff"}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </CardHeader>
-
-        <CardContent className='p-6'>
-          <div className='space-y-6'>
-            {/* Search */}
-            <div className='relative'>
-              <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
-              <Input
-                type='search'
-                placeholder='Search by name, application ID, email, or position...'
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className='pl-8'
-              />
-            </div>
-
-            {/* Table */}
-            {isLoadingList ? (
-              <div className='text-center py-8 text-muted-foreground'>
-                Loading staff members...
+                </div>
               </div>
-            ) : filteredStaff.length === 0 ? (
-              <div className='text-center py-8 text-muted-foreground'>
-                {searchTerm
-                  ? "No staff members match your search"
-                  : "No staff members yet. Add one to get started."}
-              </div>
-            ) : (
-              <div className='rounded-md border overflow-x-auto'>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Position</TableHead>
-                      <TableHead>Application ID</TableHead>
-                      <TableHead className='hidden md:table-cell'>
-                        Email
-                      </TableHead>
-                      <TableHead className='hidden lg:table-cell'>
-                        Phone
-                      </TableHead>
-                      <TableHead className='hidden sm:table-cell'>
-                        Branch
-                      </TableHead>
-                      <TableHead className='hidden sm:table-cell'>
-                        Status
-                      </TableHead>
-                      <TableHead className='hidden md:table-cell'>
-                        Created
-                      </TableHead>
-                      <TableHead className='text-right'>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredStaff.map((staff: UserListItem) => (
-                      <TableRow key={staff._id}>
-                        <TableCell className='font-medium'>
-                          {staff.name}
-                        </TableCell>
-                        <TableCell>
-                          <span className='flex items-center gap-1 text-sm'>
-                            <Briefcase className='h-3.5 w-3.5 text-muted-foreground' />
-                            {staff.position ?? "—"}
-                          </span>
-                        </TableCell>
 
-                        <TableCell className='hidden md:table-cell'>
-                          <span className='flex items-center gap-1 text-sm'>
-                            <Mail className='h-3.5 w-3.5 text-muted-foreground' />
-                            {staff.email}
-                          </span>
-                        </TableCell>
-                        <TableCell className='hidden lg:table-cell'>
-                          <span className='flex items-center gap-1 text-sm'>
-                            <Phone className='h-3.5 w-3.5 text-muted-foreground' />
-                            {staff.phoneNumber}
-                          </span>
-                        </TableCell>
-                        <TableCell className='hidden sm:table-cell'>
-                          <span className='flex items-center gap-1 text-sm'>
-                            <MapPin className='h-3.5 w-3.5 text-muted-foreground' />
-                            {staff.branch?.branchName ?? "—"}
-                          </span>
-                        </TableCell>
-                        <TableCell className='hidden sm:table-cell'>
-                          <Badge
-                            variant={staff.isActive ? "default" : "secondary"}
-                          >
-                            {staff.isActive ? "Active" : "Inactive"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className='hidden md:table-cell text-sm text-muted-foreground'>
-                          {new Date(staff.createdAt).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className='text-right'>
-                          <Button
-                            variant='ghost'
-                            size='icon'
-                            onClick={() => handleDelete(staff._id, staff.name)}
-                            disabled={isDeleting}
-                            title='Delete'
-                          >
-                            <Trash2 className='h-4 w-4 text-destructive' />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ── Credentials Modal ─────────────────────────────────────────── */}
-      <Dialog
-        open={credentials !== null}
-        onOpenChange={(open) => {
-          if (!open) setCredentials(null);
-        }}
-      >
-        <DialogContent className='sm:max-w-[480px]'>
-          <DialogHeader>
-            <DialogTitle>Staff Member Created</DialogTitle>
-            <DialogDescription>
-              Credentials have been sent to{" "}
-              <span className='font-medium'>{credentials?.email}</span>. Save
-              these now — the password will not be shown again.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className='space-y-4 py-2'>
-            {/* Name + Position */}
-            <div className='flex gap-6'>
-              <div className='space-y-1.5 flex-1'>
-                <Label className='text-muted-foreground text-xs'>Name</Label>
-                <p className='font-medium'>{credentials?.name}</p>
-              </div>
-              <div className='space-y-1.5 flex-1'>
+              {/* Password */}
+              <div className='space-y-1.5'>
                 <Label className='text-muted-foreground text-xs'>
-                  Position
+                  Password
                 </Label>
-                <p className='font-medium'>{credentials?.position}</p>
+                <div className='flex items-center gap-2'>
+                  <Input
+                    value={credentials?.password ?? ""}
+                    readOnly
+                    className='font-mono'
+                  />
+                  <Button
+                    variant='outline'
+                    size='icon'
+                    onClick={() =>
+                      copyToClipboard(credentials?.password ?? "", "Password")
+                    }
+                  >
+                    <Copy className='h-4 w-4' />
+                  </Button>
+                </div>
+                <p className='text-xs text-amber-600'>
+                  This password is shown only once. It has also been emailed.
+                </p>
               </div>
             </div>
 
-            {/* Branch */}
-            <div className='space-y-1.5'>
-              <Label className='text-muted-foreground text-xs'>Branch</Label>
-              <p className='font-medium'>{credentials?.branch}</p>
-            </div>
-
-            {/* Application ID */}
-            <div className='space-y-1.5'>
-              <Label className='text-muted-foreground text-xs'>
-                Application ID
-              </Label>
-              <div className='flex items-center gap-2'>
-                <Input
-                  value={credentials?.phoneNumber ?? ""}
-                  readOnly
-                  className='font-mono'
-                />
-                <Button
-                  variant='outline'
-                  size='icon'
-                  onClick={() =>
-                    copyToClipboard(
-                      credentials?.phoneNumber ?? "",
-                      "Application ID",
-                    )
-                  }
-                >
-                  <Copy className='h-4 w-4' />
-                </Button>
-              </div>
-            </div>
-
-            {/* Password */}
-            <div className='space-y-1.5'>
-              <Label className='text-muted-foreground text-xs'>Password</Label>
-              <div className='flex items-center gap-2'>
-                <Input
-                  value={credentials?.password ?? ""}
-                  readOnly
-                  className='font-mono'
-                />
-                <Button
-                  variant='outline'
-                  size='icon'
-                  onClick={() =>
-                    copyToClipboard(credentials?.password ?? "", "Password")
-                  }
-                >
-                  <Copy className='h-4 w-4' />
-                </Button>
-              </div>
-              <p className='text-xs text-amber-600'>
-                This password is shown only once. It has also been emailed.
-              </p>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button onClick={() => setCredentials(null)}>Done</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button onClick={() => setCredentials(null)}>Done</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 };

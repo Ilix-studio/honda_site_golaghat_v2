@@ -71,18 +71,7 @@ const DashStaff = () => {
       accent: "#f59e0b",
       action: { label: "Open", href: "/staff/apply-leave" },
     },
-    {
-      title: "Buy Scanfleet Stickers",
-      value: serviceBookingData?.total ?? 0,
-      icon: User,
-      loading: serviceBookingLoading,
-      description: "Number of tokens",
-      accent: "#f97316",
-      action: {
-        label: "Buy Stickers",
-        href: "/buy-stickers",
-      },
-    },
+
     {
       title: "Sell Scanfleet Stickers",
       value: serviceBookingData?.total ?? 0,
@@ -92,7 +81,7 @@ const DashStaff = () => {
       accent: "#f97316",
       action: {
         label: "Sell Stickers",
-        href: "/sell-stickers",
+        href: "/buy-sticker",
       },
     },
   ];
