@@ -74,14 +74,20 @@ const routeConfig: Record<
       { label: "Service Admins", href: "/admin/branches/service-admins" },
     ],
   },
-  "/admin/view-assigned-stock": {
-    title: "View Customer Assigned Stock",
+  "/admin/sales-report": {
+    title: "Sales Report",
     subtitle: "",
     showBack: true,
     backTo: "/admin/dashboard",
     menuItems: [
-      { label: "Branch Managers", href: "/admin/branches/managers" },
-      { label: "Service Admins", href: "/admin/branches/service-admins" },
+      {
+        label: "View Staff",
+        href: "/admin/viewStaff",
+      },
+      {
+        label: "View Total VAS",
+        href: "/admin/view-total-vas",
+      },
     ],
   },
   "/admin/leave-requests": {

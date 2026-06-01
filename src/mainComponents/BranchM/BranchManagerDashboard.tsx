@@ -20,6 +20,7 @@ import {
   Settings2,
   TrendingUp,
   Activity,
+  Regex,
 } from "lucide-react";
 import { useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -120,7 +121,7 @@ const BranchManagerDashboard = () => {
       action: { label: "Open VAS Manager", href: "/manager/vas/select" },
     },
     {
-      title: "Stock Queries",
+      title: "Stock Manager",
       value: stockData?.total ?? 0,
       icon: Activity,
       loading: stockLoading,
@@ -133,10 +134,10 @@ const BranchManagerDashboard = () => {
       title: "Apply Leave",
       //Add Badge
       value: myLeaveData?.data?.length ?? 0,
-      icon: Activity,
+      icon: Regex,
       loading: myLeaveLoading,
       description: "My Leave Application",
-      accent: "#f59e0b",
+      accent: "#f50b0bff",
       action: { label: "Open", href: "/manager/apply-leave" },
     },
   ];

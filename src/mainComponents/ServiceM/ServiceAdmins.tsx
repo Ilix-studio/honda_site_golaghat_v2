@@ -273,8 +273,8 @@ const ServiceAdmins: React.FC = () => {
                   <DialogHeader>
                     <DialogTitle>Create Service Admin</DialogTitle>
                     <DialogDescription>
-                      Fill in the details. An Application ID and password will
-                      be generated and sent to the provided email.
+                      Fill in the details. A Password will be generated and sent
+                      to the provided email.
                     </DialogDescription>
                   </DialogHeader>
 
@@ -413,7 +413,7 @@ const ServiceAdmins: React.FC = () => {
                 <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
                 <Input
                   type='search'
-                  placeholder='Search by name, application ID, email, or branch...'
+                  placeholder='Search by name, phoneNumber, email, or branch...'
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className='pl-8'
@@ -437,7 +437,7 @@ const ServiceAdmins: React.FC = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Name</TableHead>
-                        <TableHead>Application ID</TableHead>
+
                         <TableHead className='hidden md:table-cell'>
                           Email
                         </TableHead>

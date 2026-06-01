@@ -78,7 +78,7 @@ const DashServiceAdmins = () => {
       value: bookingsData?.total ?? "—",
       icon: Wrench,
       loading: serviceBookingLoading,
-      description: "Total registered",
+      description: "Total Service Bookings",
       accent: "#3b82f6",
       action: {
         label: "Open Service Booking form",
@@ -90,8 +90,8 @@ const DashServiceAdmins = () => {
       value: serviceBookingData?.total ?? 0,
       icon: User,
       loading: serviceBookingLoading,
-      description: "Total registered",
-      accent: "#f97316",
+      description: "Total Job Cards",
+      accent: "#ac3ea7ff",
       action: {
         label: "Open Job Card form",
         href: "/service-admin/job-card",
@@ -113,7 +113,7 @@ const DashServiceAdmins = () => {
       icon: Wrench,
       loading: false,
       description: "Job card catalog",
-      accent: "#f59e0b",
+      accent: "#1f8438ff",
       action: { label: "Open", href: "/service-admin/catalog" },
     },
   ];
@@ -121,13 +121,13 @@ const DashServiceAdmins = () => {
   const InvoiceStats: Omit<StatCardProps, "index">[] = [
     {
       title: "Total",
-      value: 1000,
+      value: 1,
       icon: Wrench,
       loading: false,
-      description: "Total registered",
-      accent: "#3b82f6",
+      description: "Total Invoices",
+      accent: "#f63b3bff",
       action: {
-        label: "Open Service Booking form",
+        label: "Open Invoices",
         href: "/service-admin/customer-invoices",
       },
     },

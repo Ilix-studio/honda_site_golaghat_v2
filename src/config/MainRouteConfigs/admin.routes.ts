@@ -59,11 +59,11 @@ const ViewTotalVAS = lazy(
   () => import("@/mainComponents/Admin/NewUpdate/ViewTotalVAS"),
 );
 
-const ViewAssignedStock = lazy(
-  () => import("@/mainComponents/Admin/NewUpdate/ViewAssignedStock"),
-);
 const DataTabsBP = lazy(
   () => import("@/mainComponents/Admin/ServiceBookingsData/DataTabsBP"),
+);
+const SalesReport = lazy(
+  () => import("@/mainComponents/Admin/SalesReport/SalesReport"),
 );
 //
 export const adminAuthRoutes = [
@@ -81,7 +81,7 @@ export const adminRoutes = [
   //
   { path: "/admin/viewStaff", component: ViewStaff },
   { path: "/admin/view-total-vas", component: ViewTotalVAS },
-  { path: "/admin/view-assigned-stock", component: ViewAssignedStock },
+  { path: "/admin/sales-report", component: SalesReport },
 
   // Leave Management
   { path: "/admin/leave-requests", component: TabBased },
