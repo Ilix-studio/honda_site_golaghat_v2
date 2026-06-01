@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, X, Trash2 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../../hooks/redux";
 import { addNotification } from "../../../redux-store/slices/uiSlice";
 import { useCreateBikeMutation } from "@/redux-store/services/BikeSystemApi/bikeApi";
@@ -755,9 +755,6 @@ const AddBikes = () => {
 
               {/* Form Actions */}
               <div className='flex justify-end space-x-2 pt-6 border-t'>
-                <Link to='/admin/dashboard'>
-                  <Button variant='outline'>Cancel</Button>
-                </Link>
                 <Button
                   type='submit'
                   disabled={isLoading}

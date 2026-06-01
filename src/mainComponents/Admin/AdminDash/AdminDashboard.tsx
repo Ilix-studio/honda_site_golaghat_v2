@@ -14,7 +14,10 @@ import { useNavigate } from "react-router-dom";
 
 // Redux
 import { useAppSelector } from "../../../hooks/redux";
-import { selectAuth } from "../../../redux-store/slices/authSlice";
+import {
+  selectIsAdmin,
+  selectUser,
+} from "../../../redux-store/slices/authSlice";
 
 // Import the new components
 import CustomerQueries from "./CustomerQueries";
@@ -23,7 +26,8 @@ import { Button } from "@/components/ui/button";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAppSelector(selectAuth);
+  const isAdmin = useAppSelector(selectIsAdmin);
+  const user = useAppSelector(selectUser);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -31,12 +35,11 @@ const AdminDashboard = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Redirect if not authenticated
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAdmin) {
       navigate("/admin/superlogin");
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAdmin, navigate]);
 
   const greeting = (() => {
     const hour = currentTime.getHours();
@@ -52,7 +55,7 @@ const AdminDashboard = () => {
     day: "numeric",
   });
 
-  if (!isAuthenticated) {
+  if (!isAdmin) {
     return (
       <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-red-950'>
         <div className='flex flex-col items-center gap-4'>
