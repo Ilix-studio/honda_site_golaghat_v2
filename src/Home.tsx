@@ -9,14 +9,15 @@ import NewUI from "./mainComponents/Home/NewUI";
 import AvailableModel from "./mainComponents/Home/AvailableModel";
 import ServiceDetails from "./mainComponents/Home/ServiceDetails";
 
-
 import GoogleReviews from "./mainComponents/Reviews/GoogleReviews";
+// import UnderDevelopment from "./mainComponents/UnderDevelopment";
 
 function Home() {
   return (
     <div className='min-h-screen flex flex-col'>
       <NewUI />
       <main>
+        {/* <UnderDevelopment /> */}
         <AvailableModel />
         <ServiceDetails />
 
@@ -30,7 +31,7 @@ function Home() {
         <br />
         <ContactSection />
         <br />
-     
+
         <GoogleReviews />
         <br />
         <Footer />

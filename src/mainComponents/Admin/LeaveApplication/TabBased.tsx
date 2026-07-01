@@ -22,7 +22,7 @@ const TabBased = () => {
   // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate("/admin/superlogin");
+      navigate("/admin/login");
     }
   }, [isAuthenticated, navigate]);
 

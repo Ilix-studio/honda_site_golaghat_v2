@@ -117,12 +117,12 @@ export function Footer() {
                   <span className='text-xl font-bold'>Tsangpool Honda</span>
                 </Link>
               </div>
-              <Link to='/manager-login'>
-                <p className='text-muted-foreground text-pretty'>
-                  Your trusted Honda dealer for premium motorcycles and
-                  scooters. Experience the future of mobility with us.
-                </p>
-              </Link>
+
+              <p className='text-muted-foreground text-pretty'>
+                Your trusted Honda dealer for premium motorcycles and scooters.
+                Experience the future of mobility with us.
+              </p>
+
               <br />
               <motion.div
                 className='flex flex-col sm:flex-row items-center justify-between gap-4'
@@ -230,7 +230,9 @@ export function Footer() {
             </div>
 
             <div>
-              <h4 className='text-lg font-bold mb-4'>Contact Info</h4>
+              <Link to='/manager-login'>
+                <h4 className='text-lg font-bold mb-4'>Contact Info</h4>
+              </Link>
               <div className='space-y-3 text-muted-foreground'>
                 <div className='flex items-center space-x-2'>
                   <Phone className='w-4 h-4' />

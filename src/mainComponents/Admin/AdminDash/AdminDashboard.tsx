@@ -37,7 +37,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (!isAdmin) {
-      navigate("/admin/superlogin");
+      navigate("/admin/login");
     }
   }, [isAdmin, navigate]);
 
