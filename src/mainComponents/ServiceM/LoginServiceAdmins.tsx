@@ -120,6 +120,13 @@ function LoginServiceAdmins() {
               {" "}
               <ArrowLeft /> Sign in as Branch Admin
             </Link>
+            <Link
+              to='/part-admin/login'
+              className='flex items-center gap-2 text-gray-300 underline hover:text-white transition-colors'
+            >
+              <ArrowLeft className='w-4 h-4' />
+              Sign in as Parts Admin
+            </Link>
             <Link to='/staff/login' className='flex text-gray-300 underline'>
               {" "}
               <ArrowLeft /> Sign in as Staff Account

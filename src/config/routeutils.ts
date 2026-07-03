@@ -67,6 +67,12 @@ export const ROUTES = {
     DASHBOARD: "/service-admin/dashboard",
   },
 
+  PART_ADMIN: {
+    LOGIN: "/part-admin/login",
+    DASHBOARD: "/part-admin/dashboard",
+    UPLOAD: "/part-admin/upload",
+  },
+
   STAFF: {
     LOGIN: "/staff-login",
     DASHBOARD: "/staff/dashboard",
@@ -95,6 +101,7 @@ export type UserRole =
   | "Super-Admin"
   | "Branch-Admin"
   | "Service-Admin"
+  | "Part-Admin"
   | "Staff"
   | "Customer";
 
@@ -133,6 +140,9 @@ export const isBranchManagerRoute = (path: string): boolean =>
 export const isServiceAdminRoute = (path: string): boolean =>
   path.startsWith("/service");
 
+export const isPartAdminRoute = (path: string): boolean =>
+  path.startsWith("/part-admin");
+
 export const isStaffRoute = (path: string): boolean =>
   path.startsWith("/staff");
 
@@ -164,6 +174,7 @@ const ROLE_DASHBOARDS: Record<UserRole, string> = {
   "Super-Admin": ROUTES.ADMIN.DASHBOARD,
   "Branch-Admin": ROUTES.BRANCH_MANAGER.DASHBOARD,
   "Service-Admin": ROUTES.SERVICE_ADMIN.DASHBOARD,
+  "Part-Admin": ROUTES.PART_ADMIN.DASHBOARD,
   Staff: ROUTES.STAFF.DASHBOARD,
   Customer: ROUTES.CUSTOMER.DASHBOARD,
 };
@@ -239,6 +250,18 @@ export const canAccessRoute = (
       canAccess: false,
       redirectTo: dashboard,
       reason: "Service Admin access required",
+    };
+  }
+
+  // ── Part Admin routes (/part-admin/*) ──────────────────────────────
+  if (isPartAdminRoute(path)) {
+    if (user.role === "Part-Admin" || user.role === "Super-Admin") {
+      return { canAccess: true };
+    }
+    return {
+      canAccess: false,
+      redirectTo: dashboard,
+      reason: "Part Admin access required",
     };
   }
 

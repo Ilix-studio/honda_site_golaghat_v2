@@ -74,6 +74,8 @@ export const selectIsBranchAdmin = (state: RootState) =>
   state.auth.isAuthenticated && state.auth.user?.role === "Branch-Admin";
 export const selectIsServiceAdmin = (state: RootState) =>
   state.auth.isAuthenticated && state.auth.user?.role === "Service-Admin";
+export const selectIsPartAdmin = (state: RootState) =>
+  state.auth.isAuthenticated && state.auth.user?.role === "Part-Admin";
 export const selectIsStaff = (state: RootState) =>
   state.auth.isAuthenticated && state.auth.user?.role === "Staff";
 export const selectUserRole = (state: RootState) => state.auth.user?.role;

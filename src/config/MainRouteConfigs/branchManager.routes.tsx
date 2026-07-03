@@ -71,6 +71,10 @@ const BranchFinanceQueries = lazy(
   () => import("@/mainComponents/BranchM/BranchFinanceQueries"),
 );
 const SeeMessages = lazy(() => import("@/mainComponents/Admin/SeeMessages"));
+const PartAdmins = lazy(() => import("@/mainComponents/PartsM/PartAdmins"));
+const ServiceAdmins = lazy(
+  () => import("@/mainComponents/ServiceM/ServiceAdmins"),
+);
 const BranchApplyLeave = () => (
   <ApplyLeave dashboardPath='/manager/dashboard' />
 );
@@ -104,6 +108,8 @@ export const branchManagerRoutes = [
   { path: "/manager/finance-queries", component: BranchFinanceQueries },
   { path: "/manager/any-messages", component: SeeMessages },
   { path: "/manager/staff", component: OtherStaff },
+  { path: "/manager/part-admins", component: PartAdmins },
+  { path: "/manager/service-admins", component: ServiceAdmins },
     { path: "/manager/view/stock-concept", component: ViewStockConcept },
   //
   { path: "/manager/apply-leave", component: BranchApplyLeave },

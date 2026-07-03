@@ -22,6 +22,7 @@ const ServiceBookingsManager = lazy(
 const JobCardCatalogManager = lazy(
   () => import("@/mainComponents/CustomerSystem/JobCard/JobCardCatalogManager"),
 );
+
 export const serviceAdminAuthRoutes = [
   { path: "/service-admin/login", component: LoginServiceAdmins },
 ];

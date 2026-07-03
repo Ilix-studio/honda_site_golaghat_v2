@@ -27,7 +27,19 @@ export interface CreateServiceAdminRequest {
   email: string;
   phoneNumber: string;
   address: string;
-  branch: string;
+  // Optional: Super-Admin must supply a branch; Branch-Admin is locked to their
+  // own branch server-side, so they omit it.
+  branch?: string;
+}
+
+export interface CreatePartAdminRequest {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  // Optional: Super-Admin must supply a branch; Branch-Admin is locked to their
+  // own branch server-side, so they omit it.
+  branch?: string;
 }
 
 export interface CreateStaffRequest {
@@ -67,6 +79,17 @@ export interface BranchAdminLoginResponse extends BaseResponse {
 }
 
 export interface ServiceAdminLoginResponse extends BaseResponse {
+  data: {
+    id: string;
+    name: string;
+    phoneNumber: string;
+    branch: UserBranch;
+    role: string;
+    token: string;
+  };
+}
+
+export interface PartAdminLoginResponse extends BaseResponse {
   data: {
     id: string;
     name: string;
@@ -218,6 +241,34 @@ export const adminAuthApi = apiSlice.injectEndpoints({
       },
     }),
 
+    loginPartAdmin: builder.mutation<
+      PartAdminLoginResponse,
+      ApplicationLoginRequest
+    >({
+      query: (credentials) => ({
+        url: "/auth/part-admin/login",
+        method: "POST",
+        body: credentials,
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data.success) {
+            const userData: User = {
+              id: data.data.id,
+              name: data.data.name,
+              phoneNumber: data.data.phoneNumber,
+              branch: data.data.branch,
+              role: data.data.role,
+            };
+            dispatch(loginSuccess({ user: userData, token: data.data.token }));
+          }
+        } catch (error) {
+          console.error("Part-Admin login failed:", error);
+        }
+      },
+    }),
+
     loginStaff: builder.mutation<StaffLoginResponse, ApplicationLoginRequest>({
       query: (credentials) => ({
         url: "/auth/staff/login",
@@ -339,6 +390,35 @@ export const adminAuthApi = apiSlice.injectEndpoints({
     }),
 
     // ═════════════════════════════════════════════════════════════════════
+    // USER MANAGEMENT — PART-ADMIN — /api/users/*
+    // ═════════════════════════════════════════════════════════════════════
+
+    createPartAdmin: builder.mutation<
+      CreatedUserResponse,
+      CreatePartAdminRequest
+    >({
+      query: (data) => ({
+        url: "/users/part-admin",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["PartAdmin"],
+    }),
+
+    getAllPartAdmins: builder.query<UserListResponse, void>({
+      query: () => "/users/part-admins",
+      providesTags: ["PartAdmin"],
+    }),
+
+    deletePartAdmin: builder.mutation<BaseResponse, string>({
+      query: (id) => ({
+        url: `/users/part-admin/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["PartAdmin"],
+    }),
+
+    // ═════════════════════════════════════════════════════════════════════
     // USER MANAGEMENT — STAFF — /api/users/*
     // ═════════════════════════════════════════════════════════════════════
 
@@ -378,6 +458,7 @@ export const {
   useLoginSuperAdminMutation,
   useLoginBranchAdminMutation,
   useLoginServiceAdminMutation,
+  useLoginPartAdminMutation,
   useLoginStaffMutation,
   // Logout
   useLogoutSuperAdminMutation,
@@ -390,6 +471,10 @@ export const {
   useCreateServiceAdminMutation,
   useGetAllServiceAdminsQuery,
   useDeleteServiceAdminMutation,
+  // Part-Admin management
+  useCreatePartAdminMutation,
+  useGetAllPartAdminsQuery,
+  useDeletePartAdminMutation,
   // Staff management
   useCreateStaffMutation,
   useGetAllStaffQuery,

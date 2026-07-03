@@ -1,7 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import {
-  Wrench,
+  Package,
   UserPlus,
   Search,
   Trash2,
@@ -52,16 +52,14 @@ import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectIsBranchAdmin } from "../../redux-store/slices/authSlice";
 import { addNotification } from "../../redux-store/slices/uiSlice";
 import {
-  useGetAllServiceAdminsQuery,
-  useCreateServiceAdminMutation,
-  useDeleteServiceAdminMutation,
+  useGetAllPartAdminsQuery,
+  useCreatePartAdminMutation,
+  useDeletePartAdminMutation,
   type UserListItem,
 } from "../../redux-store/services/adminApi";
 import { useGetBranchesQuery } from "../../redux-store/services/branchApi";
 
-// ─── Form State ──────────────────────────────────────────────────────────────
-
-interface CreateServiceAdminForm {
+interface CreatePartAdminForm {
   name: string;
   email: string;
   phoneNumber: string;
@@ -69,15 +67,13 @@ interface CreateServiceAdminForm {
   branch: string;
 }
 
-const INITIAL_FORM: CreateServiceAdminForm = {
+const INITIAL_FORM: CreatePartAdminForm = {
   name: "",
   email: "",
   phoneNumber: "",
   address: "",
   branch: "",
 };
-
-// ─── Credentials shown after creation ────────────────────────────────────────
 
 interface CreatedCredentials {
   phoneNumber: string;
@@ -87,44 +83,35 @@ interface CreatedCredentials {
   branch: string;
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
-
-const ServiceAdmins: React.FC = () => {
+const PartAdmins: React.FC = () => {
   const dispatch = useAppDispatch();
   // Branch-Admins are locked to their own branch — the backend forces it, so we
   // hide the branch picker and omit `branch` from the payload for them.
   const isBranchAdmin = useAppSelector(selectIsBranchAdmin);
 
-  // UI state
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [credentials, setCredentials] = useState<CreatedCredentials | null>(
     null,
   );
-  const [formData, setFormData] =
-    useState<CreateServiceAdminForm>(INITIAL_FORM);
+  const [formData, setFormData] = useState<CreatePartAdminForm>(INITIAL_FORM);
   const [formErrors, setFormErrors] = useState<
-    Partial<Record<keyof CreateServiceAdminForm, string>>
+    Partial<Record<keyof CreatePartAdminForm, string>>
   >({});
 
-  // RTK Query
-  const { data: serviceAdminsResponse, isLoading: isLoadingList } =
-    useGetAllServiceAdminsQuery();
-
+  const { data: partAdminsResponse, isLoading: isLoadingList } =
+    useGetAllPartAdminsQuery();
   const { data: branchesData, isLoading: isLoadingBranches } =
     useGetBranchesQuery();
+  const [createPartAdmin, { isLoading: isCreating }] =
+    useCreatePartAdminMutation();
+  const [deletePartAdmin, { isLoading: isDeleting }] =
+    useDeletePartAdminMutation();
 
-  const [createServiceAdmin, { isLoading: isCreating }] =
-    useCreateServiceAdminMutation();
-
-  const [deleteServiceAdmin, { isLoading: isDeleting }] =
-    useDeleteServiceAdminMutation();
-
-  // Derived
-  const serviceAdmins = serviceAdminsResponse?.data ?? [];
+  const partAdmins = partAdminsResponse?.data ?? [];
   const branches = branchesData?.data ?? [];
 
-  const filteredAdmins = serviceAdmins.filter((admin) => {
+  const filteredAdmins = partAdmins.filter((admin) => {
     const term = searchTerm.toLowerCase();
     return (
       admin.name.toLowerCase().includes(term) ||
@@ -134,9 +121,7 @@ const ServiceAdmins: React.FC = () => {
     );
   });
 
-  // ─── Form helpers ──────────────────────────────────────────────────────
-
-  const updateField = (field: keyof CreateServiceAdminForm, value: string) => {
+  const updateField = (field: keyof CreatePartAdminForm, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (formErrors[field]) {
       setFormErrors((prev) => {
@@ -148,7 +133,7 @@ const ServiceAdmins: React.FC = () => {
   };
 
   const validateForm = (): boolean => {
-    const errors: Partial<Record<keyof CreateServiceAdminForm, string>> = {};
+    const errors: Partial<Record<keyof CreatePartAdminForm, string>> = {};
 
     if (!formData.name.trim()) errors.name = "Name is required";
     if (!formData.email.trim()) {
@@ -175,13 +160,11 @@ const ServiceAdmins: React.FC = () => {
     setFormErrors({});
   };
 
-  // ─── Handlers ──────────────────────────────────────────────────────────
-
   const handleCreate = async () => {
     if (!validateForm()) return;
 
     try {
-      const response = await createServiceAdmin({
+      const response = await createPartAdmin({
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         phoneNumber: formData.phoneNumber.trim(),
@@ -201,36 +184,31 @@ const ServiceAdmins: React.FC = () => {
       dispatch(
         addNotification({
           type: "success",
-          message: "Service Admin created. Credentials sent via email.",
+          message: "Part Admin created. Credentials sent via email.",
         }),
       );
 
       resetForm();
       setIsCreateDialogOpen(false);
     } catch (error: any) {
-      const msg = error.data?.message || "Failed to create Service Admin";
+      const msg = error.data?.message || "Failed to create Part Admin";
       dispatch(addNotification({ type: "error", message: msg }));
       toast.error(msg);
     }
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (
-      !window.confirm(`Delete Service Admin "${name}"? This cannot be undone.`)
-    )
+    if (!window.confirm(`Delete Part Admin "${name}"? This cannot be undone.`))
       return;
 
     try {
-      await deleteServiceAdmin(id).unwrap();
+      await deletePartAdmin(id).unwrap();
       dispatch(
-        addNotification({
-          type: "success",
-          message: "Service Admin deleted",
-        }),
+        addNotification({ type: "success", message: "Part Admin deleted" }),
       );
-      toast.success("Service Admin deleted");
+      toast.success("Part Admin deleted");
     } catch (error: any) {
-      const msg = error.data?.message || "Failed to delete Service Admin";
+      const msg = error.data?.message || "Failed to delete Part Admin";
       dispatch(addNotification({ type: "error", message: msg }));
       toast.error(msg);
     }
@@ -241,22 +219,19 @@ const ServiceAdmins: React.FC = () => {
     toast.success(`${label} copied to clipboard`);
   };
 
-  // ─── Render ────────────────────────────────────────────────────────────
-
   return (
     <div className='min-h-screen bg-gray-50'>
       <div className='container py-6 space-y-6'>
-        {/* ── Main Card ─────────────────────────────────────────────────── */}
         <Card className='shadow-md'>
           <CardHeader className='bg-muted/50'>
             <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
               <div>
                 <CardTitle className='text-2xl flex items-center gap-2'>
-                  <Wrench className='h-6 w-6' />
-                  Service Admin Management
+                  <Package className='h-6 w-6' />
+                  Part Admin Management
                 </CardTitle>
                 <CardDescription>
-                  Create and manage Service Admin accounts across branches
+                  Create and manage Part Admin accounts across branches
                 </CardDescription>
               </div>
 
@@ -270,26 +245,25 @@ const ServiceAdmins: React.FC = () => {
                 <DialogTrigger asChild>
                   <Button className='gap-1'>
                     <UserPlus className='h-4 w-4' />
-                    New Service Admin
+                    New Part Admin
                   </Button>
                 </DialogTrigger>
 
                 <DialogContent className='sm:max-w-[500px]'>
                   <DialogHeader>
-                    <DialogTitle>Create Service Admin</DialogTitle>
+                    <DialogTitle>Create Part Admin</DialogTitle>
                     <DialogDescription>
-                      Fill in the details. A Password will be generated and sent
+                      Fill in the details. A password will be generated and sent
                       to the provided email.
                     </DialogDescription>
                   </DialogHeader>
 
                   <div className='space-y-4 py-4'>
-                    {/* Name */}
                     <div className='space-y-1.5'>
-                      <Label htmlFor='sa-name'>Full Name</Label>
+                      <Label htmlFor='pa-name'>Full Name</Label>
                       <Input
-                        id='sa-name'
-                        placeholder='e.g. Ilix '
+                        id='pa-name'
+                        placeholder='e.g. Ilix'
                         value={formData.name}
                         onChange={(e) => updateField("name", e.target.value)}
                       />
@@ -300,11 +274,10 @@ const ServiceAdmins: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Email */}
                     <div className='space-y-1.5'>
-                      <Label htmlFor='sa-email'>Email</Label>
+                      <Label htmlFor='pa-email'>Email</Label>
                       <Input
-                        id='sa-email'
+                        id='pa-email'
                         type='email'
                         placeholder='e.g. ilix@example.com'
                         value={formData.email}
@@ -317,11 +290,10 @@ const ServiceAdmins: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Phone */}
                     <div className='space-y-1.5'>
-                      <Label htmlFor='sa-phone'>Phone Number</Label>
+                      <Label htmlFor='pa-phone'>Phone Number</Label>
                       <Input
-                        id='sa-phone'
+                        id='pa-phone'
                         type='tel'
                         placeholder='e.g. 9876543210'
                         maxLength={10}
@@ -340,11 +312,10 @@ const ServiceAdmins: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Address */}
                     <div className='space-y-1.5'>
-                      <Label htmlFor='sa-address'>Address</Label>
+                      <Label htmlFor='pa-address'>Address</Label>
                       <Input
-                        id='sa-address'
+                        id='pa-address'
                         placeholder='e.g. Main Road, Jorhat'
                         value={formData.address}
                         onChange={(e) => updateField("address", e.target.value)}
@@ -356,10 +327,9 @@ const ServiceAdmins: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Branch Select — Super-Admin only; Branch-Admin is locked to own branch */}
                     {isBranchAdmin ? (
                       <p className='text-xs text-muted-foreground'>
-                        This Service Admin will be assigned to your branch.
+                        This Part Admin will be assigned to your branch.
                       </p>
                     ) : (
                       <div className='space-y-1.5'>
@@ -412,7 +382,7 @@ const ServiceAdmins: React.FC = () => {
                       Cancel
                     </Button>
                     <Button onClick={handleCreate} disabled={isCreating}>
-                      {isCreating ? "Creating..." : "Create Service Admin"}
+                      {isCreating ? "Creating..." : "Create Part Admin"}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -422,7 +392,6 @@ const ServiceAdmins: React.FC = () => {
 
           <CardContent className='p-6'>
             <div className='space-y-6'>
-              {/* Search */}
               <div className='relative'>
                 <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
                 <Input
@@ -434,16 +403,15 @@ const ServiceAdmins: React.FC = () => {
                 />
               </div>
 
-              {/* Table */}
               {isLoadingList ? (
                 <div className='text-center py-8 text-muted-foreground'>
-                  Loading service admins...
+                  Loading part admins...
                 </div>
               ) : filteredAdmins.length === 0 ? (
                 <div className='text-center py-8 text-muted-foreground'>
                   {searchTerm
-                    ? "No service admins match your search"
-                    : "No service admins yet. Create one to get started."}
+                    ? "No part admins match your search"
+                    : "No part admins yet. Create one to get started."}
                 </div>
               ) : (
                 <div className='rounded-md border overflow-x-auto'>
@@ -451,7 +419,6 @@ const ServiceAdmins: React.FC = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Name</TableHead>
-
                         <TableHead className='hidden md:table-cell'>
                           Email
                         </TableHead>
@@ -474,7 +441,6 @@ const ServiceAdmins: React.FC = () => {
                           <TableCell className='font-medium'>
                             {admin.name}
                           </TableCell>
-
                           <TableCell className='hidden md:table-cell'>
                             <span className='flex items-center gap-1 text-sm'>
                               <Mail className='h-3.5 w-3.5 text-muted-foreground' />
@@ -507,9 +473,7 @@ const ServiceAdmins: React.FC = () => {
                             <Button
                               variant='ghost'
                               size='icon'
-                              onClick={() =>
-                                handleDelete(admin._id, admin.name)
-                              }
+                              onClick={() => handleDelete(admin._id, admin.name)}
                               disabled={isDeleting}
                               title='Delete'
                             >
@@ -526,7 +490,6 @@ const ServiceAdmins: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* ── Credentials Modal (shown after successful creation) ──────── */}
         <Dialog
           open={credentials !== null}
           onOpenChange={(open) => {
@@ -535,7 +498,7 @@ const ServiceAdmins: React.FC = () => {
         >
           <DialogContent className='sm:max-w-[480px]'>
             <DialogHeader>
-              <DialogTitle>Service Admin Created</DialogTitle>
+              <DialogTitle>Part Admin Created</DialogTitle>
               <DialogDescription>
                 Credentials have been sent to{" "}
                 <span className='font-medium'>{credentials?.email}</span>. Save
@@ -544,19 +507,16 @@ const ServiceAdmins: React.FC = () => {
             </DialogHeader>
 
             <div className='space-y-4 py-2'>
-              {/* Name */}
               <div className='space-y-1.5'>
                 <Label className='text-muted-foreground text-xs'>Name</Label>
                 <p className='font-medium'>{credentials?.name}</p>
               </div>
 
-              {/* Branch */}
               <div className='space-y-1.5'>
                 <Label className='text-muted-foreground text-xs'>Branch</Label>
                 <p className='font-medium'>{credentials?.branch}</p>
               </div>
 
-              {/* Application ID */}
               <div className='space-y-1.5'>
                 <Label className='text-muted-foreground text-xs'>
                   Phone Number
@@ -582,11 +542,8 @@ const ServiceAdmins: React.FC = () => {
                 </div>
               </div>
 
-              {/* Password */}
               <div className='space-y-1.5'>
-                <Label className='text-muted-foreground text-xs'>
-                  Password
-                </Label>
+                <Label className='text-muted-foreground text-xs'>Password</Label>
                 <div className='flex items-center gap-2'>
                   <Input
                     value={credentials?.password ?? ""}
@@ -619,4 +576,4 @@ const ServiceAdmins: React.FC = () => {
   );
 };
 
-export default ServiceAdmins;
+export default PartAdmins;

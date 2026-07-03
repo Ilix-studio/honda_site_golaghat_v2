@@ -70,7 +70,11 @@ export const apiSlice = createApi({
     "JobCardInvoice",
     "JobCardCatalog",
     "JobCardCatalogItem",
-    "JobCardInvoice"
+    "JobCardInvoice",
+    "PartAdmin",
+    "Parts",
+    "PartsBatch",
+    "PartsStats",
   ],
   endpoints: () => ({}),
 });
