@@ -177,6 +177,13 @@
     scrollbar-gutter: stable;
   }
 
+  /* Full-screen auth pages: dark canvas + no reserved gutter so the stable
+     scrollbar-gutter doesn't show a white strip over the dark login layout. */
+  html.auth-screen {
+    scrollbar-gutter: auto;
+    background-color: #030712; /* gray-950 */
+  }
+
   body {
     @apply bg-background text-foreground font-sans;
     overflow-x: hidden;

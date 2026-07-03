@@ -5,26 +5,31 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
+import { useAuthScreen } from "@/hooks/useAuthScreen";
+import { loginSchema } from "@/zod/loginSchema";
 
 function LoginPartAdmin() {
   const navigate = useNavigate();
+  useAuthScreen();
   const [loginPartAdmin, { isLoading }] = useLoginPartAdminMutation();
 
   const [form, setForm] = useState({ phoneNumber: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (!form.phoneNumber.trim() || !form.password.trim()) {
-      setError("Please provide both phone number and password.");
+    const parsed = loginSchema.safeParse(form);
+    if (!parsed.success) {
+      setError(parsed.error.issues[0].message);
       return;
     }
 
     try {
-      const result = await loginPartAdmin(form).unwrap();
+      const result = await loginPartAdmin(parsed.data).unwrap();
       if (result.success) {
         navigate("/part-admin/dashboard", { replace: true });
       }
@@ -34,7 +39,7 @@ function LoginPartAdmin() {
   };
 
   return (
-    <section className='min-h-screen flex items-center justify-center bg-gray-950 px-4'>
+    <section className='min-h-[100dvh] flex items-center justify-center bg-gray-950 px-4 py-8'>
       <div className='w-full max-w-md'>
         <div className='mb-6 text-center sm:mb-8'>
           <h1 className='text-sm font-black text-white tracking-tight hidden sm:block'>
@@ -60,11 +65,16 @@ function LoginPartAdmin() {
                 <Input
                   id='phoneNumber'
                   type='text'
+                  inputMode='numeric'
+                  maxLength={10}
                   autoComplete='username'
                   placeholder='e.g. 8880000000'
                   value={form.phoneNumber}
                   onChange={(e) =>
-                    setForm((p) => ({ ...p, phoneNumber: e.target.value }))
+                    setForm((p) => ({
+                      ...p,
+                      phoneNumber: e.target.value.replace(/\D/g, "").slice(0, 10),
+                    }))
                   }
                   className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500'
                 />
@@ -74,17 +84,32 @@ function LoginPartAdmin() {
                 <Label htmlFor='password' className='text-gray-300 text-sm'>
                   Password
                 </Label>
-                <Input
-                  id='password'
-                  type='password'
-                  autoComplete='current-password'
-                  placeholder='Enter your password'
-                  value={form.password}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, password: e.target.value }))
-                  }
-                  className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500'
-                />
+                <div className='relative'>
+                  <Input
+                    id='password'
+                    type={showPassword ? "text" : "password"}
+                    autoComplete='current-password'
+                    placeholder='Enter your password'
+                    value={form.password}
+                    onChange={(e) =>
+                      setForm((p) => ({ ...p, password: e.target.value }))
+                    }
+                    className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500 pr-10'
+                  />
+                  <button
+                    type='button'
+                    onClick={() => setShowPassword((s) => !s)}
+                    tabIndex={-1}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors'
+                  >
+                    {showPassword ? (
+                      <EyeOff className='w-4 h-4' />
+                    ) : (
+                      <Eye className='w-4 h-4' />
+                    )}
+                  </button>
+                </div>
               </div>
 
               {error && (
