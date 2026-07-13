@@ -75,6 +75,7 @@ const PartAdmins = lazy(() => import("@/mainComponents/PartsM/PartAdmins"));
 const ServiceAdmins = lazy(
   () => import("@/mainComponents/ServiceM/ServiceAdmins"),
 );
+const ProfileView = lazy(() => import("@/mainComponents/shared/ProfileView"));
 const BranchApplyLeave = () => (
   <ApplyLeave dashboardPath='/manager/dashboard' />
 );
@@ -110,6 +111,7 @@ export const branchManagerRoutes = [
   { path: "/manager/staff", component: OtherStaff },
   { path: "/manager/part-admins", component: PartAdmins },
   { path: "/manager/service-admins", component: ServiceAdmins },
+  { path: "/manager/profile", component: ProfileView },
     { path: "/manager/view/stock-concept", component: ViewStockConcept },
   //
   { path: "/manager/apply-leave", component: BranchApplyLeave },

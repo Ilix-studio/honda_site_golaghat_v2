@@ -142,6 +142,33 @@ export interface UserListResponse extends BaseResponse {
   data: UserListItem[];
 }
 
+// ─── Current-user profile (GET/PATCH /api/users/me) ──────────────────────────
+
+export interface MyProfile {
+  id: string;
+  name: string;
+  email?: string;
+  phoneNumber?: string;
+  role: string;
+  position?: string;
+  branch?: { _id: string; branchName: string };
+  address?: string;
+  bloodGroup?: string;
+  lifeInsurance?: string;
+  scanfleetStickerId?: string;
+}
+
+export interface MyProfileResponse extends BaseResponse {
+  data: MyProfile;
+}
+
+export interface UpdateMyProfileRequest {
+  address?: string;
+  bloodGroup?: string;
+  lifeInsurance?: string;
+  scanfleetStickerId?: string;
+}
+
 // ─── Shared logout cleanup ──────────────────────────────────────────────────
 
 const clearAuthState = (dispatch: any) => {
@@ -332,6 +359,24 @@ export const adminAuthApi = apiSlice.injectEndpoints({
     }),
 
     // ═════════════════════════════════════════════════════════════════════
+    // CURRENT USER PROFILE — /api/users/me
+    // ═════════════════════════════════════════════════════════════════════
+
+    getMe: builder.query<MyProfileResponse, void>({
+      query: () => "/users/me",
+      providesTags: ["Me"],
+    }),
+
+    updateMe: builder.mutation<MyProfileResponse, UpdateMyProfileRequest>({
+      query: (body) => ({
+        url: "/users/me",
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["Me"],
+    }),
+
+    // ═════════════════════════════════════════════════════════════════════
     // USER MANAGEMENT — BRANCH-ADMIN — /api/users/*
     // ═════════════════════════════════════════════════════════════════════
 
@@ -463,6 +508,9 @@ export const {
   // Logout
   useLogoutSuperAdminMutation,
   useLogoutUserMutation,
+  // Current-user profile
+  useGetMeQuery,
+  useUpdateMeMutation,
   // Branch-Admin management
   useCreateBranchAdminMutation,
   useGetAllBranchAdminsQuery,

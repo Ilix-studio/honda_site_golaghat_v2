@@ -75,6 +75,7 @@ export const apiSlice = createApi({
     "Parts",
     "PartsBatch",
     "PartsStats",
+    "Me",
   ],
   endpoints: () => ({}),
 });

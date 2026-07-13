@@ -50,6 +50,7 @@ const ServiceAdmins = lazy(
 );
 
 const PartAdmins = lazy(() => import("@/mainComponents/PartsM/PartAdmins"));
+const ProfileView = lazy(() => import("@/mainComponents/shared/ProfileView"));
 
 const TabBased = lazy(
   () => import("@/mainComponents/Admin/LeaveApplication/TabBased"),
@@ -78,6 +79,7 @@ export const adminRoutes = [
   { path: "/admin/branches/managers", component: BranchManager },
   { path: "/admin/branches/service-admins", component: ServiceAdmins },
   { path: "/admin/branches/part-admins", component: PartAdmins },
+  { path: "/admin/profile", component: ProfileView },
   //
   { path: "/admin/branches", component: BranchManagement },
 
