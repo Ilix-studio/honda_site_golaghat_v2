@@ -7,10 +7,13 @@ import {
   Clock,
   Settings,
   PersonStanding,
+  Bike,
+  Wrench,
 } from "lucide-react";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 import {
   useGetAllBranchAdminsQuery,
+  useGetAllPartAdminsQuery,
   useGetAllServiceAdminsQuery,
   useGetAllStaffQuery,
 } from "@/redux-store/services/adminApi";
@@ -31,9 +34,12 @@ const BranchQueries = () => {
     useGetAllServiceAdminsQuery();
   const { data: staffData, isLoading: staffLoading } = useGetAllStaffQuery();
   const { data: visitorStatsData } = useGetVisitorStatsQuery();
+  const { data: partsAdminData, isLoading: partsAdminLoading } =
+    useGetAllPartAdminsQuery();
+
   const stats: Omit<StatCardProps, "index">[] = [
     {
-      title: "Branches",
+      title: "View Branches",
       value: branchesData?.count ?? 0,
       icon: Building2,
       loading: branchesLoading,
@@ -43,7 +49,7 @@ const BranchQueries = () => {
       action: { label: "View Branches", href: "/admin/branches" },
     },
     {
-      title: "Branch Admins",
+      title: "Add Branch Admins",
       value: branchManagersData?.count ?? 0,
       icon: Users,
       loading: managersLoading,
@@ -52,7 +58,7 @@ const BranchQueries = () => {
       action: { label: "Add Manager", href: "/admin/branches/managers" },
     },
     {
-      title: "Service Admins",
+      title: "Add Service Admins",
       value: serviceManagersData?.count ?? 0,
       icon: Settings,
       loading: serviceManagersLoading,
@@ -64,15 +70,39 @@ const BranchQueries = () => {
       },
     },
     {
-      title: "Staff",
+      title: "Add Parts Admins",
+      value: partsAdminData?.count ?? 0,
+      icon: Wrench,
+      loading: partsAdminLoading,
+      description: "Active parts admins",
+      accent: "#47a761ff",
+      action: {
+        label: "View Parts Admins",
+        href: "/admin/branches/part-admins",
+      },
+    },
+    {
+      title: "Add Staff",
       value: staffData?.count ?? 0,
       icon: PersonStanding,
       loading: staffLoading,
       description: "Active staff",
-      accent: "#ba723eff",
+      accent: "#de2525ff",
       action: {
         label: "View Staff",
         href: "/admin/viewStaff",
+      },
+    },
+
+    {
+      title: "View All Vehicles",
+      icon: Bike,
+      loading: staffLoading,
+      description: "All Vehicles shown in Homepage",
+      accent: "#e7d20fff",
+      action: {
+        label: "View Vehicles",
+        href: "/admin/viewVehicles",
       },
     },
   ];
@@ -181,8 +211,6 @@ const BranchQueries = () => {
           </div>
         </motion.div>
       )}
-
-      {/* ── recent motorcycles ── */}
     </div>
   );
 };

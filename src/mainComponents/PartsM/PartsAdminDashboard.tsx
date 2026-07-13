@@ -1,13 +1,18 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   useGetPartsStatsQuery,
   useGetPartsBatchesQuery,
 } from "@/redux-store/services/partsApi";
 import {
+  useGetDatasetsQuery,
+  useGetDatasetRowsQuery,
+} from "@/redux-store/services/dataImportApi";
+import {
   StatCard,
   type StatCardProps,
 } from "@/mainComponents/Admin/AdminDash/StatCard";
+import RagAssistant from "@/mainComponents/RAG/RagAssistant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +24,15 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Package, AlertTriangle, Layers, UploadCloud } from "lucide-react";
+import {
+  Package,
+  AlertTriangle,
+  Layers,
+  UploadCloud,
+  Boxes,
+  Wallet,
+  ShoppingCart,
+} from "lucide-react";
 
 const YEARS = [2026, 2025, 2024];
 
@@ -32,6 +45,52 @@ export default function PartsAdminDashboard() {
   const { data: batchesData } = useGetPartsBatchesQuery();
 
   const stats = statsData?.data;
+
+  // Latest parts-stock import (from the generic DataImport module)
+  const { data: stockBatches, isLoading: stockBatchesLoading } = useGetDatasetsQuery({
+    datasetType: "parts-stock",
+    page: 1,
+    limit: 1,
+  });
+  const latestStockBatchId = stockBatches?.data?.[0]?.batchId;
+  const { data: stockRows, isLoading: stockRowsLoading } = useGetDatasetRowsQuery(
+    { batchId: latestStockBatchId as string, page: 1, limit: 1000 },
+    { skip: !latestStockBatchId },
+  );
+
+  const stockKpis = useMemo(() => {
+    const rows = stockRows?.data ?? [];
+    const totalQuantity = rows.reduce(
+      (sum, r) => sum + (Number(r.normalized?.quantity) || 0),
+      0,
+    );
+    const totalStockValue = rows.reduce(
+      (sum, r) => sum + (Number(r.normalized?.stockValue) || 0),
+      0,
+    );
+    return { totalQuantity, totalStockValue };
+  }, [stockRows]);
+
+  // Parts sold (from invoice dataset)
+  const { data: invoiceBatches, isLoading: invoiceBatchesLoading } = useGetDatasetsQuery({
+    datasetType: "invoice",
+    page: 1,
+    limit: 1,
+  });
+  const latestInvoiceBatchId = invoiceBatches?.data?.[0]?.batchId;
+  const { data: invoiceRows, isLoading: invoiceRowsLoading } = useGetDatasetRowsQuery(
+    { batchId: latestInvoiceBatchId as string, page: 1, limit: 1000 },
+    { skip: !latestInvoiceBatchId },
+  );
+
+  const partsSold = useMemo(() => {
+    const rows = invoiceRows?.data ?? [];
+    const totalAmount = rows.reduce(
+      (sum, r) => sum + (Number(r.normalized?.totalAmount) || 0),
+      0,
+    );
+    return { count: rows.length, totalAmount };
+  }, [invoiceRows]);
 
   const kpis: Omit<StatCardProps, "index">[] = [
     {
@@ -60,6 +119,42 @@ export default function PartsAdminDashboard() {
       description: "Low-confidence PDF rows",
       accent: "#d97706",
       action: { label: "Upload report", href: "/part-admin/upload" },
+    },
+  ];
+
+  const stockValueKpis: Omit<StatCardProps, "index">[] = [
+    {
+      title: "Stock Quantity",
+      value: stockBatchesLoading || stockRowsLoading ? "—" : stockKpis.totalQuantity,
+      icon: Boxes,
+      loading: stockBatchesLoading || stockRowsLoading,
+      description: latestStockBatchId
+        ? `From batch ${latestStockBatchId}`
+        : "No parts-stock import yet",
+      accent: "#0891b2",
+      action: { label: "Upload stock file", href: "/part-admin/data-import/upload" },
+    },
+    {
+      title: "Stock Value",
+      value:
+        stockBatchesLoading || stockRowsLoading
+          ? "—"
+          : `₹${stockKpis.totalStockValue.toLocaleString("en-IN")}`,
+      icon: Wallet,
+      loading: stockBatchesLoading || stockRowsLoading,
+      description: "Sum of stock value, latest batch",
+      accent: "#16a34a",
+      action: { label: "Upload stock file", href: "/part-admin/data-import/upload" },
+    },
+    {
+      title: "Parts Sold",
+      value:
+        invoiceBatchesLoading || invoiceRowsLoading ? "—" : partsSold.count,
+      icon: ShoppingCart,
+      loading: invoiceBatchesLoading || invoiceRowsLoading,
+      description: `₹${partsSold.totalAmount.toLocaleString("en-IN")} from invoices`,
+      accent: "#db2777",
+      action: { label: "Upload invoice", href: "/part-admin/data-import/upload" },
     },
   ];
 
@@ -97,6 +192,12 @@ export default function PartsAdminDashboard() {
 
       <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
         {kpis.map((kpi, i) => (
+          <StatCard key={kpi.title} {...kpi} index={i} />
+        ))}
+      </div>
+
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+        {stockValueKpis.map((kpi, i) => (
           <StatCard key={kpi.title} {...kpi} index={i} />
         ))}
       </div>
@@ -173,6 +274,13 @@ export default function PartsAdminDashboard() {
           )}
         </CardContent>
       </Card>
+
+      <RagAssistant
+        title='Parts AI Assistant'
+        subtitle='Ask questions about your branch parts data — answers are grounded in the uploaded reports.'
+        sourceTypes={["parts"]}
+        placeholder='e.g. Which month had the most parts imported?'
+      />
     </div>
   );
 }

@@ -68,6 +68,18 @@ const DataTabsBP = lazy(
 const SalesReport = lazy(
   () => import("@/mainComponents/Admin/SalesReport/SalesReport"),
 );
+const DataImportOverview = lazy(
+  () => import("@/mainComponents/Admin/AdminDash/DataImportOverview"),
+);
+const UploadDataImportForm = lazy(
+  () => import("@/mainComponents/DataImport/UploadDataImportForm"),
+);
+const AllBikesForAdmin = lazy(
+  () => import("@/mainComponents/Admin/Bikes/AllBikesForAdmin"),
+);
+const AdminUploadDataImport = () => (
+  <UploadDataImportForm dashboardPath='/admin/data-import' />
+);
 //
 export const adminAuthRoutes = [
   { path: "/admin/login", component: LoginSuperAdmin },
@@ -91,10 +103,15 @@ export const adminRoutes = [
   // Leave Management
   { path: "/admin/leave-requests", component: TabBased },
 
-  // Handling Dealer Queries
+  // Admin View Vehicles
+  { path: "/admin/viewVehicles", component: AllBikesForAdmin },
 
   //
   { path: "/admin/service-revenue-stats", component: DataTabsBP },
+
+  // Data Import
+  { path: "/admin/data-import", component: DataImportOverview },
+  { path: "/admin/data-import/upload", component: AdminUploadDataImport },
 ];
 
 // Write-access bike routes — Super-Admin + Branch-Admin (gated by SharedBikeRouteWrapper)

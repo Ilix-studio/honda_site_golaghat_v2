@@ -76,6 +76,11 @@ export const apiSlice = createApi({
     "PartsBatch",
     "PartsStats",
     "Me",
+    "DataImportConfig",
+    "DataImportDataset",
+    "DataImportRow",
+    "SalesTimeseries",
+    "RagChat",
   ],
   endpoints: () => ({}),
 });

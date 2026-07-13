@@ -23,6 +23,12 @@ const JobCardCatalogManager = lazy(
   () => import("@/mainComponents/CustomerSystem/JobCard/JobCardCatalogManager"),
 );
 const ProfileView = lazy(() => import("@/mainComponents/shared/ProfileView"));
+const UploadDataImportForm = lazy(
+  () => import("@/mainComponents/DataImport/UploadDataImportForm"),
+);
+const ServiceUploadDataImport = () => (
+  <UploadDataImportForm dashboardPath='/service-admin/dashboard' />
+);
 
 export const serviceAdminAuthRoutes = [
   { path: "/service-admin/login", component: LoginServiceAdmins },
@@ -39,4 +45,8 @@ export const serviceAdminRoutes = [
   { path: "/service-admin/catalog", component: JobCardCatalogManager },
   { path: "/service-admin/customer-invoices", component: CustomerInvoices },
   { path: "/service-admin/profile", component: ProfileView },
+  {
+    path: "/service-admin/data-import/upload",
+    component: ServiceUploadDataImport,
+  },
 ];

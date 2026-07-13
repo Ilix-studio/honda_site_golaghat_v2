@@ -9,14 +9,7 @@ import {
 } from "@/components/ui/card";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Building2,
-  MessageSquare,
-  Clock,
-  Shield,
-  Home,
-  Package,
-} from "lucide-react";
+import { Building2, Clock, Shield, Home, Package, Bot } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // Redux
@@ -27,10 +20,10 @@ import {
 } from "../../../redux-store/slices/authSlice";
 
 // Import the new components
-import CustomerQueries from "./CustomerQueries";
 import BranchQueries from "./BranchQueries";
-import PartsQueries from "./PartsQueries";
+
 import { Button } from "@/components/ui/button";
+import AIQueries from "./AIandDash";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -165,19 +158,13 @@ const AdminDashboard = () => {
               <Building2 className='h-4 w-4' />
               <span>Branch Area</span>
             </TabsTrigger>
-            <TabsTrigger
-              value='customer-queries'
-              className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
-            >
-              <MessageSquare className='h-4 w-4' />
-              <span>Customer Area</span>
-            </TabsTrigger>
+
             <TabsTrigger
               value='parts-queries'
               className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
             >
-              <Package className='h-4 w-4' />
-              <span>Parts & AI</span>
+              <Bot className='h-4 w-4' />
+              <span>AI & Dashboards</span>
             </TabsTrigger>
           </TabsList>
 
@@ -204,29 +191,6 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value='customer-queries' className='mt-6'>
-            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
-              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
-                <div className='flex items-center gap-3'>
-                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-red-600 text-white shadow-sm'>
-                    <MessageSquare className='h-5 w-5' />
-                  </div>
-                  <div>
-                    <CardTitle className='text-lg font-semibold text-gray-900'>
-                      Customer Analytics & Services
-                    </CardTitle>
-                    <CardDescription className='text-gray-500 mt-0.5'>
-                      Track customer engagement, services, and support metrics
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className='p-6'>
-                <CustomerQueries />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value='parts-queries' className='mt-6'>
             <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
@@ -236,17 +200,17 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <CardTitle className='text-lg font-semibold text-gray-900'>
-                      Parts Analytics & AI Assistant
+                      Dashboards & AI Assistant
                     </CardTitle>
                     <CardDescription className='text-gray-500 mt-0.5'>
-                      Parts inventory KPIs across branches, with an AI assistant
-                      for questions
+                      Dashboards KPIs across branches, with an AI assistant for
+                      questions
                     </CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className='p-6'>
-                <PartsQueries />
+                <AIQueries />
               </CardContent>
             </Card>
           </TabsContent>

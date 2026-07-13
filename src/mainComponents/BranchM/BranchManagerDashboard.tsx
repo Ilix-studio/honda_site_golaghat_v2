@@ -34,6 +34,7 @@ import CustomerQueries from "./Tabs/CustomerQuery";
 import JobCardCatalogManager from "../CustomerSystem/JobCard/JobCardCatalogManager";
 import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
 import RecentMotorcycles from "../Admin/AdminDash/RecentMotocycles";
+import RagAssistant from "@/mainComponents/RAG/RagAssistant";
 
 const BranchManagerDashboard = () => {
   const navigate = useNavigate();
@@ -293,6 +294,15 @@ const BranchManagerDashboard = () => {
             </Card>
             <div className='mt-10 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm p-5'>
               <JobCardCatalogManager />
+            </div>
+
+            <div className='mt-6'>
+              <RagAssistant
+                title='Branch AI Assistant'
+                subtitle='Ask questions about job cards and accident reports for your branch — answers are grounded in live data and cite their sources.'
+                sourceTypes={["jobcard-live", "accident-report"]}
+                placeholder='e.g. How many open job cards do we have?'
+              />
             </div>
           </TabsContent>
 

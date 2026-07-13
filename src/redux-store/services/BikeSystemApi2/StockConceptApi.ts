@@ -160,6 +160,26 @@ export interface AssignedStockListResponse {
   data: AssignedStockItem[];
 }
 
+export interface StockAssignStats {
+  year: number;
+  monthly: Array<{ month: string; assignedCount: number; revenue: number }>;
+  totals: {
+    totalAssigned: number;
+    totalRevenue: number;
+    byPaymentStatus: Record<string, number>;
+  };
+}
+
+export interface StockAssignStatsResponse {
+  success: boolean;
+  data: StockAssignStats;
+}
+
+export interface StockAssignStatsArgs {
+  year?: number;
+  branchId?: string;
+}
+
 import { apiSlice } from "../apiSlice";
 import { handleApiError } from "../../../lib/apiConfig";
 
@@ -242,6 +262,22 @@ export const stockConceptApi = apiSlice.injectEndpoints({
       providesTags: ["StockConcept"],
       transformErrorResponse: (response) => handleApiError(response),
     }),
+
+    // Stock-assignment KPIs + monthly breakdown (Dashboards tab)
+    getStockAssignStats: builder.query<
+      StockAssignStatsResponse,
+      StockAssignStatsArgs
+    >({
+      query: (args = {}) => {
+        const params = new URLSearchParams();
+        if (args.year) params.append("year", args.year.toString());
+        if (args.branchId) params.append("branchId", args.branchId);
+        const qs = params.toString();
+        return `/stock-concept/assign-stats${qs ? `?${qs}` : ""}`;
+      },
+      providesTags: ["StockConcept"],
+      transformErrorResponse: (response) => handleApiError(response),
+    }),
   }),
 });
 
@@ -255,4 +291,5 @@ export const {
   useLazyGetStockItemByIdQuery,
   useGetAssignedStockQuery, // new
   useLazyGetAssignedStockQuery, // new
+  useGetStockAssignStatsQuery,
 } = stockConceptApi;

@@ -79,6 +79,15 @@ const ProfileView = lazy(() => import("@/mainComponents/shared/ProfileView"));
 const BranchApplyLeave = () => (
   <ApplyLeave dashboardPath='/manager/dashboard' />
 );
+const BranchDataImportDashboard = lazy(
+  () => import("@/mainComponents/BranchM/BranchDataImportDashboard"),
+);
+const UploadDataImportForm = lazy(
+  () => import("@/mainComponents/DataImport/UploadDataImportForm"),
+);
+const BranchUploadDataImport = () => (
+  <UploadDataImportForm dashboardPath='/manager/data-import' />
+);
 export const branchManagerAuthRoutes = [
   { path: "/manager-login", component: LoginBranchManager },
 ];
@@ -115,4 +124,8 @@ export const branchManagerRoutes = [
     { path: "/manager/view/stock-concept", component: ViewStockConcept },
   //
   { path: "/manager/apply-leave", component: BranchApplyLeave },
+
+  // Data Import
+  { path: "/manager/data-import", component: BranchDataImportDashboard },
+  { path: "/manager/data-import/upload", component: BranchUploadDataImport },
 ];
