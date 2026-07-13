@@ -9,7 +9,14 @@ import {
 } from "@/components/ui/card";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, MessageSquare, Clock, Shield, Home } from "lucide-react";
+import {
+  Building2,
+  MessageSquare,
+  Clock,
+  Shield,
+  Home,
+  Package,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // Redux
@@ -22,6 +29,7 @@ import {
 // Import the new components
 import CustomerQueries from "./CustomerQueries";
 import BranchQueries from "./BranchQueries";
+import PartsQueries from "./PartsQueries";
 import { Button } from "@/components/ui/button";
 
 const AdminDashboard = () => {
@@ -164,6 +172,13 @@ const AdminDashboard = () => {
               <MessageSquare className='h-4 w-4' />
               <span>Customer Area</span>
             </TabsTrigger>
+            <TabsTrigger
+              value='parts-queries'
+              className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+            >
+              <Package className='h-4 w-4' />
+              <span>Parts & AI</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value='branch-queries' className='mt-6'>
@@ -208,6 +223,30 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent className='p-6'>
                 <CustomerQueries />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value='parts-queries' className='mt-6'>
+            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
+                <div className='flex items-center gap-3'>
+                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-blue-600 text-white shadow-sm'>
+                    <Package className='h-5 w-5' />
+                  </div>
+                  <div>
+                    <CardTitle className='text-lg font-semibold text-gray-900'>
+                      Parts Analytics & AI Assistant
+                    </CardTitle>
+                    <CardDescription className='text-gray-500 mt-0.5'>
+                      Parts inventory KPIs across branches, with an AI assistant
+                      for questions
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className='p-6'>
+                <PartsQueries />
               </CardContent>
             </Card>
           </TabsContent>

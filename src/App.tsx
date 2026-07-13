@@ -40,6 +40,7 @@ import {
   createBranchManagerRoute,
   createAuthRoute,
   createServiceAdminRoute,
+  createPartAdminRoute,
   createStaffRoute,
 } from "./config/routeHelpers";
 
@@ -53,6 +54,10 @@ import {
   staffAuthRoutes,
   staffRoutes,
 } from "./config/MainRouteConfigs/staff.routes";
+import {
+  partAdminAuthRoutes,
+  partAdminRoutes,
+} from "./config/MainRouteConfigs/partAdmin.routes";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -174,6 +179,16 @@ const App: React.FC = () => {
         {/* STAFF — protected, staff header */}
         {staffRoutes.map(({ path, component }) =>
           createStaffRoute(path, component),
+        )}
+
+        {/* PART ADMIN AUTH — login page, no header */}
+        {partAdminAuthRoutes.map(({ path, component }) =>
+          createAuthRoute(path, component),
+        )}
+
+        {/* PART ADMIN — protected, part admin header */}
+        {partAdminRoutes.map(({ path, component }) =>
+          createPartAdminRoute(path, component),
         )}
 
         {/* FALLBACK — 404 */}

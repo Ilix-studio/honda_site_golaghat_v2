@@ -12,14 +12,17 @@ type RequiredRole =
   | "super-admin-only"
   | "branch-admin"
   | "service-admin"
+  | "part-admin"
   | "staff"
   | "branch-admin-or-super-admin"
-  | "service-admin-or-super-admin";
+  | "service-admin-or-super-admin"
+  | "part-admin-or-super-admin";
 
 type AdminRole =
   | "Super-Admin"
   | "Branch-Admin"
   | "Service-Admin"
+  | "Part-Admin"
   | "Staff"
   | null;
 
@@ -51,6 +54,7 @@ const ROLE_DASHBOARDS: Record<string, string> = {
   "Super-Admin": "/admin/dashboard",
   "Branch-Admin": "/manager/dashboard",
   "Service-Admin": "/service-admin/dashboard",
+  "Part-Admin": "/part-admin/dashboard",
   Staff: "/staff/dashboard",
   customer: "/customer/dashboard",
 };
@@ -63,9 +67,11 @@ const ROLE_LOGIN_PATHS: Record<string, string> = {
   "super-admin-only": "/admin/login",
   "branch-admin": "/manager-login",
   "service-admin": "/service-admin/login",
+  "part-admin": "/part-admin/login",
   staff: "/staff-login",
   "branch-admin-or-super-admin": "/admin/login",
   "service-admin-or-super-admin": "/admin/login",
+  "part-admin-or-super-admin": "/admin/login",
   "admin-or-customer": "/admin/login",
 };
 
@@ -116,7 +122,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     userType === "admin" && adminRole !== null && roles.includes(adminRole);
 
   const hasAnyAdminRole = (): boolean =>
-    hasRole("Super-Admin", "Branch-Admin", "Service-Admin", "Staff");
+    hasRole("Super-Admin", "Branch-Admin", "Service-Admin", "Part-Admin", "Staff");
 
   const isBranchAdmin = (): boolean => hasRole("Branch-Admin");
 
@@ -163,6 +169,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
     case "service-admin":
       if (!hasRole("Service-Admin")) {
+        return <Navigate to={getDashboard()} replace />;
+      }
+      break;
+
+    case "part-admin":
+      if (!hasRole("Part-Admin")) {
+        return <Navigate to={getDashboard()} replace />;
+      }
+      break;
+
+    case "part-admin-or-super-admin":
+      if (!hasRole("Part-Admin", "Super-Admin")) {
         return <Navigate to={getDashboard()} replace />;
       }
       break;

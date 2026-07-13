@@ -21,6 +21,7 @@ import {
   TrendingUp,
   Activity,
   Regex,
+  Package,
 } from "lucide-react";
 import { useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -130,6 +131,23 @@ const BranchManagerDashboard = () => {
       action: { label: "Open Stock Manager", href: "/manager/stockC/select" },
     },
 
+    {
+      title: "Part Admins",
+      icon: Package,
+      description: "Create & manage Part Admins for your branch",
+      accent: "#2563eb",
+      action: { label: "Manage Part Admins", href: "/manager/part-admins" },
+    },
+    {
+      title: "Service Admins",
+      icon: Cog,
+      description: "Create & manage Service Admins for your branch",
+      accent: "#0ea5e9",
+      action: {
+        label: "Manage Service Admins",
+        href: "/manager/service-admins",
+      },
+    },
     {
       title: "Apply Leave",
       //Add Badge
