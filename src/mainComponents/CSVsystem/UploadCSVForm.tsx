@@ -41,7 +41,12 @@ import { useImportCSVStockMutation } from "@/redux-store/services/BikeSystemApi3
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_TYPES = ["text/csv", "application/vnd.ms-excel"];
+const ALLOWED_TYPES = [
+  "text/csv",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+];
+const ALLOWED_EXTENSIONS = [".csv", ".xls", ".xlsx"];
 
 type UploadStage =
   | "idle"
@@ -106,35 +111,37 @@ const UploadCSVForm = () => {
   }, [uploadStage]);
 
   useEffect(() => {
-    if (uploadStage === "success" && importResult?.data) {
-      const hasDuplicates =
-        importResult.data.failureCount > 0 &&
-        importResult.data.errors.some((err) =>
-          err.error.toLowerCase().includes("duplicate"),
-        );
+    if (uploadStage !== "success" || !importResult?.data) return;
 
-      const delay = hasDuplicates ? 10000 : 2000;
-      setRedirectCountdown(delay / 1000);
-
-      const countdownInterval = setInterval(() => {
-        setRedirectCountdown((prev) => {
-          if (prev === null || prev <= 1) {
-            clearInterval(countdownInterval);
-            return null;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      const timer = setTimeout(() => {
-        navigate("/admin/get/csv");
-      }, delay);
-
-      return () => {
-        clearTimeout(timer);
-        clearInterval(countdownInterval);
-      };
+    // Only auto-navigate away when the file processed cleanly. If any rows
+    // failed (duplicates or otherwise), stay on this screen so the errors
+    // stay visible — the admin can review them and move on manually.
+    if (importResult.data.failureCount > 0) {
+      setRedirectCountdown(null);
+      return;
     }
+
+    const delay = 2000;
+    setRedirectCountdown(delay / 1000);
+
+    const countdownInterval = setInterval(() => {
+      setRedirectCountdown((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(countdownInterval);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    const timer = setTimeout(() => {
+      navigate("/manager/forms/stock-concept-csv/view-uploads");
+    }, delay);
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(countdownInterval);
+    };
   }, [uploadStage, navigate, importResult]);
 
   useEffect(() => {
@@ -147,11 +154,12 @@ const UploadCSVForm = () => {
   }, [importResult]);
 
   const validateFile = (selectedFile: File): string | null => {
-    if (
-      !ALLOWED_TYPES.includes(selectedFile.type) &&
-      !selectedFile.name.endsWith(".csv")
-    ) {
-      return "Invalid file type. Only CSV files are allowed.";
+    const name = selectedFile.name.toLowerCase();
+    const hasAllowedExtension = ALLOWED_EXTENSIONS.some((ext) =>
+      name.endsWith(ext),
+    );
+    if (!ALLOWED_TYPES.includes(selectedFile.type) && !hasAllowedExtension) {
+      return "Invalid file type. Only CSV, XLS, and XLSX files are allowed.";
     }
     if (selectedFile.size > MAX_FILE_SIZE) {
       return "File size exceeds 5MB limit.";
@@ -256,7 +264,7 @@ const UploadCSVForm = () => {
         <CardHeader>
           <CardTitle className='flex items-center gap-2'>
             <FileSpreadsheet className='h-5 w-5' />
-            Import CSV Stock
+            Import Stock (CSV / Excel)
           </CardTitle>
         </CardHeader>
 
@@ -299,7 +307,7 @@ const UploadCSVForm = () => {
           {/* File Upload Zone */}
           {uploadStage !== "success" && (
             <div className='space-y-2'>
-              <Label>CSV File *</Label>
+              <Label>CSV / Excel File *</Label>
               <div
                 className={`
               border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer
@@ -320,7 +328,7 @@ const UploadCSVForm = () => {
                 <input
                   ref={fileInputRef}
                   type='file'
-                  accept='.csv'
+                  accept='.csv,.xls,.xlsx'
                   onChange={handleInputChange}
                   className='hidden'
                   disabled={importing}
@@ -352,7 +360,7 @@ const UploadCSVForm = () => {
                   <>
                     <Upload className='h-10 w-10 text-muted-foreground mx-auto mb-3' />
                     <p className='font-medium mb-1'>
-                      Drop CSV file here or click to select
+                      Drop CSV or Excel file here or click to select
                     </p>
                     <p className='text-sm text-muted-foreground'>
                       Maximum file size: 5MB
@@ -473,6 +481,21 @@ const UploadCSVForm = () => {
             </Alert>
           )}
 
+          {/* Manual continue — shown instead of auto-redirect when there were errors to review */}
+          {uploadStage === "success" &&
+            importResult?.data &&
+            importResult.data.failureCount > 0 && (
+              <Button
+                variant='outline'
+                className='w-full'
+                onClick={() =>
+                  navigate("/manager/forms/stock-concept-csv/view-uploads")
+                }
+              >
+                Review complete — View Uploads
+              </Button>
+            )}
+
           {/* Error Message */}
           {uploadStage === "error" && (
             <Alert variant='destructive'>
@@ -498,7 +521,7 @@ const UploadCSVForm = () => {
               ) : (
                 <>
                   <Upload className='h-4 w-4 mr-2' />
-                  Import CSV
+                  Import Stock
                 </>
               )}
             </Button>

@@ -139,9 +139,9 @@ const GetCSVFiles = ({ folderDate, batchId }: GetCSVFilesProps) => {
 
     const query = searchQuery.toLowerCase();
     return (
-      stock.modelName.toLowerCase().includes(query) ||
+      stock.modelVariant.toLowerCase().includes(query) ||
       stock.engineNumber.toLowerCase().includes(query) ||
-      stock.chassisNumber.toLowerCase().includes(query)
+      stock.frameNumber.toLowerCase().includes(query)
     );
   });
 
@@ -353,11 +353,11 @@ const GetCSVFiles = ({ folderDate, batchId }: GetCSVFilesProps) => {
                   <TableBody>
                     {filteredStocks.map((stock) => (
                       <TableRow key={stock._id}>
-                        <TableCell>{stock.modelName}</TableCell>
+                        <TableCell>{stock.modelVariant}</TableCell>
                         <TableCell className='text-xs'>
                           <div>E: {stock.engineNumber}</div>
                           <div className='text-muted-foreground'>
-                            C: {stock.chassisNumber}
+                            C: {stock.frameNumber}
                           </div>
                         </TableCell>
                         <TableCell>{stock.color}</TableCell>

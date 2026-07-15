@@ -74,6 +74,12 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/manager/stockC/select",
   },
+  "/manager/forms/stock-concept-csv/view-uploads": {
+    title: "View Uploads",
+    subtitle: "Review parsed fields from uploaded files",
+    showBack: true,
+    backTo: "/manager/forms/stock-concept-csv",
+  },
   "/manager/forms/stock-concept": {
     title: " Create Stock Concept",
     subtitle: "",

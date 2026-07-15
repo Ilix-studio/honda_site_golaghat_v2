@@ -1,10 +1,12 @@
 export interface IStockConceptCSV {
   _id: string;
   stockId: string;
-  modelName: string;
+  modelVariant: string;
   engineNumber: string;
-  chassisNumber: string;
+  frameNumber: string;
   color: string;
+  costPrice?: number;
+  creationSource: "csv_import" | "automatic_creation";
   csvImportBatch: string;
   csvImportDate: string;
   csvFileName: string;
@@ -92,6 +94,39 @@ export interface GetCSVBatchesResponse {
 export interface GetStockByIdResponse {
   success: boolean;
   data: IStockConceptCSV;
+}
+
+export interface StockBatchReport {
+  batchId: string;
+  fileName: string;
+  uploadDate: string;
+  branchId: string | null;
+  branchName: string;
+  totalVehicles: number;
+  totalCostPrice: number;
+  assignedCount: number;
+  leftCount: number;
+  salesRevenue: number;
+  vasRevenue: number;
+  partsRevenue: number;
+  totalRevenue: number;
+}
+
+export interface GetStockBatchReportsResponse {
+  success: boolean;
+  data: StockBatchReport[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
+export interface StockBatchReportFilters {
+  page?: number;
+  limit?: number;
+  branchId?: string;
 }
 
 export interface UpdateStatusRequest {

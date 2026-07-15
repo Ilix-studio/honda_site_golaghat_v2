@@ -35,6 +35,7 @@ import SalesTrendChart from "@/mainComponents/DataImport/SalesTrendChart";
 import RagAssistant from "@/mainComponents/RAG/RagAssistant";
 import DashboardChartPreview from "@/mainComponents/RAG/DashboardChartPreview";
 import type { DashboardSpec } from "@/redux-store/services/ragApi.types";
+import StockInvestmentDashboard from "./StockInvestmentDashboard";
 
 const YEARS = [2026, 2025, 2024];
 
@@ -436,6 +437,7 @@ export default function AIQueries() {
             <TabsTrigger value='service'>Service</TabsTrigger>
             <TabsTrigger value='stock-assign'>Stock Assign</TabsTrigger>
             <TabsTrigger value='vas-assign'>VAS Assign</TabsTrigger>
+            <TabsTrigger value='stock-investment'>Stock Investment</TabsTrigger>
           </TabsList>
           <TabsContent value='parts' className='pt-4'>
             <PartsDashboard />
@@ -451,6 +453,9 @@ export default function AIQueries() {
           </TabsContent>
           <TabsContent value='vas-assign' className='pt-4'>
             <VasAssignDashboard />
+          </TabsContent>
+          <TabsContent value='stock-investment' className='pt-4'>
+            <StockInvestmentDashboard />
           </TabsContent>
         </Tabs>
       </TabsContent>

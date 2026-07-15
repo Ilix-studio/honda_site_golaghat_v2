@@ -30,6 +30,9 @@ const SelectStockForm = lazy(
 const GetCSVFiles = lazy(
   () => import("@/mainComponents/CSVsystem/GetCSVFiles"),
 );
+const ViewCSVUploads = lazy(
+  () => import("@/mainComponents/CSVsystem/ViewCSVUploads"),
+);
 const GetAllStockFiles = lazy(
   () => import("@/mainComponents/CSVsystem/GetAllStockFiles"),
 );
@@ -102,6 +105,10 @@ export const branchManagerRoutes = [
   { path: "/manager/stockC/select", component: SelectStockForm },
   { path: "/manager/forms/stock-concept", component: StockConceptForm },
   { path: "/manager/forms/stock-concept-csv", component: UploadCSVForm },
+  {
+    path: "/manager/forms/stock-concept-csv/view-uploads",
+    component: ViewCSVUploads,
+  },
   { path: "/manager/get/all-stock", component: GetAllStockFiles },
   { path: "/manager/get/csv", component: GetCSVFiles },
   { path: "/manager/assign/stock-concept/:id", component: AssignStock },

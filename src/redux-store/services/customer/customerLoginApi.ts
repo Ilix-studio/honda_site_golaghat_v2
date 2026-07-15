@@ -18,6 +18,24 @@ export interface SaveAuthDataResponse {
   };
 }
 
+export interface BranchAdminRegisterRequest {
+  phoneNumber: string;
+}
+
+export interface BranchAdminRegisterResponse {
+  success: boolean;
+  message: string;
+  data: {
+    customer: {
+      _id: string;
+      phoneNumber: string;
+      isVerified: boolean;
+      profileCompleted: boolean;
+    };
+    customToken: string;
+  };
+}
+
 export const customerLoginApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     saveAuthData: builder.mutation<SaveAuthDataResponse, SaveAuthDataRequest>({
@@ -28,7 +46,20 @@ export const customerLoginApi = apiSlice.injectEndpoints({
       }),
       extraOptions: { isCustomer: true },
     }),
+
+    // Branch-Admin action (no OTP) — admin JWT auth, not Firebase.
+    registerCustomerByBranchAdmin: builder.mutation<
+      BranchAdminRegisterResponse,
+      BranchAdminRegisterRequest
+    >({
+      query: (data) => ({
+        url: "/customer/branch-admin-register",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
-export const { useSaveAuthDataMutation } = customerLoginApi;
+export const { useSaveAuthDataMutation, useRegisterCustomerByBranchAdminMutation } =
+  customerLoginApi;

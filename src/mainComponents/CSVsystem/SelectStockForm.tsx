@@ -1,7 +1,7 @@
 // src/components/admin/forms/SelectStockForm.tsx
 
 import { useNavigate } from "react-router-dom";
-import { FileSpreadsheet, Database, ArrowRight } from "lucide-react";
+import { FileSpreadsheet, Database, ArrowRight, Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSelector } from "react-redux";
@@ -20,6 +20,15 @@ const SelectStockForm = () => {
       icon: FileSpreadsheet,
       route: `${base}/forms/stock-concept-csv`,
       buttonText: "Upload CSV",
+    },
+    {
+      id: "view_uploads",
+      title: "View Uploads",
+      description:
+        "Review exactly what was extracted from each uploaded CSV/Excel file, field by field, before it's used elsewhere.",
+      icon: Eye,
+      route: `${base}/forms/stock-concept-csv/view-uploads`,
+      buttonText: "View Uploads",
     },
     {
       id: "manual",

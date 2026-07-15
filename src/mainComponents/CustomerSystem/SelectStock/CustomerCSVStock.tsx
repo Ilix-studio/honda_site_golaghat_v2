@@ -80,9 +80,9 @@ const CustomerCSVStock = () => {
     return stocks.filter(
       (stock) =>
         stock.stockId.toLowerCase().includes(query) ||
-        stock.modelName.toLowerCase().includes(query) ||
+        stock.modelVariant.toLowerCase().includes(query) ||
         stock.engineNumber.toLowerCase().includes(query) ||
-        stock.chassisNumber.toLowerCase().includes(query) ||
+        stock.frameNumber.toLowerCase().includes(query) ||
         stock.color.toLowerCase().includes(query)
     );
   }, [stocks, searchQuery]);
@@ -238,13 +238,13 @@ const salePrice: number = stock.priceInfo?.onRoadPrice
                           {stock.stockId}
                         </TableCell>
                         <TableCell className="font-medium">
-                          {stock.modelName}
+                          {stock.modelVariant}
                         </TableCell>
                         <TableCell>{stock.color}</TableCell>
                         <TableCell>
                           <div className="text-xs space-y-1">
                             <div>E: {stock.engineNumber}</div>
-                            <div>C: {stock.chassisNumber}</div>
+                            <div>C: {stock.frameNumber}</div>
                           </div>
                         </TableCell>
                         <TableCell>{stock.stockStatus.location}</TableCell>
