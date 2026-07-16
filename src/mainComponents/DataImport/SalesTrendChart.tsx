@@ -24,7 +24,9 @@ const GRANULARITIES: { value: Granularity; label: string }[] = [
 ];
 
 const formatCurrency = (v: number) =>
-  v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` : `₹${v.toLocaleString("en-IN")}`;
+  v >= 100000
+    ? `₹${(v / 100000).toFixed(1)}L`
+    : `₹${v.toLocaleString("en-IN")}`;
 
 interface SalesTrendChartProps {
   granularity: Granularity;
@@ -40,8 +42,8 @@ export default function SalesTrendChart({
   loading,
 }: SalesTrendChartProps) {
   return (
-    <div className='space-y-4'>
-      <Card className='border border-gray-200 shadow-sm'>
+    <>
+      <Card className='border border-gray-200 shadow-sm mt-1' size='sm'>
         <CardHeader className='flex flex-row items-center justify-between flex-wrap gap-3'>
           <CardTitle>Revenue Trend</CardTitle>
           <div className='inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1'>
@@ -75,7 +77,10 @@ export default function SalesTrendChart({
             </div>
           ) : (
             <ResponsiveContainer width='100%' height={280}>
-              <LineChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+              <LineChart
+                data={data}
+                margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray='3 3' stroke='#f0f0f0' />
                 <XAxis
                   dataKey='bucket'
@@ -91,7 +96,10 @@ export default function SalesTrendChart({
                   width={56}
                 />
                 <Tooltip
-                  formatter={(value: number) => [formatCurrency(value), "Revenue"]}
+                  formatter={(value: number) => [
+                    formatCurrency(value),
+                    "Revenue",
+                  ]}
                   contentStyle={{
                     fontSize: 12,
                     borderRadius: 8,
@@ -128,7 +136,10 @@ export default function SalesTrendChart({
             </div>
           ) : (
             <ResponsiveContainer width='100%' height={240}>
-              <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+              <BarChart
+                data={data}
+                margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray='3 3' stroke='#f0f0f0' />
                 <XAxis
                   dataKey='bucket'
@@ -145,9 +156,24 @@ export default function SalesTrendChart({
                 />
                 <Tooltip formatter={(value: number) => formatCurrency(value)} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey='labourRevenue' stackId='mix' name='Labour' fill='#2563eb' />
-                <Bar dataKey='partsRevenue' stackId='mix' name='Parts' fill='#7c3aed' />
-                <Bar dataKey='lubesRevenue' stackId='mix' name='Lubes' fill='#d97706' />
+                <Bar
+                  dataKey='labourRevenue'
+                  stackId='mix'
+                  name='Labour'
+                  fill='#2563eb'
+                />
+                <Bar
+                  dataKey='partsRevenue'
+                  stackId='mix'
+                  name='Parts'
+                  fill='#7c3aed'
+                />
+                <Bar
+                  dataKey='lubesRevenue'
+                  stackId='mix'
+                  name='Lubes'
+                  fill='#d97706'
+                />
                 <Bar
                   dataKey='accessoriesRevenue'
                   stackId='mix'
@@ -160,6 +186,6 @@ export default function SalesTrendChart({
           )}
         </CardContent>
       </Card>
-    </div>
+    </>
   );
 }

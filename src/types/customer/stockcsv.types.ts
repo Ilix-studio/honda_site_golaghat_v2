@@ -139,9 +139,9 @@ export interface AssignStockRequest {
   stockType?: "csv" | "manual"; // Make optional since endpoint is CSV-specific
   salePrice: number;
   invoiceNumber: string;
-  insurance: boolean;
-  isPaid: boolean;
-  isFinance: boolean;
+  insurance?: boolean;
+  isPaid?: boolean;
+  isFinance?: boolean;
 }
 
 export interface CSVStockFilters {

@@ -112,7 +112,7 @@ function PartsDashboard() {
         ))}
       </div>
 
-      <Card className='border border-gray-100 rounded-2xl shadow-sm'>
+      <Card size='sm' className='border border-gray-100 rounded-2xl shadow-sm'>
         <CardHeader>
           <CardTitle className='text-base font-semibold text-gray-900'>
             Monthly Parts Imported — {year}

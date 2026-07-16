@@ -35,7 +35,7 @@ export default function DashboardChartPreview({
   const height = compact ? 160 : 280;
 
   return (
-    <Card className='border border-gray-200 shadow-sm'>
+    <Card size='sm' className='border border-gray-200 shadow-sm'>
       <CardHeader className={compact ? "py-3" : undefined}>
         <CardTitle className={compact ? "text-sm" : undefined}>{spec.title}</CardTitle>
       </CardHeader>

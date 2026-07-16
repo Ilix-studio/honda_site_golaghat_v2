@@ -10,15 +10,7 @@ import {
 } from "@/components/ui/card";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Building2,
-  Clock,
-  Shield,
-  Home,
-  Package,
-  Bot,
-  Sparkles,
-} from "lucide-react";
+import { Building2, Clock, Home, Package, Bot, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // Redux
@@ -135,20 +127,6 @@ const AdminDashboard = () => {
               >
                 <Home className='h-3 w-3 text-gray-400' /> Visit Homepage
               </Button>
-              <div className='flex items-center gap-3'>
-                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20'>
-                  <div className='h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse' />
-                  <span className='text-emerald-400 text-xs font-medium'>
-                    System Online
-                  </span>
-                </div>
-                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10'>
-                  <Shield className='h-3 w-3 text-gray-400' />
-                  <span className='text-gray-400 text-xs font-medium'>
-                    Secure Session
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -194,7 +172,10 @@ const AdminDashboard = () => {
           </motion.div>
 
           <TabsContent value='branch-queries' className='mt-2'>
-            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-4 py-3'>
                 <div className='flex items-center gap-2'>
                   <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white shadow-sm'>
@@ -217,7 +198,10 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value='dashboards' className='mt-2'>
-            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-4 py-3'>
                 <div className='flex items-center gap-3'>
                   <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-blue-600 text-white shadow-sm'>
@@ -240,7 +224,10 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value='ai-assistant' className='mt-2'>
-            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-4 py-3'>
                 <div className='flex items-center gap-3'>
                   <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-violet-600 text-white shadow-sm'>

@@ -30,7 +30,7 @@ const BranchManagement: React.FC = () => {
     <div className='min-h-screen bg-gray-50'>
       <div className='container py-6 space-y-6'>
         {/* ── Header Card ─────────────────────────────────────────────────── */}
-        <Card className='shadow-md'>
+        <Card size='sm' className='shadow-md'>
           <CardHeader className='bg-muted/50'>
             <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
               <div>
@@ -84,7 +84,7 @@ const BranchManagement: React.FC = () => {
               <>
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
                   {branches.map((branch) => (
-                    <Card
+                    <Card size='sm'
                       key={branch._id}
                       className='border border-border hover:shadow-md transition-shadow'
                     >

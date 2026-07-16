@@ -206,7 +206,7 @@ const BranchManagerDashboard = () => {
         <div className='absolute -top-24 -right-24 w-96 h-96 bg-red-600/10 rounded-full blur-3xl' />
         <div className='absolute -bottom-32 -left-32 w-80 h-80 bg-red-500/5 rounded-full blur-3xl' />
 
-        <div className='relative container px-4 py-10 md:py-14'>
+        <div className='relative container px-4 py-10 md:py-8'>
           <div className='flex flex-col md:flex-row md:items-end md:justify-between gap-6'>
             <div>
               <div className='flex items-center gap-2 mb-3'>
@@ -254,13 +254,13 @@ const BranchManagerDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className='container px-4 py-8'>
+      <div className='container px-2 py-2'>
         <Tabs defaultValue='operations' className='w-full'>
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className='sticky top-2 z-10 mb-2'
+            className='sticky top-1 z-10 mb-2'
           >
             <TabsList className='inline-flex h-12 w-full md:w-auto bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-xl p-1 gap-1'>
               <TabsTrigger
@@ -281,7 +281,10 @@ const BranchManagerDashboard = () => {
           </motion.div>
 
           <TabsContent value='operations' className='mt-2'>
-            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
                 <div className='flex items-center gap-3'>
                   <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white shadow-sm'>
@@ -320,7 +323,10 @@ const BranchManagerDashboard = () => {
           </TabsContent>
 
           <TabsContent value='customer-reports' className='mt-2'>
-            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
                 <div className='flex items-center gap-3'>
                   <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-red-600 text-white shadow-sm'>

@@ -361,7 +361,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
         <TabsContent value='overview' className='space-y-6'>
           {/* Key Metrics */}
           <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-            <Card>
+            <Card size='sm'>
               <CardContent className='p-4'>
                 <div className='flex items-center justify-between'>
                   <div>
@@ -373,7 +373,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card size='sm'>
               <CardContent className='p-4'>
                 <div className='flex items-center justify-between'>
                   <div>
@@ -387,7 +387,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card size='sm'>
               <CardContent className='p-4'>
                 <div className='flex items-center justify-between'>
                   <div>
@@ -401,7 +401,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card size='sm'>
               <CardContent className='p-4'>
                 <div className='flex items-center justify-between'>
                   <div>
@@ -417,7 +417,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
           </div>
 
           {/* Recent Applications */}
-          <Card>
+          <Card size='sm'>
             <CardHeader>
               <CardTitle>Recent Applications</CardTitle>
             </CardHeader>
@@ -470,7 +470,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
 
           {/* Quick Stats */}
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-            <Card>
+            <Card size='sm'>
               <CardHeader>
                 <CardTitle>Popular Categories</CardTitle>
               </CardHeader>
@@ -500,7 +500,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card size='sm'>
               <CardHeader>
                 <CardTitle>Purchase Timeline</CardTitle>
               </CardHeader>
@@ -537,7 +537,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
         {/* Applications Tab */}
         <TabsContent value='applications' className='space-y-6'>
           {/* Filters */}
-          <Card>
+          <Card size='sm'>
             <CardContent className='p-4'>
               <div className='grid grid-cols-1 md:grid-cols-5 gap-4'>
                 <div className='relative'>
@@ -625,7 +625,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
           </Card>
 
           {/* Applications List */}
-          <Card>
+          <Card size='sm'>
             <CardHeader>
               <CardTitle>Applications ({total})</CardTitle>
             </CardHeader>
@@ -728,7 +728,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
         {/* Analytics Tab */}
         <TabsContent value='analytics' className='space-y-6'>
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-            <Card>
+            <Card size='sm'>
               <CardHeader>
                 <CardTitle>Enquiry Type Distribution</CardTitle>
               </CardHeader>
@@ -763,7 +763,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card size='sm'>
               <CardHeader>
                 <CardTitle>Trade-in Value Analysis</CardTitle>
               </CardHeader>
@@ -790,7 +790,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
             </Card>
           </div>
 
-          <Card>
+          <Card size='sm'>
             <CardHeader>
               <CardTitle>Category Interest Trends</CardTitle>
             </CardHeader>
@@ -819,7 +819,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
 
         {/* Recommendations Tab */}
         <TabsContent value='recommendations' className='space-y-6'>
-          <Card>
+          <Card size='sm'>
             <CardHeader>
               <CardTitle>Bike Recommendations Engine</CardTitle>
             </CardHeader>
@@ -841,7 +841,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
 
           {/* Sample Recommendations */}
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-            <Card>
+            <Card size='sm'>
               <CardHeader>
                 <CardTitle>Top Recommended Bikes</CardTitle>
               </CardHeader>
@@ -889,7 +889,7 @@ export const BikeEnquiryDashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card size='sm'>
               <CardHeader>
                 <CardTitle>Recommendation Insights</CardTitle>
               </CardHeader>

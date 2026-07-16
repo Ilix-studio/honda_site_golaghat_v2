@@ -70,7 +70,6 @@ export function CustomerDashHeader() {
 
   const currentRoute = routeConfig[location.pathname] || {
     title: "Customer Portal",
-    subtitle: "Tsangpool Honda Service Center",
   };
 
   useEffect(() => {

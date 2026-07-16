@@ -117,9 +117,7 @@ const salePrice: number = stock.priceInfo?.onRoadPrice
       stockType: "csv" as const,
       salePrice,
       invoiceNumber: `INV-${Date.now()}`,
-      insurance: false,
-      isPaid: false,
-      isFinance: false,
+      isPaid: true,
     };
 
     await assignCSVStock({

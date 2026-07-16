@@ -44,10 +44,11 @@ const DashStaff = () => {
     { skip: !isAuthenticated },
   );
   const latestTimetrackBatchId = timetrackBatches?.data?.[0]?.batchId;
-  const { data: timetrackRows, isLoading: timetrackLoading } = useGetDatasetRowsQuery(
-    { batchId: latestTimetrackBatchId as string, page: 1, limit: 50 },
-    { skip: !latestTimetrackBatchId },
-  );
+  const { data: timetrackRows, isLoading: timetrackLoading } =
+    useGetDatasetRowsQuery(
+      { batchId: latestTimetrackBatchId as string, page: 1, limit: 50 },
+      { skip: !latestTimetrackBatchId },
+    );
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -178,12 +179,6 @@ const DashStaff = () => {
                 <Home className='h-3 w-3 text-gray-400' /> Visit Homepage
               </Button>
               <div className='flex items-center gap-4'>
-                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20'>
-                  <div className='h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse' />
-                  <span className='text-emerald-400 text-xs font-medium'>
-                    System Online
-                  </span>
-                </div>
                 <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10'>
                   <Building2 className='h-3 w-3 text-gray-400' />
                   <span className='text-gray-400 text-xs font-medium'>
@@ -219,7 +214,10 @@ const DashStaff = () => {
           </TabsList>
 
           <TabsContent value='operations' className='mt-6'>
-            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
                 <div className='flex items-center gap-3'>
                   <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white shadow-sm'>
@@ -244,7 +242,10 @@ const DashStaff = () => {
               </CardContent>
             </Card>
 
-            <Card className='mt-4 border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+            <Card
+              size='sm'
+              className='mt-4 border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5 flex flex-row items-center justify-between'>
                 <div>
                   <CardTitle className='text-lg font-semibold text-gray-900'>
@@ -297,7 +298,10 @@ const DashStaff = () => {
           </TabsContent>
 
           <TabsContent value='customer-reports' className='mt-6'>
-            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
                 <div className='flex items-center gap-3'>
                   <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-red-600 text-white shadow-sm'>

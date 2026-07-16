@@ -47,7 +47,7 @@ export default function DataImportOverview() {
       />
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-        <Card className='border border-gray-200 shadow-sm'>
+        <Card size='sm' className='border border-gray-200 shadow-sm'>
           <CardHeader>
             <CardTitle>Revenue by Model</CardTitle>
           </CardHeader>
@@ -81,7 +81,7 @@ export default function DataImportOverview() {
           </CardContent>
         </Card>
 
-        <Card className='border border-gray-200 shadow-sm'>
+        <Card size='sm' className='border border-gray-200 shadow-sm'>
           <CardHeader>
             <CardTitle>Revenue by Branch</CardTitle>
           </CardHeader>
@@ -116,7 +116,7 @@ export default function DataImportOverview() {
         </Card>
       </div>
 
-      <Card className='border border-gray-200 shadow-sm'>
+      <Card size='sm' className='border border-gray-200 shadow-sm'>
         <CardHeader>
           <CardTitle>Recent Imports</CardTitle>
         </CardHeader>

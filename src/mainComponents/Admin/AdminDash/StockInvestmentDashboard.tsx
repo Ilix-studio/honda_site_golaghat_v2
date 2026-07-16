@@ -87,7 +87,7 @@ export default function StockInvestmentDashboard() {
         ))}
       </div>
 
-      <Card className='border border-gray-200 shadow-sm'>
+      <Card size='sm' className='border border-gray-200 shadow-sm'>
         <CardHeader>
           <CardTitle>Stock-Inventory Upload Reports</CardTitle>
         </CardHeader>

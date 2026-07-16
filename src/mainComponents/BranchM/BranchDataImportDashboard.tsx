@@ -101,7 +101,7 @@ export default function BranchDataImportDashboard() {
         loading={salesLoading}
       />
 
-      <Card className='border border-gray-200 shadow-sm'>
+      <Card size='sm' className='border border-gray-200 shadow-sm'>
         <CardHeader>
           <CardTitle>Latest Vehicle Stock Batch</CardTitle>
         </CardHeader>

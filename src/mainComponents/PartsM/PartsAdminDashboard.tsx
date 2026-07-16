@@ -47,16 +47,18 @@ export default function PartsAdminDashboard() {
   const stats = statsData?.data;
 
   // Latest parts-stock import (from the generic DataImport module)
-  const { data: stockBatches, isLoading: stockBatchesLoading } = useGetDatasetsQuery({
-    datasetType: "parts-stock",
-    page: 1,
-    limit: 1,
-  });
+  const { data: stockBatches, isLoading: stockBatchesLoading } =
+    useGetDatasetsQuery({
+      datasetType: "parts-stock",
+      page: 1,
+      limit: 1,
+    });
   const latestStockBatchId = stockBatches?.data?.[0]?.batchId;
-  const { data: stockRows, isLoading: stockRowsLoading } = useGetDatasetRowsQuery(
-    { batchId: latestStockBatchId as string, page: 1, limit: 1000 },
-    { skip: !latestStockBatchId },
-  );
+  const { data: stockRows, isLoading: stockRowsLoading } =
+    useGetDatasetRowsQuery(
+      { batchId: latestStockBatchId as string, page: 1, limit: 1000 },
+      { skip: !latestStockBatchId },
+    );
 
   const stockKpis = useMemo(() => {
     const rows = stockRows?.data ?? [];
@@ -72,16 +74,18 @@ export default function PartsAdminDashboard() {
   }, [stockRows]);
 
   // Parts sold (from invoice dataset)
-  const { data: invoiceBatches, isLoading: invoiceBatchesLoading } = useGetDatasetsQuery({
-    datasetType: "invoice",
-    page: 1,
-    limit: 1,
-  });
+  const { data: invoiceBatches, isLoading: invoiceBatchesLoading } =
+    useGetDatasetsQuery({
+      datasetType: "invoice",
+      page: 1,
+      limit: 1,
+    });
   const latestInvoiceBatchId = invoiceBatches?.data?.[0]?.batchId;
-  const { data: invoiceRows, isLoading: invoiceRowsLoading } = useGetDatasetRowsQuery(
-    { batchId: latestInvoiceBatchId as string, page: 1, limit: 1000 },
-    { skip: !latestInvoiceBatchId },
-  );
+  const { data: invoiceRows, isLoading: invoiceRowsLoading } =
+    useGetDatasetRowsQuery(
+      { batchId: latestInvoiceBatchId as string, page: 1, limit: 1000 },
+      { skip: !latestInvoiceBatchId },
+    );
 
   const partsSold = useMemo(() => {
     const rows = invoiceRows?.data ?? [];
@@ -125,14 +129,18 @@ export default function PartsAdminDashboard() {
   const stockValueKpis: Omit<StatCardProps, "index">[] = [
     {
       title: "Stock Quantity",
-      value: stockBatchesLoading || stockRowsLoading ? "—" : stockKpis.totalQuantity,
+      value:
+        stockBatchesLoading || stockRowsLoading ? "—" : stockKpis.totalQuantity,
       icon: Boxes,
       loading: stockBatchesLoading || stockRowsLoading,
       description: latestStockBatchId
         ? `From batch ${latestStockBatchId}`
         : "No parts-stock import yet",
       accent: "#0891b2",
-      action: { label: "Upload stock file", href: "/part-admin/data-import/upload" },
+      action: {
+        label: "Upload stock file",
+        href: "/part-admin/data-import/upload",
+      },
     },
     {
       title: "Stock Value",
@@ -144,7 +152,10 @@ export default function PartsAdminDashboard() {
       loading: stockBatchesLoading || stockRowsLoading,
       description: "Sum of stock value, latest batch",
       accent: "#16a34a",
-      action: { label: "Upload stock file", href: "/part-admin/data-import/upload" },
+      action: {
+        label: "Upload stock file",
+        href: "/part-admin/data-import/upload",
+      },
     },
     {
       title: "Parts Sold",
@@ -154,7 +165,10 @@ export default function PartsAdminDashboard() {
       loading: invoiceBatchesLoading || invoiceRowsLoading,
       description: `₹${partsSold.totalAmount.toLocaleString("en-IN")} from invoices`,
       accent: "#db2777",
-      action: { label: "Upload invoice", href: "/part-admin/data-import/upload" },
+      action: {
+        label: "Upload invoice",
+        href: "/part-admin/data-import/upload",
+      },
     },
   ];
 
@@ -202,7 +216,7 @@ export default function PartsAdminDashboard() {
         ))}
       </div>
 
-      <Card className='border border-gray-200 shadow-sm'>
+      <Card size='sm' className='border border-gray-200 shadow-sm'>
         <CardHeader>
           <CardTitle>Monthly Parts Imported — {year}</CardTitle>
         </CardHeader>
@@ -224,7 +238,10 @@ export default function PartsAdminDashboard() {
                   dataKey='month'
                   tick={{ fontSize: 11, fill: "#9ca3af" }}
                 />
-                <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} allowDecimals={false} />
+                <YAxis
+                  tick={{ fontSize: 11, fill: "#9ca3af" }}
+                  allowDecimals={false}
+                />
                 <Tooltip />
                 <Bar dataKey='partCount' fill='#2563eb' radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -233,7 +250,7 @@ export default function PartsAdminDashboard() {
         </CardContent>
       </Card>
 
-      <Card className='border border-gray-200 shadow-sm'>
+      <Card size='sm' className='border border-gray-200 shadow-sm'>
         <CardHeader>
           <CardTitle>Recent Uploads</CardTitle>
         </CardHeader>
@@ -262,7 +279,9 @@ export default function PartsAdminDashboard() {
                         {b.sourceFormat}
                       </td>
                       <td className='py-2 pr-4 tabular-nums'>{b.totalParts}</td>
-                      <td className='py-2 pr-4 tabular-nums'>{b.reviewParts}</td>
+                      <td className='py-2 pr-4 tabular-nums'>
+                        {b.reviewParts}
+                      </td>
                       <td className='py-2 pr-4 text-gray-500'>
                         {new Date(b.importDate).toLocaleDateString()}
                       </td>

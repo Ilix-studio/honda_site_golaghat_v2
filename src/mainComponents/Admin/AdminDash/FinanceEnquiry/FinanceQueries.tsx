@@ -23,7 +23,7 @@ const FinanceQueries = () => {
           </TabsList>
 
           <TabsContent value='all-applications' className='mt-4'>
-            <Card>
+            <Card size='sm'>
               <CardHeader>
                 <CardTitle className='text-base'>
                   Finance Applications
@@ -36,7 +36,7 @@ const FinanceQueries = () => {
           </TabsContent>
 
           <TabsContent value='with-bikes' className='mt-4'>
-            <Card>
+            <Card size='sm'>
               <CardHeader>
                 <CardTitle className='text-base'>
                   Applications with Bike Enquiry
