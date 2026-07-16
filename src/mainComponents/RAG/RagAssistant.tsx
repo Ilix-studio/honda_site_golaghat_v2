@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQueryRagMutation } from "@/redux-store/services/ragApi";
 import type {
   RagQueryResult,
@@ -18,8 +18,6 @@ interface RagAssistantProps {
   branchId?: string;
   /** Restricts which registered RAG sources this panel may query (e.g. ["parts"]). Omit for all sources the current role can access. */
   sourceTypes?: string[];
-  /** Question auto-asked on mount to seed a summary, like the old Parts AI panel. */
-  summaryPrompt?: string;
   placeholder?: string;
   /** Called when the user pins a chart-carrying answer to the Preview tab. */
   onPinDashboard?: (spec: DashboardSpec, question: string) => void;
@@ -44,53 +42,22 @@ function CitationBadges({ citations }: { citations: RagCitation[] }) {
 
 /**
  * Shared RAG assistant panel — generalized from the original Parts-only
- * assistant. Auto-loads a summary on mount, and lets the user ask free-text
- * questions grounded in the sources their role can access; answers cite the
- * aggregate query or retrieved records they came from.
+ * assistant. Only queries the AI when the user actually asks a question; it
+ * no longer auto-fires a "summary" request on mount.
  */
 export default function RagAssistant({
   title = "AI Assistant",
   subtitle = "Ask questions about your dealership data — answers are grounded in live data and cite their sources.",
   branchId,
   sourceTypes,
-  summaryPrompt = "Give a short summary of the current data.",
   placeholder = "Ask a question...",
   onPinDashboard,
 }: RagAssistantProps) {
   const [queryRag, { isLoading }] = useQueryRagMutation();
-  const [summary, setSummary] = useState<RagQueryResult | null>(null);
-  const [summaryError, setSummaryError] = useState<string | null>(null);
   const [question, setQuestion] = useState("");
   const [askedQuestion, setAskedQuestion] = useState("");
   const [answer, setAnswer] = useState<RagQueryResult | null>(null);
   const [answerError, setAnswerError] = useState<string | null>(null);
-
-  const sourceTypesKey = sourceTypes ? sourceTypes.join(",") : "";
-
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const res = await queryRag({
-          question: summaryPrompt,
-          branchId,
-          sourceTypes,
-        }).unwrap();
-        if (active) setSummary(res.data);
-      } catch (err: any) {
-        if (active) {
-          setSummaryError(
-            err?.data?.message || "Could not generate the summary.",
-          );
-        }
-      }
-    })();
-    return () => {
-      active = false;
-    };
-    // Re-run when branch/source scope changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [branchId, sourceTypesKey]);
 
   const handleAsk = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,39 +88,10 @@ export default function RagAssistant({
         <p className='text-sm text-gray-500'>{subtitle}</p>
       </CardHeader>
       <CardContent className='space-y-4'>
-        {/* Summary */}
-        <div className='rounded-xl bg-gray-50 border border-gray-100 p-4 text-sm text-gray-700 whitespace-pre-wrap min-h-[80px]'>
-          {summaryError ? (
-            <span className='flex items-center gap-2 text-red-600'>
-              <AlertCircle className='w-4 h-4' />
-              {summaryError}
-            </span>
-          ) : summary === null ? (
-            <span className='flex items-center gap-2 text-gray-400'>
-              <Loader2 className='w-4 h-4 animate-spin' />
-              Generating summary...
-            </span>
-          ) : (
-            <>
-              {summary.answer}
-              <CitationBadges citations={summary.citations} />
-            </>
-          )}
-        </div>
-        {summary?.dashboardSpec && (
-          <div className='space-y-2'>
-            <DashboardChartPreview spec={summary.dashboardSpec} compact />
-            {onPinDashboard && (
-              <Button
-                type='button'
-                size='sm'
-                variant='outline'
-                onClick={() => onPinDashboard(summary.dashboardSpec!, summaryPrompt)}
-              >
-                <Pin className='w-3.5 h-3.5 mr-1' />
-                Pin to preview
-              </Button>
-            )}
+        {!askedQuestion && !answerError && (
+          <div className='rounded-xl bg-gray-50 border border-dashed border-gray-200 p-4 text-sm text-gray-400 flex items-center gap-2'>
+            <Sparkles className='w-4 h-4' />
+            Ask a question below to get started.
           </div>
         )}
 

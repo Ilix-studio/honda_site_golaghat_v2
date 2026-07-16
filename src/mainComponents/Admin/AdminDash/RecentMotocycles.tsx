@@ -4,6 +4,7 @@ import {
   useGetBikesQuery,
   useDeleteBikeMutation,
 } from "@/redux-store/services/BikeSystemApi/bikeApi";
+import { useGetBikeImagesQuery } from "@/redux-store/services/BikeSystemApi/bikeImageApi";
 import {
   Zap,
   Calendar,
@@ -39,21 +40,17 @@ const getStockStatus = (stock: number) => {
 
 // ─── skeleton ────────────────────────────────────────────────────────────────
 const LoadingSkeleton = () => (
-  <div className='space-y-3'>
-    {[...Array(3)].map((_, i) => (
+  <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4'>
+    {[...Array(5)].map((_, i) => (
       <div
         key={i}
-        className='flex items-center gap-4 p-4 rounded-2xl bg-gray-50'
+        className='rounded-2xl bg-gray-50 border border-gray-100 overflow-hidden'
       >
-        <div className='w-16 h-16 bg-gray-200 animate-pulse rounded-xl shrink-0' />
-        <div className='flex-1 space-y-2'>
+        <div className='w-full aspect-[4/3] bg-gray-200 animate-pulse' />
+        <div className='p-3 space-y-2'>
           <div className='h-4 bg-gray-200 animate-pulse rounded w-3/4' />
           <div className='h-3 bg-gray-200 animate-pulse rounded w-1/2' />
-          <div className='h-3 bg-gray-200 animate-pulse rounded w-1/4' />
-        </div>
-        <div className='flex gap-2'>
-          <div className='h-8 w-16 bg-gray-200 animate-pulse rounded-lg' />
-          <div className='h-8 w-16 bg-gray-200 animate-pulse rounded-lg' />
+          <div className='h-3 bg-gray-200 animate-pulse rounded w-2/3' />
         </div>
       </div>
     ))}
@@ -82,36 +79,56 @@ const VehicleRow = ({
 }: VehicleRowProps) => {
   const stock = getStockStatus(vehicle.stockAvailable);
 
+  const { data: imagesData, isLoading: imageLoading } = useGetBikeImagesQuery(
+    vehicle._id,
+  );
+  const images = imagesData?.data?.images ?? [];
+  const primaryImage = images.find((img) => img.isPrimary) ?? images[0];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06, duration: 0.35, ease: "easeOut" }}
-      className='group relative flex items-center gap-4 p-4 rounded-2xl bg-white border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all duration-200'
+      className='group relative flex flex-col rounded-2xl bg-white border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden'
     >
-      {/* image placeholder */}
-      <div className='relative w-16 h-16 rounded-xl bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center shrink-0 overflow-hidden'>
-        <Icon className='h-8 w-8 text-red-500' />
+      {/* image */}
+      <div className='relative w-full aspect-[4/3] bg-gradient-to-br from-red-50 to-orange-50 overflow-hidden'>
+        {imageLoading ? (
+          <div className='w-full h-full bg-gray-100 animate-pulse' />
+        ) : primaryImage ? (
+          <img
+            src={primaryImage.src}
+            alt={primaryImage.alt || vehicle.modelName}
+            className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
+          />
+        ) : (
+          <div className='w-full h-full flex items-center justify-center'>
+            <Icon className='h-10 w-10 text-red-300' />
+          </div>
+        )}
+
+        {/* badges overlaid on image */}
+        <span
+          className={`absolute top-2 left-2 text-[10px] font-semibold px-2 py-0.5 rounded-full shadow-sm ${stock.color}`}
+        >
+          {stock.text}
+        </span>
         {vehicle.isNewModel && (
-          <span className='absolute top-1 right-1 w-2 h-2 rounded-full bg-yellow-400' />
+          <span className='absolute top-2 right-2 inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-yellow-100 text-yellow-800 shadow-sm'>
+            <Star className='w-2.5 h-2.5' />
+            New
+          </span>
         )}
       </div>
 
       {/* info */}
-      <div className='flex-1 min-w-0'>
-        <div className='flex items-center gap-2 mb-0.5'>
-          <h3 className='font-bold text-gray-900 text-sm truncate'>
-            {vehicle.modelName}
-          </h3>
-          {vehicle.isNewModel && (
-            <span className='inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-yellow-100 text-yellow-800 shrink-0'>
-              <Star className='w-2.5 h-2.5' />
-              New
-            </span>
-          )}
-        </div>
+      <div className='flex-1 flex flex-col gap-1.5 p-3'>
+        <h3 className='font-bold text-gray-900 text-sm truncate'>
+          {vehicle.modelName}
+        </h3>
 
-        <div className='flex items-center gap-2 text-xs text-gray-400 mb-1.5 flex-wrap'>
+        <div className='flex items-center gap-1.5 text-xs text-gray-400 flex-wrap'>
           <span className='capitalize'>{vehicle.category}</span>
           <span>·</span>
           <span className='flex items-center gap-1'>
@@ -126,35 +143,28 @@ const VehicleRow = ({
           )}
         </div>
 
-        <div className='flex items-center gap-2'>
-          <span className='text-sm font-black text-red-600'>
-            {formatPrice(vehicle.priceBreakdown)}
-          </span>
-          <span
-            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${stock.color}`}
-          >
-            {stock.text}
-          </span>
-        </div>
+        <span className='text-sm font-black text-red-600'>
+          {formatPrice(vehicle.priceBreakdown)}
+        </span>
       </div>
 
-      {/* actions — visible on hover */}
-      <div className='flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
-        <Link to={`${imagePath}/${vehicle._id}`}>
+      {/* actions */}
+      <div className='flex items-center gap-1 px-2 py-2 border-t border-gray-100 bg-gray-50/50'>
+        <Link to={`${imagePath}/${vehicle._id}`} className='flex-1'>
           <Button
             variant='ghost'
             size='sm'
-            className='h-8 px-2.5 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            className='w-full h-8 px-1.5 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100'
           >
             <Eye className='h-3.5 w-3.5 mr-1' />
             <span className='text-xs'>Images</span>
           </Button>
         </Link>
-        <Link to={`${editPath}/${vehicle._id}`}>
+        <Link to={`${editPath}/${vehicle._id}`} className='flex-1'>
           <Button
             variant='ghost'
             size='sm'
-            className='h-8 px-2.5 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            className='w-full h-8 px-1.5 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100'
           >
             <span className='text-xs'>Edit</span>
           </Button>
@@ -164,7 +174,7 @@ const VehicleRow = ({
           size='sm'
           onClick={() => onDelete(vehicle._id, vehicle.modelName)}
           disabled={isDeleting}
-          className='h-8 px-2.5 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50'
+          className='h-8 px-2 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 shrink-0'
         >
           {isDeleting ? (
             <div className='h-3.5 w-3.5 animate-spin border-2 border-red-500 border-t-transparent rounded-full' />
@@ -233,19 +243,21 @@ const VehicleList = ({
     );
 
   return (
-    <div className='space-y-2'>
-      {vehicles.data.bikes.map((vehicle, index) => (
-        <VehicleRow
-          key={vehicle._id}
-          vehicle={vehicle}
-          index={index}
-          icon={Icon}
-          editPath={editPath}
-          imagePath={imagePath}
-          isDeleting={deletingId === vehicle._id}
-          onDelete={onDelete}
-        />
-      ))}
+    <div className='space-y-4'>
+      <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4'>
+        {vehicles.data.bikes.map((vehicle, index) => (
+          <VehicleRow
+            key={vehicle._id}
+            vehicle={vehicle}
+            index={index}
+            icon={Icon}
+            editPath={editPath}
+            imagePath={imagePath}
+            isDeleting={deletingId === vehicle._id}
+            onDelete={onDelete}
+          />
+        ))}
+      </div>
 
       {vehicles.data.bikes.length >= 5 && (
         <div className='pt-2 flex justify-center'>

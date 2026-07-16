@@ -25,7 +25,11 @@ import {
 } from "lucide-react";
 import { useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
-import { useGetAllStaffQuery } from "../../redux-store/services/adminApi";
+import {
+  useGetAllPartAdminsQuery,
+  useGetAllServiceAdminsQuery,
+  useGetAllStaffQuery,
+} from "../../redux-store/services/adminApi";
 import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 import { useGetAllCustomersQuery } from "@/redux-store/services/customer/customerApi";
 import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
@@ -64,6 +68,10 @@ const BranchManagerDashboard = () => {
     {},
     { skip: !isAuthenticated },
   );
+  const { data: partsAdminData, isLoading: partsAdminLoading } =
+    useGetAllPartAdminsQuery();
+  const { data: serviceAdminsData, isLoading: serviceAdminsLoading } =
+    useGetAllServiceAdminsQuery();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -93,16 +101,16 @@ const BranchManagerDashboard = () => {
   // Stat cards built from live query data
   const operationsStats: Omit<StatCardProps, "index">[] = [
     {
-      title: "Customers",
+      title: "Add Customers",
       value: customersData?.pagination?.total ?? 0,
       icon: User,
       loading: customersLoading,
-      description: "Total registered",
+      description: "Total Customers",
       accent: "#f97316",
       action: { label: "Open Sign-up form", href: "/manager/customers/signup" },
     },
     {
-      title: "Create Staff Memebers",
+      title: "Add Staff Memebers",
       value: staffData?.count ?? 0,
       icon: Settings2,
       loading: staffLoading,
@@ -114,7 +122,7 @@ const BranchManagerDashboard = () => {
       },
     },
     {
-      title: "Value-Added Services",
+      title: "Add Value-Added Services",
       value: vasData?.total ?? "—",
       icon: TrendingUp,
       loading: vasLoading,
@@ -123,25 +131,29 @@ const BranchManagerDashboard = () => {
       action: { label: "Open VAS Manager", href: "/manager/vas/select" },
     },
     {
-      title: "Stock Manager",
+      title: "Add Stock-Inventory",
       value: stockData?.total ?? 0,
       icon: Activity,
       loading: stockLoading,
-      description: "Vehicles in branch",
+      description: "Inventory Details",
       accent: "#f59e0b",
-      action: { label: "Open Stock Manager", href: "/manager/stockC/select" },
+      action: { label: "Open Stock-Inventory", href: "/manager/stockC/select" },
     },
 
     {
-      title: "Part Admins",
+      title: "Add Part Admins",
+      value: partsAdminData?.count ?? 0,
       icon: Package,
+      loading: partsAdminLoading,
       description: "Create & manage Part Admins for your branch",
       accent: "#2563eb",
       action: { label: "Manage Part Admins", href: "/manager/part-admins" },
     },
     {
-      title: "Service Admins",
+      title: "Add Service Admins",
+      value: serviceAdminsData?.count ?? 0,
       icon: Cog,
+      loading: serviceAdminsLoading,
       description: "Create & manage Service Admins for your branch",
       accent: "#0ea5e9",
       action: {
@@ -230,13 +242,7 @@ const BranchManagerDashboard = () => {
                 <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20'>
                   <div className='h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse' />
                   <span className='text-emerald-400 text-xs font-medium'>
-                    System Online
-                  </span>
-                </div>
-                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10'>
-                  <Building2 className='h-3 w-3 text-gray-400' />
-                  <span className='text-gray-400 text-xs font-medium'>
-                    Branch Access
+                    {user?.branch?.branchName || "Branch"}
                   </span>
                 </div>
               </div>
@@ -250,24 +256,31 @@ const BranchManagerDashboard = () => {
       {/* Main Content */}
       <div className='container px-4 py-8'>
         <Tabs defaultValue='operations' className='w-full'>
-          <TabsList className='inline-flex h-12 w-full md:w-auto bg-white border border-gray-200 shadow-sm rounded-xl p-1 gap-1'>
-            <TabsTrigger
-              value='operations'
-              className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
-            >
-              <Cog className='h-4 w-4' />
-              <span>Operations</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value='customer-reports'
-              className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
-            >
-              <MessageSquare className='h-4 w-4' />
-              <span>Add Vehicles & Reports</span>
-            </TabsTrigger>
-          </TabsList>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className='sticky top-2 z-10 mb-2'
+          >
+            <TabsList className='inline-flex h-12 w-full md:w-auto bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-xl p-1 gap-1'>
+              <TabsTrigger
+                value='operations'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-gray-900 hover:bg-gray-50 data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <Cog className='h-4 w-4' />
+                <span>Operations</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value='customer-reports'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-red-700 hover:bg-red-50 data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <MessageSquare className='h-4 w-4' />
+                <span>Add Vehicles & Reports</span>
+              </TabsTrigger>
+            </TabsList>
+          </motion.div>
 
-          <TabsContent value='operations' className='mt-6'>
+          <TabsContent value='operations' className='mt-2'>
             <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
                 <div className='flex items-center gap-3'>
@@ -284,7 +297,7 @@ const BranchManagerDashboard = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className='p-6'>
+              <CardContent className='p-3'>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                   {operationsStats.map((stat, i) => (
                     <StatCard key={stat.title} {...stat} index={i} />
@@ -306,7 +319,7 @@ const BranchManagerDashboard = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value='customer-reports' className='mt-6'>
+          <TabsContent value='customer-reports' className='mt-2'>
             <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
                 <div className='flex items-center gap-3'>

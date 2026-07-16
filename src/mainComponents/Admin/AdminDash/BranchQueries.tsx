@@ -112,11 +112,33 @@ const BranchQueries = () => {
 
   return (
     <div className='space-y-8'>
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4'>
-        {stats.map((s, i) => (
-          <StatCard key={s.title} {...s} index={i} />
-        ))}
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className='space-y-4'
+      >
+        <div className='flex items-center gap-2.5 px-0.5'>
+          <div className='w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center'>
+            <Building2 className='w-4 h-4 text-blue-500' />
+          </div>
+          <div>
+            <h3 className='text-sm font-bold text-gray-900'>
+              Branch Overview
+            </h3>
+            <p className='text-xs text-gray-400'>
+              Locations, team, and roles at a glance
+            </p>
+          </div>
+        </div>
+
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+          {stats.map((s, i) => (
+            <StatCard key={s.title} {...s} index={i} />
+          ))}
+        </div>
+      </motion.div>
+
       <SeparateStats />
 
       {/* ── visitor analytics ── */}

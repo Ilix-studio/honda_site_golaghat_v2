@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 import {
   Card,
@@ -9,7 +10,15 @@ import {
 } from "@/components/ui/card";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Clock, Shield, Home, Package, Bot } from "lucide-react";
+import {
+  Building2,
+  Clock,
+  Shield,
+  Home,
+  Package,
+  Bot,
+  Sparkles,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // Redux
@@ -23,7 +32,8 @@ import {
 import BranchQueries from "./BranchQueries";
 
 import { Button } from "@/components/ui/button";
-import AIQueries from "./AIandDash";
+import { DashboardsPanel } from "./SuperDashBoards";
+import AiAssistantPanel from "./AiAssistantPanel";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -91,11 +101,11 @@ const AdminDashboard = () => {
         <div className='absolute -top-24 -right-24 w-96 h-96 bg-red-600/10 rounded-full blur-3xl' />
         <div className='absolute -bottom-32 -left-32 w-80 h-80 bg-red-500/5 rounded-full blur-3xl' />
 
-        <div className='relative container px-4 py-10 md:py-14'>
-          <div className='flex flex-col md:flex-row md:items-end md:justify-between gap-6'>
+        <div className='relative container px-4 py-6 md:py-8'>
+          <div className='flex flex-col md:flex-row md:items-end md:justify-between gap-4'>
             {/* Left: Greeting */}
             <div>
-              <div className='flex items-center gap-2 mb-3'>
+              <div className='flex items-center gap-2 mb-2'>
                 <div className='h-1 w-8 bg-red-500 rounded-full' />
                 <span className='text-red-400 text-xs font-semibold tracking-[0.2em] uppercase'>
                   Super Admin Panel
@@ -107,14 +117,14 @@ const AdminDashboard = () => {
                   {user?.name || "Admin"}
                 </span>
               </h1>
-              <p className='text-gray-400 mt-2 text-sm md:text-base max-w-lg'>
+              <p className='text-gray-400 mt-1.5 text-sm md:text-base max-w-lg'>
                 Manage your TsangPool Honda dealership operations, track branch
                 performance, and monitor customer engagement.
               </p>
             </div>
 
             {/* Right: Date + Status */}
-            <div className='flex flex-col items-start md:items-end gap-3'>
+            <div className='flex flex-col items-start md:items-end gap-2'>
               <div className='flex items-center gap-2 text-gray-400 text-sm'>
                 <Clock className='h-3.5 w-3.5' />
                 <span>{formattedDate}</span>
@@ -125,7 +135,7 @@ const AdminDashboard = () => {
               >
                 <Home className='h-3 w-3 text-gray-400' /> Visit Homepage
               </Button>
-              <div className='flex items-center gap-4'>
+              <div className='flex items-center gap-3'>
                 <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20'>
                   <div className='h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse' />
                   <span className='text-emerald-400 text-xs font-medium'>
@@ -148,30 +158,45 @@ const AdminDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className='container px-4 py-8'>
+      <div className='container px-2 py-2'>
         <Tabs defaultValue='branch-queries' className='w-full'>
-          <TabsList className='inline-flex h-12 w-full md:w-auto bg-white border border-gray-200 shadow-sm rounded-xl p-1 gap-1'>
-            <TabsTrigger
-              value='branch-queries'
-              className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
-            >
-              <Building2 className='h-4 w-4' />
-              <span>Branch Area</span>
-            </TabsTrigger>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className='sticky top-1 z-10 mb-0.1'
+          >
+            <TabsList className='inline-flex h-12 w-full md:w-auto bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-xl p-1 gap-1'>
+              <TabsTrigger
+                value='branch-queries'
+                className='flex items-center gap-1.5 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-gray-900 hover:bg-gray-50 data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <Building2 className='h-4 w-4' />
+                <span>Branch Area</span>
+              </TabsTrigger>
 
-            <TabsTrigger
-              value='parts-queries'
-              className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
-            >
-              <Bot className='h-4 w-4' />
-              <span>AI & Dashboards</span>
-            </TabsTrigger>
-          </TabsList>
+              <TabsTrigger
+                value='dashboards'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-blue-700 hover:bg-blue-50 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <Bot className='h-4 w-4' />
+                <span>Dashboard</span>
+              </TabsTrigger>
 
-          <TabsContent value='branch-queries' className='mt-6'>
+              <TabsTrigger
+                value='ai-assistant'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-violet-700 hover:bg-violet-50 data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <Sparkles className='h-4 w-4' />
+                <span>AI</span>
+              </TabsTrigger>
+            </TabsList>
+          </motion.div>
+
+          <TabsContent value='branch-queries' className='mt-2'>
             <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
-              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
-                <div className='flex items-center gap-3'>
+              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-4 py-3'>
+                <div className='flex items-center gap-2'>
                   <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white shadow-sm'>
                     <Building2 className='h-5 w-5' />
                   </div>
@@ -185,32 +210,54 @@ const AdminDashboard = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className='p-6'>
+              <CardContent className='p-2'>
                 <BranchQueries />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value='parts-queries' className='mt-6'>
+          <TabsContent value='dashboards' className='mt-2'>
             <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
-              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
+              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-4 py-3'>
                 <div className='flex items-center gap-3'>
                   <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-blue-600 text-white shadow-sm'>
                     <Package className='h-5 w-5' />
                   </div>
                   <div>
                     <CardTitle className='text-lg font-semibold text-gray-900'>
-                      Dashboards & AI Assistant
+                      Dashboards
                     </CardTitle>
                     <CardDescription className='text-gray-500 mt-0.5'>
-                      Dashboards KPIs across branches, with an AI assistant for
-                      questions
+                      Dashboard KPIs across branches
                     </CardDescription>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className='p-6'>
-                <AIQueries />
+              <CardContent className='p-2'>
+                <DashboardsPanel />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value='ai-assistant' className='mt-2'>
+            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-4 py-3'>
+                <div className='flex items-center gap-3'>
+                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-violet-600 text-white shadow-sm'>
+                    <Sparkles className='h-5 w-5' />
+                  </div>
+                  <div>
+                    <CardTitle className='text-lg font-semibold text-gray-900'>
+                      AI Assistant
+                    </CardTitle>
+                    <CardDescription className='text-gray-500 mt-0.5'>
+                      Ask questions grounded in live data, with chart previews
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className='p-2'>
+                <AiAssistantPanel />
               </CardContent>
             </Card>
           </TabsContent>

@@ -26,30 +26,42 @@ import {
   Wrench,
   Handshake,
   ShieldCheck,
-  LayoutDashboard,
-  Sparkles,
-  PinIcon,
+  IndianRupee,
+  CalendarDays,
 } from "lucide-react";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
 import SalesTrendChart from "@/mainComponents/DataImport/SalesTrendChart";
-import RagAssistant from "@/mainComponents/RAG/RagAssistant";
+
 import DashboardChartPreview from "@/mainComponents/RAG/DashboardChartPreview";
 import type { DashboardSpec } from "@/redux-store/services/ragApi.types";
 import StockInvestmentDashboard from "./StockInvestmentDashboard";
 
 const YEARS = [2026, 2025, 2024];
 
-// Every RAG source with a structured-stats -> dashboardSpec mapping. Charts
-// generated from AI questions outside this list simply won't carry a chart
-// (Vehicle Stock / Service data isn't RAG-indexed yet, see plan notes).
-const AI_SOURCE_TYPES = [
-  "parts",
-  "jobcard-live",
-  "jobcard-revenue-import",
-  "accident-report",
-  "stock-assign",
-  "vas-assign",
-];
+function YearSelect({
+  year,
+  onChange,
+}: {
+  year: number;
+  onChange: (year: number) => void;
+}) {
+  return (
+    <div className='flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 h-9 shadow-sm'>
+      <CalendarDays className='h-3.5 w-3.5 text-gray-400' />
+      <select
+        value={String(year)}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className='text-sm font-medium text-gray-700 bg-transparent outline-none cursor-pointer'
+      >
+        {YEARS.map((y) => (
+          <option key={y} value={String(y)}>
+            {y}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
 
 // ─── Parts sub-tab (unchanged behavior, moved out of the top-level body) ──────
 
@@ -90,18 +102,8 @@ function PartsDashboard() {
 
   return (
     <div className='space-y-6'>
-      <div className='flex items-center justify-end gap-3'>
-        <select
-          value={String(year)}
-          onChange={(e) => setYear(Number(e.target.value))}
-          className='h-9 rounded-md border border-gray-200 bg-white px-3 text-sm'
-        >
-          {YEARS.map((y) => (
-            <option key={y} value={String(y)}>
-              {y}
-            </option>
-          ))}
-        </select>
+      <div className='flex items-center justify-end'>
+        <YearSelect year={year} onChange={setYear} />
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
@@ -110,9 +112,11 @@ function PartsDashboard() {
         ))}
       </div>
 
-      <Card className='border border-gray-200 shadow-sm'>
+      <Card className='border border-gray-100 rounded-2xl shadow-sm'>
         <CardHeader>
-          <CardTitle>Monthly Parts Imported — {year}</CardTitle>
+          <CardTitle className='text-base font-semibold text-gray-900'>
+            Monthly Parts Imported — {year}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -211,17 +215,20 @@ function VehicleStockDashboard() {
 
 function ServiceDashboard() {
   const [granularity, setGranularity] = useState<Granularity>("month");
-  const { data: jobcardBatches, isLoading: jobcardLoading } = useGetDatasetsQuery({
-    datasetType: "service-jobcard",
-    limit: 100,
-  });
-  const { data: timetrackBatches, isLoading: timetrackLoading } = useGetDatasetsQuery({
-    datasetType: "service-timetrack",
-    limit: 100,
-  });
-  const { data: salesData, isLoading: salesLoading } = useGetSalesTimeseriesQuery({
-    granularity,
-  });
+  const { data: jobcardBatches, isLoading: jobcardLoading } =
+    useGetDatasetsQuery({
+      datasetType: "service-jobcard",
+      limit: 100,
+    });
+  const { data: timetrackBatches, isLoading: timetrackLoading } =
+    useGetDatasetsQuery({
+      datasetType: "service-timetrack",
+      limit: 100,
+    });
+  const { data: salesData, isLoading: salesLoading } =
+    useGetSalesTimeseriesQuery({
+      granularity,
+    });
 
   const jobcardRows =
     jobcardBatches?.data?.reduce((sum, b) => sum + b.importedRows, 0) ?? 0;
@@ -285,7 +292,9 @@ function StockAssignDashboard() {
     },
     {
       title: "Revenue",
-      value: stats ? `₹${stats.totals.totalRevenue.toLocaleString("en-IN")}` : "—",
+      value: stats
+        ? `₹${stats.totals.totalRevenue.toLocaleString("en-IN")}`
+        : "—",
       icon: Layers,
       loading: isLoading,
       description: "Sum of sale price",
@@ -306,18 +315,8 @@ function StockAssignDashboard() {
 
   return (
     <div className='space-y-6'>
-      <div className='flex items-center justify-end gap-3'>
-        <select
-          value={String(year)}
-          onChange={(e) => setYear(Number(e.target.value))}
-          className='h-9 rounded-md border border-gray-200 bg-white px-3 text-sm'
-        >
-          {YEARS.map((y) => (
-            <option key={y} value={String(y)}>
-              {y}
-            </option>
-          ))}
-        </select>
+      <div className='flex items-center justify-end'>
+        <YearSelect year={year} onChange={setYear} />
       </div>
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         {kpis.map((kpi, i) => (
@@ -346,7 +345,9 @@ function VasAssignDashboard() {
     },
     {
       title: "Revenue",
-      value: stats ? `₹${stats.totals.totalRevenue.toLocaleString("en-IN")}` : "—",
+      value: stats
+        ? `₹${stats.totals.totalRevenue.toLocaleString("en-IN")}`
+        : "—",
       icon: Layers,
       loading: isLoading,
       description: "Sum of purchase price",
@@ -367,18 +368,8 @@ function VasAssignDashboard() {
 
   return (
     <div className='space-y-6'>
-      <div className='flex items-center justify-end gap-3'>
-        <select
-          value={String(year)}
-          onChange={(e) => setYear(Number(e.target.value))}
-          className='h-9 rounded-md border border-gray-200 bg-white px-3 text-sm'
-        >
-          {YEARS.map((y) => (
-            <option key={y} value={String(y)}>
-              {y}
-            </option>
-          ))}
-        </select>
+      <div className='flex items-center justify-end'>
+        <YearSelect year={year} onChange={setYear} />
       </div>
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         {kpis.map((kpi, i) => (
@@ -390,103 +381,77 @@ function VasAssignDashboard() {
   );
 }
 
-// ─── Top-level: Dashboards / AI Assistant / Preview ───────────────────────────
-
-interface PinnedDashboard {
-  spec: DashboardSpec;
-  question: string;
-  pinnedAt: number;
-}
+// ─── Dashboards panel — static KPI dashboards, no AI ──────────────────────────
 
 /**
- * Super-Admin dashboards + AI panel. Restructured from a Parts-only view
- * into three top-level tabs: static Dashboards (Parts, Vehicle Stock,
- * Service, Stock Assign, VAS Assign), the AI Assistant chat (now able to
- * carry a chart in its answer), and a Preview tab for charts pinned from
- * chat. Pins are ephemeral (component state only) — no backend persistence.
+ * Static Super-Admin dashboards: Parts, Vehicle Stock, Service, Stock Assign,
+ * VAS Assign, Stock Investment. Rendered as its own top-level tab in
+ * AdminDashboard, separate from the AI Assistant.
  */
-export default function AIQueries() {
-  const [pinned, setPinned] = useState<PinnedDashboard[]>([]);
-
-  const handlePin = (spec: DashboardSpec, question: string) => {
-    setPinned((prev) => [...prev, { spec, question, pinnedAt: Date.now() }]);
-  };
-
+export function DashboardsPanel() {
   return (
-    <Tabs defaultValue='dashboards'>
-      <TabsList>
-        <TabsTrigger value='dashboards'>
-          <LayoutDashboard className='h-4 w-4' />
-          <span>Dashboards</span>
+    <Tabs defaultValue='parts'>
+      <TabsList className='inline-flex h-auto w-full flex-wrap gap-1 bg-gray-100 border border-gray-200 rounded-xl p-1'>
+        <TabsTrigger
+          value='parts'
+          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+        >
+          <Package className='h-3.5 w-3.5' />
+          <span>Parts</span>
         </TabsTrigger>
-        <TabsTrigger value='ai-assistant'>
-          <Sparkles className='h-4 w-4' />
-          <span>AI Assistant</span>
+        <TabsTrigger
+          value='vehicle-stock'
+          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+        >
+          <Bike className='h-3.5 w-3.5' />
+          <span>Vehicle Stock</span>
         </TabsTrigger>
-        <TabsTrigger value='preview'>
-          <PinIcon className='h-4 w-4' />
-          <span>Preview{pinned.length > 0 ? ` (${pinned.length})` : ""}</span>
+        <TabsTrigger
+          value='service'
+          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+        >
+          <Wrench className='h-3.5 w-3.5' />
+          <span>Service</span>
+        </TabsTrigger>
+        <TabsTrigger
+          value='stock-assign'
+          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+        >
+          <Handshake className='h-3.5 w-3.5' />
+          <span>Stock Assign</span>
+        </TabsTrigger>
+        <TabsTrigger
+          value='vas-assign'
+          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+        >
+          <ShieldCheck className='h-3.5 w-3.5' />
+          <span>VAS Assign</span>
+        </TabsTrigger>
+        <TabsTrigger
+          value='stock-investment'
+          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+        >
+          <IndianRupee className='h-3.5 w-3.5' />
+          <span>Stock Investment</span>
         </TabsTrigger>
       </TabsList>
-
-      <TabsContent value='dashboards' className='pt-4'>
-        <Tabs defaultValue='parts'>
-          <TabsList>
-            <TabsTrigger value='parts'>Parts</TabsTrigger>
-            <TabsTrigger value='vehicle-stock'>Vehicle Stock</TabsTrigger>
-            <TabsTrigger value='service'>Service</TabsTrigger>
-            <TabsTrigger value='stock-assign'>Stock Assign</TabsTrigger>
-            <TabsTrigger value='vas-assign'>VAS Assign</TabsTrigger>
-            <TabsTrigger value='stock-investment'>Stock Investment</TabsTrigger>
-          </TabsList>
-          <TabsContent value='parts' className='pt-4'>
-            <PartsDashboard />
-          </TabsContent>
-          <TabsContent value='vehicle-stock' className='pt-4'>
-            <VehicleStockDashboard />
-          </TabsContent>
-          <TabsContent value='service' className='pt-4'>
-            <ServiceDashboard />
-          </TabsContent>
-          <TabsContent value='stock-assign' className='pt-4'>
-            <StockAssignDashboard />
-          </TabsContent>
-          <TabsContent value='vas-assign' className='pt-4'>
-            <VasAssignDashboard />
-          </TabsContent>
-          <TabsContent value='stock-investment' className='pt-4'>
-            <StockInvestmentDashboard />
-          </TabsContent>
-        </Tabs>
+      <TabsContent value='parts' className='pt-4'>
+        <PartsDashboard />
       </TabsContent>
-
-      <TabsContent value='ai-assistant' className='pt-4'>
-        <RagAssistant
-          title='Dealership AI Assistant'
-          subtitle='Ask questions about parts, job cards, stock/VAS assignments, and accident reports — answers are grounded in live data and can include a chart.'
-          sourceTypes={AI_SOURCE_TYPES}
-          placeholder='e.g. How many bikes were assigned to customers this year?'
-          onPinDashboard={handlePin}
-        />
+      <TabsContent value='vehicle-stock' className='pt-4'>
+        <VehicleStockDashboard />
       </TabsContent>
-
-      <TabsContent value='preview' className='pt-4'>
-        {pinned.length === 0 ? (
-          <div className='rounded-xl border border-dashed border-gray-200 p-10 text-center text-sm text-gray-500'>
-            Ask the AI a stats question and pin the result to see it here.
-          </div>
-        ) : (
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            {pinned.map((p) => (
-              <div key={p.pinnedAt} className='space-y-1'>
-                <p className='text-xs text-gray-400'>
-                  "{p.question}" — pinned {new Date(p.pinnedAt).toLocaleTimeString()}
-                </p>
-                <DashboardChartPreview spec={p.spec} />
-              </div>
-            ))}
-          </div>
-        )}
+      <TabsContent value='service' className='pt-4'>
+        <ServiceDashboard />
+      </TabsContent>
+      <TabsContent value='stock-assign' className='pt-4'>
+        <StockAssignDashboard />
+      </TabsContent>
+      <TabsContent value='vas-assign' className='pt-4'>
+        <VasAssignDashboard />
+      </TabsContent>
+      <TabsContent value='stock-investment' className='pt-4'>
+        <StockInvestmentDashboard />
       </TabsContent>
     </Tabs>
   );

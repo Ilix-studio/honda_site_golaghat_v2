@@ -63,7 +63,7 @@ const routeConfig: Record<
     backTo: "/manager/vas/select",
   },
   "/manager/stockC/select": {
-    title: " List Value Added Services",
+    title: " Manage Stock-Inventory",
     subtitle: "",
     showBack: true,
     backTo: "/manager/dashboard",

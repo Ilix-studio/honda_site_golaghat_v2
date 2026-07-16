@@ -92,9 +92,9 @@ const SeparateStats = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.4 }}
-        className='space-y-3 border border-gray-500 p-4 rounded-xl bg-white'
+        className='space-y-3 border border-gray-100 shadow-sm p-4 rounded-2xl bg-white'
       >
-        <h3 className='text-sm font-semibold text-gray-500 uppercase tracking-wide px-0.5'>
+        <h3 className='text-sm font-semibold text-gray-400 uppercase tracking-wide px-0.5'>
           Sales Details and Leave Requests
         </h3>
         <QuickActions items={quickActions} />

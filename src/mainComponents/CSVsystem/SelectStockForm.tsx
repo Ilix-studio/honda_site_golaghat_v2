@@ -1,7 +1,7 @@
 // src/components/admin/forms/SelectStockForm.tsx
 
 import { useNavigate } from "react-router-dom";
-import { FileSpreadsheet, Database, ArrowRight, Eye } from "lucide-react";
+import { FileSpreadsheet, Database, ArrowRight, HardDrive } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSelector } from "react-redux";
@@ -21,27 +21,19 @@ const SelectStockForm = () => {
       route: `${base}/forms/stock-concept-csv`,
       buttonText: "Upload CSV",
     },
-    {
-      id: "view_uploads",
-      title: "View Uploads",
-      description:
-        "Review exactly what was extracted from each uploaded CSV/Excel file, field by field, before it's used elsewhere.",
-      icon: Eye,
-      route: `${base}/forms/stock-concept-csv/view-uploads`,
-      buttonText: "View Uploads",
-    },
+
     {
       id: "manual",
       title: "Manual Stock Entry",
       description:
         "Add stock items individually with full control over all fields. Best for single entries or corrections.",
-      icon: Database,
+      icon: HardDrive,
       route: `${base}/forms/stock-concept`,
       buttonText: "Add Manually",
     },
     {
       id: "view_all",
-      title: "View Stock Data",
+      title: "View Stock-Inventory Data",
       description: "View All Manual Stock Entry and CSV Stock Import",
       icon: Database,
       route: `${base}/get/all-stock`,
