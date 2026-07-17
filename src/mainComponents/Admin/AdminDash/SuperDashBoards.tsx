@@ -235,6 +235,25 @@ function ServiceDashboard() {
   const timetrackRows =
     timetrackBatches?.data?.reduce((sum, b) => sum + b.importedRows, 0) ?? 0;
 
+  const timeseries = useMemo(
+    () => salesData?.data?.timeseries ?? [],
+    [salesData],
+  );
+  const revenueTotals = useMemo(
+    () =>
+      timeseries.reduce(
+        (acc, t) => ({
+          partsRevenue: acc.partsRevenue + t.partsRevenue,
+          lubesRevenue: acc.lubesRevenue + t.lubesRevenue,
+          totalJobCardRevenue: acc.totalJobCardRevenue + t.totalRevenue,
+        }),
+        { partsRevenue: 0, lubesRevenue: 0, totalJobCardRevenue: 0 },
+      ),
+    [timeseries],
+  );
+  const formatCurrency = (v: number) =>
+    v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` : `₹${v.toLocaleString("en-IN")}`;
+
   const kpis: Omit<StatCardProps, "index">[] = [
     {
       title: "Job Card Rows Imported",
@@ -256,6 +275,38 @@ function ServiceDashboard() {
     },
   ];
 
+  const revenueKpis: Omit<StatCardProps, "index">[] = [
+    {
+      title: "Parts Revenue",
+      value: salesLoading ? "—" : formatCurrency(revenueTotals.partsRevenue),
+      icon: Package,
+      loading: salesLoading,
+      description: `Selected range (${granularity})`,
+      accent: "#7c3aed",
+      action: { label: "View", href: "/admin/data-import" },
+    },
+    {
+      title: "Lubes Revenue",
+      value: salesLoading ? "—" : formatCurrency(revenueTotals.lubesRevenue),
+      icon: IndianRupee,
+      loading: salesLoading,
+      description: `Selected range (${granularity})`,
+      accent: "#d97706",
+      action: { label: "View", href: "/admin/data-import" },
+    },
+    {
+      title: "Total Job Card Revenue",
+      value: salesLoading
+        ? "—"
+        : formatCurrency(revenueTotals.totalJobCardRevenue),
+      icon: Wrench,
+      loading: salesLoading,
+      description: `Selected range (${granularity})`,
+      accent: "#059669",
+      action: { label: "View", href: "/admin/data-import" },
+    },
+  ];
+
   return (
     <div className='space-y-6'>
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -263,10 +314,15 @@ function ServiceDashboard() {
           <StatCard key={kpi.title} {...kpi} index={i} />
         ))}
       </div>
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+        {revenueKpis.map((kpi, i) => (
+          <StatCard key={kpi.title} {...kpi} index={i} />
+        ))}
+      </div>
       <SalesTrendChart
         granularity={granularity}
         onGranularityChange={setGranularity}
-        data={salesData?.data?.timeseries ?? []}
+        data={timeseries}
         loading={salesLoading}
       />
     </div>

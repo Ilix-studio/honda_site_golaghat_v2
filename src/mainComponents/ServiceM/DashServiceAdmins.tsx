@@ -11,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  MessageSquare,
   Clock,
   Home,
   Building2,
@@ -21,6 +20,7 @@ import {
   Wrench,
   TrendingUp,
   UploadCloud,
+  Users,
 } from "lucide-react";
 import { useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -31,6 +31,7 @@ import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/Se
 import OpenJobCards from "./OpenJobCards";
 import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
 import { useGetSalesTimeseriesQuery } from "@/redux-store/services/dataImportApi";
+import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
 import SalesTrendChart from "@/mainComponents/DataImport/SalesTrendChart";
 
@@ -54,6 +55,8 @@ const DashServiceAdmins = () => {
     {},
     { skip: !isAuthenticated },
   );
+  const { data: newCustomersData, isLoading: newCustomersLoading } =
+    useGetNewCustomersQuery({ limit: 1 }, { skip: !isAuthenticated });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -125,20 +128,14 @@ const DashServiceAdmins = () => {
       accent: "#1f8438ff",
       action: { label: "Open", href: "/service-admin/catalog" },
     },
-  ];
-
-  const InvoiceStats: Omit<StatCardProps, "index">[] = [
     {
-      title: "Total",
-      value: 1,
-      icon: Wrench,
-      loading: false,
-      description: "Total Invoices",
-      accent: "#f63b3bff",
-      action: {
-        label: "Open Invoices",
-        href: "/service-admin/customer-invoices",
-      },
+      title: "View Customer List",
+      value: newCustomersData?.pagination.total ?? 0,
+      icon: Users,
+      loading: newCustomersLoading,
+      description: "All Customer Detected by this project",
+      accent: "#222222c2",
+      action: { label: "Open", href: "/customers/new" },
     },
   ];
 
@@ -239,13 +236,7 @@ const DashServiceAdmins = () => {
                 <Cog className='h-4 w-4' />
                 <span>Operations</span>
               </TabsTrigger>
-              <TabsTrigger
-                value='customer-reports'
-                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
-              >
-                <MessageSquare className='h-4 w-4' />
-                <span>Customer Invoices & Reports</span>
-              </TabsTrigger>
+
               <TabsTrigger
                 value='sales-data'
                 className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
@@ -277,7 +268,7 @@ const DashServiceAdmins = () => {
                 </div>
               </CardHeader>
               <CardContent className='p-2'>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                   {operationsStats.map((stat, i) => (
                     <StatCard key={stat.title} {...stat} index={i} />
                   ))}
@@ -289,41 +280,11 @@ const DashServiceAdmins = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value='customer-reports' className='mt-2'>
-            <Card
-              size='sm'
-              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
-            >
-              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
-                <div className='flex items-center gap-3'>
-                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-red-600 text-white shadow-sm'>
-                    <MessageSquare className='h-5 w-5' />
-                  </div>
-                  <div>
-                    <CardTitle className='text-lg font-semibold text-gray-900'>
-                      Customer Invoices
-                    </CardTitle>
-                    <CardDescription className='text-gray-500 mt-0.5'>
-                      Enquiries, applications, finance, and accident reports
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className='p-2'>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-                  {InvoiceStats.map((stat, i) => (
-                    <StatCard key={stat.title} {...stat} index={i} />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value='sales-data' className='mt-2'>
             <div className='flex justify-end'>
-              <Link to='/service-admin/data-import/upload'>
-                <Button className='bg-blue-600 hover:bg-blue-700'>
-                  <UploadCloud className='w-4 h-4 mr-2' />
+              <Link to='/service-admin/service-records'>
+                <Button className='bg-green-700 text-white hover:bg-blue-700'>
+                  <UploadCloud className='w-4 h-4 mr-2 ' />
                   Upload Data
                 </Button>
               </Link>

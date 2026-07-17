@@ -49,10 +49,13 @@ type Stage =
 
 interface UploadDataImportFormProps {
   dashboardPath?: string;
+  /** Lock the dataset type and hide the picker — for purpose-built pages. */
+  fixedDatasetType?: DatasetType;
 }
 
 export default function UploadDataImportForm({
   dashboardPath = "/",
+  fixedDatasetType,
 }: UploadDataImportFormProps) {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -69,7 +72,9 @@ export default function UploadDataImportForm({
   const datasets = configData?.data?.datasets ?? [];
 
   const [stage, setStage] = useState<Stage>("idle");
-  const [datasetType, setDatasetType] = useState<DatasetType | "">("");
+  const [datasetType, setDatasetType] = useState<DatasetType | "">(
+    fixedDatasetType ?? "",
+  );
   const [branchId, setBranchId] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -164,21 +169,28 @@ export default function UploadDataImportForm({
               <label className='block text-xs font-medium text-gray-500 mb-1'>
                 Dataset type
               </label>
-              <select
-                value={datasetType}
-                onChange={(e) => {
-                  setDatasetType(e.target.value as DatasetType);
-                  resetAll();
-                }}
-                className='w-full h-9 rounded-md border border-gray-200 bg-white px-3 text-sm'
-              >
-                <option value=''>Select dataset type…</option>
-                {datasets.map((d) => (
-                  <option key={d.datasetType} value={d.datasetType}>
-                    {d.label}
-                  </option>
-                ))}
-              </select>
+              {fixedDatasetType ? (
+                <div className='h-9 flex items-center rounded-md border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700'>
+                  {datasets.find((d) => d.datasetType === fixedDatasetType)
+                    ?.label ?? fixedDatasetType}
+                </div>
+              ) : (
+                <select
+                  value={datasetType}
+                  onChange={(e) => {
+                    setDatasetType(e.target.value as DatasetType);
+                    resetAll();
+                  }}
+                  className='w-full h-9 rounded-md border border-gray-200 bg-white px-3 text-sm'
+                >
+                  <option value=''>Select dataset type…</option>
+                  {datasets.map((d) => (
+                    <option key={d.datasetType} value={d.datasetType}>
+                      {d.label}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {isSuperAdmin && (
@@ -381,20 +393,66 @@ export default function UploadDataImportForm({
           <CardHeader>
             <CardTitle className='flex items-center gap-2 text-lg'>
               <CheckCircle2 className='w-5 h-5 text-green-600' />
-              Imported {result.successCount}/{result.totalRows} rows
+              Imported {result.importedRows}/{result.totalRows} rows
             </CardTitle>
             <p className='text-sm text-gray-500'>
               Batch {result.batchId} · {result.sourceFormat.toUpperCase()} ·{" "}
-              {result.failureCount} skipped · {result.reviewCount} flagged for
-              review
+              {result.duplicateRows} duplicate · {result.reviewRows} flagged
+              for review
             </p>
           </CardHeader>
           <CardContent className='space-y-4'>
-            {result.reviewCount > 0 && (
+            {result.autoRegistration && (
+              <div className='rounded-lg border border-gray-200 p-4'>
+                <p className='text-sm font-semibold text-gray-700 mb-3'>
+                  Customer / vehicle auto-registration
+                </p>
+                <div className='grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm'>
+                  <div>
+                    <p className='text-xs text-gray-500'>New customers + vehicles</p>
+                    <p className='font-semibold text-gray-900'>
+                      {result.autoRegistration.customerCreatedVehicleCreated}
+                    </p>
+                  </div>
+                  <div>
+                    <p className='text-xs text-gray-500'>Vehicles created for existing customers</p>
+                    <p className='font-semibold text-gray-900'>
+                      {result.autoRegistration.customerMatchedVehicleCreated}
+                    </p>
+                  </div>
+                  <div>
+                    <p className='text-xs text-gray-500'>Existing vehicles updated</p>
+                    <p className='font-semibold text-gray-900'>
+                      {result.autoRegistration.vehicleMatchedServiceUpdated}
+                    </p>
+                  </div>
+                  <div>
+                    <p className='text-xs text-gray-500'>Free services disabled</p>
+                    <p className='font-semibold text-gray-900'>
+                      {result.autoRegistration.freeServicesDisabled}
+                    </p>
+                  </div>
+                  <div>
+                    <p className='text-xs text-gray-500'>Conflicts</p>
+                    <p className='font-semibold text-gray-900'>
+                      {result.autoRegistration.conflicts}
+                    </p>
+                  </div>
+                  <div>
+                    <p className='text-xs text-gray-500'>Skipped</p>
+                    <p className='font-semibold text-gray-900'>
+                      {result.autoRegistration.skipped}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {result.reviewRows > 0 && (
               <div className='flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800'>
                 <AlertTriangle className='w-4 h-4 mt-0.5 shrink-0' />
                 <span>
-                  {result.reviewCount} row(s) need manual review — verify them
+                  {result.reviewRows} row(s) need manual review — verify them
                   in the dataset list.
                 </span>
               </div>

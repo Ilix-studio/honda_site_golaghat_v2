@@ -80,6 +80,9 @@ const AllBikesForAdmin = lazy(
 const AdminUploadDataImport = () => (
   <UploadDataImportForm dashboardPath='/admin/data-import' />
 );
+const NewCustomerList = lazy(
+  () => import("@/mainComponents/shared/NewCustomerList"),
+);
 //
 export const adminAuthRoutes = [
   { path: "/admin/login", component: LoginSuperAdmin },
@@ -128,6 +131,12 @@ export const sharedBikeRoutes = [
 
   { path: "/accident-reports", component: GetAllAccidentReports },
   { path: "/accident-reports/:id", component: GetAllAccidentReportsById },
+];
+
+// Read-only, accessible by every admin/staff role (gated by
+// SharedAllRolesRouteWrapper) — currently just the New Customer List.
+export const sharedCustomerRoutes = [
+  { path: "/customers/new", component: NewCustomerList },
 ];
 
 // Kept separate for LoginBranchManager — used in manager auth flow

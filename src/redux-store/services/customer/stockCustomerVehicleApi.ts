@@ -82,6 +82,11 @@ export interface IStockConcept {
     roadTax: number;
     onRoadPrice: number;
   };
+  serviceExpenses?: {
+    partsRevenue: number;
+    lubesRevenue: number;
+    totalJobCardRevenue: number;
+  };
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

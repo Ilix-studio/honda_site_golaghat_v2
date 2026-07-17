@@ -56,20 +56,29 @@ export interface PreviewResponse {
   };
 }
 
+export interface AutoRegistrationSummary {
+  vehicleMatchedServiceUpdated: number;
+  customerCreatedVehicleCreated: number;
+  customerMatchedVehicleCreated: number;
+  conflicts: number;
+  skipped: number;
+  freeServicesDisabled: number;
+}
+
 export interface CommitResponse {
   success: boolean;
   message: string;
   data: {
     success: boolean;
     totalRows: number;
-    successCount: number;
-    failureCount: number;
-    reviewCount: number;
+    importedRows: number;
+    duplicateRows: number;
+    reviewRows: number;
     batchId: string;
     sourceFormat: SourceFormat;
     detectedColumns: string[];
-    created: string[];
     errors: { row: number; data: Record<string, any>; error: string }[];
+    autoRegistration?: AutoRegistrationSummary;
   };
 }
 
