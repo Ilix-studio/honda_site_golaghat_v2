@@ -51,22 +51,22 @@ const BranchManagerDashboard = () => {
 
   const { data: staffData, isLoading: staffLoading } = useGetAllStaffQuery(
     undefined,
-    { skip: !isAuthenticated },
+    { skip: !isAuthenticated }
   );
 
   const { data: vasData, isLoading: vasLoading } = useGetAllVASQuery(
     { page: 1, limit: 1 },
-    { skip: !isAuthenticated },
+    { skip: !isAuthenticated }
   );
 
   const { data: stockData, isLoading: stockLoading } = useGetAllStockItemsQuery(
     { page: 1, limit: 1 },
-    { skip: !isAuthenticated },
+    { skip: !isAuthenticated }
   );
 
   const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
     {},
-    { skip: !isAuthenticated },
+    { skip: !isAuthenticated }
   );
   const { data: partsAdminData, isLoading: partsAdminLoading } =
     useGetAllPartAdminsQuery();
@@ -106,7 +106,6 @@ const BranchManagerDashboard = () => {
       icon: User,
       loading: customersLoading,
       description: "Total Customers",
-      accent: "#f97316",
       action: { label: "Open Sign-up form", href: "/manager/customers/signup" },
     },
     {
@@ -115,7 +114,6 @@ const BranchManagerDashboard = () => {
       icon: Settings2,
       loading: staffLoading,
       description: "Active other staff",
-      accent: "#427AB5",
       action: {
         label: "Add Other Staff",
         href: "/manager/staff",
@@ -127,7 +125,6 @@ const BranchManagerDashboard = () => {
       icon: TrendingUp,
       loading: vasLoading,
       description: "Activate VAS on vehicles",
-      accent: "#10b981",
       action: { label: "Open VAS Manager", href: "/manager/vas/select" },
     },
     {
@@ -136,7 +133,6 @@ const BranchManagerDashboard = () => {
       icon: Activity,
       loading: stockLoading,
       description: "Inventory Details",
-      accent: "#f59e0b",
       action: { label: "Open Stock-Inventory", href: "/manager/stockC/select" },
     },
 
@@ -146,7 +142,6 @@ const BranchManagerDashboard = () => {
       icon: Package,
       loading: partsAdminLoading,
       description: "Create & manage Part Admins for your branch",
-      accent: "#2563eb",
       action: { label: "Manage Part Admins", href: "/manager/part-admins" },
     },
     {
@@ -155,7 +150,6 @@ const BranchManagerDashboard = () => {
       icon: Cog,
       loading: serviceAdminsLoading,
       description: "Create & manage Service Admins for your branch",
-      accent: "#0ea5e9",
       action: {
         label: "Manage Service Admins",
         href: "/manager/service-admins",
@@ -168,7 +162,6 @@ const BranchManagerDashboard = () => {
       icon: Regex,
       loading: myLeaveLoading,
       description: "My Leave Application",
-      accent: "#f50b0bff",
       action: { label: "Open", href: "/manager/apply-leave" },
     },
   ];

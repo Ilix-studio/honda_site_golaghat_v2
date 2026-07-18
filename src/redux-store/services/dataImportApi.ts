@@ -10,6 +10,7 @@ import type {
   DatasetRowsFilters,
   SalesTimeseriesResponse,
   SalesTimeseriesFilters,
+  PartsStockStatusResponse,
 } from "./dataImport.types";
 
 export const dataImportApi = apiSlice.injectEndpoints({
@@ -85,6 +86,16 @@ export const dataImportApi = apiSlice.injectEndpoints({
       },
       providesTags: ["SalesTimeseries"],
     }),
+
+    getPartsStockStatus: builder.query<PartsStockStatusResponse, { branchId?: string } | void>({
+      query: (filters) => {
+        const p = new URLSearchParams();
+        if (filters?.branchId) p.append("branchId", filters.branchId);
+        const qs = p.toString();
+        return `/data-import/parts-stock/status${qs ? `?${qs}` : ""}`;
+      },
+      providesTags: ["DataImportDataset"],
+    }),
   }),
 });
 
@@ -96,4 +107,5 @@ export const {
   useGetDatasetRowsQuery,
   useDeleteDatasetMutation,
   useGetSalesTimeseriesQuery,
+  useGetPartsStockStatusQuery,
 } = dataImportApi;

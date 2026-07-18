@@ -50,7 +50,7 @@ class ErrorBoundary extends Component<Props, State> {
                 We apologize for the inconvenience. Please refresh the page or
                 try again later.
               </p>
-              {process.env.NODE_ENV === "development" && this.state.error && (
+              {import.meta.env.DEV && this.state.error && (
                 <details className='mt-4 text-left'>
                   <summary className='cursor-pointer text-sm font-medium text-gray-700'>
                     Error Details

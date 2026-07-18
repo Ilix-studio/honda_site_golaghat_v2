@@ -53,7 +53,7 @@ const DashServiceAdmins = () => {
   });
   const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
     {},
-    { skip: !isAuthenticated },
+    { skip: !isAuthenticated }
   );
   const { data: newCustomersData, isLoading: newCustomersLoading } =
     useGetNewCustomersQuery({ limit: 1 }, { skip: !isAuthenticated });
@@ -91,7 +91,6 @@ const DashServiceAdmins = () => {
       icon: Wrench,
       loading: serviceBookingLoading,
       description: "Total Service Bookings",
-      accent: "#3b82f6",
       action: {
         label: "Open Service Booking form",
         href: "/service-admin/service-bookings",
@@ -103,7 +102,6 @@ const DashServiceAdmins = () => {
       icon: User,
       loading: serviceBookingLoading,
       description: "Total Job Cards",
-      accent: "#ac3ea7ff",
       action: {
         label: "Open Job Card form",
         href: "/service-admin/job-card",
@@ -116,7 +114,6 @@ const DashServiceAdmins = () => {
       icon: Activity,
       loading: myLeaveLoading,
       description: "My Leave Application",
-      accent: "#f59e0b",
       action: { label: "Open", href: "/service-admin/apply-leave" },
     },
     {
@@ -125,7 +122,6 @@ const DashServiceAdmins = () => {
       icon: Wrench,
       loading: false,
       description: "Job card catalog",
-      accent: "#1f8438ff",
       action: { label: "Open", href: "/service-admin/catalog" },
     },
     {
@@ -134,7 +130,6 @@ const DashServiceAdmins = () => {
       icon: Users,
       loading: newCustomersLoading,
       description: "All Customer Detected by this project",
-      accent: "#222222c2",
       action: { label: "Open", href: "/customers/new" },
     },
   ];

@@ -41,13 +41,13 @@ const DashStaff = () => {
 
   const { data: timetrackBatches } = useGetDatasetsQuery(
     { datasetType: "service-timetrack", page: 1, limit: 1 },
-    { skip: !isAuthenticated },
+    { skip: !isAuthenticated }
   );
   const latestTimetrackBatchId = timetrackBatches?.data?.[0]?.batchId;
   const { data: timetrackRows, isLoading: timetrackLoading } =
     useGetDatasetRowsQuery(
       { batchId: latestTimetrackBatchId as string, page: 1, limit: 50 },
-      { skip: !latestTimetrackBatchId },
+      { skip: !latestTimetrackBatchId }
     );
 
   useEffect(() => {
@@ -84,7 +84,6 @@ const DashStaff = () => {
       icon: Activity,
       loading: false,
       description: "Leave Application",
-      accent: "#f59e0b",
       action: { label: "Open", href: "/staff/apply-leave" },
     },
 
@@ -94,7 +93,6 @@ const DashStaff = () => {
       icon: User,
       loading: serviceBookingLoading,
       description: "Number of stickers sold",
-      accent: "#f97316",
       action: {
         label: "Sell Stickers",
         href: "/buy-sticker",
@@ -108,7 +106,6 @@ const DashStaff = () => {
       description: latestTimetrackBatchId
         ? `From batch ${latestTimetrackBatchId}`
         : "No time-track import yet",
-      accent: "#0891b2",
       action: { label: "Upload data", href: "/staff/data-import/upload" },
     },
   ];

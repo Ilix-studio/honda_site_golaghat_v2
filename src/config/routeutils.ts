@@ -72,7 +72,7 @@ export const ROUTES = {
   PART_ADMIN: {
     LOGIN: "/part-admin/login",
     DASHBOARD: "/part-admin/dashboard",
-    UPLOAD: "/part-admin/upload",
+    UPLOAD: "/part-admin/parts-stock/upload",
   },
 
   STAFF: {

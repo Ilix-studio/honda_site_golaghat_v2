@@ -23,6 +23,8 @@ import { useGetVisitorStatsQuery } from "@/redux-store/services/visitorApi";
 import { formatTimeAgo, MetricTile, StatCard, StatCardProps } from "./StatCard";
 
 import SeparateStats from "./StatsUI/SeparateStats";
+import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
+import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
 
 // ─── main ────────────────────────────────────────────────────────────────────
 const BranchQueries = () => {
@@ -36,6 +38,11 @@ const BranchQueries = () => {
   const { data: visitorStatsData } = useGetVisitorStatsQuery();
   const { data: partsAdminData, isLoading: partsAdminLoading } =
     useGetAllPartAdminsQuery();
+  const { data: allVehicleData, isLoading: bikesLoading } = useGetBikesQuery(
+    {}
+  );
+  const { data: newCustomersData, isLoading: newCustomersLoading } =
+    useGetNewCustomersQuery({ limit: 1 }, { skip: false });
 
   const stats: Omit<StatCardProps, "index">[] = [
     {
@@ -44,8 +51,6 @@ const BranchQueries = () => {
       icon: Building2,
       loading: branchesLoading,
       description: "Service locations",
-      accent: "#3b82f6",
-      // action: { label: "Add Branch", href: "/admin/branches/add" },
       action: { label: "View Branches", href: "/admin/branches" },
     },
     {
@@ -54,7 +59,6 @@ const BranchQueries = () => {
       icon: Users,
       loading: managersLoading,
       description: "Active managers",
-      accent: "#8b5cf6",
       action: { label: "Add Manager", href: "/admin/branches/managers" },
     },
     {
@@ -63,7 +67,6 @@ const BranchQueries = () => {
       icon: Settings,
       loading: serviceManagersLoading,
       description: "Active service admins",
-      accent: "#170C79",
       action: {
         label: "Add Service Admin",
         href: "/admin/branches/service-admins",
@@ -75,7 +78,6 @@ const BranchQueries = () => {
       icon: Wrench,
       loading: partsAdminLoading,
       description: "Active parts admins",
-      accent: "#47a761ff",
       action: {
         label: "View Parts Admins",
         href: "/admin/branches/part-admins",
@@ -87,7 +89,6 @@ const BranchQueries = () => {
       icon: PersonStanding,
       loading: staffLoading,
       description: "Active staff",
-      accent: "#de2525ff",
       action: {
         label: "View Staff",
         href: "/admin/viewStaff",
@@ -96,14 +97,22 @@ const BranchQueries = () => {
 
     {
       title: "View All Vehicles",
+      value: allVehicleData?.data.pagination.total ?? 0,
       icon: Bike,
-      loading: staffLoading,
+      loading: bikesLoading,
       description: "All Vehicles shown in Homepage",
-      accent: "#e7d20fff",
       action: {
         label: "View Vehicles",
         href: "/admin/viewVehicles",
       },
+    },
+    {
+      title: "View Customer List",
+      value: newCustomersData?.pagination.total ?? 0,
+      icon: Users,
+      loading: newCustomersLoading,
+      description: "All Customer Detected by this project",
+      action: { label: "Open", href: "/customers/new" },
     },
   ];
 
@@ -118,20 +127,6 @@ const BranchQueries = () => {
         transition={{ duration: 0.4 }}
         className='space-y-4'
       >
-        <div className='flex items-center gap-2.5 px-0.5'>
-          <div className='w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center'>
-            <Building2 className='w-4 h-4 text-blue-500' />
-          </div>
-          <div>
-            <h3 className='text-sm font-bold text-gray-900'>
-              Branch Overview
-            </h3>
-            <p className='text-xs text-gray-400'>
-              Locations, team, and roles at a glance
-            </p>
-          </div>
-        </div>
-
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
           {stats.map((s, i) => (
             <StatCard key={s.title} {...s} index={i} />
@@ -147,7 +142,7 @@ const BranchQueries = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className='rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden'
+          className='rounded-2xl bg-white border border-gray-300 shadow-sm overflow-hidden'
         >
           {/* panel header */}
           <div className='flex items-center justify-between px-6 py-4 border-b border-gray-100'>
@@ -159,14 +154,14 @@ const BranchQueries = () => {
                 <h3 className='text-sm font-bold text-gray-900'>
                   Visitor Analytics
                 </h3>
-                <p className='text-xs text-gray-400'>
+                <p className='text-xs text-gray-500'>
                   Real-time traffic overview
                 </p>
               </div>
             </div>
 
             {vs.lastVisit && (
-              <div className='hidden sm:flex items-center gap-1.5 text-xs text-gray-400'>
+              <div className='hidden sm:flex items-center gap-1.5 text-xs text-gray-500'>
                 <Clock className='w-3 h-3' />
                 Last visit: {formatTimeAgo(vs.lastVisit)}
               </div>
@@ -221,13 +216,13 @@ const BranchQueries = () => {
                       Math.max(vs.totalVisitors ?? 1, 1)) *
                       100 *
                       10,
-                    100,
+                    100
                   )}%`,
                 }}
                 transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
               />
             </div>
-            <p className='text-xs text-gray-400 mt-1.5'>
+            <p className='text-xs text-gray-500 mt-1.5'>
               Today's share of total traffic
             </p>
           </div>

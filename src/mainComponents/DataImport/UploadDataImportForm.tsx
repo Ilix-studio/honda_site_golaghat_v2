@@ -1,11 +1,10 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppSelector } from "@/hooks/redux";
+import { useAppSelector, useAppDispatch } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
 import {
   useGetDataImportConfigQuery,
-  usePreviewImportMutation,
-  useCommitImportMutation,
+  dataImportApi,
 } from "@/redux-store/services/dataImportApi";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 import type {
@@ -13,6 +12,12 @@ import type {
   PreviewResponse,
   CommitResponse,
 } from "@/redux-store/services/dataImport.types";
+import {
+  uploadWithProgress,
+  formatEta,
+  type UploadProgress,
+  type UploadWithProgressError,
+} from "@/lib/uploadWithProgress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ColumnMatchTable from "./ColumnMatchTable";
@@ -58,16 +63,15 @@ export default function UploadDataImportForm({
   fixedDatasetType,
 }: UploadDataImportFormProps) {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const inputRef = useRef<HTMLInputElement>(null);
-  const { user } = useAppSelector(selectAuth);
+  const { user, token } = useAppSelector(selectAuth);
   const isSuperAdmin = user?.role === "Super-Admin";
 
   const { data: configData } = useGetDataImportConfigQuery();
   const { data: branchesData } = useGetBranchesQuery(undefined, {
     skip: !isSuperAdmin,
   });
-  const [previewImport, { isLoading: isPreviewing }] = usePreviewImportMutation();
-  const [commitImport, { isLoading: isCommitting }] = useCommitImportMutation();
 
   const datasets = configData?.data?.datasets ?? [];
 
@@ -83,6 +87,9 @@ export default function UploadDataImportForm({
   const [preview, setPreview] = useState<PreviewResponse["data"] | null>(null);
   const [result, setResult] = useState<CommitResponse["data"] | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(
+    null,
+  );
 
   const handleFileSelect = (selected: File) => {
     const err = validateFile(selected);
@@ -111,14 +118,21 @@ export default function UploadDataImportForm({
   const runPreview = async (sheet?: string) => {
     if (!file || !datasetType) return;
     setApiError(null);
+    setUploadProgress(null);
     setStage("uploading");
     try {
-      const res = await previewImport(buildFormData(sheet)).unwrap();
+      const res = await uploadWithProgress<PreviewResponse>(
+        "/data-import/preview",
+        buildFormData(sheet),
+        token,
+        setUploadProgress,
+      );
       setPreview(res.data);
       if (res.data.sheetUsed) setSheetName(res.data.sheetUsed);
       setStage("validation");
-    } catch (err: any) {
-      setApiError(err?.data?.message || "Preview failed. Please try again.");
+    } catch (err) {
+      const uploadErr = err as UploadWithProgressError;
+      setApiError(uploadErr?.data?.message || "Preview failed. Please try again.");
       setStage("error");
     }
   };
@@ -131,13 +145,25 @@ export default function UploadDataImportForm({
   const handleCommit = async () => {
     if (!file || !datasetType || !preview) return;
     setApiError(null);
+    setUploadProgress(null);
     setStage("committing");
     try {
-      const res = await commitImport(buildFormData(sheetName || undefined)).unwrap();
+      const res = await uploadWithProgress<CommitResponse>(
+        "/data-import/commit",
+        buildFormData(sheetName || undefined),
+        token,
+        setUploadProgress,
+      );
       setResult(res.data);
       setStage("result");
-    } catch (err: any) {
-      setApiError(err?.data?.message || "Commit failed. Please try again.");
+      // uploadWithProgress bypasses RTK Query, so replicate commitImport's
+      // invalidatesTags manually to keep batch lists / sales charts fresh.
+      dispatch(
+        dataImportApi.util.invalidateTags(["DataImportDataset", "SalesTimeseries"]),
+      );
+    } catch (err) {
+      const uploadErr = err as UploadWithProgressError;
+      setApiError(uploadErr?.data?.message || "Commit failed. Please try again.");
       setStage("error");
     }
   };
@@ -149,9 +175,10 @@ export default function UploadDataImportForm({
     setResult(null);
     setApiError(null);
     setSheetName("");
+    setUploadProgress(null);
   };
 
-  const isBusy = isPreviewing || isCommitting;
+  const isBusy = stage === "uploading" || stage === "committing";
 
   return (
     <div className='max-w-3xl mx-auto p-6 space-y-6'>
@@ -255,6 +282,10 @@ export default function UploadDataImportForm({
               }}
             />
           </div>
+
+          {stage === "uploading" && (
+            <UploadProgressBar progress={uploadProgress} label='Uploading' />
+          )}
 
           {validationError && (
             <div className='flex items-center gap-2 text-red-600 text-sm'>
@@ -364,13 +395,17 @@ export default function UploadDataImportForm({
               </div>
             )}
 
+            {stage === "committing" && (
+              <UploadProgressBar progress={uploadProgress} label='Importing' />
+            )}
+
             <div className='flex gap-3'>
               <Button
                 onClick={handleCommit}
                 disabled={preview.missingRequired.length > 0 || isBusy}
                 className='bg-emerald-600 hover:bg-emerald-700'
               >
-                {isCommitting ? (
+                {stage === "committing" ? (
                   <>
                     <Loader2 className='w-4 h-4 mr-2 animate-spin' />
                     Importing...
@@ -488,6 +523,32 @@ export default function UploadDataImportForm({
           </CardContent>
         </Card>
       )}
+    </div>
+  );
+}
+
+function UploadProgressBar({
+  progress,
+  label,
+}: {
+  progress: UploadProgress | null;
+  label: string;
+}) {
+  const percent = progress?.percent ?? 0;
+  return (
+    <div className='space-y-1.5'>
+      <div className='flex items-center justify-between text-xs text-gray-500'>
+        <span>
+          {label}... {percent}%
+        </span>
+        <span>{formatEta(progress?.etaSeconds ?? null)}</span>
+      </div>
+      <div className='h-2 w-full rounded-full bg-gray-100 overflow-hidden'>
+        <div
+          className='h-full bg-blue-600 transition-[width] duration-200'
+          style={{ width: `${percent}%` }}
+        />
+      </div>
     </div>
   );
 }

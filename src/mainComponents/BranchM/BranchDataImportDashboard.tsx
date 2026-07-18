@@ -18,21 +18,23 @@ import { Bike, Wallet, UploadCloud } from "lucide-react";
 export default function BranchDataImportDashboard() {
   const [granularity, setGranularity] = useState<Granularity>("day");
 
-  const { data: salesData, isLoading: salesLoading } = useGetSalesTimeseriesQuery({
-    granularity,
-  });
+  const { data: salesData, isLoading: salesLoading } =
+    useGetSalesTimeseriesQuery({
+      granularity,
+    });
 
-  const { data: vehicleBatches, isLoading: batchesLoading } = useGetDatasetsQuery({
-    datasetType: "vehicle-stock",
-    page: 1,
-    limit: 1,
-  });
+  const { data: vehicleBatches, isLoading: batchesLoading } =
+    useGetDatasetsQuery({
+      datasetType: "vehicle-stock",
+      page: 1,
+      limit: 1,
+    });
 
   const latestBatchId = vehicleBatches?.data?.[0]?.batchId;
 
   const { data: vehicleRows, isLoading: rowsLoading } = useGetDatasetRowsQuery(
     { batchId: latestBatchId as string, page: 1, limit: 500 },
-    { skip: !latestBatchId },
+    { skip: !latestBatchId }
   );
 
   const stockKpis = useMemo(() => {
@@ -40,7 +42,7 @@ export default function BranchDataImportDashboard() {
     const totalVehicles = rows.length;
     const totalCostValue = rows.reduce(
       (sum, r) => sum + (Number(r.normalized?.costPrice) || 0),
-      0,
+      0
     );
     return { totalVehicles, totalCostValue };
   }, [vehicleRows]);
@@ -51,9 +53,13 @@ export default function BranchDataImportDashboard() {
       value: batchesLoading || rowsLoading ? "—" : stockKpis.totalVehicles,
       icon: Bike,
       loading: batchesLoading || rowsLoading,
-      description: latestBatchId ? `From batch ${latestBatchId}` : "No stock import yet",
-      accent: "#2563eb",
-      action: { label: "Upload stock file", href: "/manager/data-import/upload" },
+      description: latestBatchId
+        ? `From batch ${latestBatchId}`
+        : "No stock import yet",
+      action: {
+        label: "Upload stock file",
+        href: "/manager/data-import/upload",
+      },
     },
     {
       title: "Stock Cost Value",
@@ -64,8 +70,10 @@ export default function BranchDataImportDashboard() {
       icon: Wallet,
       loading: batchesLoading || rowsLoading,
       description: "Sum of cost price, latest batch",
-      accent: "#7c3aed",
-      action: { label: "Upload stock file", href: "/manager/data-import/upload" },
+      action: {
+        label: "Upload stock file",
+        href: "/manager/data-import/upload",
+      },
     },
   ];
 
@@ -107,7 +115,9 @@ export default function BranchDataImportDashboard() {
         </CardHeader>
         <CardContent>
           {!vehicleRows?.data?.length ? (
-            <p className='text-sm text-gray-400'>No vehicle stock imported yet.</p>
+            <p className='text-sm text-gray-400'>
+              No vehicle stock imported yet.
+            </p>
           ) : (
             <div className='overflow-x-auto'>
               <table className='w-full text-sm'>

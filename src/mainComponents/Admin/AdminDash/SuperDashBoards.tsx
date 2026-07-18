@@ -3,6 +3,7 @@ import { useGetPartsStatsQuery } from "@/redux-store/services/partsApi";
 import {
   useGetDatasetsQuery,
   useGetSalesTimeseriesQuery,
+  useGetPartsStockStatusQuery,
 } from "@/redux-store/services/dataImportApi";
 import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetVasAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
@@ -28,6 +29,8 @@ import {
   ShieldCheck,
   IndianRupee,
   CalendarDays,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
 import SalesTrendChart from "@/mainComponents/DataImport/SalesTrendChart";
@@ -70,6 +73,10 @@ function PartsDashboard() {
   const { data, isLoading } = useGetPartsStatsQuery({ year });
   const stats = data?.data;
 
+  const { data: stockStatusData, isLoading: stockStatusLoading } =
+    useGetPartsStockStatusQuery();
+  const stockStatus = stockStatusData?.data;
+
   const kpis: Omit<StatCardProps, "index">[] = [
     {
       title: "Total Parts",
@@ -77,7 +84,6 @@ function PartsDashboard() {
       icon: Package,
       loading: isLoading,
       description: "All branches",
-      accent: "#2563eb",
       action: { label: "Details", href: "/admin/dashboard" },
     },
     {
@@ -86,7 +92,6 @@ function PartsDashboard() {
       icon: Layers,
       loading: isLoading,
       description: "Report uploads",
-      accent: "#7c3aed",
       action: { label: "Details", href: "/admin/dashboard" },
     },
     {
@@ -95,7 +100,6 @@ function PartsDashboard() {
       icon: AlertTriangle,
       loading: isLoading,
       description: "Flagged PDF rows",
-      accent: "#d97706",
       action: { label: "Details", href: "/admin/dashboard" },
     },
   ];
@@ -147,6 +151,68 @@ function PartsDashboard() {
           )}
         </CardContent>
       </Card>
+
+      <Card size='sm' className='border border-gray-100 rounded-2xl shadow-sm'>
+        <CardHeader>
+          <CardTitle className='text-base font-semibold text-gray-900'>
+            Stock Value — Sold vs Not Sold
+          </CardTitle>
+          <p className='text-sm text-gray-500'>
+            By Stock Value across every uploaded parts-stock file: present and
+            &gt; 0 counts as sold, null/missing/0 counts as not sold.
+          </p>
+        </CardHeader>
+        <CardContent>
+          {stockStatusLoading ? (
+            <div className='h-20 flex items-center justify-center'>
+              <p className='text-sm text-gray-400 animate-pulse'>Loading...</p>
+            </div>
+          ) : !stockStatus || stockStatus.totalItems === 0 ? (
+            <p className='text-sm text-gray-400'>
+              No parts-stock items imported yet.
+            </p>
+          ) : (
+            <div className='space-y-3'>
+              <div>
+                <p className='text-xs text-gray-500'>Total Stock Value</p>
+                <p className='text-2xl font-bold text-gray-900'>
+                  ₹{stockStatus.totalStockValue.toLocaleString("en-IN")}
+                </p>
+              </div>
+              <div className='flex items-center gap-6'>
+                <div className='flex items-center gap-2'>
+                  <CheckCircle2 className='h-4 w-4 text-emerald-600' />
+                  <span className='text-sm text-gray-700'>
+                    <span className='font-semibold text-gray-900'>
+                      {stockStatus.soldCount}
+                    </span>{" "}
+                    sold
+                  </span>
+                </div>
+                <div className='flex items-center gap-2'>
+                  <XCircle className='h-4 w-4 text-gray-400' />
+                  <span className='text-sm text-gray-700'>
+                    <span className='font-semibold text-gray-900'>
+                      {stockStatus.notSoldCount}
+                    </span>{" "}
+                    not sold
+                  </span>
+                </div>
+                <span className='text-sm text-gray-500 ml-auto'>
+                  {stockStatus.totalItems} total items ·{" "}
+                  {stockStatus.soldPercent}% sold
+                </span>
+              </div>
+              <div className='h-2 w-full rounded-full bg-gray-100 overflow-hidden'>
+                <div
+                  className='h-full bg-emerald-500'
+                  style={{ width: `${stockStatus.soldPercent}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -166,9 +232,9 @@ function VehicleStockDashboard() {
           imported: acc.imported + b.importedRows,
           review: acc.review + b.reviewRows,
         }),
-        { imported: 0, review: 0 },
+        { imported: 0, review: 0 }
       ),
-    [data],
+    [data]
   );
   const batchCount = data?.data?.length ?? 0;
 
@@ -179,7 +245,6 @@ function VehicleStockDashboard() {
       icon: Bike,
       loading: isLoading,
       description: "All branches",
-      accent: "#2563eb",
       action: { label: "Upload", href: "/admin/data-import/upload" },
     },
     {
@@ -188,7 +253,6 @@ function VehicleStockDashboard() {
       icon: Layers,
       loading: isLoading,
       description: "Stock file uploads",
-      accent: "#7c3aed",
       action: { label: "Upload", href: "/admin/data-import/upload" },
     },
     {
@@ -197,7 +261,6 @@ function VehicleStockDashboard() {
       icon: AlertTriangle,
       loading: isLoading,
       description: "Flagged rows",
-      accent: "#d97706",
       action: { label: "Upload", href: "/admin/data-import/upload" },
     },
   ];
@@ -237,7 +300,7 @@ function ServiceDashboard() {
 
   const timeseries = useMemo(
     () => salesData?.data?.timeseries ?? [],
-    [salesData],
+    [salesData]
   );
   const revenueTotals = useMemo(
     () =>
@@ -247,12 +310,14 @@ function ServiceDashboard() {
           lubesRevenue: acc.lubesRevenue + t.lubesRevenue,
           totalJobCardRevenue: acc.totalJobCardRevenue + t.totalRevenue,
         }),
-        { partsRevenue: 0, lubesRevenue: 0, totalJobCardRevenue: 0 },
+        { partsRevenue: 0, lubesRevenue: 0, totalJobCardRevenue: 0 }
       ),
-    [timeseries],
+    [timeseries]
   );
   const formatCurrency = (v: number) =>
-    v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` : `₹${v.toLocaleString("en-IN")}`;
+    v >= 100000
+      ? `₹${(v / 100000).toFixed(1)}L`
+      : `₹${v.toLocaleString("en-IN")}`;
 
   const kpis: Omit<StatCardProps, "index">[] = [
     {
@@ -261,7 +326,6 @@ function ServiceDashboard() {
       icon: Wrench,
       loading: jobcardLoading,
       description: "Historical revenue import",
-      accent: "#2563eb",
       action: { label: "Upload", href: "/admin/data-import/upload" },
     },
     {
@@ -270,7 +334,7 @@ function ServiceDashboard() {
       icon: Layers,
       loading: timetrackLoading,
       description: "Technician time entries",
-      accent: "#7c3aed",
+
       action: { label: "Upload", href: "/admin/data-import/upload" },
     },
   ];
@@ -282,7 +346,6 @@ function ServiceDashboard() {
       icon: Package,
       loading: salesLoading,
       description: `Selected range (${granularity})`,
-      accent: "#7c3aed",
       action: { label: "View", href: "/admin/data-import" },
     },
     {
@@ -291,7 +354,6 @@ function ServiceDashboard() {
       icon: IndianRupee,
       loading: salesLoading,
       description: `Selected range (${granularity})`,
-      accent: "#d97706",
       action: { label: "View", href: "/admin/data-import" },
     },
     {
@@ -302,7 +364,6 @@ function ServiceDashboard() {
       icon: Wrench,
       loading: salesLoading,
       description: `Selected range (${granularity})`,
-      accent: "#059669",
       action: { label: "View", href: "/admin/data-import" },
     },
   ];
@@ -343,7 +404,6 @@ function StockAssignDashboard() {
       icon: Handshake,
       loading: isLoading,
       description: `Year ${year}, all branches`,
-      accent: "#2563eb",
       action: { label: "Details", href: "/admin/dashboard" },
     },
     {
@@ -354,7 +414,6 @@ function StockAssignDashboard() {
       icon: Layers,
       loading: isLoading,
       description: "Sum of sale price",
-      accent: "#7c3aed",
       action: { label: "Details", href: "/admin/dashboard" },
     },
   ];
@@ -396,7 +455,6 @@ function VasAssignDashboard() {
       icon: ShieldCheck,
       loading: isLoading,
       description: `Year ${year}, all branches`,
-      accent: "#2563eb",
       action: { label: "Details", href: "/admin/dashboard" },
     },
     {
@@ -407,7 +465,6 @@ function VasAssignDashboard() {
       icon: Layers,
       loading: isLoading,
       description: "Sum of purchase price",
-      accent: "#7c3aed",
       action: { label: "Details", href: "/admin/dashboard" },
     },
   ];

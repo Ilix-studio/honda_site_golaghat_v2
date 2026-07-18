@@ -15,9 +15,9 @@ const routeConfig: Record<
     title: "Parts Admin Dashboard",
     subtitle: "Parts Inventory Management",
   },
-  "/part-admin/upload": {
-    title: "Upload Parts Report",
-    subtitle: "Import XLSX / CSV / PDF",
+  "/part-admin/parts-stock/upload": {
+    title: "Parts Stock Import",
+    subtitle: "Import XLSX / CSV",
     showBack: true,
     backTo: "/part-admin/dashboard",
   },
@@ -48,7 +48,7 @@ const PartAdminHeader = () => {
         addNotification({
           type: "success",
           message: result.message || "Logged out successfully",
-        }),
+        })
       );
     } catch (error: any) {
       dispatch(logout());
@@ -58,7 +58,7 @@ const PartAdminHeader = () => {
         addNotification({
           type: "error",
           message: error?.data?.message || "Error logging out",
-        }),
+        })
       );
     } finally {
       navigate("/part-admin/login", { replace: true });
@@ -113,7 +113,7 @@ const PartAdminHeader = () => {
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className='flex items-center gap-1.5 h-8 px-3 rounded-xl bg-red-600/10 hover:bg-red-600/20 border border-red-600/20 hover:border-red-600/40 text-red-400 hover:text-red-300 text-xs font-semibold transition-all disabled:opacity-50'
+              className='flex items-center gap-1.5 h-8 px-3 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 border border-blue-600/20 hover:border-blue-600/40 text-blue-400 hover:text-blue-300 text-xs font-semibold transition-all disabled:opacity-50'
             >
               <LogOut className='w-3.5 h-3.5' />
               <span className='hidden sm:inline'>

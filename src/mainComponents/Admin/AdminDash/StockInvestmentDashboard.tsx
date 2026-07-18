@@ -44,9 +44,9 @@ export default function StockInvestmentDashboard() {
           investment: acc.investment + b.totalCostPrice,
           revenue: acc.revenue + b.totalRevenue,
         }),
-        { investment: 0, revenue: 0 },
+        { investment: 0, revenue: 0 }
       ),
-    [batches],
+    [batches]
   );
 
   const kpis: Omit<StatCardProps, "index">[] = [
@@ -56,7 +56,6 @@ export default function StockInvestmentDashboard() {
       icon: IndianRupee,
       loading: isLoading,
       description: "Sum of cost price across uploaded batches",
-      accent: "#2563eb",
       action: { label: "Uploads", href: "/manager/get/csv" },
     },
     {
@@ -65,7 +64,6 @@ export default function StockInvestmentDashboard() {
       icon: TrendingUp,
       loading: isLoading,
       description: "Vehicle sales + VAS + parts",
-      accent: "#16a34a",
       action: { label: "Uploads", href: "/manager/get/csv" },
     },
     {
@@ -74,7 +72,6 @@ export default function StockInvestmentDashboard() {
       icon: Layers,
       loading: isLoading,
       description: "Stock-inventory file uploads",
-      accent: "#7c3aed",
       action: { label: "Uploads", href: "/manager/get/csv" },
     },
   ];
@@ -134,9 +131,7 @@ export default function StockInvestmentDashboard() {
                           {formatDate(b.uploadDate)}
                         </div>
                       </TableCell>
-                      <TableCell className='text-sm'>
-                        {b.branchName}
-                      </TableCell>
+                      <TableCell className='text-sm'>{b.branchName}</TableCell>
                       <TableCell className='text-right'>
                         {b.totalVehicles}
                       </TableCell>

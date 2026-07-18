@@ -1,20 +1,19 @@
 import { lazy } from "react";
 
 const LoginPartAdmin = lazy(
-  () => import("@/mainComponents/PartsM/LoginPartAdmin"),
+  () => import("@/mainComponents/PartsM/LoginPartAdmin")
 );
 const PartsAdminDashboard = lazy(
-  () => import("@/mainComponents/PartsM/PartsAdminDashboard"),
-);
-const UploadPartsReportForm = lazy(
-  () => import("@/mainComponents/PartsM/UploadPartsReportForm"),
+  () => import("@/mainComponents/PartsM/PartsAdminDashboard")
 );
 const ProfileView = lazy(() => import("@/mainComponents/shared/ProfileView"));
-const UploadDataImportForm = lazy(
-  () => import("@/mainComponents/DataImport/UploadDataImportForm"),
+
+const PartsStockImport = lazy(
+  () => import("@/mainComponents/PartsM/PartsStockImport")
 );
-const PartAdminUploadDataImport = () => (
-  <UploadDataImportForm dashboardPath='/part-admin/dashboard' />
+
+const PartsFolderDashboard = lazy(
+  () => import("@/mainComponents/PartsM/PartsFolderDashboard")
 );
 
 export const partAdminAuthRoutes = [
@@ -23,10 +22,14 @@ export const partAdminAuthRoutes = [
 
 export const partAdminRoutes = [
   { path: "/part-admin/dashboard", component: PartsAdminDashboard },
-  { path: "/part-admin/upload", component: UploadPartsReportForm },
   { path: "/part-admin/profile", component: ProfileView },
+
   {
-    path: "/part-admin/data-import/upload",
-    component: PartAdminUploadDataImport,
+    path: "/part-admin/parts-stock/upload",
+    component: PartsStockImport,
+  },
+  {
+    path: "/part-admin/folder",
+    component: PartsFolderDashboard,
   },
 ];

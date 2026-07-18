@@ -108,7 +108,7 @@ export default function CustomerMainDash() {
         </motion.div>
 
         {/* ── Dev token debugger ── */}
-        {process.env.NODE_ENV === "development" && (
+        {import.meta.env.DEV && (
           <div className='opacity-50 hover:opacity-100 transition-opacity'>
             {/* <TokenDebugger /> */}
           </div>
