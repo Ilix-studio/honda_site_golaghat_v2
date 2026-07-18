@@ -33,7 +33,9 @@ import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi
 import { useGetSalesTimeseriesQuery } from "@/redux-store/services/dataImportApi";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
-import SalesTrendChart from "@/mainComponents/DataImport/SalesTrendChart";
+import SalesKpiCharts, {
+  RevenueByBarChart,
+} from "@/mainComponents/DataImport/SalesKpiCharts";
 
 const DashServiceAdmins = () => {
   const navigate = useNavigate();
@@ -276,7 +278,7 @@ const DashServiceAdmins = () => {
           </TabsContent>
 
           <TabsContent value='sales-data' className='mt-2'>
-            <div className='flex justify-end'>
+            <div className='flex justify-end mb-3'>
               <Link to='/service-admin/service-records'>
                 <Button className='bg-green-700 text-white hover:bg-blue-700'>
                   <UploadCloud className='w-4 h-4 mr-2 ' />
@@ -285,92 +287,28 @@ const DashServiceAdmins = () => {
               </Link>
             </div>
 
-            <SalesTrendChart
+            <SalesKpiCharts
               granularity={granularity}
               onGranularityChange={setGranularity}
-              data={salesData?.data?.timeseries ?? []}
+              timeseries={salesData?.data?.timeseries ?? []}
+              byModel={salesData?.data?.byModel ?? []}
               loading={salesLoading}
+              emptyMessage='No sales data yet — upload a service-jobcard report to see revenue trends.'
             />
 
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-1 py-3'>
-              <Card size='sm' className='border border-gray-200 shadow-sm'>
-                <CardHeader>
-                  <CardTitle>Revenue by Model</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {!salesData?.data?.byModel?.length ? (
-                    <p className='text-sm text-gray-400'>No data yet.</p>
-                  ) : (
-                    <table className='w-full text-sm'>
-                      <thead className='text-gray-500 text-left'>
-                        <tr>
-                          <th className='py-2 pr-4'>Model</th>
-                          <th className='py-2 pr-4'>Revenue</th>
-                          <th className='py-2 pr-4'>Job Cards</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {salesData.data.byModel.map((m) => (
-                          <tr
-                            key={m.modelName}
-                            className='border-t border-gray-100'
-                          >
-                            <td className='py-2 pr-4 font-medium text-gray-800'>
-                              {m.modelName || "—"}
-                            </td>
-                            <td className='py-2 pr-4 tabular-nums'>
-                              ₹{m.totalRevenue.toLocaleString("en-IN")}
-                            </td>
-                            <td className='py-2 pr-4 tabular-nums'>
-                              {m.jobCardCount}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card size='sm' className='border border-gray-200 shadow-sm'>
-                <CardHeader>
-                  <CardTitle>Revenue by Technician</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {!salesData?.data?.byTechnician?.length ? (
-                    <p className='text-sm text-gray-400'>No data yet.</p>
-                  ) : (
-                    <table className='w-full text-sm'>
-                      <thead className='text-gray-500 text-left'>
-                        <tr>
-                          <th className='py-2 pr-4'>Technician</th>
-                          <th className='py-2 pr-4'>Revenue</th>
-                          <th className='py-2 pr-4'>Job Cards</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {salesData.data.byTechnician.map((t) => (
-                          <tr
-                            key={t.technicianName}
-                            className='border-t border-gray-100'
-                          >
-                            <td className='py-2 pr-4 font-medium text-gray-800'>
-                              {t.technicianName || "—"}
-                            </td>
-                            <td className='py-2 pr-4 tabular-nums'>
-                              ₹{t.totalRevenue.toLocaleString("en-IN")}
-                            </td>
-                            <td className='py-2 pr-4 tabular-nums'>
-                              {t.jobCardCount}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+            {salesData?.data && (
+              <div className='mt-6'>
+                <RevenueByBarChart
+                  title='Revenue by Technician'
+                  description='Top technicians by revenue this period'
+                  data={[...(salesData.data.byTechnician ?? [])]
+                    .sort((a, b) => b.totalRevenue - a.totalRevenue)
+                    .slice(0, 5)}
+                  categoryKey='technicianName'
+                  color='var(--chart-2)'
+                />
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>

@@ -27,6 +27,17 @@ export interface ListJobCardsArgs {
   limit?: number;
 }
 
+export interface JobCardStatusStatsResponse {
+  success: boolean;
+  data: {
+    total: number;
+    openCount: number;
+    closedCount: number;
+    cancelledCount: number;
+    byStatus: { status: JobCardStatus; count: number }[];
+  };
+}
+
 export interface RevenueStatsResponse {
   success: boolean;
   data: {
@@ -263,6 +274,20 @@ getRevenueStats: builder.query<
   },
   providesTags: ["JobCardInvoice"],
 }),
+
+    // Branch-scoped job-card lifecycle snapshot (current counts by status)
+    getJobCardStatusStats: builder.query<
+      JobCardStatusStatsResponse,
+      { branchId?: string } | void
+    >({
+      query: (args) => {
+        const p = new URLSearchParams();
+        if (args?.branchId) p.append("branchId", args.branchId);
+        const qs = p.toString();
+        return `/job-cards/stats/status${qs ? `?${qs}` : ""}`;
+      },
+      providesTags: ["JobCardList"],
+    }),
   }),
 });
 
@@ -290,5 +315,6 @@ export const {
   useGetInvoiceCustomerQuery,
   useLazyGetInvoiceCustomerQuery,
   //Super Admin Revenue
-  useGetRevenueStatsQuery
+  useGetRevenueStatsQuery,
+  useGetJobCardStatusStatsQuery,
 } = jobCardApi;
