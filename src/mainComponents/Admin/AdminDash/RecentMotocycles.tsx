@@ -80,7 +80,7 @@ const VehicleRow = ({
   const stock = getStockStatus(vehicle.stockAvailable);
 
   const { data: imagesData, isLoading: imageLoading } = useGetBikeImagesQuery(
-    vehicle._id,
+    vehicle._id
   );
   const images = imagesData?.data?.images ?? [];
   const primaryImage = images.find((img) => img.isPrimary) ?? images[0];
@@ -335,7 +335,7 @@ const RecentMotorcycles = () => {
         <Link to='/bikes/add'>
           <Button
             size='sm'
-            className='bg-red-600 hover:bg-red-700 rounded-xl h-8 text-xs'
+            className='bg-blue-800 text-white hover:bg-blue-900 hover:text-white rounded-xl h-8 text-xs cursor-pointer'
           >
             <Plus className='h-3.5 w-3.5 mr-1.5' />
             Add Vehicle

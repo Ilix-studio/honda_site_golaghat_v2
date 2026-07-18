@@ -2,7 +2,10 @@ import { AlertTriangle, BanknoteIcon, MessageCircleCode } from "lucide-react";
 
 import { useGetAllApplicationsQuery } from "@/redux-store/services/customer/getApprovedApi";
 import { useGetContactMessagesQuery } from "@/redux-store/services/contactApi";
-import { StatCard, StatCardProps } from "../helperFn";
+import {
+  StatCard,
+  StatCardProps,
+} from "@/mainComponents/Admin/AdminDash/StatCard";
 
 const CustomerQueries = () => {
   const { data: financeData, isLoading: financeLoading } =
@@ -21,7 +24,7 @@ const CustomerQueries = () => {
       icon: BanknoteIcon,
       loading: financeLoading,
       description: "Total finance applications",
-      accent: "#f97316",
+
       action: {
         label: "View Finance Enquiry",
         href: "/manager/finanace-query",
@@ -34,8 +37,7 @@ const CustomerQueries = () => {
       icon: MessageCircleCode,
       loading: false,
       description: "Pending review",
-      accent: "#ef4444",
-      action: { label: "View Reports", href: "/manager/any-messages" },
+      action: { label: "Read Messages", href: "/manager/any-messages" },
     },
     {
       title: "Accident Reports",
@@ -43,7 +45,7 @@ const CustomerQueries = () => {
       icon: AlertTriangle,
       loading: false,
       description: "",
-      accent: "#ef4444",
+
       action: { label: "View Reports", href: "/accident-reports" },
     },
   ];

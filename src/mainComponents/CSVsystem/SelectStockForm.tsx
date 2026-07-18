@@ -70,7 +70,7 @@ const SelectStockForm = () => {
                   {option.description}
                 </p>
 
-                <Button className='w-full group-hover:bg-primary/90'>
+                <Button className='w-auto bg-blue-800 text-white hover:bg-blue-900 hover:text-white cursor-pointer'>
                   {option.buttonText}
                   <ArrowRight className='h-4 w-4 ml-2 transition-transform group-hover:translate-x-1' />
                 </Button>

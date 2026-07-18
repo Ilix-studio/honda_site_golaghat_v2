@@ -158,6 +158,18 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/manager/stockC/select",
   },
+  "/manager/any-messages": {
+    title: "View Messages",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/accident-reports": {
+    title: "View Accident Reports",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
 };
 
 const ManagerHeader = () => {
@@ -188,7 +200,7 @@ const ManagerHeader = () => {
         addNotification({
           type: "success",
           message: result.message || "Logged out successfully",
-        }),
+        })
       );
     } catch (error: any) {
       dispatch(logout());
@@ -198,7 +210,7 @@ const ManagerHeader = () => {
         addNotification({
           type: "error",
           message: error?.data?.message || "Error logging out",
-        }),
+        })
       );
     } finally {
       navigate("/manager-login", { replace: true });

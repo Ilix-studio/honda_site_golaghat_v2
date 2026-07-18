@@ -22,6 +22,7 @@ import {
   Activity,
   Regex,
   Package,
+  Users,
 } from "lucide-react";
 import { useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -39,6 +40,8 @@ import JobCardCatalogManager from "../CustomerSystem/JobCard/JobCardCatalogManag
 import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
 import RecentMotorcycles from "../Admin/AdminDash/RecentMotocycles";
 import RagAssistant from "@/mainComponents/RAG/RagAssistant";
+import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
+import BranchKpiCharts from "./BranchKpiCharts";
 
 const BranchManagerDashboard = () => {
   const navigate = useNavigate();
@@ -72,6 +75,8 @@ const BranchManagerDashboard = () => {
     useGetAllPartAdminsQuery();
   const { data: serviceAdminsData, isLoading: serviceAdminsLoading } =
     useGetAllServiceAdminsQuery();
+  const { data: newCustomersData, isLoading: newCustomersLoading } =
+    useGetNewCustomersQuery({ limit: 1 }, { skip: false });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -108,17 +113,7 @@ const BranchManagerDashboard = () => {
       description: "Total Customers",
       action: { label: "Open Sign-up form", href: "/manager/customers/signup" },
     },
-    {
-      title: "Add Staff Memebers",
-      value: staffData?.count ?? 0,
-      icon: Settings2,
-      loading: staffLoading,
-      description: "Active other staff",
-      action: {
-        label: "Add Other Staff",
-        href: "/manager/staff",
-      },
-    },
+
     {
       title: "Add Value-Added Services",
       value: vasData?.total ?? "—",
@@ -134,6 +129,17 @@ const BranchManagerDashboard = () => {
       loading: stockLoading,
       description: "Inventory Details",
       action: { label: "Open Stock-Inventory", href: "/manager/stockC/select" },
+    },
+    {
+      title: "Add Staff Memebers",
+      value: staffData?.count ?? 0,
+      icon: Settings2,
+      loading: staffLoading,
+      description: "Active other staff",
+      action: {
+        label: "Add Other Staff",
+        href: "/manager/staff",
+      },
     },
 
     {
@@ -163,6 +169,14 @@ const BranchManagerDashboard = () => {
       loading: myLeaveLoading,
       description: "My Leave Application",
       action: { label: "Open", href: "/manager/apply-leave" },
+    },
+    {
+      title: "View Customer List",
+      value: newCustomersData?.pagination.total ?? 0,
+      icon: Users,
+      loading: newCustomersLoading,
+      description: "All Customer Detected by this project",
+      action: { label: "Open", href: "/customers/new" },
     },
   ];
 
@@ -265,10 +279,17 @@ const BranchManagerDashboard = () => {
               </TabsTrigger>
               <TabsTrigger
                 value='customer-reports'
-                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-red-700 hover:bg-red-50 data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:shadow-md'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-red-700 hover:bg-red-50 data-[state=active]:bg-gray-600 data-[state=active]:text-white data-[state=active]:shadow-md'
               >
                 <MessageSquare className='h-4 w-4' />
                 <span>Add Vehicles & Reports</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value='analytics'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-red-700 hover:bg-red-50 data-[state=active]:bg-blue-800 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <TrendingUp className='h-4 w-4' />
+                <span>Branch Analytics</span>
               </TabsTrigger>
             </TabsList>
           </motion.div>
@@ -322,7 +343,7 @@ const BranchManagerDashboard = () => {
             >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
                 <div className='flex items-center gap-3'>
-                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-red-600 text-white shadow-sm'>
+                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-600 text-white shadow-sm'>
                     <MessageSquare className='h-5 w-5' />
                   </div>
                   <div>
@@ -344,6 +365,32 @@ const BranchManagerDashboard = () => {
             >
               <RecentMotorcycles />
             </motion.div>
+          </TabsContent>
+
+          <TabsContent value='analytics' className='mt-2'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
+              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
+                <div className='flex items-center gap-3'>
+                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-blue-800 text-white shadow-sm'>
+                    <TrendingUp className='h-5 w-5' />
+                  </div>
+                  <div>
+                    <CardTitle className='text-lg font-semibold text-gray-900'>
+                      Branch Analytics
+                    </CardTitle>
+                    <CardDescription className='text-gray-500 mt-0.5'>
+                      Sales, stock, and VAS performance for your branch
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className='p-4 sm:p-6'>
+                <BranchKpiCharts />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
