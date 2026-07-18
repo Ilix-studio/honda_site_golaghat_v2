@@ -45,6 +45,7 @@ import {
 import { useAppSelector } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
+import PartsKpiCharts from "./PartsKpiCharts";
 
 const YEARS = [2026, 2025, 2024];
 
@@ -373,6 +374,12 @@ export default function PartsAdminDashboard() {
                   </ResponsiveContainer>
                 )}
               </CardContent>
+              <RagAssistant
+                title='Parts AI Assistant'
+                subtitle='Ask questions about your branch parts data — answers are grounded in the uploaded reports.'
+                sourceTypes={["parts"]}
+                placeholder='e.g. Which month had the most parts imported?'
+              />
             </Card>
           </TabsContent>
 
@@ -392,12 +399,7 @@ export default function PartsAdminDashboard() {
               ))}
             </div>
 
-            <RagAssistant
-              title='Parts AI Assistant'
-              subtitle='Ask questions about your branch parts data — answers are grounded in the uploaded reports.'
-              sourceTypes={["parts"]}
-              placeholder='e.g. Which month had the most parts imported?'
-            />
+            <PartsKpiCharts />
           </TabsContent>
         </Tabs>
       </div>

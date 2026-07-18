@@ -18,6 +18,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   type ChartConfig,
   ChartContainer,
   ChartLegend,
@@ -65,6 +72,32 @@ export const GranularityToggle = ({
       </button>
     ))}
   </div>
+);
+
+export const YEAR_OPTIONS = Array.from(
+  { length: 4 },
+  (_, i) => new Date().getFullYear() - i
+);
+
+export const YearSelect = ({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (year: number) => void;
+}) => (
+  <Select value={String(value)} onValueChange={(v) => onChange(Number(v))}>
+    <SelectTrigger className='w-[100px] h-9'>
+      <SelectValue />
+    </SelectTrigger>
+    <SelectContent>
+      {YEAR_OPTIONS.map((y) => (
+        <SelectItem key={y} value={String(y)}>
+          {y}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
 );
 
 export const ChartSkeleton = () => (

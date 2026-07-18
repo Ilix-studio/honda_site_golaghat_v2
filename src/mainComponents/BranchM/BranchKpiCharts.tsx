@@ -19,13 +19,6 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   type ChartConfig,
   ChartContainer,
   ChartLegend,
@@ -38,6 +31,7 @@ import SalesKpiCharts, {
   ChartSkeleton,
   EmptyChartState,
   inr,
+  YearSelect,
 } from "@/mainComponents/DataImport/SalesKpiCharts";
 
 import { useGetSalesTimeseriesQuery } from "@/redux-store/services/dataImportApi";
@@ -45,35 +39,6 @@ import { useGetPartsStockStatusQuery } from "@/redux-store/services/dataImportAp
 import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetVasAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
-
-const YEAR_OPTIONS = Array.from(
-  { length: 4 },
-  (_, i) => new Date().getFullYear() - i
-);
-
-const YearSelect = ({
-  value,
-  onChange,
-}: {
-  value: number;
-  onChange: (year: number) => void;
-}) => (
-  <Select
-    value={String(value)}
-    onValueChange={(v) => onChange(Number(v))}
-  >
-    <SelectTrigger className='w-[100px] h-9'>
-      <SelectValue />
-    </SelectTrigger>
-    <SelectContent>
-      {YEAR_OPTIONS.map((y) => (
-        <SelectItem key={y} value={String(y)}>
-          {y}
-        </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
-);
 
 // ─── Sales & Revenue ──────────────────────────────────────────────────────
 

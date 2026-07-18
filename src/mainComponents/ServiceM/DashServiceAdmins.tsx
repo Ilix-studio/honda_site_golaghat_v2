@@ -29,6 +29,7 @@ import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 
 import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
 import OpenJobCards from "./OpenJobCards";
+import JobCardStatusChart from "./JobCardStatusChart";
 import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
 import { useGetSalesTimeseriesQuery } from "@/redux-store/services/dataImportApi";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
@@ -270,6 +271,9 @@ const DashServiceAdmins = () => {
                     <StatCard key={stat.title} {...stat} index={i} />
                   ))}
                 </div>
+              </CardContent>
+              <CardContent className='p-2'>
+                <JobCardStatusChart />
               </CardContent>
               <CardContent className='p-2 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm'>
                 <OpenJobCards />
