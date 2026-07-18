@@ -159,8 +159,8 @@ export default function ServiceRevenueStats() {
                   width={56}
                 />
                 <Tooltip
-                  formatter={(value: number) => [
-                    formatCurrencyFull(value),
+                  formatter={(value) => [
+                    formatCurrencyFull(Number(value) || 0),
                     "Revenue",
                   ]}
                   contentStyle={{
