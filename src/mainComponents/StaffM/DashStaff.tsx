@@ -17,6 +17,7 @@ import {
   Cog,
   User,
   Activity,
+  UploadCloud,
 } from "lucide-react";
 import { useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -24,6 +25,10 @@ import { selectAuth } from "../../redux-store/slices/authSlice";
 import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 
 import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
+import {
+  useGetDatasetsQuery,
+  useGetDatasetRowsQuery,
+} from "@/redux-store/services/dataImportApi";
 
 const DashStaff = () => {
   const navigate = useNavigate();
@@ -33,6 +38,17 @@ const DashStaff = () => {
   // RTK Query hooks — skip until authenticated to avoid 401s
   const { data: serviceBookingData, isLoading: serviceBookingLoading } =
     useGetAllBookingsQuery({ page: 1, limit: 1 }, { skip: !isAuthenticated });
+
+  const { data: timetrackBatches } = useGetDatasetsQuery(
+    { datasetType: "service-timetrack", page: 1, limit: 1 },
+    { skip: !isAuthenticated }
+  );
+  const latestTimetrackBatchId = timetrackBatches?.data?.[0]?.batchId;
+  const { data: timetrackRows, isLoading: timetrackLoading } =
+    useGetDatasetRowsQuery(
+      { batchId: latestTimetrackBatchId as string, page: 1, limit: 50 },
+      { skip: !latestTimetrackBatchId }
+    );
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -68,7 +84,6 @@ const DashStaff = () => {
       icon: Activity,
       loading: false,
       description: "Leave Application",
-      accent: "#f59e0b",
       action: { label: "Open", href: "/staff/apply-leave" },
     },
 
@@ -78,11 +93,20 @@ const DashStaff = () => {
       icon: User,
       loading: serviceBookingLoading,
       description: "Number of stickers sold",
-      accent: "#f97316",
       action: {
         label: "Sell Stickers",
         href: "/buy-sticker",
       },
+    },
+    {
+      title: "Time Track Rows",
+      value: timetrackLoading ? "—" : (timetrackRows?.data?.length ?? 0),
+      icon: Clock,
+      loading: timetrackLoading,
+      description: latestTimetrackBatchId
+        ? `From batch ${latestTimetrackBatchId}`
+        : "No time-track import yet",
+      action: { label: "Upload data", href: "/staff/data-import/upload" },
     },
   ];
 
@@ -152,12 +176,6 @@ const DashStaff = () => {
                 <Home className='h-3 w-3 text-gray-400' /> Visit Homepage
               </Button>
               <div className='flex items-center gap-4'>
-                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20'>
-                  <div className='h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse' />
-                  <span className='text-emerald-400 text-xs font-medium'>
-                    System Online
-                  </span>
-                </div>
                 <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10'>
                   <Building2 className='h-3 w-3 text-gray-400' />
                   <span className='text-gray-400 text-xs font-medium'>
@@ -193,7 +211,10 @@ const DashStaff = () => {
           </TabsList>
 
           <TabsContent value='operations' className='mt-6'>
-            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
                 <div className='flex items-center gap-3'>
                   <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white shadow-sm'>
@@ -217,10 +238,67 @@ const DashStaff = () => {
                 </div>
               </CardContent>
             </Card>
+
+            <Card
+              size='sm'
+              className='mt-4 border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
+              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5 flex flex-row items-center justify-between'>
+                <div>
+                  <CardTitle className='text-lg font-semibold text-gray-900'>
+                    My Time Track Rows
+                  </CardTitle>
+                  <CardDescription className='text-gray-500 mt-0.5'>
+                    Latest imported service time-tracking rows for your branch
+                  </CardDescription>
+                </div>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={() => navigate("/staff/data-import/upload")}
+                >
+                  <UploadCloud className='w-4 h-4 mr-2' />
+                  Upload
+                </Button>
+              </CardHeader>
+              <CardContent className='p-6'>
+                {!timetrackRows?.data?.length ? (
+                  <p className='text-sm text-gray-400'>
+                    No time-track data imported yet.
+                  </p>
+                ) : (
+                  <div className='overflow-x-auto'>
+                    <table className='w-full text-sm'>
+                      <thead className='text-gray-500 text-left'>
+                        <tr>
+                          <th className='py-2 pr-4'>Job Card</th>
+                          <th className='py-2 pr-4'>Frame Number</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {timetrackRows.data.map((r) => (
+                          <tr key={r._id} className='border-t border-gray-100'>
+                            <td className='py-2 pr-4 font-medium text-gray-800'>
+                              {r.normalized?.jobCardNumber || "—"}
+                            </td>
+                            <td className='py-2 pr-4 text-gray-500'>
+                              {r.normalized?.frameNumber || "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value='customer-reports' className='mt-6'>
-            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
                 <div className='flex items-center gap-3'>
                   <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-red-600 text-white shadow-sm'>

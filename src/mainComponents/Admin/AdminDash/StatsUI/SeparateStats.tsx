@@ -27,7 +27,7 @@ const QuickActions = ({ items }: { items: QuickActionItem[] }) => (
         <Link
           key={item.title}
           to={item.href || "#"}
-          className='group flex items-center gap-4 rounded-xl border border-gray-100 bg-white px-4 py-3 shadow-sm hover:shadow-md transition-shadow'
+          className='group flex items-center gap-4 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm hover:shadow-md transition-shadow'
         >
           <div
             className='w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0'
@@ -39,7 +39,7 @@ const QuickActions = ({ items }: { items: QuickActionItem[] }) => (
             <p className='text-sm font-semibold text-gray-900 truncate'>
               {item.title}
             </p>
-            <p className='text-xs text-gray-400 truncate'>{item.description}</p>
+            <p className='text-xs text-gray-500 truncate'>{item.description}</p>
           </div>
           <ChevronRight className='w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors flex-shrink-0' />
         </Link>
@@ -92,10 +92,10 @@ const SeparateStats = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.4 }}
-        className='space-y-3 border border-gray-500 p-4 rounded-xl bg-white'
+        className='space-y-3 border border-gray-100 shadow-sm p-4 rounded-2xl bg-white'
       >
-        <h3 className='text-sm font-semibold text-gray-500 uppercase tracking-wide px-0.5'>
-          Sales Details and Leave Requests
+        <h3 className='text-sm font-semibold text-gray-400 uppercase tracking-wide px-0.5'>
+          Sales Details (Manual) and Leave Requests
         </h3>
         <QuickActions items={quickActions} />
       </motion.div>

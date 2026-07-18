@@ -63,7 +63,7 @@ const routeConfig: Record<
     backTo: "/manager/vas/select",
   },
   "/manager/stockC/select": {
-    title: " List Value Added Services",
+    title: " Manage Stock-Inventory",
     subtitle: "",
     showBack: true,
     backTo: "/manager/dashboard",
@@ -73,6 +73,12 @@ const routeConfig: Record<
     subtitle: "",
     showBack: true,
     backTo: "/manager/stockC/select",
+  },
+  "/manager/forms/stock-concept-csv/view-uploads": {
+    title: "View Uploads",
+    subtitle: "Review parsed fields from uploaded files",
+    showBack: true,
+    backTo: "/manager/forms/stock-concept-csv",
   },
   "/manager/forms/stock-concept": {
     title: " Create Stock Concept",
@@ -152,6 +158,18 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/manager/stockC/select",
   },
+  "/manager/any-messages": {
+    title: "View Messages",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/accident-reports": {
+    title: "View Accident Reports",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
 };
 
 const ManagerHeader = () => {
@@ -182,7 +200,7 @@ const ManagerHeader = () => {
         addNotification({
           type: "success",
           message: result.message || "Logged out successfully",
-        }),
+        })
       );
     } catch (error: any) {
       dispatch(logout());
@@ -192,7 +210,7 @@ const ManagerHeader = () => {
         addNotification({
           type: "error",
           message: error?.data?.message || "Error logging out",
-        }),
+        })
       );
     } finally {
       navigate("/manager-login", { replace: true });

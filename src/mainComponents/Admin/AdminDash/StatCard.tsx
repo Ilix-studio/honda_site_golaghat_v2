@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Plus, ArrowUpRight, ChevronRight } from "lucide-react";
+import { Plus, ChevronRight } from "lucide-react";
 
 import { Link } from "react-router-dom"; // ─── helpers ────────────────────────────────────────────────────────────────
 export const formatTimeAgo = (dateString: string) => {
@@ -20,7 +20,6 @@ export interface StatCardProps {
   loading?: boolean;
   description: string;
   action: { label: string; href: string };
-  accent: string;
   index: number;
 }
 
@@ -41,22 +40,16 @@ export const StatCard = ({
   loading,
   description,
   action,
-  accent,
+
   index,
 }: StatCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 24 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.45, delay: index * 0.07, ease: "easeOut" }}
-    className='group relative overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300'
+    className='group relative overflow-hidden rounded-2xl bg-white border border-gray-200 shadow-lg hover:shadow-md transition-shadow duration-300'
   >
-    {/* accent bar */}
-    <div
-      className='absolute top-0 left-0 h-1 w-full'
-      style={{ background: accent }}
-    />
-
-    {/* subtle grid texture */}
+    <div className='absolute top-0 left-0 h-1 w-full' />
     <div
       className='absolute inset-0 opacity-[0.025] pointer-events-none'
       style={{
@@ -68,21 +61,7 @@ export const StatCard = ({
     <div className='relative p-5 flex flex-col gap-4'>
       {/* header */}
       <div className='flex items-start justify-between'>
-        <div
-          className='flex items-center justify-center w-11 h-11 rounded-xl'
-          style={{ background: `${accent}18` }}
-        >
-          <Icon className='w-5 h-5' style={{ color: accent }} />
-        </div>
-
-        <Link to={action.href}>
-          <motion.div
-            whileHover={{ scale: 1.1, rotate: -5 }}
-            className='w-8 h-8 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200 cursor-pointer hover:border-gray-400 transition-colors'
-          >
-            <ArrowUpRight className='w-3.5 h-3.5 text-gray-500' />
-          </motion.div>
-        </Link>
+        <Icon className='w-5 h-5' />
       </div>
 
       {/* value */}
@@ -100,7 +79,7 @@ export const StatCard = ({
           <p className='text-sm text-gray-800 italic'>{description}</p>
         )}
         {value !== undefined && (
-          <p className='text-xs text-gray-400 mt-1'>{description}</p>
+          <p className='text-xs text-gray-500 mt-1'>{description}</p>
         )}
       </div>
 
@@ -109,7 +88,7 @@ export const StatCard = ({
         <Button
           variant='ghost'
           size='sm'
-          className='w-full justify-between px-3 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-all group/btn'
+          className='w-auto justify-between px-3 h-9 rounded-2xl bg-gray-200 hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-all group/btn cursor-pointer'
         >
           <span className='flex items-center gap-1.5 text-xs font-medium'>
             <Plus className='w-3 h-3' />

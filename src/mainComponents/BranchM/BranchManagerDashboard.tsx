@@ -22,10 +22,15 @@ import {
   Activity,
   Regex,
   Package,
+  Users,
 } from "lucide-react";
 import { useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
-import { useGetAllStaffQuery } from "../../redux-store/services/adminApi";
+import {
+  useGetAllPartAdminsQuery,
+  useGetAllServiceAdminsQuery,
+  useGetAllStaffQuery,
+} from "../../redux-store/services/adminApi";
 import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 import { useGetAllCustomersQuery } from "@/redux-store/services/customer/customerApi";
 import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
@@ -34,6 +39,9 @@ import CustomerQueries from "./Tabs/CustomerQuery";
 import JobCardCatalogManager from "../CustomerSystem/JobCard/JobCardCatalogManager";
 import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
 import RecentMotorcycles from "../Admin/AdminDash/RecentMotocycles";
+import RagAssistant from "@/mainComponents/RAG/RagAssistant";
+import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
+import BranchKpiCharts from "./BranchKpiCharts";
 
 const BranchManagerDashboard = () => {
   const navigate = useNavigate();
@@ -46,23 +54,29 @@ const BranchManagerDashboard = () => {
 
   const { data: staffData, isLoading: staffLoading } = useGetAllStaffQuery(
     undefined,
-    { skip: !isAuthenticated },
+    { skip: !isAuthenticated }
   );
 
   const { data: vasData, isLoading: vasLoading } = useGetAllVASQuery(
     { page: 1, limit: 1 },
-    { skip: !isAuthenticated },
+    { skip: !isAuthenticated }
   );
 
   const { data: stockData, isLoading: stockLoading } = useGetAllStockItemsQuery(
     { page: 1, limit: 1 },
-    { skip: !isAuthenticated },
+    { skip: !isAuthenticated }
   );
 
   const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
     {},
-    { skip: !isAuthenticated },
+    { skip: !isAuthenticated }
   );
+  const { data: partsAdminData, isLoading: partsAdminLoading } =
+    useGetAllPartAdminsQuery();
+  const { data: serviceAdminsData, isLoading: serviceAdminsLoading } =
+    useGetAllServiceAdminsQuery();
+  const { data: newCustomersData, isLoading: newCustomersLoading } =
+    useGetNewCustomersQuery({ limit: 1 }, { skip: false });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -92,57 +106,56 @@ const BranchManagerDashboard = () => {
   // Stat cards built from live query data
   const operationsStats: Omit<StatCardProps, "index">[] = [
     {
-      title: "Customers",
+      title: "Add Customers",
       value: customersData?.pagination?.total ?? 0,
       icon: User,
       loading: customersLoading,
-      description: "Total registered",
-      accent: "#f97316",
+      description: "Total Customers",
       action: { label: "Open Sign-up form", href: "/manager/customers/signup" },
     },
+
     {
-      title: "Create Staff Memebers",
+      title: "Add Value-Added Services",
+      value: vasData?.total ?? "—",
+      icon: TrendingUp,
+      loading: vasLoading,
+      description: "Activate VAS on vehicles",
+      action: { label: "Open VAS Manager", href: "/manager/vas/select" },
+    },
+    {
+      title: "Add Stock-Inventory",
+      value: stockData?.total ?? 0,
+      icon: Activity,
+      loading: stockLoading,
+      description: "Inventory Details",
+      action: { label: "Open Stock-Inventory", href: "/manager/stockC/select" },
+    },
+    {
+      title: "Add Staff Memebers",
       value: staffData?.count ?? 0,
       icon: Settings2,
       loading: staffLoading,
       description: "Active other staff",
-      accent: "#427AB5",
       action: {
         label: "Add Other Staff",
         href: "/manager/staff",
       },
     },
-    {
-      title: "Value-Added Services",
-      value: vasData?.total ?? "—",
-      icon: TrendingUp,
-      loading: vasLoading,
-      description: "Activate VAS on vehicles",
-      accent: "#10b981",
-      action: { label: "Open VAS Manager", href: "/manager/vas/select" },
-    },
-    {
-      title: "Stock Manager",
-      value: stockData?.total ?? 0,
-      icon: Activity,
-      loading: stockLoading,
-      description: "Vehicles in branch",
-      accent: "#f59e0b",
-      action: { label: "Open Stock Manager", href: "/manager/stockC/select" },
-    },
 
     {
-      title: "Part Admins",
+      title: "Add Part Admins",
+      value: partsAdminData?.count ?? 0,
       icon: Package,
+      loading: partsAdminLoading,
       description: "Create & manage Part Admins for your branch",
-      accent: "#2563eb",
       action: { label: "Manage Part Admins", href: "/manager/part-admins" },
     },
     {
-      title: "Service Admins",
+      title: "Add Service Admins",
+      value: serviceAdminsData?.count ?? 0,
       icon: Cog,
+      loading: serviceAdminsLoading,
       description: "Create & manage Service Admins for your branch",
-      accent: "#0ea5e9",
       action: {
         label: "Manage Service Admins",
         href: "/manager/service-admins",
@@ -155,8 +168,15 @@ const BranchManagerDashboard = () => {
       icon: Regex,
       loading: myLeaveLoading,
       description: "My Leave Application",
-      accent: "#f50b0bff",
       action: { label: "Open", href: "/manager/apply-leave" },
+    },
+    {
+      title: "View Customer List",
+      value: newCustomersData?.pagination.total ?? 0,
+      icon: Users,
+      loading: newCustomersLoading,
+      description: "All Customer Detected by this project",
+      action: { label: "Open", href: "/customers/new" },
     },
   ];
 
@@ -193,7 +213,7 @@ const BranchManagerDashboard = () => {
         <div className='absolute -top-24 -right-24 w-96 h-96 bg-red-600/10 rounded-full blur-3xl' />
         <div className='absolute -bottom-32 -left-32 w-80 h-80 bg-red-500/5 rounded-full blur-3xl' />
 
-        <div className='relative container px-4 py-10 md:py-14'>
+        <div className='relative container px-4 py-10 md:py-8'>
           <div className='flex flex-col md:flex-row md:items-end md:justify-between gap-6'>
             <div>
               <div className='flex items-center gap-2 mb-3'>
@@ -229,13 +249,7 @@ const BranchManagerDashboard = () => {
                 <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20'>
                   <div className='h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse' />
                   <span className='text-emerald-400 text-xs font-medium'>
-                    System Online
-                  </span>
-                </div>
-                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10'>
-                  <Building2 className='h-3 w-3 text-gray-400' />
-                  <span className='text-gray-400 text-xs font-medium'>
-                    Branch Access
+                    {user?.branch?.branchName || "Branch"}
                   </span>
                 </div>
               </div>
@@ -247,27 +261,44 @@ const BranchManagerDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className='container px-4 py-8'>
+      <div className='container px-2 py-2'>
         <Tabs defaultValue='operations' className='w-full'>
-          <TabsList className='inline-flex h-12 w-full md:w-auto bg-white border border-gray-200 shadow-sm rounded-xl p-1 gap-1'>
-            <TabsTrigger
-              value='operations'
-              className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
-            >
-              <Cog className='h-4 w-4' />
-              <span>Operations</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value='customer-reports'
-              className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
-            >
-              <MessageSquare className='h-4 w-4' />
-              <span>Add Vehicles & Reports</span>
-            </TabsTrigger>
-          </TabsList>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className='sticky top-1 z-10 mb-2'
+          >
+            <TabsList className='inline-flex h-12 w-full md:w-auto bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-xl p-1 gap-1'>
+              <TabsTrigger
+                value='operations'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-gray-900 hover:bg-gray-50 data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <Cog className='h-4 w-4' />
+                <span>Operations</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value='customer-reports'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-red-700 hover:bg-red-50 data-[state=active]:bg-gray-600 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <MessageSquare className='h-4 w-4' />
+                <span>Add Vehicles & Reports</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value='analytics'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-red-700 hover:bg-red-50 data-[state=active]:bg-blue-800 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <TrendingUp className='h-4 w-4' />
+                <span>Branch Analytics</span>
+              </TabsTrigger>
+            </TabsList>
+          </motion.div>
 
-          <TabsContent value='operations' className='mt-6'>
-            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+          <TabsContent value='operations' className='mt-2'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
                 <div className='flex items-center gap-3'>
                   <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white shadow-sm'>
@@ -283,7 +314,7 @@ const BranchManagerDashboard = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className='p-6'>
+              <CardContent className='p-3'>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                   {operationsStats.map((stat, i) => (
                     <StatCard key={stat.title} {...stat} index={i} />
@@ -294,13 +325,25 @@ const BranchManagerDashboard = () => {
             <div className='mt-10 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm p-5'>
               <JobCardCatalogManager />
             </div>
+
+            <div className='mt-6'>
+              <RagAssistant
+                title='Branch AI Assistant'
+                subtitle='Ask questions about job cards and accident reports for your branch — answers are grounded in live data and cite their sources.'
+                sourceTypes={["jobcard-live", "accident-report"]}
+                placeholder='e.g. How many open job cards do we have?'
+              />
+            </div>
           </TabsContent>
 
-          <TabsContent value='customer-reports' className='mt-6'>
-            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+          <TabsContent value='customer-reports' className='mt-2'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
                 <div className='flex items-center gap-3'>
-                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-red-600 text-white shadow-sm'>
+                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-600 text-white shadow-sm'>
                     <MessageSquare className='h-5 w-5' />
                   </div>
                   <div>
@@ -322,6 +365,32 @@ const BranchManagerDashboard = () => {
             >
               <RecentMotorcycles />
             </motion.div>
+          </TabsContent>
+
+          <TabsContent value='analytics' className='mt-2'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
+              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
+                <div className='flex items-center gap-3'>
+                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-blue-800 text-white shadow-sm'>
+                    <TrendingUp className='h-5 w-5' />
+                  </div>
+                  <div>
+                    <CardTitle className='text-lg font-semibold text-gray-900'>
+                      Branch Analytics
+                    </CardTitle>
+                    <CardDescription className='text-gray-500 mt-0.5'>
+                      Sales, stock, and VAS performance for your branch
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className='p-4 sm:p-6'>
+                <BranchKpiCharts />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

@@ -7,10 +7,13 @@ import {
   Clock,
   Settings,
   PersonStanding,
+  Bike,
+  Wrench,
 } from "lucide-react";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 import {
   useGetAllBranchAdminsQuery,
+  useGetAllPartAdminsQuery,
   useGetAllServiceAdminsQuery,
   useGetAllStaffQuery,
 } from "@/redux-store/services/adminApi";
@@ -20,6 +23,8 @@ import { useGetVisitorStatsQuery } from "@/redux-store/services/visitorApi";
 import { formatTimeAgo, MetricTile, StatCard, StatCardProps } from "./StatCard";
 
 import SeparateStats from "./StatsUI/SeparateStats";
+import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
+import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
 
 // ─── main ────────────────────────────────────────────────────────────────────
 const BranchQueries = () => {
@@ -31,49 +36,83 @@ const BranchQueries = () => {
     useGetAllServiceAdminsQuery();
   const { data: staffData, isLoading: staffLoading } = useGetAllStaffQuery();
   const { data: visitorStatsData } = useGetVisitorStatsQuery();
+  const { data: partsAdminData, isLoading: partsAdminLoading } =
+    useGetAllPartAdminsQuery();
+  const { data: allVehicleData, isLoading: bikesLoading } = useGetBikesQuery(
+    {}
+  );
+  const { data: newCustomersData, isLoading: newCustomersLoading } =
+    useGetNewCustomersQuery({ limit: 1 }, { skip: false });
+
   const stats: Omit<StatCardProps, "index">[] = [
     {
-      title: "Branches",
+      title: "View Branches",
       value: branchesData?.count ?? 0,
       icon: Building2,
       loading: branchesLoading,
       description: "Service locations",
-      accent: "#3b82f6",
-      // action: { label: "Add Branch", href: "/admin/branches/add" },
       action: { label: "View Branches", href: "/admin/branches" },
     },
     {
-      title: "Branch Admins",
+      title: "Add Branch Admins",
       value: branchManagersData?.count ?? 0,
       icon: Users,
       loading: managersLoading,
       description: "Active managers",
-      accent: "#8b5cf6",
       action: { label: "Add Manager", href: "/admin/branches/managers" },
     },
     {
-      title: "Service Admins",
+      title: "Add Service Admins",
       value: serviceManagersData?.count ?? 0,
       icon: Settings,
       loading: serviceManagersLoading,
       description: "Active service admins",
-      accent: "#170C79",
       action: {
         label: "Add Service Admin",
         href: "/admin/branches/service-admins",
       },
     },
     {
-      title: "Staff",
+      title: "Add Parts Admins",
+      value: partsAdminData?.count ?? 0,
+      icon: Wrench,
+      loading: partsAdminLoading,
+      description: "Active parts admins",
+      action: {
+        label: "View Parts Admins",
+        href: "/admin/branches/part-admins",
+      },
+    },
+    {
+      title: "Add Staff",
       value: staffData?.count ?? 0,
       icon: PersonStanding,
       loading: staffLoading,
       description: "Active staff",
-      accent: "#ba723eff",
       action: {
         label: "View Staff",
         href: "/admin/viewStaff",
       },
+    },
+
+    {
+      title: "View All Vehicles",
+      value: allVehicleData?.data.pagination.total ?? 0,
+      icon: Bike,
+      loading: bikesLoading,
+      description: "All Vehicles shown in Homepage",
+      action: {
+        label: "View Vehicles",
+        href: "/admin/viewVehicles",
+      },
+    },
+    {
+      title: "View Customer List",
+      value: newCustomersData?.pagination.total ?? 0,
+      icon: Users,
+      loading: newCustomersLoading,
+      description: "All Customer Detected by this project",
+      action: { label: "Open", href: "/customers/new" },
     },
   ];
 
@@ -82,11 +121,19 @@ const BranchQueries = () => {
 
   return (
     <div className='space-y-8'>
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4'>
-        {stats.map((s, i) => (
-          <StatCard key={s.title} {...s} index={i} />
-        ))}
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className='space-y-4'
+      >
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+          {stats.map((s, i) => (
+            <StatCard key={s.title} {...s} index={i} />
+          ))}
+        </div>
+      </motion.div>
+
       <SeparateStats />
 
       {/* ── visitor analytics ── */}
@@ -95,7 +142,7 @@ const BranchQueries = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className='rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden'
+          className='rounded-2xl bg-white border border-gray-300 shadow-sm overflow-hidden'
         >
           {/* panel header */}
           <div className='flex items-center justify-between px-6 py-4 border-b border-gray-100'>
@@ -107,14 +154,14 @@ const BranchQueries = () => {
                 <h3 className='text-sm font-bold text-gray-900'>
                   Visitor Analytics
                 </h3>
-                <p className='text-xs text-gray-400'>
+                <p className='text-xs text-gray-500'>
                   Real-time traffic overview
                 </p>
               </div>
             </div>
 
             {vs.lastVisit && (
-              <div className='hidden sm:flex items-center gap-1.5 text-xs text-gray-400'>
+              <div className='hidden sm:flex items-center gap-1.5 text-xs text-gray-500'>
                 <Clock className='w-3 h-3' />
                 Last visit: {formatTimeAgo(vs.lastVisit)}
               </div>
@@ -169,20 +216,18 @@ const BranchQueries = () => {
                       Math.max(vs.totalVisitors ?? 1, 1)) *
                       100 *
                       10,
-                    100,
+                    100
                   )}%`,
                 }}
                 transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
               />
             </div>
-            <p className='text-xs text-gray-400 mt-1.5'>
+            <p className='text-xs text-gray-500 mt-1.5'>
               Today's share of total traffic
             </p>
           </div>
         </motion.div>
       )}
-
-      {/* ── recent motorcycles ── */}
     </div>
   );
 };

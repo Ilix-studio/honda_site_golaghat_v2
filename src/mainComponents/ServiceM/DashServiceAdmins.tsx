@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useNavigate, Link } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -10,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  MessageSquare,
   Clock,
   Home,
   Building2,
@@ -18,6 +18,9 @@ import {
   User,
   Activity,
   Wrench,
+  TrendingUp,
+  UploadCloud,
+  Users,
 } from "lucide-react";
 import { useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -26,13 +29,23 @@ import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 
 import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
 import OpenJobCards from "./OpenJobCards";
+import JobCardStatusChart from "./JobCardStatusChart";
 import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
+import { useGetSalesTimeseriesQuery } from "@/redux-store/services/dataImportApi";
+import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
+import type { Granularity } from "@/redux-store/services/dataImport.types";
+import SalesKpiCharts, {
+  RevenueByBarChart,
+} from "@/mainComponents/DataImport/SalesKpiCharts";
 
 const DashServiceAdmins = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAppSelector(selectAuth);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const branchName = user?.branch?.branchName ?? null; // ← add this
+  const [granularity, setGranularity] = useState<Granularity>("day");
+
+  const { data: salesData, isLoading: salesLoading } =
+    useGetSalesTimeseriesQuery({ granularity }, { skip: !isAuthenticated });
 
   // RTK Query hooks — skip until authenticated to avoid 401s
   const { data: serviceBookingData, isLoading: serviceBookingLoading } =
@@ -43,8 +56,10 @@ const DashServiceAdmins = () => {
   });
   const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
     {},
-    { skip: !isAuthenticated },
+    { skip: !isAuthenticated }
   );
+  const { data: newCustomersData, isLoading: newCustomersLoading } =
+    useGetNewCustomersQuery({ limit: 1 }, { skip: !isAuthenticated });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -79,7 +94,6 @@ const DashServiceAdmins = () => {
       icon: Wrench,
       loading: serviceBookingLoading,
       description: "Total Service Bookings",
-      accent: "#3b82f6",
       action: {
         label: "Open Service Booking form",
         href: "/service-admin/service-bookings",
@@ -91,7 +105,6 @@ const DashServiceAdmins = () => {
       icon: User,
       loading: serviceBookingLoading,
       description: "Total Job Cards",
-      accent: "#ac3ea7ff",
       action: {
         label: "Open Job Card form",
         href: "/service-admin/job-card",
@@ -104,7 +117,6 @@ const DashServiceAdmins = () => {
       icon: Activity,
       loading: myLeaveLoading,
       description: "My Leave Application",
-      accent: "#f59e0b",
       action: { label: "Open", href: "/service-admin/apply-leave" },
     },
     {
@@ -113,23 +125,15 @@ const DashServiceAdmins = () => {
       icon: Wrench,
       loading: false,
       description: "Job card catalog",
-      accent: "#1f8438ff",
       action: { label: "Open", href: "/service-admin/catalog" },
     },
-  ];
-
-  const InvoiceStats: Omit<StatCardProps, "index">[] = [
     {
-      title: "Total",
-      value: 1,
-      icon: Wrench,
-      loading: false,
-      description: "Total Invoices",
-      accent: "#f63b3bff",
-      action: {
-        label: "Open Invoices",
-        href: "/service-admin/customer-invoices",
-      },
+      title: "View Customer List",
+      value: newCustomersData?.pagination.total ?? 0,
+      icon: Users,
+      loading: newCustomersLoading,
+      description: "All Customer Detected by this project",
+      action: { label: "Open", href: "/customers/new" },
     },
   ];
 
@@ -166,7 +170,7 @@ const DashServiceAdmins = () => {
         <div className='absolute -top-24 -right-24 w-96 h-96 bg-red-600/10 rounded-full blur-3xl' />
         <div className='absolute -bottom-32 -left-32 w-80 h-80 bg-red-500/5 rounded-full blur-3xl' />
 
-        <div className='relative container px-4 py-10 md:py-14'>
+        <div className='relative container px-4 py-10 md:py-8'>
           <div className='flex flex-col md:flex-row md:items-end md:justify-between gap-6'>
             <div>
               <div className='flex items-center gap-2 mb-3'>
@@ -199,16 +203,10 @@ const DashServiceAdmins = () => {
                 <Home className='h-3 w-3 text-gray-400' /> Visit Homepage
               </Button>
               <div className='flex items-center gap-4'>
-                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10'>
-                  <Building2 className='h-3 w-3 text-gray-400' />
-                  <span className='text-gray-400 text-xs font-medium'>
-                    {branchName ?? "Branch Access"}
-                  </span>
-                </div>
                 <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20'>
                   <div className='h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse' />
                   <span className='text-emerald-400 text-xs font-medium'>
-                    System Online
+                    {user?.branch?.branchName || "Branch"}
                   </span>
                 </div>
               </div>
@@ -220,27 +218,38 @@ const DashServiceAdmins = () => {
       </div>
 
       {/* Main Content */}
-      <div className='container px-4 py-8'>
+      <div className='container px-2 py-2'>
         <Tabs defaultValue='operations' className='w-full'>
-          <TabsList className='inline-flex h-12 w-full md:w-auto bg-white border border-gray-200 shadow-sm rounded-xl p-1 gap-1'>
-            <TabsTrigger
-              value='operations'
-              className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
-            >
-              <Cog className='h-4 w-4' />
-              <span>Operations</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value='customer-reports'
-              className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
-            >
-              <MessageSquare className='h-4 w-4' />
-              <span>Customer Invoices & Reports</span>
-            </TabsTrigger>
-          </TabsList>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className='sticky top-1 z-10 mb-2'
+          >
+            <TabsList className='inline-flex h-12 w-full md:w-auto bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-xl p-1 gap-1'>
+              <TabsTrigger
+                value='operations'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <Cog className='h-4 w-4' />
+                <span>Operations</span>
+              </TabsTrigger>
 
-          <TabsContent value='operations' className='mt-6'>
-            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+              <TabsTrigger
+                value='sales-data'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <TrendingUp className='h-4 w-4' />
+                <span>Sales & Data</span>
+              </TabsTrigger>
+            </TabsList>
+          </motion.div>
+
+          <TabsContent value='operations' className='mt-2'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
                 <div className='flex items-center gap-3'>
                   <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white shadow-sm'>
@@ -257,11 +266,14 @@ const DashServiceAdmins = () => {
                 </div>
               </CardHeader>
               <CardContent className='p-2'>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                   {operationsStats.map((stat, i) => (
                     <StatCard key={stat.title} {...stat} index={i} />
                   ))}
                 </div>
+              </CardContent>
+              <CardContent className='p-2'>
+                <JobCardStatusChart />
               </CardContent>
               <CardContent className='p-2 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm'>
                 <OpenJobCards />
@@ -269,31 +281,38 @@ const DashServiceAdmins = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value='customer-reports' className='mt-6'>
-            <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
-              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
-                <div className='flex items-center gap-3'>
-                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-red-600 text-white shadow-sm'>
-                    <MessageSquare className='h-5 w-5' />
-                  </div>
-                  <div>
-                    <CardTitle className='text-lg font-semibold text-gray-900'>
-                      Customer Invoices
-                    </CardTitle>
-                    <CardDescription className='text-gray-500 mt-0.5'>
-                      Enquiries, applications, finance, and accident reports
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className='p-2'>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-                  {InvoiceStats.map((stat, i) => (
-                    <StatCard key={stat.title} {...stat} index={i} />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value='sales-data' className='mt-2'>
+            <div className='flex justify-end mb-3'>
+              <Link to='/service-admin/service-records'>
+                <Button className='bg-green-700 text-white hover:bg-blue-700'>
+                  <UploadCloud className='w-4 h-4 mr-2 ' />
+                  Upload Data
+                </Button>
+              </Link>
+            </div>
+
+            <SalesKpiCharts
+              granularity={granularity}
+              onGranularityChange={setGranularity}
+              timeseries={salesData?.data?.timeseries ?? []}
+              byModel={salesData?.data?.byModel ?? []}
+              loading={salesLoading}
+              emptyMessage='No sales data yet — upload a service-jobcard report to see revenue trends.'
+            />
+
+            {salesData?.data && (
+              <div className='mt-6'>
+                <RevenueByBarChart
+                  title='Revenue by Technician'
+                  description='Top technicians by revenue this period'
+                  data={[...(salesData.data.byTechnician ?? [])]
+                    .sort((a, b) => b.totalRevenue - a.totalRevenue)
+                    .slice(0, 5)}
+                  categoryKey='technicianName'
+                  color='var(--chart-2)'
+                />
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>

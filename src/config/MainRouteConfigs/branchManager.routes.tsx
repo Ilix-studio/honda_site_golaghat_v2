@@ -30,6 +30,9 @@ const SelectStockForm = lazy(
 const GetCSVFiles = lazy(
   () => import("@/mainComponents/CSVsystem/GetCSVFiles"),
 );
+const ViewCSVUploads = lazy(
+  () => import("@/mainComponents/CSVsystem/ViewCSVUploads"),
+);
 const GetAllStockFiles = lazy(
   () => import("@/mainComponents/CSVsystem/GetAllStockFiles"),
 );
@@ -79,6 +82,15 @@ const ProfileView = lazy(() => import("@/mainComponents/shared/ProfileView"));
 const BranchApplyLeave = () => (
   <ApplyLeave dashboardPath='/manager/dashboard' />
 );
+const BranchDataImportDashboard = lazy(
+  () => import("@/mainComponents/BranchM/BranchDataImportDashboard"),
+);
+const UploadDataImportForm = lazy(
+  () => import("@/mainComponents/DataImport/UploadDataImportForm"),
+);
+const BranchUploadDataImport = () => (
+  <UploadDataImportForm dashboardPath='/manager/data-import' />
+);
 export const branchManagerAuthRoutes = [
   { path: "/manager-login", component: LoginBranchManager },
 ];
@@ -93,6 +105,10 @@ export const branchManagerRoutes = [
   { path: "/manager/stockC/select", component: SelectStockForm },
   { path: "/manager/forms/stock-concept", component: StockConceptForm },
   { path: "/manager/forms/stock-concept-csv", component: UploadCSVForm },
+  {
+    path: "/manager/forms/stock-concept-csv/view-uploads",
+    component: ViewCSVUploads,
+  },
   { path: "/manager/get/all-stock", component: GetAllStockFiles },
   { path: "/manager/get/csv", component: GetCSVFiles },
   { path: "/manager/assign/stock-concept/:id", component: AssignStock },
@@ -115,4 +131,8 @@ export const branchManagerRoutes = [
     { path: "/manager/view/stock-concept", component: ViewStockConcept },
   //
   { path: "/manager/apply-leave", component: BranchApplyLeave },
+
+  // Data Import
+  { path: "/manager/data-import", component: BranchDataImportDashboard },
+  { path: "/manager/data-import/upload", component: BranchUploadDataImport },
 ];

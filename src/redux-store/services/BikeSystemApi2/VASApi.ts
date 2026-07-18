@@ -102,6 +102,22 @@ export interface PriceCalculationResponse {
   message?: string;
 }
 
+export interface VasAssignStats {
+  year: number;
+  monthly: Array<{ month: string; activationCount: number; revenue: number }>;
+  totals: { totalActivations: number; totalRevenue: number };
+}
+
+export interface VasAssignStatsResponse {
+  success: boolean;
+  data: VasAssignStats;
+}
+
+export interface VasAssignStatsArgs {
+  year?: number;
+  branchId?: string;
+}
+
 // ===================== VAS API SLICE =====================
 export const vasApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -227,6 +243,19 @@ export const vasApi = apiSlice.injectEndpoints({
       invalidatesTags: ["CustomerActiveService"],
       transformErrorResponse: (response) => handleApiError(response),
     }),
+
+    // VAS-activation KPIs + monthly breakdown (Dashboards tab)
+    getVasAssignStats: builder.query<VasAssignStatsResponse, VasAssignStatsArgs>({
+      query: (args = {}) => {
+        const params = new URLSearchParams();
+        if (args.year) params.append("year", args.year.toString());
+        if (args.branchId) params.append("branchId", args.branchId);
+        const qs = params.toString();
+        return `/value-added-services/assign-stats${qs ? `?${qs}` : ""}`;
+      },
+      providesTags: ["CustomerActiveService"],
+      transformErrorResponse: (response) => handleApiError(response),
+    }),
   }),
 });
 
@@ -251,4 +280,5 @@ export const {
   useUpdateVASMutation,
   useDeleteVASMutation,
   useActivateServiceForCustomerMutation,
+  useGetVasAssignStatsQuery,
 } = vasApi;

@@ -326,7 +326,7 @@ const LoginSuperAdmin = () => {
             </div>
 
             {/* Development Helper */}
-            {process.env.NODE_ENV === "development" && (
+            {import.meta.env.DEV && (
               <div className='mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200'>
                 <p className='text-xs text-blue-600 font-medium mb-2'>
                   Development Helper:

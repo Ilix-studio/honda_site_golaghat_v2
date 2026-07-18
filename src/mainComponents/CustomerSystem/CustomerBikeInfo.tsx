@@ -10,6 +10,7 @@ import {
   Camera,
   Loader2,
   AlertCircle,
+  Wrench,
 } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -325,6 +326,54 @@ export function CustomerBikeInfo() {
           </div>
         </CardContent>
       </Card>
+
+      {vehicle.serviceExpenses && (
+        <Card>
+          <CardHeader>
+            <CardTitle className='flex items-center'>
+              <Wrench className='w-5 h-5 mr-2 text-red-600' />
+              Service Expenses
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+              <div>
+                <label className='text-sm font-medium text-gray-500'>
+                  Parts Revenue
+                </label>
+                <p className='text-lg font-semibold text-gray-900'>
+                  ₹
+                  {vehicle.serviceExpenses.partsRevenue.toLocaleString(
+                    "en-IN",
+                  )}
+                </p>
+              </div>
+              <div>
+                <label className='text-sm font-medium text-gray-500'>
+                  Lubes Revenue
+                </label>
+                <p className='text-lg font-semibold text-gray-900'>
+                  ₹
+                  {vehicle.serviceExpenses.lubesRevenue.toLocaleString(
+                    "en-IN",
+                  )}
+                </p>
+              </div>
+              <div>
+                <label className='text-sm font-medium text-gray-500'>
+                  Total Job Card Revenue
+                </label>
+                <p className='text-lg font-semibold text-green-700'>
+                  ₹
+                  {vehicle.serviceExpenses.totalJobCardRevenue.toLocaleString(
+                    "en-IN",
+                  )}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

@@ -42,6 +42,8 @@ export const ROUTES = {
       VAS: "/manager/forms/vas",
       STOCK_CONCEPT: "/manager/forms/stock-concept",
       STOCK_CONCEPT_CSV: "/manager/forms/stock-concept-csv",
+      STOCK_CONCEPT_CSV_VIEW_UPLOADS:
+        "/manager/forms/stock-concept-csv/view-uploads",
     },
     SELECT: {
       VAS: "/manager/vas/select",
@@ -70,7 +72,7 @@ export const ROUTES = {
   PART_ADMIN: {
     LOGIN: "/part-admin/login",
     DASHBOARD: "/part-admin/dashboard",
-    UPLOAD: "/part-admin/upload",
+    UPLOAD: "/part-admin/parts-stock/upload",
   },
 
   STAFF: {

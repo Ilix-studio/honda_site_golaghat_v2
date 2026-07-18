@@ -3,6 +3,7 @@ import { Zap, Star, Fuel, Palette, Settings2 } from "lucide-react";
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 import { Link } from "react-router-dom";
+import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
 import { Bike } from "./bike.types";
 import { useEffect, useState } from "react";
 import { MOCK_BIKES } from "./mock.data";
@@ -98,7 +99,7 @@ export function BikeCard({
 
   if (listView) {
     return (
-      <div className='flex items-center gap-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-4 hover:shadow-md transition-shadow'>
+      <div className='flex items-center gap-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:shadow-md transition-shadow'>
         <div className='relative w-32 h-20 shrink-0 bg-gray-50 dark:bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center'>
           <img
             src={imgSrc}
@@ -253,7 +254,7 @@ export function BikeCard({
           <p className='text-[10px] text-blue-500 mb-3'>
             {bike.variants.length} variants · from{" "}
             {formatPrice(
-              Math.min(...bike.variants.map((v) => v.onRoadPrice ?? v.price)),
+              Math.min(...bike.variants.map((v) => v.onRoadPrice ?? v.price))
             )}
           </p>
         )}
@@ -285,11 +286,11 @@ export function BikeCard({
 
 // ─── RTK Query hook type (matches your bikeApi shape) ────────────────────────
 
-interface BikesQueryResult {
+export interface BikesQueryResult {
   data?: { bikes: Bike[] };
 }
 
-interface BikesQueryState {
+export interface BikesQueryState {
   data?: BikesQueryResult["data"];
   isLoading: boolean;
   error?: unknown;
@@ -297,16 +298,15 @@ interface BikesQueryState {
 }
 
 // Lazy import: use your real hook in production, fall back to mock otherwise
-export let useGetBikesQueryReal:
-  | ((params: Record<string, unknown>) => BikesQueryState)
-  | null = null;
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  useGetBikesQueryReal =
-    require("../../redux-store/services/BikeSystemApi/bikeApi").useGetBikesQuery;
-} catch {
-  useGetBikesQueryReal = null;
-}
+export const useGetBikesQueryReal = (params: Record<string, unknown>) => {
+  const res = useGetBikesQuery(params as any);
+  return {
+    data: res.data ? { bikes: res.data.data.bikes } : undefined,
+    isLoading: res.isLoading,
+    error: res.error,
+    refetch: res.refetch,
+  } as BikesQueryState;
+};
 
 // ─── Mock hook (used when RTK Query is unavailable / API fails) ───────────────
 
@@ -328,7 +328,7 @@ export function useMockBikesQuery(params: {
       let filtered = MOCK_BIKES.filter((b) => b.isActive);
       if (params.mainCategory)
         filtered = filtered.filter(
-          (b) => b.mainCategory === params.mainCategory,
+          (b) => b.mainCategory === params.mainCategory
         );
       if (params.limit) filtered = filtered.slice(0, params.limit);
       setState({ data: { bikes: filtered }, isLoading: false });

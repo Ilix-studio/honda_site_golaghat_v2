@@ -75,6 +75,31 @@ const SharedBikeRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+// Accessible by every admin/staff role (Super-Admin, Branch-Admin,
+// Service-Admin, Part-Admin, Staff) — header is role-aware. requiredRole
+// 'admin' already covers exactly these 5 roles (see ProtectedRoute's
+// hasAnyAdminRole()).
+const ROLE_HEADER: Record<string, React.ComponentType> = {
+  "Branch-Admin": ManagerHeader,
+  "Service-Admin": ServiceAdminsHeader,
+  "Part-Admin": PartAdminHeader,
+  Staff: StaffHeader,
+};
+
+const SharedAllRolesRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const role = useSelector(selectUserRole);
+  const Header = (role && ROLE_HEADER[role]) || AdminHeader;
+
+  return (
+    <ProtectedRoute requiredRole='admin'>
+      <Header />
+      {children}
+    </ProtectedRoute>
+  );
+};
+
 const ServiceAdminRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => (
@@ -320,6 +345,23 @@ export const createSharedBikeRoute = (
         <SharedBikeRouteWrapper>
           <Component />
         </SharedBikeRouteWrapper>
+      </Suspense>
+    }
+  />
+);
+
+export const createSharedAllRolesRoute = (
+  path: string,
+  Component: React.ComponentType,
+) => (
+  <Route
+    key={path}
+    path={path}
+    element={
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <SharedAllRolesRouteWrapper>
+          <Component />
+        </SharedAllRolesRouteWrapper>
       </Suspense>
     }
   />

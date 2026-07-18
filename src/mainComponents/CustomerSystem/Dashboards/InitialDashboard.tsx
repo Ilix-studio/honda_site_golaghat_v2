@@ -56,7 +56,7 @@ const InitialDashboard: React.FC = () => {
   useEffect(() => {
     if (profileLoaded) {
       dispatch(
-        setProfileCompleted(profileData?.data?.profileCompleted ?? false),
+        setProfileCompleted(profileData?.data?.profileCompleted ?? false)
       );
     }
     if (profileError) dispatch(setProfileCompleted(false));
@@ -66,8 +66,8 @@ const InitialDashboard: React.FC = () => {
     if (vehiclesLoaded) {
       dispatch(
         setVehicleCompleted(
-          Array.isArray(vehicleData?.data) && vehicleData.data.length > 0,
-        ),
+          Array.isArray(vehicleData?.data) && vehicleData.data.length > 0
+        )
       );
     }
   }, [vehiclesLoaded, vehicleData, dispatch]);
@@ -77,7 +77,7 @@ const InitialDashboard: React.FC = () => {
       const hasActiveVAS =
         Array.isArray(vehicleData.data) &&
         vehicleData.data.some((v: any) =>
-          v.activeValueAddedServices?.some((s: any) => s.isActive),
+          v.activeValueAddedServices?.some((s: any) => s.isActive)
         );
       dispatch(setSelectVASCompleted(hasActiveVAS));
     }
@@ -293,7 +293,7 @@ const InitialDashboard: React.FC = () => {
                 </div>
 
                 {/* dev reset */}
-                {process.env.NODE_ENV === "development" && (
+                {import.meta.env.DEV && (
                   <Button
                     variant='destructive'
                     size='sm'

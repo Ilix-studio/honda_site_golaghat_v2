@@ -40,6 +40,8 @@ const PAGE_TITLES: Record<string, string> = {
   "/manager/forms/vas": "VAS Form | Tsangpool Honda",
   "/manager/forms/stock-concept": "Stock Concept | Tsangpool Honda",
   "/manager/forms/stock-concept-csv": "Upload CSV Stock | Tsangpool Honda",
+  "/manager/forms/stock-concept-csv/view-uploads":
+    "View Uploads | Tsangpool Honda",
   "/manager/get/all-stock": "View Stock | Tsangpool Honda",
   "/manager/get/csv": "CSV Files | Tsangpool Honda",
   "/manager/vas/select": "VAS Manager | Tsangpool Honda",

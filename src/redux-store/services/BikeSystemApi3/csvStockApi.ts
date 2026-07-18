@@ -7,7 +7,9 @@ import {
   CSVStockFilters,
   GetCSVBatchesResponse,
   GetCSVStocksResponse,
+  GetStockBatchReportsResponse,
   GetStockByIdResponse,
+  StockBatchReportFilters,
 } from "@/types/customer/stockcsv.types";
 import { UpdateStatusRequest } from "@/types/getApproved.types";
 
@@ -95,6 +97,23 @@ export const csvStockApi = apiSlice.injectEndpoints({
       transformErrorResponse: (response) => handleApiError(response),
     }),
 
+    // GET /api/csv-stock/batch-reports (Super-Admin)
+    getStockBatchReports: builder.query<
+      GetStockBatchReportsResponse,
+      StockBatchReportFilters
+    >({
+      query: (filters = {}) => {
+        const params = new URLSearchParams();
+        if (filters.page) params.append("page", filters.page.toString());
+        if (filters.limit) params.append("limit", filters.limit.toString());
+        if (filters.branchId) params.append("branchId", filters.branchId);
+        const queryString = params.toString();
+        return `/csv-stock/batch-reports${queryString ? `?${queryString}` : ""}`;
+      },
+      providesTags: [{ type: "CSVBatch", id: "REPORTS" }],
+      transformErrorResponse: (response) => handleApiError(response),
+    }),
+
     // PATCH /api/csv-stock/:stockId/status
     updateCSVStockStatus: builder.mutation<
       GetStockByIdResponse,
@@ -172,6 +191,7 @@ export const {
   useGetCSVStockByIdQuery,
   useGetCSVBatchesQuery,
   useGetStocksByBatchQuery,
+  useGetStockBatchReportsQuery,
   useUpdateCSVStockStatusMutation,
   useAssignCSVStockMutation,
   useUnassignCSVStockMutation,
