@@ -96,8 +96,8 @@ export default function SalesTrendChart({
                   width={56}
                 />
                 <Tooltip
-                  formatter={(value: number) => [
-                    formatCurrency(value),
+                  formatter={(value) => [
+                    formatCurrency(Number(value) || 0),
                     "Revenue",
                   ]}
                   contentStyle={{
@@ -154,7 +154,7 @@ export default function SalesTrendChart({
                   tickLine={false}
                   width={56}
                 />
-                <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                <Tooltip formatter={(value) => formatCurrency(Number(value) || 0)} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Bar
                   dataKey='labourRevenue'
