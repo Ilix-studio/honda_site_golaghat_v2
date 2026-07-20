@@ -157,3 +157,30 @@ export interface BatchStockFilters {
   limit?: number;
   status?: IStockConceptCSV["stockStatus"]["status"];
 }
+
+export type InvestmentGranularity = "day" | "week" | "month" | "year";
+
+export interface StockInvestmentPoint {
+  bucket: string;
+  bucketStart: string;
+  totalCostPrice: number;
+  vehicleCount: number;
+}
+
+export interface GetStockInvestmentTimeseriesResponse {
+  success: boolean;
+  data: {
+    granularity: InvestmentGranularity;
+    from: string;
+    to: string | null;
+    timeseries: StockInvestmentPoint[];
+    totals: { totalCostPrice: number; vehicleCount: number };
+  };
+}
+
+export interface StockInvestmentTimeseriesFilters {
+  granularity?: InvestmentGranularity;
+  from?: string;
+  to?: string;
+  branchId?: string;
+}

@@ -9,7 +9,9 @@ import {
   GetCSVStocksResponse,
   GetStockBatchReportsResponse,
   GetStockByIdResponse,
+  GetStockInvestmentTimeseriesResponse,
   StockBatchReportFilters,
+  StockInvestmentTimeseriesFilters,
 } from "@/types/customer/stockcsv.types";
 import { UpdateStatusRequest } from "@/types/getApproved.types";
 
@@ -114,6 +116,24 @@ export const csvStockApi = apiSlice.injectEndpoints({
       transformErrorResponse: (response) => handleApiError(response),
     }),
 
+    // GET /api/csv-stock/investment/timeseries (Super-Admin)
+    getStockInvestmentTimeseries: builder.query<
+      GetStockInvestmentTimeseriesResponse,
+      StockInvestmentTimeseriesFilters
+    >({
+      query: (filters = {}) => {
+        const params = new URLSearchParams();
+        if (filters.granularity) params.append("granularity", filters.granularity);
+        if (filters.from) params.append("from", filters.from);
+        if (filters.to) params.append("to", filters.to);
+        if (filters.branchId) params.append("branchId", filters.branchId);
+        const queryString = params.toString();
+        return `/csv-stock/investment/timeseries${queryString ? `?${queryString}` : ""}`;
+      },
+      providesTags: [{ type: "CSVBatch", id: "INVESTMENT_TIMESERIES" }],
+      transformErrorResponse: (response) => handleApiError(response),
+    }),
+
     // PATCH /api/csv-stock/:stockId/status
     updateCSVStockStatus: builder.mutation<
       GetStockByIdResponse,
@@ -192,6 +212,7 @@ export const {
   useGetCSVBatchesQuery,
   useGetStocksByBatchQuery,
   useGetStockBatchReportsQuery,
+  useGetStockInvestmentTimeseriesQuery,
   useUpdateCSVStockStatusMutation,
   useAssignCSVStockMutation,
   useUnassignCSVStockMutation,

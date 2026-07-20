@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -39,50 +40,8 @@ const AbstractBg = () => (
       strokeWidth='1.5'
       opacity='0.5'
     />
-    <polygon
-      points='0,900 0,480 340,0 620,0 0,900'
-      fill='#c0000a'
-      opacity='0.18'
-    />
-    <polygon
-      points='0,900 0,560 280,0 380,0 0,900'
-      fill='#e8001a'
-      opacity='0.22'
-    />
-    <line
-      x1='0'
-      y1='560'
-      x2='380'
-      y2='0'
-      stroke='#ff1a2e'
-      strokeWidth='1.5'
-      opacity='0.5'
-    />
-    <line
-      x1='0'
-      y1='560'
-      x2='380'
-      y2='0'
-      stroke='#ff1a2e'
-      strokeWidth='1.5'
-      opacity='0.5'
-    />
 
     {/* Secondary slash (right side) */}
-    <polygon
-      points='1440,0 1440,340 1100,900 940,900 1440,0'
-      fill='#c0000a'
-      opacity='0.1'
-    />
-    <line
-      x1='1440'
-      y1='340'
-      x2='940'
-      y2='900'
-      stroke='#ff1a2e'
-      strokeWidth='1'
-      opacity='0.3'
-    />
     <polygon
       points='1440,0 1440,340 1100,900 940,900 1440,0'
       fill='#c0000a'
@@ -119,11 +78,6 @@ const AbstractBg = () => (
       <line x1='550' y1='240' x2='1440' y2='240' strokeWidth='0.5' />
       <line x1='650' y1='248' x2='1440' y2='248' strokeWidth='0.3' />
     </g>
-    <g opacity='0.12' stroke='#ff1a2e' fill='none'>
-      <line x1='600' y1='210' x2='1440' y2='210' strokeWidth='0.8' />
-      <line x1='500' y1='218' x2='1440' y2='218' strokeWidth='0.4' />
-      <line x1='700' y1='225' x2='1440' y2='225' strokeWidth='0.3' />
-    </g>
 
     {/* Dot grid texture */}
     <g fill='#ffffff' opacity='0.04'>
@@ -152,10 +106,6 @@ const AbstractBg = () => (
         <stop offset='0%' stopColor='#0a0a0a' stopOpacity='0.9' />
         <stop offset='60%' stopColor='#0a0a0a' stopOpacity='0' />
       </linearGradient>
-      <linearGradient id='leftFade' x1='0' y1='0' x2='1' y2='0'>
-        <stop offset='0%' stopColor='#0a0a0a' stopOpacity='0.9' />
-        <stop offset='60%' stopColor='#0a0a0a' stopOpacity='0' />
-      </linearGradient>
     </defs>
     <rect width='1440' height='900' fill='url(#vignette)' />
     <rect width='800' height='900' fill='url(#leftFade)' />
@@ -163,6 +113,17 @@ const AbstractBg = () => (
 );
 
 const HeroSection = () => {
+  const pulseDots = useMemo(
+    () =>
+      [...Array(14)].map(() => ({
+        left: `${15 + Math.random() * 70}%`,
+        top: `${10 + Math.random() * 80}%`,
+        animationDelay: `${Math.random() * 3}s`,
+        animationDuration: `${2 + Math.random() * 3}s`,
+      })),
+    [],
+  );
+
   return (
     <>
       <section id='home' className='relative h-screen overflow-hidden bg-black'>
@@ -171,16 +132,11 @@ const HeroSection = () => {
 
         {/* Animated pulse dots */}
         <div className='absolute inset-0 overflow-hidden pointer-events-none'>
-          {[...Array(14)].map((_, i) => (
+          {pulseDots.map((style, i) => (
             <div
               key={i}
               className='absolute w-1 h-1 bg-red-600/40 rounded-full animate-pulse'
-              style={{
-                left: `${15 + Math.random() * 70}%`,
-                top: `${10 + Math.random() * 80}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
-              }}
+              style={style}
             />
           ))}
         </div>
@@ -275,4 +231,4 @@ const HeroSection = () => {
   );
 };
 
-export default HeroSection;
+export default memo(HeroSection);

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { IndianRupee, Layers, TrendingUp } from "lucide-react";
 import { StatCard, type StatCardProps } from "./StatCard";
 import { useGetStockBatchReportsQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
+import StockInvestmentKpiCharts from "./StockInvestmentKpiCharts";
 
 const formatCurrency = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
@@ -83,6 +84,8 @@ export default function StockInvestmentDashboard() {
           <StatCard key={kpi.title} {...kpi} index={i} />
         ))}
       </div>
+
+      <StockInvestmentKpiCharts />
 
       <Card size='sm' className='border border-gray-200 shadow-sm'>
         <CardHeader>
