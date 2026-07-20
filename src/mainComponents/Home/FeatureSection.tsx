@@ -63,29 +63,27 @@ export function FeaturesSection() {
     <>
       <section id='features' className='py-12 bg-white'>
         <div className='container px-4 md:px-6'>
-    
-                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6 }}
-                  className='text-center mb-12'
-                >
-                  <div className='flex items-center justify-center gap-2 mb-4'>
-                    <div className='h-1 w-12 bg-red-500 rounded-full' />
-                    <span className='text-red-600 text-sm font-semibold tracking-[0.2em] uppercase'>
-                         Honda Engineering Excellence
-                    </span>
-                    <div className='h-1 w-12 bg-red-500 rounded-full' />
-                  </div>
-                  <h2 className='text-3xl md:text-4xl font-bold tracking-tight mb-4'>
-                 Discover what makes Honda motorcycles stand out 
-                     <span className='bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent ml-2'>
-         from the crowd
-            </span>
-                  </h2>
-                
-                </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className='text-center mb-12'
+          >
+            <div className='flex items-center justify-center gap-2 mb-4'>
+              <div className='h-1 w-12 bg-red-500 rounded-full' />
+              <span className='text-red-600 text-sm font-semibold tracking-[0.2em] uppercase'>
+                Honda Engineering Excellence
+              </span>
+              <div className='h-1 w-12 bg-red-500 rounded-full' />
+            </div>
+            <h2 className='text-3xl md:text-4xl font-bold tracking-tight mb-4'>
+              Discover what makes Honda motorcycles stand out
+              <span className='bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent ml-2'>
+                from the crowd
+              </span>
+            </h2>
+          </motion.div>
 
           <motion.div
             className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6'
@@ -96,7 +94,7 @@ export function FeaturesSection() {
           >
             {features.map((feature, index) => (
               <motion.div key={index} variants={item}>
-                <Card className='h-full border-none shadow-sm hover:shadow-md transition-shadow'>
+                <Card className='h-full border-2 border-red-600 shadow-md hover:shadow-lg transition-shadow'>
                   <CardContent className='p-6'>
                     <div className='mb-4'>{feature.icon}</div>
                     <h3 className='text-lg font-semibold mb-2'>
@@ -122,11 +120,11 @@ export function FeaturesSection() {
             Honda for their service needs.
           </p>
           <div className='flex flex-col sm:flex-row gap-4 justify-center'>
-            <button className='bg-white text-red-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200'>
+            <button className='bg-white text-red-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 cursor-pointer'>
               Book Service Now
             </button>
             <Link to='/finance'>
-              <button className='border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-red-600 transition-colors duration-200'>
+              <button className='border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-red-600 transition-colors duration-200 cursor-pointer'>
                 Do Enquiry!
               </button>
             </Link>

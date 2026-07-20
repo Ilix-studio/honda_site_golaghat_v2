@@ -1,24 +1,13 @@
 import { useMemo, useState } from "react";
-import { useGetPartsStatsQuery } from "@/redux-store/services/partsApi";
 import {
   useGetDatasetsQuery,
   useGetSalesTimeseriesQuery,
-  useGetPartsStockStatusQuery,
 } from "@/redux-store/services/dataImportApi";
 import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetVasAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
 import { StatCard, type StatCardProps } from "./StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 import {
   Package,
   AlertTriangle,
@@ -29,8 +18,6 @@ import {
   ShieldCheck,
   IndianRupee,
   CalendarDays,
-  CheckCircle2,
-  XCircle,
 } from "lucide-react";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
 import SalesTrendChart from "@/mainComponents/DataImport/SalesTrendChart";
@@ -38,6 +25,8 @@ import SalesTrendChart from "@/mainComponents/DataImport/SalesTrendChart";
 import DashboardChartPreview from "@/mainComponents/RAG/DashboardChartPreview";
 import type { DashboardSpec } from "@/redux-store/services/ragApi.types";
 import StockInvestmentDashboard from "./StockInvestmentDashboard";
+import JobCardRevenueKpiCharts from "./JobCardRevenueKpiCharts";
+import PartsKpiCharts from "@/mainComponents/PartsM/PartsKpiCharts";
 
 const YEARS = [2026, 2025, 2024];
 
@@ -66,155 +55,10 @@ function YearSelect({
   );
 }
 
-// ─── Parts sub-tab (unchanged behavior, moved out of the top-level body) ──────
+// ─── Parts sub-tab — reuses the same rich chart set Part-Admin sees ───────────
 
 function PartsDashboard() {
-  const [year, setYear] = useState(new Date().getFullYear());
-  const { data, isLoading } = useGetPartsStatsQuery({ year });
-  const stats = data?.data;
-
-  const { data: stockStatusData, isLoading: stockStatusLoading } =
-    useGetPartsStockStatusQuery();
-  const stockStatus = stockStatusData?.data;
-
-  const kpis: Omit<StatCardProps, "index">[] = [
-    {
-      title: "Total Parts",
-      value: stats?.totals.totalParts ?? "—",
-      icon: Package,
-      loading: isLoading,
-      description: "All branches",
-      action: { label: "Details", href: "/admin/dashboard" },
-    },
-    {
-      title: "Upload Batches",
-      value: stats?.totals.totalBatches ?? "—",
-      icon: Layers,
-      loading: isLoading,
-      description: "Report uploads",
-      action: { label: "Details", href: "/admin/dashboard" },
-    },
-    {
-      title: "Needs Review",
-      value: stats?.totals.reviewParts ?? "—",
-      icon: AlertTriangle,
-      loading: isLoading,
-      description: "Flagged PDF rows",
-      action: { label: "Details", href: "/admin/dashboard" },
-    },
-  ];
-
-  return (
-    <div className='space-y-6'>
-      <div className='flex items-center justify-end'>
-        <YearSelect year={year} onChange={setYear} />
-      </div>
-
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-        {kpis.map((kpi, i) => (
-          <StatCard key={kpi.title} {...kpi} index={i} />
-        ))}
-      </div>
-
-      <Card size='sm' className='border border-gray-100 rounded-2xl shadow-sm'>
-        <CardHeader>
-          <CardTitle className='text-base font-semibold text-gray-900'>
-            Monthly Parts Imported — {year}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className='h-56 flex items-center justify-center'>
-              <p className='text-sm text-gray-400 animate-pulse'>
-                Loading chart...
-              </p>
-            </div>
-          ) : (
-            <ResponsiveContainer width='100%' height={240}>
-              <BarChart
-                data={stats?.monthly}
-                margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray='3 3' stroke='#f0f0f0' />
-                <XAxis
-                  dataKey='month'
-                  tick={{ fontSize: 11, fill: "#9ca3af" }}
-                />
-                <YAxis
-                  tick={{ fontSize: 11, fill: "#9ca3af" }}
-                  allowDecimals={false}
-                />
-                <Tooltip />
-                <Bar dataKey='partCount' fill='#2563eb' radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card size='sm' className='border border-gray-100 rounded-2xl shadow-sm'>
-        <CardHeader>
-          <CardTitle className='text-base font-semibold text-gray-900'>
-            Stock Value — Sold vs Not Sold
-          </CardTitle>
-          <p className='text-sm text-gray-500'>
-            By Stock Value across every uploaded parts-stock file: present and
-            &gt; 0 counts as sold, null/missing/0 counts as not sold.
-          </p>
-        </CardHeader>
-        <CardContent>
-          {stockStatusLoading ? (
-            <div className='h-20 flex items-center justify-center'>
-              <p className='text-sm text-gray-400 animate-pulse'>Loading...</p>
-            </div>
-          ) : !stockStatus || stockStatus.totalItems === 0 ? (
-            <p className='text-sm text-gray-400'>
-              No parts-stock items imported yet.
-            </p>
-          ) : (
-            <div className='space-y-3'>
-              <div>
-                <p className='text-xs text-gray-500'>Total Stock Value</p>
-                <p className='text-2xl font-bold text-gray-900'>
-                  ₹{stockStatus.totalStockValue.toLocaleString("en-IN")}
-                </p>
-              </div>
-              <div className='flex items-center gap-6'>
-                <div className='flex items-center gap-2'>
-                  <CheckCircle2 className='h-4 w-4 text-emerald-600' />
-                  <span className='text-sm text-gray-700'>
-                    <span className='font-semibold text-gray-900'>
-                      {stockStatus.soldCount}
-                    </span>{" "}
-                    sold
-                  </span>
-                </div>
-                <div className='flex items-center gap-2'>
-                  <XCircle className='h-4 w-4 text-gray-400' />
-                  <span className='text-sm text-gray-700'>
-                    <span className='font-semibold text-gray-900'>
-                      {stockStatus.notSoldCount}
-                    </span>{" "}
-                    not sold
-                  </span>
-                </div>
-                <span className='text-sm text-gray-500 ml-auto'>
-                  {stockStatus.totalItems} total items ·{" "}
-                  {stockStatus.soldPercent}% sold
-                </span>
-              </div>
-              <div className='h-2 w-full rounded-full bg-gray-100 overflow-hidden'>
-                <div
-                  className='h-full bg-emerald-500'
-                  style={{ width: `${stockStatus.soldPercent}%` }}
-                />
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
+  return <PartsKpiCharts />;
 }
 
 // ─── Vehicle Stock sub-tab — batch-level totals, no per-row fetch needed ──────
@@ -370,6 +214,17 @@ function ServiceDashboard() {
 
   return (
     <div className='space-y-6'>
+      <Card size='sm' className='border border-gray-100 rounded-2xl shadow-sm'>
+        <CardHeader>
+          <CardTitle className='text-base font-semibold text-gray-900'>
+            Job Card Revenue — Invoiced
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <JobCardRevenueKpiCharts />
+        </CardContent>
+      </Card>
+
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         {kpis.map((kpi, i) => (
           <StatCard key={kpi.title} {...kpi} index={i} />

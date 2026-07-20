@@ -18,32 +18,29 @@ export default function NewUI() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+      if (ticking) return;
+      ticking = true;
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
 
-      if (currentScrollY < lastScrollY || currentScrollY < 10) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
+        setIsScrolled(currentScrollY > 20);
+        setIsVisible(currentScrollY < lastScrollY || currentScrollY < 10);
 
-      setLastScrollY(currentScrollY);
+        lastScrollY = currentScrollY;
+        ticking = false;
+      });
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   return (
     <div className='min-h-screen bg-black overflow-hidden'>
@@ -185,7 +182,7 @@ export default function NewUI() {
                 <Button
                   variant='outline'
                   size='sm'
-                  className='border-red-500/50 text-red-400 hover:bg-white-500/10 hover:border-red-400 transition-all duration-300 px-4 py-2'
+                  className='border-red-500/50 text-red-400 hover:bg-red-500/10 hover:border-red-400 transition-all duration-300 px-4 py-2'
                 >
                   <Phone className='h-4 w-4 mr-2' />
                   <span className='hidden xl:inline'>Call Now</span>
@@ -260,14 +257,16 @@ export default function NewUI() {
               </div>
 
               <div className='pt-4 border-t border-red-500/20 space-y-3'>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='w-full border-red-500/50 text-red-400 hover:bg-red-500/10'
-                >
-                  <Phone className='h-4 w-4 mr-2' />
-                  Call Now
-                </Button>
+                <a href='tel:9394277123'>
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    className='w-full border-red-500/50 text-red-400 hover:bg-red-500/10'
+                  >
+                    <Phone className='h-4 w-4 mr-2' />
+                    Call Now
+                  </Button>
+                </a>
                 <Link to='/customer/book-service'>
                   <Button
                     size='sm'
