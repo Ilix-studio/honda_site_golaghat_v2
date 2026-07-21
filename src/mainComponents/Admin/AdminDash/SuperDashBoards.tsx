@@ -10,9 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Package,
-  AlertTriangle,
   Layers,
-  Bike,
   Wrench,
   Handshake,
   ShieldCheck,
@@ -61,63 +59,6 @@ function PartsDashboard() {
   return <PartsKpiCharts />;
 }
 
-// ─── Vehicle Stock sub-tab — batch-level totals, no per-row fetch needed ──────
-
-function VehicleStockDashboard() {
-  const { data, isLoading } = useGetDatasetsQuery({
-    datasetType: "vehicle-stock",
-    limit: 100,
-  });
-
-  const totals = useMemo(
-    () =>
-      (data?.data ?? []).reduce(
-        (acc, b) => ({
-          imported: acc.imported + b.importedRows,
-          review: acc.review + b.reviewRows,
-        }),
-        { imported: 0, review: 0 }
-      ),
-    [data]
-  );
-  const batchCount = data?.data?.length ?? 0;
-
-  const kpis: Omit<StatCardProps, "index">[] = [
-    {
-      title: "Vehicles Imported",
-      value: isLoading ? "—" : totals.imported,
-      icon: Bike,
-      loading: isLoading,
-      description: "All branches",
-      action: { label: "Upload", href: "/admin/data-import/upload" },
-    },
-    {
-      title: "Upload Batches",
-      value: isLoading ? "—" : batchCount,
-      icon: Layers,
-      loading: isLoading,
-      description: "Stock file uploads",
-      action: { label: "Upload", href: "/admin/data-import/upload" },
-    },
-    {
-      title: "Needs Review",
-      value: isLoading ? "—" : totals.review,
-      icon: AlertTriangle,
-      loading: isLoading,
-      description: "Flagged rows",
-      action: { label: "Upload", href: "/admin/data-import/upload" },
-    },
-  ];
-
-  return (
-    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-      {kpis.map((kpi, i) => (
-        <StatCard key={kpi.title} {...kpi} index={i} />
-      ))}
-    </div>
-  );
-}
-
 // ─── Service sub-tab — job-card/timetrack batch totals + revenue trend ───────
 
 function ServiceDashboard() {
@@ -144,7 +85,7 @@ function ServiceDashboard() {
 
   const timeseries = useMemo(
     () => salesData?.data?.timeseries ?? [],
-    [salesData]
+    [salesData],
   );
   const revenueTotals = useMemo(
     () =>
@@ -154,9 +95,9 @@ function ServiceDashboard() {
           lubesRevenue: acc.lubesRevenue + t.lubesRevenue,
           totalJobCardRevenue: acc.totalJobCardRevenue + t.totalRevenue,
         }),
-        { partsRevenue: 0, lubesRevenue: 0, totalJobCardRevenue: 0 }
+        { partsRevenue: 0, lubesRevenue: 0, totalJobCardRevenue: 0 },
       ),
-    [timeseries]
+    [timeseries],
   );
   const formatCurrency = (v: number) =>
     v >= 100000
@@ -358,8 +299,15 @@ function VasAssignDashboard() {
  */
 export function DashboardsPanel() {
   return (
-    <Tabs defaultValue='parts'>
+    <Tabs defaultValue='stock-investment'>
       <TabsList className='inline-flex h-auto w-full flex-wrap gap-1 bg-gray-100 border border-gray-200 rounded-xl p-1'>
+        <TabsTrigger
+          value='stock-investment'
+          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+        >
+          <IndianRupee className='h-3.5 w-3.5' />
+          <span>Stock Investment</span>
+        </TabsTrigger>
         <TabsTrigger
           value='parts'
           className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
@@ -367,13 +315,7 @@ export function DashboardsPanel() {
           <Package className='h-3.5 w-3.5' />
           <span>Parts</span>
         </TabsTrigger>
-        <TabsTrigger
-          value='vehicle-stock'
-          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
-        >
-          <Bike className='h-3.5 w-3.5' />
-          <span>Vehicle Stock</span>
-        </TabsTrigger>
+
         <TabsTrigger
           value='service'
           className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
@@ -395,20 +337,11 @@ export function DashboardsPanel() {
           <ShieldCheck className='h-3.5 w-3.5' />
           <span>VAS Assign</span>
         </TabsTrigger>
-        <TabsTrigger
-          value='stock-investment'
-          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
-        >
-          <IndianRupee className='h-3.5 w-3.5' />
-          <span>Stock Investment</span>
-        </TabsTrigger>
       </TabsList>
       <TabsContent value='parts' className='pt-4'>
         <PartsDashboard />
       </TabsContent>
-      <TabsContent value='vehicle-stock' className='pt-4'>
-        <VehicleStockDashboard />
-      </TabsContent>
+
       <TabsContent value='service' className='pt-4'>
         <ServiceDashboard />
       </TabsContent>

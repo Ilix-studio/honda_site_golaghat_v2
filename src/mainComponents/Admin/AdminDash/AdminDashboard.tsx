@@ -137,7 +137,7 @@ const AdminDashboard = () => {
 
       {/* Main Content */}
       <div className='container px-2 py-2'>
-        <Tabs defaultValue='branch-queries' className='w-full'>
+        <Tabs defaultValue='dashboards' className='w-full'>
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -146,19 +146,18 @@ const AdminDashboard = () => {
           >
             <TabsList className='inline-flex h-12 w-full md:w-auto bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-xl p-1 gap-1'>
               <TabsTrigger
-                value='branch-queries'
-                className='flex items-center gap-1.5 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-gray-900 hover:bg-gray-50 data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
-              >
-                <Building2 className='h-4 w-4' />
-                <span>Branch Area</span>
-              </TabsTrigger>
-
-              <TabsTrigger
                 value='dashboards'
                 className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-blue-700 hover:bg-blue-50 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md'
               >
                 <Bot className='h-4 w-4' />
                 <span>Dashboard</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value='branch-queries'
+                className='flex items-center gap-1.5 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-gray-900 hover:bg-gray-50 data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <Building2 className='h-4 w-4' />
+                <span>Branch Area</span>
               </TabsTrigger>
 
               <TabsTrigger
@@ -170,32 +169,6 @@ const AdminDashboard = () => {
               </TabsTrigger>
             </TabsList>
           </motion.div>
-
-          <TabsContent value='branch-queries' className='mt-2'>
-            <Card
-              size='sm'
-              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
-            >
-              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-4 py-3'>
-                <div className='flex items-center gap-2'>
-                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white shadow-sm'>
-                    <Building2 className='h-5 w-5' />
-                  </div>
-                  <div>
-                    <CardTitle className='text-lg font-semibold text-gray-900'>
-                      Branch Management & Analytics
-                    </CardTitle>
-                    <CardDescription className='text-gray-500 mt-0.5'>
-                      Monitor branch performance, managers, and operations
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className='p-2'>
-                <BranchQueries />
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           <TabsContent value='dashboards' className='mt-2'>
             <Card
@@ -219,6 +192,32 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent className='p-2'>
                 <DashboardsPanel />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value='branch-queries' className='mt-2'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
+              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-4 py-3'>
+                <div className='flex items-center gap-2'>
+                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white shadow-sm'>
+                    <Building2 className='h-5 w-5' />
+                  </div>
+                  <div>
+                    <CardTitle className='text-lg font-semibold text-gray-900'>
+                      Branch Management & Analytics
+                    </CardTitle>
+                    <CardDescription className='text-gray-500 mt-0.5'>
+                      Monitor branch performance, managers, and operations
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className='p-2'>
+                <BranchQueries />
               </CardContent>
             </Card>
           </TabsContent>

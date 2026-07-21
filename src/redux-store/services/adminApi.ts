@@ -1,6 +1,6 @@
 import { apiSlice } from "./apiSlice";
-import { User, UserBranch, loginSuccess, logout } from "../slices/authSlice";
-import { persistor } from "../store";
+import { User, UserBranch, loginSuccess } from "../slices/authSlice";
+import { clearAuthState } from "../authHelpers";
 
 // ─── Request Types ───────────────────────────────────────────────────────────
 
@@ -168,14 +168,6 @@ export interface UpdateMyProfileRequest {
   lifeInsurance?: string;
   scanfleetStickerId?: string;
 }
-
-// ─── Shared logout cleanup ──────────────────────────────────────────────────
-
-const clearAuthState = (dispatch: any) => {
-  dispatch(logout());
-  dispatch(apiSlice.util.resetApiState());
-  persistor.purge();
-};
 
 // ─── API Slice ───────────────────────────────────────────────────────────────
 
