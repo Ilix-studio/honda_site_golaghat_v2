@@ -27,8 +27,10 @@ import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
 import { addNotification } from "../../redux-store/slices/uiSlice";
 import { useLoginSuperAdminMutation } from "@/redux-store/services/adminApi";
+import OtpLoginForm from "@/mainComponents/shared/OtpLoginForm";
 
 const LoginSuperAdmin = () => {
+  const [mode, setMode] = useState<"password" | "otp">("password");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -169,6 +171,34 @@ const LoginSuperAdmin = () => {
               </motion.div>
             )}
 
+            <div className='mb-6 grid grid-cols-2 gap-2 rounded-lg bg-gray-100 p-1'>
+              <button
+                type='button'
+                onClick={() => setMode("password")}
+                className={`rounded-md py-1.5 text-sm font-medium transition-colors ${
+                  mode === "password"
+                    ? "bg-red-600 text-white"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Password
+              </button>
+              <button
+                type='button'
+                onClick={() => setMode("otp")}
+                className={`rounded-md py-1.5 text-sm font-medium transition-colors ${
+                  mode === "otp"
+                    ? "bg-red-600 text-white"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                OTP
+              </button>
+            </div>
+
+            {mode === "otp" ? (
+              <OtpLoginForm redirectPath='/admin/dashboard' variant='light' />
+            ) : (
             <form onSubmit={handleSubmit} className='space-y-6'>
               <div className='space-y-2'>
                 <Label
@@ -291,6 +321,7 @@ const LoginSuperAdmin = () => {
                 )}
               </Button>
             </form>
+            )}
             <br />
             <div className='flex flex-col gap-3 '>
               <Link

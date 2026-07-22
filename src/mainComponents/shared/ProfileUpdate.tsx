@@ -24,6 +24,7 @@ const EMPTY: UpdateMyProfileRequest = {
   lifeInsurance: "",
   scanfleetStickerId: "",
   address: "",
+  phoneNumber: "",
 };
 
 /**
@@ -52,6 +53,7 @@ export default function ProfileUpdate({
         lifeInsurance: me.lifeInsurance ?? "",
         scanfleetStickerId: me.scanfleetStickerId ?? "",
         address: me.address ?? "",
+        phoneNumber: me.phoneNumber ?? "",
       });
     }
   }, [me]);
@@ -61,6 +63,12 @@ export default function ProfileUpdate({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (form.phoneNumber && !/^[6-9]\d{9}$/.test(form.phoneNumber)) {
+      toast.error("Please enter a valid 10-digit phone number");
+      return;
+    }
+
     try {
       await updateMe(form).unwrap();
       toast.success("Profile updated");
@@ -89,6 +97,20 @@ export default function ProfileUpdate({
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="phoneNumber">Phone Number (used for OTP login)</Label>
+        <Input
+          id="phoneNumber"
+          inputMode="numeric"
+          maxLength={10}
+          placeholder="10-digit mobile number"
+          value={form.phoneNumber}
+          onChange={(e) =>
+            set("phoneNumber", e.target.value.replace(/\D/g, "").slice(0, 10))
+          }
+        />
       </div>
 
       <div className="space-y-1.5">

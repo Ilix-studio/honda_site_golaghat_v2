@@ -12,8 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   MessageSquare,
-  Clock,
-  Home,
   Building2,
   Cog,
   User,
@@ -23,6 +21,7 @@ import {
   Regex,
   Package,
   Users,
+  ShieldUser,
 } from "lucide-react";
 import { useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -54,22 +53,22 @@ const BranchManagerDashboard = () => {
 
   const { data: staffData, isLoading: staffLoading } = useGetAllStaffQuery(
     undefined,
-    { skip: !isAuthenticated }
+    { skip: !isAuthenticated },
   );
 
   const { data: vasData, isLoading: vasLoading } = useGetAllVASQuery(
     { page: 1, limit: 1 },
-    { skip: !isAuthenticated }
+    { skip: !isAuthenticated },
   );
 
   const { data: stockData, isLoading: stockLoading } = useGetAllStockItemsQuery(
     { page: 1, limit: 1 },
-    { skip: !isAuthenticated }
+    { skip: !isAuthenticated },
   );
 
   const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
     {},
-    { skip: !isAuthenticated }
+    { skip: !isAuthenticated },
   );
   const { data: partsAdminData, isLoading: partsAdminLoading } =
     useGetAllPartAdminsQuery();
@@ -95,13 +94,6 @@ const BranchManagerDashboard = () => {
     if (hour < 17) return "Good Afternoon";
     return "Good Evening";
   })();
-
-  const formattedDate = currentTime.toLocaleDateString("en-IN", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 
   // Stat cards built from live query data
   const operationsStats: Omit<StatCardProps, "index">[] = [
@@ -199,7 +191,7 @@ const BranchManagerDashboard = () => {
   return (
     <div className='min-h-screen bg-gray-50'>
       {/* Hero Banner */}
-      <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-red-950'>
+      <div className='relative overflow-hidden bg-gradient-to-br from-gray-100 via-gray-200 to-gray-250 border-none rounded-b-3xl shadow-md'>
         <div className='absolute inset-0 opacity-[0.04]'>
           <div
             className='absolute inset-0'
@@ -210,45 +202,42 @@ const BranchManagerDashboard = () => {
           />
         </div>
 
-        <div className='absolute -top-24 -right-24 w-96 h-96 bg-red-600/10 rounded-full blur-3xl' />
-        <div className='absolute -bottom-32 -left-32 w-80 h-80 bg-red-500/5 rounded-full blur-3xl' />
+        <div className='absolute -top-24 -right-24 w-96 h-96 bg-gray-600/10 rounded-full blur-3xl' />
+        <div className='absolute -bottom-32 -left-32 w-80 h-80 bg-gray-500/5 rounded-full blur-3xl' />
 
         <div className='relative container px-4 py-10 md:py-8'>
           <div className='flex flex-col md:flex-row md:items-end md:justify-between gap-6'>
             <div>
               <div className='flex items-center gap-2 mb-3'>
-                <div className='h-1 w-8 bg-red-500 rounded-full' />
-                <span className='text-red-400 text-xs font-semibold tracking-[0.2em] uppercase'>
+                <div className='h-1 w-8 bg-blue-700 rounded-full' />
+                <span className='text-blue-700  text-xs font-semibold tracking-[0.2em] uppercase'>
                   Branch Admin Panel
                 </span>
               </div>
-              <h1 className='text-3xl md:text-4xl font-bold text-white tracking-tight'>
+              <h1 className='text-3xl md:text-4xl font-bold text-emerald-900 tracking-tight'>
                 {greeting},{" "}
-                <span className='bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent'>
+                <span className='bg-gradient-to-r from-blue-900 to-blue-800 bg-clip-text text-transparent'>
                   {user?.name || "Manager"}
                 </span>
               </h1>
-              <p className='text-gray-400 mt-2 text-sm md:text-base max-w-lg'>
+              <p className='text-gray-600 mt-2 text-sm md:text-base max-w-lg'>
                 Manage your branch operations, track service bookings, and
                 monitor customer engagement.
               </p>
             </div>
 
             <div className='flex flex-col items-start md:items-end gap-3'>
-              <div className='flex items-center gap-2 text-gray-400 text-sm'>
-                <Clock className='h-3.5 w-3.5' />
-                <span>{formattedDate}</span>
-              </div>
               <Button
-                className='text-gray-400 text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full bg-white/5 border border-white/10'
-                onClick={() => navigate("/")}
+                className='text-black text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full border-2 bg-white/5 border-blue-700 hover:bg-blue-700/10 hover:text-orange-700 transition-all duration-200'
+                onClick={() => navigate("/manager/profile")}
               >
-                <Home className='h-3 w-3 text-gray-400' /> Visit Homepage
+                <ShieldUser className='h-3 w-3 text-black' /> See Profile
               </Button>
+
               <div className='flex items-center gap-4'>
-                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20'>
-                  <div className='h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse' />
-                  <span className='text-emerald-400 text-xs font-medium'>
+                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-blue-700 bg-blue-500/10 backdrop-blur-sm shadow-sm'>
+                  <div className='h-1.5 w-1.5 rounded-full bg-blue-400   animate-pulse' />
+                  <span className='text-black text-xs font-medium'>
                     {user?.branch?.branchName || "Branch"}
                   </span>
                 </div>
@@ -257,7 +246,7 @@ const BranchManagerDashboard = () => {
           </div>
         </div>
 
-        <div className='absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/30 to-transparent' />
+        <div className='absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500/30 to-transparent' />
       </div>
 
       {/* Main Content */}
@@ -279,14 +268,14 @@ const BranchManagerDashboard = () => {
               </TabsTrigger>
               <TabsTrigger
                 value='customer-reports'
-                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-red-700 hover:bg-red-50 data-[state=active]:bg-gray-600 data-[state=active]:text-white data-[state=active]:shadow-md'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-orange-700 hover:bg-orange-50 data-[state=active]:bg-gray-600 data-[state=active]:text-white data-[state=active]:shadow-md'
               >
                 <MessageSquare className='h-4 w-4' />
                 <span>Add Vehicles & Reports</span>
               </TabsTrigger>
               <TabsTrigger
                 value='analytics'
-                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-red-700 hover:bg-red-50 data-[state=active]:bg-blue-800 data-[state=active]:text-white data-[state=active]:shadow-md'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-orange-700 hover:bg-orange -50 data-[state=active]:bg-blue-800 data-[state=active]:text-white data-[state=active]:shadow-md'
               >
                 <TrendingUp className='h-4 w-4' />
                 <span>Branch Analytics</span>

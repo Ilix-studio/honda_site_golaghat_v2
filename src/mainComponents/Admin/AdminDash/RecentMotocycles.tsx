@@ -80,7 +80,7 @@ const VehicleRow = ({
   const stock = getStockStatus(vehicle.stockAvailable);
 
   const { data: imagesData, isLoading: imageLoading } = useGetBikeImagesQuery(
-    vehicle._id
+    vehicle._id,
   );
   const images = imagesData?.data?.images ?? [];
   const primaryImage = images.find((img) => img.isPrimary) ?? images[0];
