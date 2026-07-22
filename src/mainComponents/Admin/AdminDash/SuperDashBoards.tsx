@@ -25,6 +25,13 @@ import type { DashboardSpec } from "@/redux-store/services/ragApi.types";
 import StockInvestmentDashboard from "./StockInvestmentDashboard";
 import JobCardRevenueKpiCharts from "./JobCardRevenueKpiCharts";
 import PartsKpiCharts from "@/mainComponents/PartsM/PartsKpiCharts";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import {
+  selectActiveTab,
+  setActiveTab,
+} from "@/redux-store/slices/dashboardTabsSlice";
+
+const SUPER_DASHBOARDS_TAB_KEY = "superDashBoards";
 
 const YEARS = [2026, 2025, 2024];
 
@@ -298,8 +305,18 @@ function VasAssignDashboard() {
  * AdminDashboard, separate from the AI Assistant.
  */
 export function DashboardsPanel() {
+  const dispatch = useAppDispatch();
+  const activeTab =
+    useAppSelector(selectActiveTab(SUPER_DASHBOARDS_TAB_KEY)) ??
+    "stock-investment";
+
   return (
-    <Tabs defaultValue='stock-investment'>
+    <Tabs
+      value={activeTab}
+      onValueChange={(v) =>
+        dispatch(setActiveTab({ key: SUPER_DASHBOARDS_TAB_KEY, value: v }))
+      }
+    >
       <TabsList className='inline-flex h-auto w-full flex-wrap gap-1 bg-gray-100 border border-gray-200 rounded-xl p-1'>
         <TabsTrigger
           value='stock-investment'

@@ -22,8 +22,12 @@ import {
   UploadCloud,
   Users,
 } from "lucide-react";
-import { useAppSelector } from "../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
+import {
+  selectActiveTab,
+  setActiveTab,
+} from "../../redux-store/slices/dashboardTabsSlice";
 
 import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 
@@ -38,9 +42,15 @@ import SalesKpiCharts, {
   RevenueByBarChart,
 } from "@/mainComponents/DataImport/SalesKpiCharts";
 
+const SERVICE_ADMIN_DASHBOARD_TAB_KEY = "serviceAdminDashboard";
+
 const DashServiceAdmins = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector(selectAuth);
+  const activeTab =
+    useAppSelector(selectActiveTab(SERVICE_ADMIN_DASHBOARD_TAB_KEY)) ??
+    "operations";
   const [currentTime, setCurrentTime] = useState(new Date());
   const [granularity, setGranularity] = useState<Granularity>("day");
 
@@ -56,7 +66,7 @@ const DashServiceAdmins = () => {
   });
   const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
     {},
-    { skip: !isAuthenticated }
+    { skip: !isAuthenticated },
   );
   const { data: newCustomersData, isLoading: newCustomersLoading } =
     useGetNewCustomersQuery({ limit: 1 }, { skip: !isAuthenticated });
@@ -156,7 +166,7 @@ const DashServiceAdmins = () => {
   return (
     <div className='min-h-screen bg-gray-50'>
       {/* Hero Banner */}
-      <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-red-950'>
+      <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-red-950 rounded-b-xl shadow-md '>
         <div className='absolute inset-0 opacity-[0.04]'>
           <div
             className='absolute inset-0'
@@ -219,7 +229,15 @@ const DashServiceAdmins = () => {
 
       {/* Main Content */}
       <div className='container px-2 py-2'>
-        <Tabs defaultValue='operations' className='w-full'>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) =>
+            dispatch(
+              setActiveTab({ key: SERVICE_ADMIN_DASHBOARD_TAB_KEY, value: v }),
+            )
+          }
+          className='w-full'
+        >
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}

@@ -3,13 +3,30 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Cog, BookAudio } from "lucide-react";
 import ViewAssignedStock from "./ViewAssignedStock";
 import ViewAssignedStockCSV from "./ViewAssignedStockCSV";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import {
+  selectActiveTab,
+  setActiveTab,
+} from "@/redux-store/slices/dashboardTabsSlice";
+
+const SALES_REPORT_TAB_KEY = "salesReport";
 
 const SalesReport = () => {
+  const dispatch = useAppDispatch();
+  const activeTab =
+    useAppSelector(selectActiveTab(SALES_REPORT_TAB_KEY)) ?? "assigned-stock";
+
   return (
     <>
       <div className='min-h-screen bg-gray-50'>
         <div className='container px-4 py-8 overflow-y-auto'>
-          <Tabs defaultValue='assigned-stock' className='w-full'>
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) =>
+              dispatch(setActiveTab({ key: SALES_REPORT_TAB_KEY, value: v }))
+            }
+            className='w-full'
+          >
             <TabsList className='inline-flex h-12 w-full md:w-auto bg-white border border-gray-200 shadow-sm rounded-xl p-1 gap-1'>
               <TabsTrigger
                 value='assigned-stock'

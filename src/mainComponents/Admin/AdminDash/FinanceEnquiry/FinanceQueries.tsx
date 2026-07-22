@@ -2,8 +2,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AllApplicationsTab } from "./AllApplicationsTab";
 import { WithBikesTab } from "./WithBikesTab";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import {
+  selectActiveTab,
+  setActiveTab,
+} from "@/redux-store/slices/dashboardTabsSlice";
+
+const FINANCE_QUERIES_TAB_KEY = "financeQueries";
 
 const FinanceQueries = () => {
+  const dispatch = useAppDispatch();
+  const activeTab =
+    useAppSelector(selectActiveTab(FINANCE_QUERIES_TAB_KEY)) ??
+    "all-applications";
+
   return (
     <div className='min-h-screen bg-gray-50'>
       <div className='p-6 space-y-6'>
@@ -16,7 +28,12 @@ const FinanceQueries = () => {
           </p>
         </div>
 
-        <Tabs defaultValue='all-applications'>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) =>
+            dispatch(setActiveTab({ key: FINANCE_QUERIES_TAB_KEY, value: v }))
+          }
+        >
           <TabsList>
             <TabsTrigger value='all-applications'>All Applications</TabsTrigger>
             <TabsTrigger value='with-bikes'>Bike Enquiries</TabsTrigger>

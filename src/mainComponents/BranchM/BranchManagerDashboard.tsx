@@ -23,8 +23,12 @@ import {
   Users,
   ShieldUser,
 } from "lucide-react";
-import { useAppSelector } from "../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
+import {
+  selectActiveTab,
+  setActiveTab,
+} from "../../redux-store/slices/dashboardTabsSlice";
 import {
   useGetAllPartAdminsQuery,
   useGetAllServiceAdminsQuery,
@@ -38,13 +42,18 @@ import CustomerQueries from "./Tabs/CustomerQuery";
 import JobCardCatalogManager from "../CustomerSystem/JobCard/JobCardCatalogManager";
 import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
 import RecentMotorcycles from "../Admin/AdminDash/RecentMotocycles";
-import RagAssistant from "@/mainComponents/RAG/RagAssistant";
+// import RagAssistant from "@/mainComponents/RAG/RagAssistant";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
 import BranchKpiCharts from "./BranchKpiCharts";
 
+const BRANCH_DASHBOARD_TAB_KEY = "branchManagerDashboard";
+
 const BranchManagerDashboard = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector(selectAuth);
+  const activeTab =
+    useAppSelector(selectActiveTab(BRANCH_DASHBOARD_TAB_KEY)) ?? "operations";
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // RTK Query hooks — skip until authenticated to avoid 401s
@@ -251,7 +260,13 @@ const BranchManagerDashboard = () => {
 
       {/* Main Content */}
       <div className='container px-2 py-2'>
-        <Tabs defaultValue='operations' className='w-full'>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) =>
+            dispatch(setActiveTab({ key: BRANCH_DASHBOARD_TAB_KEY, value: v }))
+          }
+          className='w-full'
+        >
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -315,14 +330,14 @@ const BranchManagerDashboard = () => {
               <JobCardCatalogManager />
             </div>
 
-            <div className='mt-6'>
+            {/* <div className='mt-6'>
               <RagAssistant
                 title='Branch AI Assistant'
                 subtitle='Ask questions about job cards and accident reports for your branch — answers are grounded in live data and cite their sources.'
                 sourceTypes={["jobcard-live", "accident-report"]}
                 placeholder='e.g. How many open job cards do we have?'
               />
-            </div>
+            </div> */}
           </TabsContent>
 
           <TabsContent value='customer-reports' className='mt-2'>
@@ -347,6 +362,7 @@ const BranchManagerDashboard = () => {
               </CardHeader>
               <CustomerQueries />
             </Card>
+
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}

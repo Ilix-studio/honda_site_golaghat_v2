@@ -20,6 +20,13 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import {
+  selectActiveTab,
+  setActiveTab,
+} from "@/redux-store/slices/dashboardTabsSlice";
+
+const RECENT_MOTORCYCLES_TAB_KEY = "recentMotorcycles";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 const formatPrice = (priceBreakdown: any): string => {
@@ -279,6 +286,9 @@ const VehicleList = ({
 
 // ─── main ─────────────────────────────────────────────────────────────────────
 const RecentMotorcycles = () => {
+  const dispatch = useAppDispatch();
+  const activeTab =
+    useAppSelector(selectActiveTab(RECENT_MOTORCYCLES_TAB_KEY)) ?? "bikes";
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const {
@@ -320,7 +330,7 @@ const RecentMotorcycles = () => {
   };
 
   return (
-    <div className='rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden'>
+    <div className='rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden mt-5'>
       {/* header */}
       <div className='flex items-center justify-between px-6 py-4 border-b border-gray-100'>
         <div className='flex items-center gap-3'>
@@ -328,8 +338,12 @@ const RecentMotorcycles = () => {
             <Bike className='h-4.5 w-4.5 text-red-600' />
           </div>
           <div>
-            <h3 className='text-sm font-bold text-gray-900'>Recent Vehicles</h3>
-            <p className='text-xs text-gray-400'>Honda dealership inventory</p>
+            <h3 className='text-sm font-bold text-gray-900'>
+              Homepage Vehicles
+            </h3>
+            <p className='text-xs text-gray-500'>
+              List out vehicles on the homepage
+            </p>
           </div>
         </div>
         <Link to='/bikes/add'>
@@ -345,7 +359,14 @@ const RecentMotorcycles = () => {
 
       {/* tabs */}
       <div className='p-4'>
-        <Tabs defaultValue='bikes'>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) =>
+            dispatch(
+              setActiveTab({ key: RECENT_MOTORCYCLES_TAB_KEY, value: v }),
+            )
+          }
+        >
           <TabsList className='w-full grid grid-cols-2 rounded-xl bg-gray-100 p-1 h-auto mb-4'>
             <TabsTrigger
               value='bikes'

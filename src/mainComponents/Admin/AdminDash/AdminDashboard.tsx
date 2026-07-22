@@ -14,11 +14,15 @@ import { Building2, Clock, Home, Package, Bot, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // Redux
-import { useAppSelector } from "../../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import {
   selectIsAdmin,
   selectUser,
 } from "../../../redux-store/slices/authSlice";
+import {
+  selectActiveTab,
+  setActiveTab,
+} from "../../../redux-store/slices/dashboardTabsSlice";
 
 // Import the new components
 import BranchQueries from "./BranchQueries";
@@ -27,10 +31,15 @@ import { Button } from "@/components/ui/button";
 import { DashboardsPanel } from "./SuperDashBoards";
 import AiAssistantPanel from "./AiAssistantPanel";
 
+const ADMIN_DASHBOARD_TAB_KEY = "adminDashboard";
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const isAdmin = useAppSelector(selectIsAdmin);
   const user = useAppSelector(selectUser);
+  const activeTab =
+    useAppSelector(selectActiveTab(ADMIN_DASHBOARD_TAB_KEY)) ?? "dashboards";
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -77,7 +86,7 @@ const AdminDashboard = () => {
   return (
     <div className='min-h-screen bg-gray-50'>
       {/* Hero Banner */}
-      <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-red-950'>
+      <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-red-950 rounded-b-xl shadow-md '>
         {/* Background pattern */}
         <div className='absolute inset-0 opacity-[0.04]'>
           <div
@@ -137,7 +146,13 @@ const AdminDashboard = () => {
 
       {/* Main Content */}
       <div className='container px-2 py-2'>
-        <Tabs defaultValue='dashboards' className='w-full'>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) =>
+            dispatch(setActiveTab({ key: ADMIN_DASHBOARD_TAB_KEY, value: v }))
+          }
+          className='w-full'
+        >
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}

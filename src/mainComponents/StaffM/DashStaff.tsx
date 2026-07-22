@@ -19,8 +19,12 @@ import {
   Activity,
   UploadCloud,
 } from "lucide-react";
-import { useAppSelector } from "../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
+import {
+  selectActiveTab,
+  setActiveTab,
+} from "../../redux-store/slices/dashboardTabsSlice";
 
 import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 
@@ -30,9 +34,14 @@ import {
   useGetDatasetRowsQuery,
 } from "@/redux-store/services/dataImportApi";
 
+const STAFF_DASHBOARD_TAB_KEY = "staffDashboard";
+
 const DashStaff = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector(selectAuth);
+  const activeTab =
+    useAppSelector(selectActiveTab(STAFF_DASHBOARD_TAB_KEY)) ?? "operations";
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // RTK Query hooks — skip until authenticated to avoid 401s
@@ -41,13 +50,13 @@ const DashStaff = () => {
 
   const { data: timetrackBatches } = useGetDatasetsQuery(
     { datasetType: "service-timetrack", page: 1, limit: 1 },
-    { skip: !isAuthenticated }
+    { skip: !isAuthenticated },
   );
   const latestTimetrackBatchId = timetrackBatches?.data?.[0]?.batchId;
   const { data: timetrackRows, isLoading: timetrackLoading } =
     useGetDatasetRowsQuery(
       { batchId: latestTimetrackBatchId as string, page: 1, limit: 50 },
-      { skip: !latestTimetrackBatchId }
+      { skip: !latestTimetrackBatchId },
     );
 
   useEffect(() => {
@@ -129,7 +138,7 @@ const DashStaff = () => {
   return (
     <div className='min-h-screen bg-gray-50'>
       {/* Hero Banner */}
-      <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-red-950'>
+      <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-red-950 rounded-b-xl shadow-md '>
         <div className='absolute inset-0 opacity-[0.04]'>
           <div
             className='absolute inset-0'
@@ -192,7 +201,13 @@ const DashStaff = () => {
 
       {/* Main Content */}
       <div className='container px-4 py-8'>
-        <Tabs defaultValue='operations' className='w-full'>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) =>
+            dispatch(setActiveTab({ key: STAFF_DASHBOARD_TAB_KEY, value: v }))
+          }
+          className='w-full'
+        >
           <TabsList className='inline-flex h-12 w-full md:w-auto bg-white border border-gray-200 shadow-sm rounded-xl p-1 gap-1'>
             <TabsTrigger
               value='operations'

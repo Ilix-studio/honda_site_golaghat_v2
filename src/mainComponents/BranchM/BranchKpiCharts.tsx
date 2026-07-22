@@ -27,6 +27,11 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { MetricTile } from "@/mainComponents/Admin/AdminDash/StatCard";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import {
+  selectActiveTab,
+  setActiveTab,
+} from "@/redux-store/slices/dashboardTabsSlice";
 import SalesKpiCharts, {
   ChartSkeleton,
   EmptyChartState,
@@ -291,9 +296,21 @@ const VasTab = () => {
 
 // ─── Root component ───────────────────────────────────────────────────────
 
+const BRANCH_KPI_CHARTS_TAB_KEY = "branchKpiCharts";
+
 const BranchKpiCharts = () => {
+  const dispatch = useAppDispatch();
+  const activeTab =
+    useAppSelector(selectActiveTab(BRANCH_KPI_CHARTS_TAB_KEY)) ?? "sales";
+
   return (
-    <Tabs defaultValue='sales' className='w-full'>
+    <Tabs
+      value={activeTab}
+      onValueChange={(v) =>
+        dispatch(setActiveTab({ key: BRANCH_KPI_CHARTS_TAB_KEY, value: v }))
+      }
+      className='w-full'
+    >
       <TabsList className='inline-flex h-11 bg-gray-100 rounded-xl p-1 gap-1'>
         <TabsTrigger value='sales' className='flex items-center gap-2 px-4 rounded-lg text-sm'>
           <IndianRupee className='h-3.5 w-3.5' />

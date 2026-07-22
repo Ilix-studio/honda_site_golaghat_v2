@@ -7,17 +7,27 @@ import { Building2, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // Redux
-import { useAppSelector } from "../../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { selectAuth } from "../../../redux-store/slices/authSlice";
+import {
+  selectActiveTab,
+  setActiveTab,
+} from "../../../redux-store/slices/dashboardTabsSlice";
 
 // Import the new components
 
 import LeaveStatus from "./LeaveStatus";
 import ListLeave from "./ListLeave";
 
+const LEAVE_APPLICATION_TAB_KEY = "leaveApplicationTabs";
+
 const TabBased = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { isAuthenticated } = useAppSelector(selectAuth);
+  const activeTab =
+    useAppSelector(selectActiveTab(LEAVE_APPLICATION_TAB_KEY)) ??
+    "branch-queries";
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -63,7 +73,13 @@ const TabBased = () => {
 
       {/* Main Content */}
       <div className='container px-4 py-8'>
-        <Tabs defaultValue='branch-queries' className='w-full'>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) =>
+            dispatch(setActiveTab({ key: LEAVE_APPLICATION_TAB_KEY, value: v }))
+          }
+          className='w-full'
+        >
           <TabsList className='inline-flex h-12 w-full md:w-auto bg-white border border-gray-200 shadow-sm rounded-xl p-1 gap-1'>
             <TabsTrigger
               value='branch-queries'

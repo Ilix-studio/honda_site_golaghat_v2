@@ -42,16 +42,25 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { useAppSelector } from "@/hooks/redux";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
+import {
+  selectActiveTab,
+  setActiveTab,
+} from "@/redux-store/slices/dashboardTabsSlice";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
 import PartsKpiCharts from "./PartsKpiCharts";
 
 const YEARS = [2026, 2025, 2024];
+const PARTS_ADMIN_DASHBOARD_TAB_KEY = "partsAdminDashboard";
 
 export default function PartsAdminDashboard() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector(selectAuth);
+  const activeTab =
+    useAppSelector(selectActiveTab(PARTS_ADMIN_DASHBOARD_TAB_KEY)) ??
+    "operations";
   const [year, setYear] = useState(new Date().getFullYear());
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -59,7 +68,7 @@ export default function PartsAdminDashboard() {
     {
       year,
     },
-    { skip: !isAuthenticated }
+    { skip: !isAuthenticated },
   );
 
   const stats = statsData?.data;
@@ -75,18 +84,18 @@ export default function PartsAdminDashboard() {
   const { data: stockRows, isLoading: stockRowsLoading } =
     useGetDatasetRowsQuery(
       { batchId: latestStockBatchId as string, page: 1, limit: 1000 },
-      { skip: !latestStockBatchId }
+      { skip: !latestStockBatchId },
     );
 
   const stockKpis = useMemo(() => {
     const rows = stockRows?.data ?? [];
     const totalQuantity = rows.reduce(
       (sum, r) => sum + (Number(r.normalized?.quantity) || 0),
-      0
+      0,
     );
     const totalStockValue = rows.reduce(
       (sum, r) => sum + (Number(r.normalized?.stockValue) || 0),
-      0
+      0,
     );
     return { totalQuantity, totalStockValue };
   }, [stockRows]);
@@ -106,14 +115,14 @@ export default function PartsAdminDashboard() {
   const { data: invoiceRows, isLoading: invoiceRowsLoading } =
     useGetDatasetRowsQuery(
       { batchId: latestInvoiceBatchId as string, page: 1, limit: 1000 },
-      { skip: !latestInvoiceBatchId }
+      { skip: !latestInvoiceBatchId },
     );
 
   const partsSold = useMemo(() => {
     const rows = invoiceRows?.data ?? [];
     const totalAmount = rows.reduce(
       (sum, r) => sum + (Number(r.normalized?.totalAmount) || 0),
-      0
+      0,
     );
     return { count: rows.length, totalAmount };
   }, [invoiceRows]);
@@ -201,7 +210,7 @@ export default function PartsAdminDashboard() {
   return (
     <div className='min-h-screen bg-gray-50'>
       {/* Hero Banner */}
-      <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-red-950'>
+      <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-red-950 rounded-b-xl shadow-md'>
         <div className='absolute inset-0 opacity-[0.04]'>
           <div
             className='absolute inset-0'
@@ -264,7 +273,15 @@ export default function PartsAdminDashboard() {
 
       {/* Main Content */}
       <div className='container px-2 py-2'>
-        <Tabs defaultValue='operations' className='w-full'>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) =>
+            dispatch(
+              setActiveTab({ key: PARTS_ADMIN_DASHBOARD_TAB_KEY, value: v }),
+            )
+          }
+          className='w-full'
+        >
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
