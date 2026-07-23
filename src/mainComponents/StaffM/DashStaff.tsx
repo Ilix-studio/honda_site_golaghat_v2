@@ -18,6 +18,7 @@ import {
   User,
   Activity,
   UploadCloud,
+  FileText,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -33,6 +34,7 @@ import {
   useGetDatasetsQuery,
   useGetDatasetRowsQuery,
 } from "@/redux-store/services/dataImportApi";
+import { useGetQuotationsQuery } from "@/redux-store/services/NewFeatures/quotationApi";
 
 const STAFF_DASHBOARD_TAB_KEY = "staffDashboard";
 
@@ -58,6 +60,8 @@ const DashStaff = () => {
       { batchId: latestTimetrackBatchId as string, page: 1, limit: 50 },
       { skip: !latestTimetrackBatchId },
     );
+  const { data: quotationsData, isLoading: quotationsLoading } =
+    useGetQuotationsQuery({ limit: 1 }, { skip: !isAuthenticated });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -86,6 +90,14 @@ const DashStaff = () => {
 
   // Stat cards built from live query data
   const operationsStats: Omit<StatCardProps, "index">[] = [
+    {
+      title: "Create Quotation",
+      value: quotationsData?.total ?? 0,
+      icon: FileText,
+      loading: quotationsLoading,
+      description: "Build a customer price quotation",
+      action: { label: "Open Quotations", href: "/staff/quotations" },
+    },
     {
       title: "Apply Leave",
       //Add Badge

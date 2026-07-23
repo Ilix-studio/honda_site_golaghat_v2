@@ -24,6 +24,7 @@ export const apiSlice = createApi({
   tagTypes: [
     "Bike",
     "BikeList",
+    "Quotation",
     "Branch",
     "BranchManager",
     "VisitorCount",

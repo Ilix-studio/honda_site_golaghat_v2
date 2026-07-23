@@ -21,7 +21,8 @@ import {
   Regex,
   Package,
   Users,
-  ShieldUser,
+  FileText,
+  Webhook,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -44,6 +45,7 @@ import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi
 import RecentMotorcycles from "../Admin/AdminDash/RecentMotocycles";
 // import RagAssistant from "@/mainComponents/RAG/RagAssistant";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
+import { useGetQuotationsQuery } from "@/redux-store/services/NewFeatures/quotationApi";
 import BranchKpiCharts from "./BranchKpiCharts";
 
 const BRANCH_DASHBOARD_TAB_KEY = "branchManagerDashboard";
@@ -85,6 +87,8 @@ const BranchManagerDashboard = () => {
     useGetAllServiceAdminsQuery();
   const { data: newCustomersData, isLoading: newCustomersLoading } =
     useGetNewCustomersQuery({ limit: 1 }, { skip: false });
+  const { data: quotationsData, isLoading: quotationsLoading } =
+    useGetQuotationsQuery({ limit: 1 }, { skip: !isAuthenticated });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -179,6 +183,14 @@ const BranchManagerDashboard = () => {
       description: "All Customer Detected by this project",
       action: { label: "Open", href: "/customers/new" },
     },
+    {
+      title: "Create Quotation",
+      value: quotationsData?.total ?? 0,
+      icon: FileText,
+      loading: quotationsLoading,
+      description: "Build a customer price quotation",
+      action: { label: "Open Quotations", href: "/manager/quotations" },
+    },
   ];
 
   if (!isAuthenticated) {
@@ -240,7 +252,7 @@ const BranchManagerDashboard = () => {
                 className='text-black text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full border-2 bg-white/5 border-blue-700 hover:bg-blue-700/10 hover:text-orange-700 transition-all duration-200'
                 onClick={() => navigate("/manager/profile")}
               >
-                <ShieldUser className='h-3 w-3 text-black' /> See Profile
+                <Webhook className='h-3 w-3 text-black' /> See Profile
               </Button>
 
               <div className='flex items-center gap-4'>
