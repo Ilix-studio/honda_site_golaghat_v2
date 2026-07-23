@@ -41,6 +41,7 @@ import {
   Cog,
   TrendingUp,
   Users,
+  ReceiptText,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
@@ -146,6 +147,12 @@ export default function PartsAdminDashboard() {
       loading: newCustomersLoading,
       description: "All Customer Detected by this project",
       action: { label: "Open", href: "/customers/new" },
+    },
+    {
+      title: "Counter Sale Reports",
+      icon: ReceiptText,
+      description: "Upload and browse channel-partner counter sale reports",
+      action: { label: "Open", href: "/part-admin/counter-sale" },
     },
   ];
 

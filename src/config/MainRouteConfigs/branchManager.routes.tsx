@@ -95,6 +95,9 @@ const UploadDataImportForm = lazy(
 const BranchUploadDataImport = () => (
   <UploadDataImportForm dashboardPath='/manager/data-import' />
 );
+const CounterSaleAdminDashboard = lazy(
+  () => import("@/mainComponents/CounterSaleM/CounterSaleAdminDashboard"),
+);
 export const branchManagerAuthRoutes = [
   { path: "/manager-login", component: LoginBranchManager },
 ];
@@ -140,4 +143,7 @@ export const branchManagerRoutes = [
   // Data Import
   { path: "/manager/data-import", component: BranchDataImportDashboard },
   { path: "/manager/data-import/upload", component: BranchUploadDataImport },
+
+  // Counter Sale Reports — Part-Admin uploads, Branch-Admin reads/deletes own branch
+  { path: "/manager/counter-sale", component: CounterSaleAdminDashboard },
 ];

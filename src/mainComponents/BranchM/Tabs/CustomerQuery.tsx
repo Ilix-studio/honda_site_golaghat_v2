@@ -1,4 +1,9 @@
-import { AlertTriangle, BanknoteIcon, MessageCircleCode } from "lucide-react";
+import {
+  AlertTriangle,
+  BanknoteIcon,
+  MessageCircleCode,
+  PartyPopper,
+} from "lucide-react";
 
 import { useGetAllApplicationsQuery } from "@/redux-store/services/customer/getApprovedApi";
 import { useGetContactMessagesQuery } from "@/redux-store/services/contactApi";
@@ -45,8 +50,15 @@ const CustomerQueries = () => {
       icon: AlertTriangle,
       loading: false,
       description: "",
-
       action: { label: "View Reports", href: "/accident-reports" },
+    },
+    {
+      title: "Counter Sales Reports",
+      value: 10,
+      icon: PartyPopper,
+      loading: false,
+      description: "",
+      action: { label: "View Reports", href: "/manager/counter-sale" },
     },
   ];
 
