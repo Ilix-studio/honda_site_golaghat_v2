@@ -1,25 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  MessageSquare,
-  Clock,
-  Home,
-  Building2,
-  Cog,
-  User,
-  Activity,
-  UploadCloud,
-  FileText,
-} from "lucide-react";
+import { Cog, User, Activity, FileText, Webhook } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
 import {
@@ -30,10 +14,7 @@ import {
 import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 
 import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
-import {
-  useGetDatasetsQuery,
-  useGetDatasetRowsQuery,
-} from "@/redux-store/services/dataImportApi";
+
 import { useGetQuotationsQuery } from "@/redux-store/services/NewFeatures/quotationApi";
 
 const STAFF_DASHBOARD_TAB_KEY = "staffDashboard";
@@ -50,16 +31,6 @@ const DashStaff = () => {
   const { data: serviceBookingData, isLoading: serviceBookingLoading } =
     useGetAllBookingsQuery({ page: 1, limit: 1 }, { skip: !isAuthenticated });
 
-  const { data: timetrackBatches } = useGetDatasetsQuery(
-    { datasetType: "service-timetrack", page: 1, limit: 1 },
-    { skip: !isAuthenticated },
-  );
-  const latestTimetrackBatchId = timetrackBatches?.data?.[0]?.batchId;
-  const { data: timetrackRows, isLoading: timetrackLoading } =
-    useGetDatasetRowsQuery(
-      { batchId: latestTimetrackBatchId as string, page: 1, limit: 50 },
-      { skip: !latestTimetrackBatchId },
-    );
   const { data: quotationsData, isLoading: quotationsLoading } =
     useGetQuotationsQuery({ limit: 1 }, { skip: !isAuthenticated });
 
@@ -80,13 +51,6 @@ const DashStaff = () => {
     if (hour < 17) return "Good Afternoon";
     return "Good Evening";
   })();
-
-  const formattedDate = currentTime.toLocaleDateString("en-IN", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 
   // Stat cards built from live query data
   const operationsStats: Omit<StatCardProps, "index">[] = [
@@ -119,16 +83,6 @@ const DashStaff = () => {
         href: "/buy-sticker",
       },
     },
-    {
-      title: "Time Track Rows",
-      value: timetrackLoading ? "—" : (timetrackRows?.data?.length ?? 0),
-      icon: Clock,
-      loading: timetrackLoading,
-      description: latestTimetrackBatchId
-        ? `From batch ${latestTimetrackBatchId}`
-        : "No time-track import yet",
-      action: { label: "Upload data", href: "/staff/data-import/upload" },
-    },
   ];
 
   if (!isAuthenticated) {
@@ -150,57 +104,44 @@ const DashStaff = () => {
   return (
     <div className='min-h-screen bg-gray-50'>
       {/* Hero Banner */}
-      <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-red-950 rounded-b-xl shadow-md '>
+      <div className='relative overflow-hidden bg-white rounded-b-xl shadow-md '>
         <div className='absolute inset-0 opacity-[0.04]'>
-          <div
-            className='absolute inset-0'
-            style={{
-              backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-              backgroundSize: "32px 32px",
-            }}
-          />
+          <div className='absolute inset-0' />
         </div>
-
-        <div className='absolute -top-24 -right-24 w-96 h-96 bg-red-600/10 rounded-full blur-3xl' />
-        <div className='absolute -bottom-32 -left-32 w-80 h-80 bg-red-500/5 rounded-full blur-3xl' />
 
         <div className='relative container px-4 py-10 md:py-14'>
           <div className='flex flex-col md:flex-row md:items-end md:justify-between gap-6'>
             <div>
               <div className='flex items-center gap-2 mb-3'>
-                <div className='h-1 w-8 bg-red-500 rounded-full' />
-                <span className='text-red-400 text-xs font-semibold tracking-[0.2em] uppercase'>
+                <div className='h-1 w-8 bg-black rounded-full' />
+                <span className='text-black text-xs font-semibold tracking-[0.2em] uppercase'>
                   Staff Access Panel
                 </span>
               </div>
-              <h1 className='text-3xl md:text-4xl font-bold text-white tracking-tight'>
+              <h1 className='text-3xl md:text-4xl font-bold text-black tracking-tight'>
                 {greeting},{" "}
-                <span className='bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent'>
+                <span className=' text-black/90 font-bold'>
                   {user?.name || "Manager"}
                 </span>
               </h1>
-              <p className='text-gray-400 mt-2 text-sm md:text-base max-w-lg'>
+              <p className='text-gray-500 mt-2 text-sm md:text-base max-w-lg'>
                 Manage your service operations, track service bookings, and open
                 job cards for customers.
               </p>
             </div>
 
             <div className='flex flex-col items-start md:items-end gap-3'>
-              <div className='flex items-center gap-2 text-gray-400 text-sm'>
-                <Clock className='h-3.5 w-3.5' />
-                <span>{formattedDate}</span>
-              </div>
               <Button
-                className='text-gray-400 text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full bg-white/5 border border-white/10'
-                onClick={() => navigate("/")}
+                className='text-black text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full border-2 bg-white border-black hover:bg-blue-700/10 hover:text-orange-700 transition-all duration-200'
+                onClick={() => navigate("/staff/profile")}
               >
-                <Home className='h-3 w-3 text-gray-400' /> Visit Homepage
+                <Webhook className='h-3 w-3 text-black' /> See Profile
               </Button>
               <div className='flex items-center gap-4'>
-                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10'>
-                  <Building2 className='h-3 w-3 text-gray-400' />
-                  <span className='text-gray-400 text-xs font-medium'>
-                    Staff Access
+                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-black'>
+                  <div className='h-1.5 w-1.5 rounded-full bg-black animate-pulse' />
+                  <span className='text-black text-xs font-medium'>
+                    {user?.branch?.branchName || "Branch"}
                   </span>
                 </div>
               </div>
@@ -228,13 +169,6 @@ const DashStaff = () => {
               <Cog className='h-4 w-4' />
               <span>Basic Stuff</span>
             </TabsTrigger>
-            {/* <TabsTrigger
-              value='customer-reports'
-              className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
-            >
-              <MessageSquare className='h-4 w-4' />
-              <span>Customer & Reports</span>
-            </TabsTrigger> */}
           </TabsList>
 
           <TabsContent value='operations' className='mt-6'>
@@ -242,21 +176,6 @@ const DashStaff = () => {
               size='sm'
               className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
             >
-              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
-                <div className='flex items-center gap-3'>
-                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white shadow-sm'>
-                    <Building2 className='h-5 w-5' />
-                  </div>
-                  <div>
-                    <CardTitle className='text-lg font-semibold text-gray-900'>
-                      Service Operations
-                    </CardTitle>
-                    <CardDescription className='text-gray-500 mt-0.5'>
-                      Service booking requests and Job Card Stuff overview
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
               <CardContent className='p-6'>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
                   {operationsStats.map((stat, i) => (
@@ -264,84 +183,6 @@ const DashStaff = () => {
                   ))}
                 </div>
               </CardContent>
-            </Card>
-
-            <Card
-              size='sm'
-              className='mt-4 border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
-            >
-              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5 flex flex-row items-center justify-between'>
-                <div>
-                  <CardTitle className='text-lg font-semibold text-gray-900'>
-                    My Time Track Rows
-                  </CardTitle>
-                  <CardDescription className='text-gray-500 mt-0.5'>
-                    Latest imported service time-tracking rows for your branch
-                  </CardDescription>
-                </div>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={() => navigate("/staff/data-import/upload")}
-                >
-                  <UploadCloud className='w-4 h-4 mr-2' />
-                  Upload
-                </Button>
-              </CardHeader>
-              <CardContent className='p-6'>
-                {!timetrackRows?.data?.length ? (
-                  <p className='text-sm text-gray-400'>
-                    No time-track data imported yet.
-                  </p>
-                ) : (
-                  <div className='overflow-x-auto'>
-                    <table className='w-full text-sm'>
-                      <thead className='text-gray-500 text-left'>
-                        <tr>
-                          <th className='py-2 pr-4'>Job Card</th>
-                          <th className='py-2 pr-4'>Frame Number</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {timetrackRows.data.map((r) => (
-                          <tr key={r._id} className='border-t border-gray-100'>
-                            <td className='py-2 pr-4 font-medium text-gray-800'>
-                              {r.normalized?.jobCardNumber || "—"}
-                            </td>
-                            <td className='py-2 pr-4 text-gray-500'>
-                              {r.normalized?.frameNumber || "—"}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value='customer-reports' className='mt-6'>
-            <Card
-              size='sm'
-              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
-            >
-              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
-                <div className='flex items-center gap-3'>
-                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-red-600 text-white shadow-sm'>
-                    <MessageSquare className='h-5 w-5' />
-                  </div>
-                  <div>
-                    <CardTitle className='text-lg font-semibold text-gray-900'>
-                      Customer & Reports
-                    </CardTitle>
-                    <CardDescription className='text-gray-500 mt-0.5'>
-                      Enquiries, applications, finance, and accident reports
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              {/* <CustomerQueries /> */}
             </Card>
           </TabsContent>
         </Tabs>

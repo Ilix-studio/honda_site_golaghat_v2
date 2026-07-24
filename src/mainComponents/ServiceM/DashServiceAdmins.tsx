@@ -11,8 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Clock,
-  Home,
   Building2,
   Cog,
   User,
@@ -21,6 +19,7 @@ import {
   TrendingUp,
   UploadCloud,
   Users,
+  Webhook,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -88,13 +87,6 @@ const DashServiceAdmins = () => {
     if (hour < 17) return "Good Afternoon";
     return "Good Evening";
   })();
-
-  const formattedDate = currentTime.toLocaleDateString("en-IN", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 
   // Stat cards built from live query data
   const operationsStats: Omit<StatCardProps, "index">[] = [
@@ -166,7 +158,7 @@ const DashServiceAdmins = () => {
   return (
     <div className='min-h-screen bg-gray-50'>
       {/* Hero Banner */}
-      <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-red-950 rounded-b-xl shadow-md '>
+      <div className='relative overflow-hidden bg-white rounded-b-xl shadow-md '>
         <div className='absolute inset-0 opacity-[0.04]'>
           <div
             className='absolute inset-0'
@@ -177,45 +169,41 @@ const DashServiceAdmins = () => {
           />
         </div>
 
-        <div className='absolute -top-24 -right-24 w-96 h-96 bg-red-600/10 rounded-full blur-3xl' />
-        <div className='absolute -bottom-32 -left-32 w-80 h-80 bg-red-500/5 rounded-full blur-3xl' />
+        <div className='absolute -top-24 -right-24 w-96 h-96 bg-green-600/10 rounded-full blur-3xl' />
+        <div className='absolute -bottom-32 -left-32 w-80 h-80 bg-green-500/5 rounded-full blur-3xl' />
 
         <div className='relative container px-4 py-10 md:py-8'>
           <div className='flex flex-col md:flex-row md:items-end md:justify-between gap-6'>
             <div>
               <div className='flex items-center gap-2 mb-3'>
-                <div className='h-1 w-8 bg-red-500 rounded-full' />
-                <span className='text-red-400 text-xs font-semibold tracking-[0.2em] uppercase'>
+                <div className='h-1 w-8 bg-green-500 rounded-full' />
+                <span className='text-green-800 text-xs font-semibold tracking-[0.2em] uppercase'>
                   Service Admin Panel
                 </span>
               </div>
-              <h1 className='text-3xl md:text-4xl font-bold text-white tracking-tight'>
+              <h1 className='text-3xl md:text-4xl font-bold text-green-800 tracking-tight'>
                 {greeting},{" "}
-                <span className='bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent'>
+                <span className='bg-gradient-to-r from-green-400 to-green-900 bg-clip-text text-transparent'>
                   {user?.name || "Manager"}
                 </span>
               </h1>
-              <p className='text-gray-400 mt-2 text-sm md:text-base max-w-lg'>
+              <p className='text-gray-500 mt-2 text-sm md:text-base max-w-lg'>
                 Manage your service operations, track service bookings, and open
                 job cards for customers.
               </p>
             </div>
 
             <div className='flex flex-col items-start md:items-end gap-3'>
-              <div className='flex items-center gap-2 text-gray-400 text-sm'>
-                <Clock className='h-3.5 w-3.5' />
-                <span>{formattedDate}</span>
-              </div>
               <Button
-                className='text-gray-400 text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full bg-white/5 border border-white/10'
-                onClick={() => navigate("/")}
+                className='text-black text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full border-2 bg-white/5 border-blue-700 hover:bg-blue-700/10 hover:text-orange-700 transition-all duration-200'
+                onClick={() => navigate("/service-admin/profile")}
               >
-                <Home className='h-3 w-3 text-gray-400' /> Visit Homepage
+                <Webhook className='h-3 w-3 text-black' /> See Profile
               </Button>
               <div className='flex items-center gap-4'>
-                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20'>
-                  <div className='h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse' />
-                  <span className='text-emerald-400 text-xs font-medium'>
+                <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20'>
+                  <div className='h-1.5 w-1.5 rounded-full bg-black animate-pulse' />
+                  <span className='text-black text-xs font-medium'>
                     {user?.branch?.branchName || "Branch"}
                   </span>
                 </div>
@@ -224,7 +212,7 @@ const DashServiceAdmins = () => {
           </div>
         </div>
 
-        <div className='absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/30 to-transparent' />
+        <div className='absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-green-500/30 to-transparent' />
       </div>
 
       {/* Main Content */}

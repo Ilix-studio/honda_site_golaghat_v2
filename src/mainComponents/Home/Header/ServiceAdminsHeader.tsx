@@ -109,11 +109,11 @@ const ServiceAdminsHeader = () => {
               to='/service-admin/dashboard'
               className='flex items-center gap-2 shrink-0'
             >
-              <div className='w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center'>
+              <div className='w-7 h-7 rounded-lg bg-green-600 flex items-center justify-center'>
                 <span className='text-white text-xs font-black'>T</span>
               </div>
               <span className='text-sm font-black text-white tracking-tight hidden sm:block'>
-                Tsangpool <span className='text-red-500'>Service</span>
+                Tsangpool <span className='text-green-500'>Service</span>
               </span>
             </Link>
 
@@ -187,7 +187,7 @@ const ServiceAdminsHeader = () => {
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className='flex items-center gap-1.5 h-8 px-3 rounded-xl bg-red-600/10 hover:bg-red-600/20 border border-red-600/20 hover:border-red-600/40 text-red-400 hover:text-red-300 text-xs font-semibold transition-all disabled:opacity-50'
+              className='flex items-center gap-1.5 h-8 px-3 rounded-xl bg-green-600/10 hover:bg-green-600/20 border border-green-600/20 hover:border-green-600/40 text-green-400 hover:text-green-300 text-xs font-semibold transition-all disabled:opacity-50'
             >
               <LogOut className='w-3.5 h-3.5' />
               <span className='hidden sm:inline'>

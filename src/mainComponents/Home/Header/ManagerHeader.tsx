@@ -232,15 +232,15 @@ const ManagerHeader = () => {
               to='/manager/dashboard'
               className='flex items-center gap-2 shrink-0'
             >
-              <div className='w-7 h-7 rounded-lg bg-blue-700 flex items-center justify-center'>
-                <span className='text-white text-xs font-black'>T</span>
+              <div className='w-7 h-7 rounded-lg bg-white flex items-center justify-center'>
+                <span className='text-black text-xs font-black'>T</span>
               </div>
               <span className='text-sm font-black text-white tracking-tight hidden sm:block'>
-                Tsangpool <span className='text-blue-500'>Manager</span>
+                Tsangpool <span className='text-white'>Manager</span>
               </span>
             </Link>
 
-            <div className='w-px h-5 bg-gray-700 mx-1' />
+            <div className='w-px h-5 bg-white mx-3' />
 
             {/* Back button */}
             {currentRoute.showBack && (
@@ -310,7 +310,7 @@ const ManagerHeader = () => {
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className='flex items-center gap-1.5 h-8 px-3 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 border border-blue-600/20 hover:border-blue-600/40 text-blue-400 hover:text-blue-300 text-xs font-semibold transition-all disabled:opacity-50'
+              className='flex items-center gap-1.5 h-8 px-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 text-white hover:text-gray-300 text-xs font-semibold transition-all disabled:opacity-50'
             >
               <LogOut className='w-3.5 h-3.5' />
               <span className='hidden sm:inline'>

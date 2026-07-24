@@ -10,7 +10,7 @@ import {
   StatCard,
   type StatCardProps,
 } from "@/mainComponents/Admin/AdminDash/StatCard";
-import RagAssistant from "@/mainComponents/RAG/RagAssistant";
+
 import {
   Card,
   CardContent,
@@ -36,12 +36,11 @@ import {
   Boxes,
   Wallet,
   ShoppingCart,
-  Clock,
-  Home,
   Cog,
   TrendingUp,
   Users,
   ReceiptText,
+  Webhook,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
@@ -51,6 +50,7 @@ import {
 } from "@/redux-store/slices/dashboardTabsSlice";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
 import PartsKpiCharts from "./PartsKpiCharts";
+import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSaleApi";
 
 const YEARS = [2026, 2025, 2024];
 const PARTS_ADMIN_DASHBOARD_TAB_KEY = "partsAdminDashboard";
@@ -87,6 +87,10 @@ export default function PartsAdminDashboard() {
       { batchId: latestStockBatchId as string, page: 1, limit: 1000 },
       { skip: !latestStockBatchId },
     );
+  const { data: counterSaleBatches, isLoading: counterSaleBatchesLoading } =
+    useGetCounterSaleBatchesQuery(undefined, {
+      skip: !isAuthenticated,
+    });
 
   const stockKpis = useMemo(() => {
     const rows = stockRows?.data ?? [];
@@ -150,6 +154,8 @@ export default function PartsAdminDashboard() {
     },
     {
       title: "Counter Sale Reports",
+      value: counterSaleBatches?.data?.length ?? 0,
+      loading: counterSaleBatchesLoading,
       icon: ReceiptText,
       description: "Upload and browse channel-partner counter sale reports",
       action: { label: "Open", href: "/part-admin/counter-sale" },
@@ -207,12 +213,6 @@ export default function PartsAdminDashboard() {
     if (hour < 17) return "Good Afternoon";
     return "Good Evening";
   })();
-  const formattedDate = currentTime.toLocaleDateString("en-IN", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -253,15 +253,11 @@ export default function PartsAdminDashboard() {
             </div>
 
             <div className='flex flex-col items-start md:items-end gap-3'>
-              <div className='flex items-center gap-2 text-gray-400 text-sm'>
-                <Clock className='h-3.5 w-3.5' />
-                <span>{formattedDate}</span>
-              </div>
               <Button
-                className='text-gray-400 text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full bg-white/5 border border-white/10'
-                onClick={() => navigate("/")}
+                className='text-white text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full border-2 bg-white/5 border-blue-700 hover:bg-blue-700/10 hover:text-gray-200 transition-all duration-200'
+                onClick={() => navigate("/part-admin/profile")}
               >
-                <Home className='h-3 w-3 text-gray-400' /> Visit Homepage
+                <Webhook className='h-3 w-3 text-white' /> See Profile
               </Button>
               <div className='flex items-center gap-4'>
                 <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20'>
@@ -398,12 +394,12 @@ export default function PartsAdminDashboard() {
                   </ResponsiveContainer>
                 )}
               </CardContent>
-              <RagAssistant
+              {/* <RagAssistant
                 title='Parts AI Assistant'
                 subtitle='Ask questions about your branch parts data — answers are grounded in the uploaded reports.'
                 sourceTypes={["parts"]}
                 placeholder='e.g. Which month had the most parts imported?'
-              />
+              /> */}
             </Card>
           </TabsContent>
 

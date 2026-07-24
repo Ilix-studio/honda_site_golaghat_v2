@@ -20,14 +20,14 @@
 
   /* Elevation scale */
   --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.05);
-  --shadow-sm: 0 1px 3px 0 oklch(0 0 0 / 0.08),
-    0 1px 2px -1px oklch(0 0 0 / 0.06);
-  --shadow-md: 0 4px 6px -1px oklch(0 0 0 / 0.07),
-    0 2px 4px -2px oklch(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px oklch(0 0 0 / 0.07),
-    0 4px 6px -4px oklch(0 0 0 / 0.05);
-  --shadow-hover: 0 8px 20px -4px oklch(0 0 0 / 0.12),
-    0 4px 8px -4px oklch(0 0 0 / 0.06);
+  --shadow-sm:
+    0 1px 3px 0 oklch(0 0 0 / 0.08), 0 1px 2px -1px oklch(0 0 0 / 0.06);
+  --shadow-md:
+    0 4px 6px -1px oklch(0 0 0 / 0.07), 0 2px 4px -2px oklch(0 0 0 / 0.05);
+  --shadow-lg:
+    0 10px 15px -3px oklch(0 0 0 / 0.07), 0 4px 6px -4px oklch(0 0 0 / 0.05);
+  --shadow-hover:
+    0 8px 20px -4px oklch(0 0 0 / 0.12), 0 4px 8px -4px oklch(0 0 0 / 0.06);
 
   /* Border radius */
   --radius: 0.625rem;
@@ -105,14 +105,14 @@
 
   /* Dark mode shadow adjustments — lighter shadows look wrong on dark bg */
   --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.2);
-  --shadow-sm: 0 1px 3px 0 oklch(0 0 0 / 0.25),
-    0 1px 2px -1px oklch(0 0 0 / 0.2);
-  --shadow-md: 0 4px 6px -1px oklch(0 0 0 / 0.3),
-    0 2px 4px -2px oklch(0 0 0 / 0.2);
-  --shadow-lg: 0 10px 15px -3px oklch(0 0 0 / 0.35),
-    0 4px 6px -4px oklch(0 0 0 / 0.25);
-  --shadow-hover: 0 8px 20px -4px oklch(0 0 0 / 0.4),
-    0 4px 8px -4px oklch(0 0 0 / 0.3);
+  --shadow-sm:
+    0 1px 3px 0 oklch(0 0 0 / 0.25), 0 1px 2px -1px oklch(0 0 0 / 0.2);
+  --shadow-md:
+    0 4px 6px -1px oklch(0 0 0 / 0.3), 0 2px 4px -2px oklch(0 0 0 / 0.2);
+  --shadow-lg:
+    0 10px 15px -3px oklch(0 0 0 / 0.35), 0 4px 6px -4px oklch(0 0 0 / 0.25);
+  --shadow-hover:
+    0 8px 20px -4px oklch(0 0 0 / 0.4), 0 4px 8px -4px oklch(0 0 0 / 0.3);
 }
 
 /* ─── Tailwind Theme Mapping ─────────────────────────────────────────────── */
@@ -152,9 +152,9 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-family-sans: "Raleway", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-    "Noto Color Emoji";
+  --font-family-sans:
+    "Raleway", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 /* ─── Base Layer ─────────────────────────────────────────────────────────── */
@@ -175,10 +175,25 @@
     max-width: 100vw;
     /* Prevent layout shift from scrollbar appearance */
     scrollbar-gutter: stable;
+    background-color: var(--background);
+  }
+
+  /* The stable gutter above is a native browser/OS scrollbar-gutter track —
+     painted by the compositor above the page's own DOM, so no z-index or
+     overlay color can ever draw over it. It's there on every page, but only
+     reads as a visible seam once something dims the rest of the page around
+     it — i.e. exactly when a Radix Dialog/AlertDialog/Sheet opens. Radix
+     marks that state with `data-scroll-locked` on <body>; drop the gutter
+     reservation for that exact window, since body is already overflow:hidden
+     then anyway (nothing can scroll, so the anti-shift reservation is not
+     doing anything useful) and pick it back up the instant the modal closes. */
+  html:has(body[data-scroll-locked]) {
+    scrollbar-gutter: auto;
+    overflow: hidden;
   }
 
   /* Full-screen auth pages: dark canvas + no reserved gutter so the stable
-     scrollbar-gutter doesn't show a white strip over the dark login layout. */
+     scrollbar-gutter doesn't show a strip over the dark login layout. */
   html.auth-screen {
     scrollbar-gutter: auto;
     background-color: #030712; /* gray-950 */

@@ -29,9 +29,6 @@ export interface CounterSaleRow {
   accountName: string;
   purchaseOrderDate: string | null;
   totalInvoice: number;
-  markAsDelivered: boolean;
-  markAsDeliveredBy?: string;
-  markAsDeliveredAt?: string;
   importBatch: string;
   importDate: string;
   needsReview: boolean;
@@ -45,11 +42,6 @@ export interface CounterSaleListResponse {
   pagination: { page: number; limit: number; total: number; pages: number };
 }
 
-export interface CounterSaleRowResponse {
-  success: boolean;
-  data: CounterSaleRow;
-}
-
 export interface CounterSaleBatch {
   batchId: string;
   fileName: string;
@@ -58,7 +50,6 @@ export interface CounterSaleBatch {
   branchId: string;
   totalRecords: number;
   totalInvoice: number;
-  deliveredCount: number;
   reviewCount: number;
 }
 
@@ -88,7 +79,6 @@ export interface CounterSaleFilters {
   page?: number;
   limit?: number;
   batchId?: string;
-  markAsDelivered?: boolean;
   branchId?: string;
 }
 
@@ -137,18 +127,6 @@ export const counterSaleApi = apiSlice.injectEndpoints({
       providesTags: ["CounterSaleDeletedBatch"],
     }),
 
-    toggleMarkAsDelivered: builder.mutation<
-      CounterSaleRowResponse,
-      { id: string; markAsDelivered: boolean }
-    >({
-      query: ({ id, markAsDelivered }) => ({
-        url: `/counter-sale/${id}/delivered`,
-        method: "PATCH",
-        body: { markAsDelivered },
-      }),
-      invalidatesTags: ["CounterSale", "CounterSaleBatch"],
-    }),
-
     deleteCounterSaleBatch: builder.mutation<
       { success: boolean; message: string },
       { batchId: string }
@@ -167,6 +145,5 @@ export const {
   useGetAllCounterSalesQuery,
   useGetCounterSaleBatchesQuery,
   useGetDeletedCounterSaleBatchesQuery,
-  useToggleMarkAsDeliveredMutation,
   useDeleteCounterSaleBatchMutation,
 } = counterSaleApi;

@@ -13,12 +13,6 @@ const StaffQuotations = () => (
 
 const BuyStickers = lazy(() => import("@/Scanfleet/BuyStickers"));
 const ProfileView = lazy(() => import("@/mainComponents/shared/ProfileView"));
-const UploadDataImportForm = lazy(
-  () => import("@/mainComponents/DataImport/UploadDataImportForm"),
-);
-const StaffUploadDataImport = () => (
-  <UploadDataImportForm dashboardPath='/staff/dashboard' />
-);
 
 export const staffAuthRoutes = [
   { path: "/staff/login", component: LoginStaffs },
@@ -30,5 +24,4 @@ export const staffRoutes = [
   { path: "/staff/quotations", component: StaffQuotations },
   { path: "/staff/profile", component: ProfileView },
   { path: "/buy-sticker", component: BuyStickers },
-  { path: "/staff/data-import/upload", component: StaffUploadDataImport },
 ];

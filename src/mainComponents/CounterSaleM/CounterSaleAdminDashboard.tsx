@@ -38,7 +38,6 @@ export default function CounterSaleAdminDashboard() {
   const batches = data?.data ?? [];
   const totalRevenue = batches.reduce((sum, b) => sum + b.totalInvoice, 0);
   const totalRecords = batches.reduce((sum, b) => sum + b.totalRecords, 0);
-  const totalDelivered = batches.reduce((sum, b) => sum + b.deliveredCount, 0);
 
   const canDelete = (branchId: string) =>
     user?.role === "Super-Admin" || user?.branch?._id === branchId;
@@ -95,7 +94,7 @@ export default function CounterSaleAdminDashboard() {
           </div>
         </div>
 
-        <div className='grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8'>
+        <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8'>
           <MetricTile
             index={0}
             label='Batches'
@@ -119,14 +118,6 @@ export default function CounterSaleAdminDashboard() {
             bg='bg-emerald-50'
             text='text-emerald-900'
             sub='text-emerald-600'
-          />
-          <MetricTile
-            index={3}
-            label='Delivered'
-            value={`${totalDelivered}/${totalRecords}`}
-            bg='bg-amber-50'
-            text='text-amber-900'
-            sub='text-amber-600'
           />
         </div>
 

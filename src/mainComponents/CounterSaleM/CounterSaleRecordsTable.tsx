@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, ReceiptText, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -11,10 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  useGetAllCounterSalesQuery,
-  useToggleMarkAsDeliveredMutation,
-} from "@/redux-store/services/counterSaleApi";
+import { useGetAllCounterSalesQuery } from "@/redux-store/services/counterSaleApi";
 import { inr } from "@/mainComponents/DataImport/SalesKpiCharts";
 import { useAppSelector } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
@@ -37,7 +33,6 @@ const CounterSaleRecordsTable = ({ batchId }: CounterSaleRecordsTableProps) => {
     { batchId, page: 1, limit: 1000 },
     { skip: !isAuthenticated },
   );
-  const [toggleDelivered] = useToggleMarkAsDeliveredMutation();
 
   const rows = data?.data ?? [];
 
@@ -94,7 +89,6 @@ const CounterSaleRecordsTable = ({ batchId }: CounterSaleRecordsTableProps) => {
                   <TableHead className='min-w-[120px]'>Date</TableHead>
                   <TableHead className='min-w-[120px]'>Revenue</TableHead>
                   <TableHead className='min-w-[140px]'>Order #</TableHead>
-                  <TableHead className='min-w-[100px]'>Delivered</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -105,15 +99,6 @@ const CounterSaleRecordsTable = ({ batchId }: CounterSaleRecordsTableProps) => {
                     <TableCell>{formatDate(r.purchaseOrderDate)}</TableCell>
                     <TableCell>{inr(r.totalInvoice)}</TableCell>
                     <TableCell className='font-mono text-xs'>{r.cpotcOrderNumber}</TableCell>
-                    <TableCell>
-                      <Checkbox
-                        checked={r.markAsDelivered}
-                        onCheckedChange={(checked) =>
-                          toggleDelivered({ id: r._id, markAsDelivered: checked === true })
-                        }
-                        aria-label={`Mark ${r.cpotcOrderNumber} as delivered`}
-                      />
-                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

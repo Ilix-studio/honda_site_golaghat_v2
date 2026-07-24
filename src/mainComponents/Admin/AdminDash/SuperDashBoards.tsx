@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   IndianRupee,
   CalendarDays,
+  ReceiptText,
 } from "lucide-react";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
 import SalesTrendChart from "@/mainComponents/DataImport/SalesTrendChart";
@@ -25,6 +26,7 @@ import type { DashboardSpec } from "@/redux-store/services/ragApi.types";
 import StockInvestmentDashboard from "./StockInvestmentDashboard";
 import JobCardRevenueKpiCharts from "./JobCardRevenueKpiCharts";
 import PartsKpiCharts from "@/mainComponents/PartsM/PartsKpiCharts";
+import CounterSaleKpiCharts from "@/mainComponents/CounterSaleM/CounterSaleKpiCharts";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import {
   selectActiveTab,
@@ -354,11 +356,18 @@ export function DashboardsPanel() {
           <ShieldCheck className='h-3.5 w-3.5' />
           <span>VAS Assign</span>
         </TabsTrigger>
+        <TabsTrigger
+          value='counter-sale'
+          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+        >
+          <ReceiptText className='h-3.5 w-3.5' />
+          <span>Counter Sale</span>
+        </TabsTrigger>
       </TabsList>
+
       <TabsContent value='parts' className='pt-4'>
         <PartsDashboard />
       </TabsContent>
-
       <TabsContent value='service' className='pt-4'>
         <ServiceDashboard />
       </TabsContent>
@@ -367,6 +376,9 @@ export function DashboardsPanel() {
       </TabsContent>
       <TabsContent value='vas-assign' className='pt-4'>
         <VasAssignDashboard />
+      </TabsContent>
+      <TabsContent value='counter-sale' className='pt-4'>
+        <CounterSaleKpiCharts />
       </TabsContent>
       <TabsContent value='stock-investment' className='pt-4'>
         <StockInvestmentDashboard />
