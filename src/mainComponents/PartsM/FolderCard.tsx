@@ -24,11 +24,19 @@ const TONE_VARS: Record<FolderCardTone, CSSProperties> = {
 export interface FolderCardProps {
   title: string;
   countLabel: string;
+  /** Optional second line — e.g. a parts-stock diff summary (added/changed/removed, revenue delta). */
+  subLabel?: string;
   onOpen: () => void;
   tone?: FolderCardTone;
 }
 
-const FolderCard = ({ title, countLabel, onOpen, tone = "default" }: FolderCardProps) => {
+const FolderCard = ({
+  title,
+  countLabel,
+  subLabel,
+  onOpen,
+  tone = "default",
+}: FolderCardProps) => {
   return (
     <label className='pa-folder' style={TONE_VARS[tone]}>
       <input
@@ -49,6 +57,7 @@ const FolderCard = ({ title, countLabel, onOpen, tone = "default" }: FolderCardP
       <span className='pa-folder__meta'>
         <span className='pa-folder__title'>{title}</span>
         <span className='pa-folder__count'>{countLabel}</span>
+        {subLabel && <span className='pa-folder__sub'>{subLabel}</span>}
       </span>
     </label>
   );

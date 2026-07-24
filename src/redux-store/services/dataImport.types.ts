@@ -1,5 +1,4 @@
 export type DatasetType =
-  | "parts-stock"
   | "vehicle-stock"
   | "service-jobcard"
   | "service-timetrack"
@@ -210,17 +209,4 @@ export interface SalesTimeseriesFilters {
   from?: string;
   to?: string;
   branchId?: string;
-}
-
-// ─── Parts-stock sold/not-sold status ──────────────────────────────────────
-
-export interface PartsStockStatusResponse {
-  success: boolean;
-  data: {
-    totalItems: number;
-    totalStockValue: number;
-    soldCount: number;
-    notSoldCount: number;
-    soldPercent: number;
-  };
 }

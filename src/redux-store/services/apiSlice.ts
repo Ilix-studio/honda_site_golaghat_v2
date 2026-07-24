@@ -76,6 +76,7 @@ export const apiSlice = createApi({
     "Parts",
     "PartsBatch",
     "PartsStats",
+    "PartsStockStatus",
     "CounterSale",
     "CounterSaleBatch",
     "CounterSaleDeletedBatch",

@@ -3,12 +3,15 @@ import { ArrowLeft, Package, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-import { useGetDatasetsQuery } from "@/redux-store/services/dataImportApi";
-import type { ImportedDatasetDTO } from "@/redux-store/services/dataImport.types";
+import {
+  useGetPartsBatchesQuery,
+  useGetPartsStockStatusQuery,
+  type PartsBatchDTO,
+} from "@/redux-store/services/partsApi";
 import FolderCard, { type FolderCardTone } from "./FolderCard";
 import PartsDatasetRecords from "./PartsDatasetRecords";
 
-const toneForStatus = (status: ImportedDatasetDTO["status"]): FolderCardTone => {
+const toneForStatus = (status: PartsBatchDTO["status"]): FolderCardTone => {
   if (status === "failed") return "danger";
   if (status === "completed_with_errors") return "warning";
   return "default";
@@ -21,15 +24,27 @@ const formatDate = (dateString: string) =>
     day: "numeric",
   });
 
+const diffSubLabel = (batch: PartsBatchDTO): string | undefined => {
+  const parts: string[] = [];
+  if (batch.addedRows) parts.push(`+${batch.addedRows} new`);
+  if (batch.changedRows) parts.push(`${batch.changedRows} changed`);
+  if (batch.removedRows) parts.push(`-${batch.removedRows} removed`);
+  if (batch.revenueDelta) {
+    const sign = batch.revenueDelta > 0 ? "+" : "-";
+    parts.push(`${sign}₹${Math.abs(batch.revenueDelta).toLocaleString("en-IN")}`);
+  }
+  return parts.length > 0 ? parts.join(" · ") : "No stock changes";
+};
+
 const PartsFolderDashboard = () => {
-  const [selectedBatch, setSelectedBatch] = useState<ImportedDatasetDTO | null>(
+  const [selectedBatch, setSelectedBatch] = useState<PartsBatchDTO | null>(
     null
   );
 
-  const { data, isLoading, refetch } = useGetDatasetsQuery({
-    page: 1,
-    limit: 100,
-  });
+  const { data, isLoading, refetch } = useGetPartsBatchesQuery();
+  const { data: stockStatusData, isLoading: stockStatusLoading } =
+    useGetPartsStockStatusQuery();
+  const stockStatus = stockStatusData?.data;
 
   const batches = data?.data ?? [];
   const sortedBatches = [...batches].sort(
@@ -77,6 +92,33 @@ const PartsFolderDashboard = () => {
         </Button>
       </div>
 
+      <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+        <Card>
+          <CardContent className='p-4'>
+            <p className='text-xs text-muted-foreground'>Current Parts</p>
+            <p className='text-xl font-semibold'>
+              {stockStatusLoading ? "—" : (stockStatus?.totalItems ?? 0).toLocaleString("en-IN")}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className='p-4'>
+            <p className='text-xs text-muted-foreground'>Total Revenue</p>
+            <p className='text-xl font-semibold text-emerald-700'>
+              {stockStatusLoading ? "—" : `₹${(stockStatus?.totalRevenue ?? 0).toLocaleString("en-IN")}`}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className='p-4'>
+            <p className='text-xs text-muted-foreground'>Average Unit Price</p>
+            <p className='text-xl font-semibold text-indigo-700'>
+              {stockStatusLoading ? "—" : `₹${(stockStatus?.avgUnitPrice ?? 0).toLocaleString("en-IN")}`}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
       {isLoading && (
         <div className='text-center py-12'>
           <RefreshCw className='h-8 w-8 animate-spin mx-auto mb-3 text-primary' />
@@ -91,6 +133,7 @@ const PartsFolderDashboard = () => {
               key={batch.batchId}
               title={batch.fileName}
               countLabel={`${batch.importedRows} rows`}
+              subLabel={diffSubLabel(batch)}
               tone={toneForStatus(batch.status)}
               onOpen={() => setSelectedBatch(batch)}
             />

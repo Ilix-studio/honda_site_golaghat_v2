@@ -8,14 +8,10 @@ import {
   Cell,
   Line,
   LineChart,
-  Pie,
-  PieChart,
   PolarAngleAxis,
   PolarGrid,
   Radar,
   RadarChart,
-  RadialBar,
-  RadialBarChart,
   XAxis,
 } from "recharts";
 
@@ -41,9 +37,12 @@ import {
   inr,
   YearSelect,
 } from "@/mainComponents/DataImport/SalesKpiCharts";
+import ChangesMarkdown from "@/mainComponents/shared/ChangesMarkdown";
 
-import { useGetPartsStatsQuery } from "@/redux-store/services/partsApi";
-import { useGetPartsStockStatusQuery } from "@/redux-store/services/dataImportApi";
+import {
+  useGetPartsStatsQuery,
+  useGetPartsStockStatusQuery,
+} from "@/redux-store/services/partsApi";
 
 const importedTrendConfig: ChartConfig = {
   partCount: { label: "Parts Imported", color: "var(--chart-1)" },
@@ -58,13 +57,12 @@ const reviewRateConfig: ChartConfig = {
   reviewRate: { label: "Review Rate %", color: "var(--chart-5)" },
 };
 
-const stockStatusConfig: ChartConfig = {
-  sold: { label: "Sold", color: "var(--chart-1)" },
-  available: { label: "Available", color: "var(--chart-3)" },
+const revenueByDateConfig: ChartConfig = {
+  revenueAfter: { label: "Revenue", color: "var(--chart-1)" },
 };
 
-const soldPercentConfig: ChartConfig = {
-  value: { label: "Sold %", color: "var(--chart-2)" },
+const revenueDeltaConfig: ChartConfig = {
+  revenueDelta: { label: "Revenue Change", color: "var(--chart-2)" },
 };
 
 const PartsKpiCharts = () => {
@@ -110,26 +108,19 @@ const PartsKpiCharts = () => {
     }));
   }, [monthly, prevStatsData]);
 
-  const stockPieData = useMemo(() => {
-    if (!stockStatus || stockStatus.totalItems === 0) return [];
-    return [
-      {
-        key: "sold",
-        label: "Sold",
-        value: stockStatus.soldCount,
-        fill: "var(--color-sold)",
-      },
-      {
-        key: "available",
-        label: "Available",
-        value: stockStatus.notSoldCount,
-        fill: "var(--color-available)",
-      },
-    ];
-  }, [stockStatus]);
+  const byDate = useMemo(
+    () =>
+      (stockStatus?.byDate ?? []).map((d) => ({
+        ...d,
+        label: new Date(d.date).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+        }),
+      })),
+    [stockStatus],
+  );
 
-  const soldPercent = stockStatus?.soldPercent ?? 0;
-  const radialData = [{ key: "sold", value: soldPercent, fill: "var(--color-value)" }];
+  const latestChange = stockStatus?.latestChange ?? null;
 
   const yearControl = (
     <div className='flex items-center justify-between flex-wrap gap-3'>
@@ -154,7 +145,7 @@ const PartsKpiCharts = () => {
     <div className='space-y-6'>
       {yearControl}
 
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4'>
         <MetricTile
           index={0}
           label='Total Parts'
@@ -181,16 +172,30 @@ const PartsKpiCharts = () => {
         />
         <MetricTile
           index={3}
-          label='Total Stock Value'
-          value={inr(stockStatus?.totalStockValue ?? 0)}
+          label='Total Revenue (current stock)'
+          value={inr(stockStatus?.totalRevenue ?? 0)}
           bg='bg-emerald-50'
           text='text-emerald-700'
           sub='text-emerald-500'
         />
         <MetricTile
           index={4}
-          label='Sold % (all imports)'
-          value={`${soldPercent}%`}
+          label='Average Unit Price'
+          value={inr(stockStatus?.avgUnitPrice ?? 0)}
+          bg='bg-indigo-50'
+          text='text-indigo-700'
+          sub='text-indigo-500'
+        />
+        <MetricTile
+          index={5}
+          label='Latest Upload Revenue Change'
+          value={
+            latestChange
+              ? `${latestChange.revenueDelta >= 0 ? "+" : "-"}${inr(
+                  Math.abs(latestChange.revenueDelta),
+                )}`
+              : "—"
+          }
           bg='bg-red-50'
           text='text-red-700'
           sub='text-red-500'
@@ -302,28 +307,31 @@ const PartsKpiCharts = () => {
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         <Card>
           <CardHeader>
-            <CardTitle className='text-base'>Stock Status</CardTitle>
-            <CardDescription>Sold vs. available, across all uploaded parts-stock data</CardDescription>
+            <CardTitle className='text-base'>Revenue by Upload Date</CardTitle>
+            <CardDescription>
+              Current stock revenue (Unit Price × Quantity) after each
+              parts-stock upload
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {stockStatusLoading ? (
               <ChartSkeleton />
-            ) : stockPieData.length === 0 ? (
-              <EmptyChartState message='No parts-stock data imported yet.' />
+            ) : byDate.length === 0 ? (
+              <EmptyChartState message='No parts-stock uploads yet.' />
             ) : (
-              <ChartContainer
-                config={stockStatusConfig}
-                className='mx-auto h-[220px] w-full max-w-[280px]'
-              >
-                <PieChart>
-                  <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                  <Pie data={stockPieData} dataKey='value' nameKey='label' innerRadius={50}>
-                    {stockPieData.map((entry) => (
-                      <Cell key={entry.key} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <ChartLegend content={<ChartLegendContent nameKey='label' />} />
-                </PieChart>
+              <ChartContainer config={revenueByDateConfig} className='h-[240px] w-full'>
+                <AreaChart data={byDate} margin={{ left: 0, right: 12 }}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey='label' tickLine={false} axisLine={false} tickMargin={8} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Area
+                    dataKey='revenueAfter'
+                    type='monotone'
+                    fill='var(--color-revenueAfter)'
+                    fillOpacity={0.2}
+                    stroke='var(--color-revenueAfter)'
+                  />
+                </AreaChart>
               </ChartContainer>
             )}
           </CardContent>
@@ -331,36 +339,56 @@ const PartsKpiCharts = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle className='text-base'>Sold %</CardTitle>
-            <CardDescription>Share of parts stock with recorded sale value</CardDescription>
+            <CardTitle className='text-base'>Revenue Change per Upload</CardTitle>
+            <CardDescription>
+              How much revenue moved with each upload — green = increase, red
+              = decrease
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {stockStatusLoading ? (
               <ChartSkeleton />
-            ) : !stockStatus || stockStatus.totalItems === 0 ? (
-              <EmptyChartState message='No parts-stock data imported yet.' />
+            ) : byDate.length === 0 ? (
+              <EmptyChartState message='No parts-stock uploads yet.' />
             ) : (
-              <div className='relative mx-auto h-[200px] w-[200px]'>
-                <ChartContainer config={soldPercentConfig} className='h-full w-full'>
-                  <RadialBarChart
-                    data={radialData}
-                    startAngle={90}
-                    endAngle={90 - (360 * soldPercent) / 100}
-                    innerRadius={70}
-                    outerRadius={100}
-                  >
-                    <RadialBar dataKey='value' background cornerRadius={10} />
-                  </RadialBarChart>
-                </ChartContainer>
-                <div className='pointer-events-none absolute inset-0 flex flex-col items-center justify-center'>
-                  <span className='text-3xl font-black text-gray-900'>{soldPercent}%</span>
-                  <span className='text-xs text-muted-foreground'>Sold</span>
-                </div>
-              </div>
+              <ChartContainer config={revenueDeltaConfig} className='h-[240px] w-full'>
+                <BarChart data={byDate} margin={{ left: 0, right: 12 }}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey='label' tickLine={false} axisLine={false} tickMargin={8} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey='revenueDelta' radius={4}>
+                    {byDate.map((d) => (
+                      <Cell
+                        key={d.batchId}
+                        fill={d.revenueDelta >= 0 ? "var(--chart-1)" : "var(--chart-4)"}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ChartContainer>
             )}
           </CardContent>
         </Card>
       </div>
+
+      {latestChange && (
+        <Card>
+          <CardHeader>
+            <CardTitle className='text-base'>Latest Changes</CardTitle>
+            <CardDescription>
+              {latestChange.fileName} —{" "}
+              {new Date(latestChange.createdAt).toLocaleDateString("en-IN", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChangesMarkdown markdown={latestChange.changesMarkdown} />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { useGetPartsStatsQuery } from "@/redux-store/services/partsApi";
+import {
+  useGetPartsStatsQuery,
+  useGetPartsStockStatusQuery,
+} from "@/redux-store/services/partsApi";
 import {
   useGetDatasetsQuery,
   useGetDatasetRowsQuery,
@@ -41,6 +44,7 @@ import {
   Users,
   ReceiptText,
   Webhook,
+  Tag,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
@@ -74,36 +78,18 @@ export default function PartsAdminDashboard() {
 
   const stats = statsData?.data;
 
-  // Latest parts-stock import (from the generic DataImport module)
-  const { data: stockBatches, isLoading: stockBatchesLoading } =
-    useGetDatasetsQuery({
-      datasetType: "parts-stock",
-      page: 1,
-      limit: 1,
-    });
-  const latestStockBatchId = stockBatches?.data?.[0]?.batchId;
-  const { data: stockRows, isLoading: stockRowsLoading } =
-    useGetDatasetRowsQuery(
-      { batchId: latestStockBatchId as string, page: 1, limit: 1000 },
-      { skip: !latestStockBatchId },
-    );
+  // Current parts-stock snapshot (from the generic DataImport module) — sourced
+  // from the branch-wide current-state KPI endpoint rather than the latest
+  // batch's rows, since a batch now only contains that upload's added/changed
+  // rows (see partsStockDiff.service.ts), not a full snapshot.
+  const { data: stockStatusData, isLoading: stockStatusLoading } =
+    useGetPartsStockStatusQuery(undefined, { skip: !isAuthenticated });
+  const stockStatus = stockStatusData?.data;
+
   const { data: counterSaleBatches, isLoading: counterSaleBatchesLoading } =
     useGetCounterSaleBatchesQuery(undefined, {
       skip: !isAuthenticated,
     });
-
-  const stockKpis = useMemo(() => {
-    const rows = stockRows?.data ?? [];
-    const totalQuantity = rows.reduce(
-      (sum, r) => sum + (Number(r.normalized?.quantity) || 0),
-      0,
-    );
-    const totalStockValue = rows.reduce(
-      (sum, r) => sum + (Number(r.normalized?.stockValue) || 0),
-      0,
-    );
-    return { totalQuantity, totalStockValue };
-  }, [stockRows]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -165,13 +151,10 @@ export default function PartsAdminDashboard() {
   const stockValueKpis: Omit<StatCardProps, "index">[] = [
     {
       title: "Stock Quantity",
-      value:
-        stockBatchesLoading || stockRowsLoading ? "—" : stockKpis.totalQuantity,
+      value: stockStatusLoading ? "—" : (stockStatus?.totalItems ?? 0),
       icon: Boxes,
-      loading: stockBatchesLoading || stockRowsLoading,
-      description: latestStockBatchId
-        ? `From batch ${latestStockBatchId}`
-        : "No parts-stock import yet",
+      loading: stockStatusLoading,
+      description: "Current parts in stock, across all uploads",
 
       action: {
         label: "Upload stock file",
@@ -179,14 +162,27 @@ export default function PartsAdminDashboard() {
       },
     },
     {
-      title: "Stock Value",
-      value:
-        stockBatchesLoading || stockRowsLoading
-          ? "—"
-          : `₹${stockKpis.totalStockValue.toLocaleString("en-IN")}`,
+      title: "Stock Revenue",
+      value: stockStatusLoading
+        ? "—"
+        : `₹${(stockStatus?.totalRevenue ?? 0).toLocaleString("en-IN")}`,
       icon: Wallet,
-      loading: stockBatchesLoading || stockRowsLoading,
-      description: "Sum of stock value, latest batch",
+      loading: stockStatusLoading,
+      description: "Current stock revenue (Unit Price × Quantity)",
+
+      action: {
+        label: "Upload stock file",
+        href: "/part-admin/parts-stock/upload",
+      },
+    },
+    {
+      title: "Average Unit Price",
+      value: stockStatusLoading
+        ? "—"
+        : `₹${(stockStatus?.avgUnitPrice ?? 0).toLocaleString("en-IN")}`,
+      icon: Tag,
+      loading: stockStatusLoading,
+      description: "Mean Unit Price across current stock",
 
       action: {
         label: "Upload stock file",
@@ -413,7 +409,7 @@ export default function PartsAdminDashboard() {
               </Link>
             </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4 py-3'>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 py-3'>
               {stockValueKpis.map((kpi, i) => (
                 <StatCard key={kpi.title} {...kpi} index={i} />
               ))}

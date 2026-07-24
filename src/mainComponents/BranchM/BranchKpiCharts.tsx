@@ -1,13 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  XAxis,
-} from "recharts";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { IndianRupee, Package, Sparkles } from "lucide-react";
 
 import {
@@ -21,8 +13,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   type ChartConfig,
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -40,7 +30,7 @@ import SalesKpiCharts, {
 } from "@/mainComponents/DataImport/SalesKpiCharts";
 
 import { useGetSalesTimeseriesQuery } from "@/redux-store/services/dataImportApi";
-import { useGetPartsStockStatusQuery } from "@/redux-store/services/dataImportApi";
+import { useGetPartsStockStatusQuery } from "@/redux-store/services/partsApi";
 import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetVasAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
@@ -69,9 +59,8 @@ const stockAssignConfig: ChartConfig = {
   assignedCount: { label: "Vehicles Assigned", color: "var(--chart-2)" },
 };
 
-const partsStatusConfig: ChartConfig = {
-  sold: { label: "Sold", color: "var(--chart-1)" },
-  available: { label: "Available", color: "var(--chart-3)" },
+const partsRevenueConfig: ChartConfig = {
+  revenueAfter: { label: "Revenue", color: "var(--chart-1)" },
 };
 
 const StockTab = () => {
@@ -85,13 +74,17 @@ const StockTab = () => {
   const totals = assignData?.data.totals;
   const parts = partsData?.data;
 
-  const partsPieData = useMemo(() => {
-    if (!parts || parts.totalItems === 0) return [];
-    return [
-      { key: "sold", label: "Sold", value: parts.soldCount, fill: "var(--color-sold)" },
-      { key: "available", label: "Available", value: parts.notSoldCount, fill: "var(--color-available)" },
-    ];
-  }, [parts]);
+  const partsByDate = useMemo(
+    () =>
+      (parts?.byDate ?? []).map((d) => ({
+        ...d,
+        label: new Date(d.date).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+        }),
+      })),
+    [parts],
+  );
 
   const yearControl = (
     <div className='flex items-center justify-between flex-wrap gap-3'>
@@ -134,16 +127,16 @@ const StockTab = () => {
         />
         <MetricTile
           index={2}
-          label='Parts Stock Value'
-          value={inr(parts?.totalStockValue ?? 0)}
+          label='Parts Revenue'
+          value={inr(parts?.totalRevenue ?? 0)}
           bg='bg-amber-50'
           text='text-amber-700'
           sub='text-amber-500'
         />
         <MetricTile
           index={3}
-          label='Parts Sold %'
-          value={`${Math.round(parts?.soldPercent ?? 0)}%`}
+          label='Average Unit Price'
+          value={inr(parts?.avgUnitPrice ?? 0)}
           bg='bg-emerald-50'
           text='text-emerald-700'
           sub='text-emerald-500'
@@ -181,26 +174,26 @@ const StockTab = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle className='text-base'>Parts Stock Status</CardTitle>
-          <CardDescription>Sold vs. available parts, by value</CardDescription>
+          <CardTitle className='text-base'>Parts Revenue by Upload Date</CardTitle>
+          <CardDescription>Current stock revenue after each parts-stock upload</CardDescription>
         </CardHeader>
         <CardContent>
-          {partsPieData.length === 0 ? (
-            <EmptyChartState message='No parts stock imported yet — upload a parts report to see this breakdown.' />
+          {partsByDate.length === 0 ? (
+            <EmptyChartState message='No parts stock imported yet — upload a parts report to see this trend.' />
           ) : (
-            <ChartContainer
-              config={partsStatusConfig}
-              className='mx-auto h-[220px] w-full max-w-[280px]'
-            >
-              <PieChart>
-                <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                <Pie data={partsPieData} dataKey='value' nameKey='label' innerRadius={50}>
-                  {partsPieData.map((entry) => (
-                    <Cell key={entry.key} fill={entry.fill} />
-                  ))}
-                </Pie>
-                <ChartLegend content={<ChartLegendContent nameKey='label' />} />
-              </PieChart>
+            <ChartContainer config={partsRevenueConfig} className='h-[220px] w-full'>
+              <AreaChart data={partsByDate} margin={{ left: 0, right: 12 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey='label' tickLine={false} axisLine={false} tickMargin={8} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Area
+                  dataKey='revenueAfter'
+                  type='monotone'
+                  fill='var(--color-revenueAfter)'
+                  fillOpacity={0.2}
+                  stroke='var(--color-revenueAfter)'
+                />
+              </AreaChart>
             </ChartContainer>
           )}
         </CardContent>
