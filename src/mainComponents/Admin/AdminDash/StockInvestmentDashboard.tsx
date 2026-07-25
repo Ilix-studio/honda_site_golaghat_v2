@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -9,8 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { IndianRupee, Layers, TrendingUp } from "lucide-react";
-import { StatCard, type StatCardProps } from "./StatCard";
+
 import { useGetStockBatchReportsQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 import StockInvestmentKpiCharts from "./StockInvestmentKpiCharts";
 
@@ -38,53 +37,8 @@ export default function StockInvestmentDashboard() {
   const batches = data?.data ?? [];
   const pagination = data?.pagination;
 
-  const totals = useMemo(
-    () =>
-      batches.reduce(
-        (acc, b) => ({
-          investment: acc.investment + b.totalCostPrice,
-          revenue: acc.revenue + b.totalRevenue,
-        }),
-        { investment: 0, revenue: 0 }
-      ),
-    [batches]
-  );
-
-  const kpis: Omit<StatCardProps, "index">[] = [
-    {
-      title: "Total Investment (this page)",
-      value: isLoading ? "—" : formatCurrency(totals.investment),
-      icon: IndianRupee,
-      loading: isLoading,
-      description: "Sum of cost price across uploaded batches",
-      action: { label: "Uploads", href: "/manager/get/csv" },
-    },
-    {
-      title: "Total Revenue (this page)",
-      value: isLoading ? "—" : formatCurrency(totals.revenue),
-      icon: TrendingUp,
-      loading: isLoading,
-      description: "Vehicle sales + VAS + parts",
-      action: { label: "Uploads", href: "/manager/get/csv" },
-    },
-    {
-      title: "Upload Batches",
-      value: isLoading ? "—" : (pagination?.total ?? 0),
-      icon: Layers,
-      loading: isLoading,
-      description: "Stock-inventory file uploads",
-      action: { label: "Uploads", href: "/manager/get/csv" },
-    },
-  ];
-
   return (
     <div className='space-y-6'>
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-        {kpis.map((kpi, i) => (
-          <StatCard key={kpi.title} {...kpi} index={i} />
-        ))}
-      </div>
-
       <StockInvestmentKpiCharts />
 
       <Card size='sm' className='border border-gray-200 shadow-sm'>

@@ -5,17 +5,10 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
   PolarAngleAxis,
   PolarGrid,
   Radar,
   RadarChart,
-  RadialBar,
-  RadialBarChart,
   XAxis,
 } from "recharts";
 
@@ -29,8 +22,6 @@ import {
 import {
   type ChartConfig,
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -56,25 +47,9 @@ const vehicleCountConfig: ChartConfig = {
   vehicleCount: { label: "Vehicles Added", color: "var(--chart-2)" },
 };
 
-const cumulativeConfig: ChartConfig = {
-  cumulative: { label: "Cumulative Investment", color: "var(--chart-3)" },
-};
-
 const investmentVsRevenueConfig: ChartConfig = {
   amount: { label: "Amount", color: "var(--chart-1)" },
 };
-
-const recoveryPercentConfig: ChartConfig = {
-  value: { label: "Recovered %", color: "var(--chart-2)" },
-};
-
-const BATCH_COLORS = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-];
 
 /**
  * Daily (or weekly/monthly) Stock Investment KPI block: how much cost price
@@ -94,14 +69,6 @@ export default function StockInvestmentKpiCharts() {
   const timeseries = useMemo(() => data?.data.timeseries ?? [], [data]);
   const totals = data?.data.totals;
   const batches = useMemo(() => batchData?.data ?? [], [batchData]);
-
-  const cumulativeData = useMemo(() => {
-    let running = 0;
-    return timeseries.map((t) => {
-      running += t.totalCostPrice;
-      return { bucket: t.bucket, cumulative: running };
-    });
-  }, [timeseries]);
 
   const batchTotals = useMemo(
     () =>
@@ -129,37 +96,6 @@ export default function StockInvestmentKpiCharts() {
     { metric: "Sales Revenue", amount: batchTotals.salesRevenue },
     { metric: "VAS Revenue", amount: batchTotals.vasRevenue },
     { metric: "Parts Revenue", amount: batchTotals.partsRevenue },
-  ];
-
-  const topBatchPie = useMemo(() => {
-    return [...batches]
-      .sort((a, b) => b.totalCostPrice - a.totalCostPrice)
-      .slice(0, 5)
-      .map((b, i) => ({
-        key: b.batchId,
-        label: b.fileName,
-        value: b.totalCostPrice,
-        fill: BATCH_COLORS[i % BATCH_COLORS.length],
-      }));
-  }, [batches]);
-
-  const batchPieConfig: ChartConfig = useMemo(
-    () =>
-      Object.fromEntries(
-        topBatchPie.map((d) => [d.key, { label: d.label, color: d.fill }]),
-      ),
-    [topBatchPie],
-  );
-
-  const recoveryPercent =
-    batchTotals.investment > 0
-      ? Math.min(
-          100,
-          Math.round((batchTotals.totalRevenue / batchTotals.investment) * 100),
-        )
-      : 0;
-  const radialData = [
-    { key: "recovery", value: recoveryPercent, fill: "var(--color-value)" },
   ];
 
   const granularityControl = (
@@ -271,86 +207,10 @@ export default function StockInvestmentKpiCharts() {
               </ChartContainer>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className='text-base'>Cumulative Investment</CardTitle>
-              <CardDescription>
-                Running total over the selected range
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={cumulativeConfig}
-                className='h-[220px] w-full'
-              >
-                <LineChart
-                  data={cumulativeData}
-                  margin={{ left: 0, right: 12 }}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey='bucket'
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Line
-                    dataKey='cumulative'
-                    type='monotone'
-                    stroke='var(--color-cumulative)'
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                  />
-                </LineChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
         </>
       )}
 
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-base'>
-              Investment by Upload Batch
-            </CardTitle>
-            <CardDescription>
-              Top 5 batches by cost price (this page)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {batchLoading ? (
-              <ChartSkeleton />
-            ) : topBatchPie.length === 0 ? (
-              <EmptyChartState message='No stock-inventory uploads yet.' />
-            ) : (
-              <ChartContainer
-                config={batchPieConfig}
-                className='mx-auto h-[220px] w-full max-w-[280px]'
-              >
-                <PieChart>
-                  <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                  <Pie
-                    data={topBatchPie}
-                    dataKey='value'
-                    nameKey='label'
-                    innerRadius={50}
-                  >
-                    {topBatchPie.map((entry) => (
-                      <Cell key={entry.key} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <ChartLegend
-                    content={<ChartLegendContent nameKey='label' />}
-                  />
-                </PieChart>
-              </ChartContainer>
-            )}
-          </CardContent>
-        </Card>
-
+      <div className='flex '>
         <Card>
           <CardHeader>
             <CardTitle className='text-base'>
@@ -384,44 +244,6 @@ export default function StockInvestmentKpiCharts() {
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className='text-base'>Investment Recovered</CardTitle>
-          <CardDescription>
-            Share of investment recovered via sales + VAS + parts revenue (this
-            page)
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {batchLoading ? (
-            <ChartSkeleton />
-          ) : (
-            <div className='relative mx-auto h-[200px] w-[200px]'>
-              <ChartContainer
-                config={recoveryPercentConfig}
-                className='h-full w-full'
-              >
-                <RadialBarChart
-                  data={radialData}
-                  startAngle={90}
-                  endAngle={90 - (360 * recoveryPercent) / 100}
-                  innerRadius={70}
-                  outerRadius={100}
-                >
-                  <RadialBar dataKey='value' background cornerRadius={10} />
-                </RadialBarChart>
-              </ChartContainer>
-              <div className='pointer-events-none absolute inset-0 flex flex-col items-center justify-center'>
-                <span className='text-3xl font-black text-gray-900'>
-                  {recoveryPercent}%
-                </span>
-                <span className='text-xs text-muted-foreground'>Recovered</span>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }
