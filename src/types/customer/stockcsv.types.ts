@@ -46,6 +46,7 @@ export interface CSVBatch {
   totalStocks: number;
   availableStocks: number;
   soldStocks: number;
+  totalCostPrice: number;
   models: string[];
   locations: string[];
 }

@@ -23,6 +23,7 @@ import StockInvestmentDashboard from "./StockInvestmentDashboard";
 import PartsKpiCharts from "@/mainComponents/PartsM/PartsKpiCharts";
 import ServiceJobcardKpiCharts from "@/mainComponents/ServiceM/ServiceJobcardKpiCharts";
 import CounterSaleKpiCharts from "@/mainComponents/CounterSaleM/CounterSaleKpiCharts";
+
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import {
   selectActiveTab,
@@ -306,17 +307,6 @@ export function DashboardsPanel() {
         </TabsTrigger>
 
         <TabsTrigger
-          value='service'
-          className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
-        >
-          <span className='flex items-center gap-1.5'>
-            <Wrench className='h-3.5 w-3.5' />
-            <span>Service</span>
-          </span>
-          <TabRoleTag role='SA' />
-        </TabsTrigger>
-
-        <TabsTrigger
           value='counter-sale'
           className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
         >
@@ -325,6 +315,16 @@ export function DashboardsPanel() {
             <span>Counter Sale</span>
           </span>
           <TabRoleTag role='PA' />
+        </TabsTrigger>
+        <TabsTrigger
+          value='service'
+          className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+        >
+          <span className='flex items-center gap-1.5'>
+            <Wrench className='h-3.5 w-3.5' />
+            <span>Service</span>
+          </span>
+          <TabRoleTag role='SA' />
         </TabsTrigger>
         <TabsTrigger
           value='manual-assign'
@@ -345,11 +345,12 @@ export function DashboardsPanel() {
       <TabsContent value='parts' className='pt-4'>
         <PartsDashboard />
       </TabsContent>
-      <TabsContent value='service' className='pt-4'>
-        <ServiceDashboard />
-      </TabsContent>
+
       <TabsContent value='counter-sale' className='pt-4'>
         <CounterSaleKpiCharts />
+      </TabsContent>
+      <TabsContent value='service' className='pt-4'>
+        <ServiceDashboard />
       </TabsContent>
       <TabsContent value='manual-assign' className='pt-4'>
         <ManualAssignDashboard />
