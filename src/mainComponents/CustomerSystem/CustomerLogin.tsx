@@ -337,11 +337,7 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
             )}
           </CardContent>
         </Card>
-        <Link to='/'>
-          <p className='text-center text-xs text-gray-500 mt-6 hover:underline cursor-pointer'>
-            Back to Homepage
-          </p>
-        </Link>
+
         {isBranchAdmin && (
           <Link to='/manager/dashboard'>
             <p className='text-center text-xs text-gray-500 mt-4 hover:underline cursor-pointer'>

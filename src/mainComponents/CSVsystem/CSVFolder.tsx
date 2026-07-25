@@ -9,13 +9,28 @@ import {
   ArrowLeft,
   Upload,
   Folder,
+  Trash2,
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import toast from "react-hot-toast";
 
-import { useGetCSVBatchesQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
+import {
+  useDeleteCSVBatchMutation,
+  useGetCSVBatchesQuery,
+} from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 import GetCSVFiles from "./GetCSVFiles";
 import { CSVBatch } from "@/types/customer/stockcsv.types";
 import { useNavigate } from "react-router";
@@ -23,11 +38,31 @@ import { useNavigate } from "react-router";
 const CSVFolder = () => {
   const navigate = useNavigate();
   const [selectedBatch, setSelectedBatch] = useState<CSVBatch | null>(null);
+  const [batchToDelete, setBatchToDelete] = useState<CSVBatch | null>(null);
 
   const { data, isLoading, error, refetch } = useGetCSVBatchesQuery({
     page: 1,
     limit: 50,
   });
+
+  const [deleteCSVBatch, { isLoading: isDeleting }] =
+    useDeleteCSVBatchMutation();
+
+  const handleDeleteBatch = async () => {
+    if (!batchToDelete) return;
+    try {
+      const res = await deleteCSVBatch(batchToDelete.batchId).unwrap();
+      toast.success(res.message || "Folder deleted");
+      setBatchToDelete(null);
+    } catch (err) {
+      const message =
+        (err as { data?: { message?: string }; message?: string })?.data
+          ?.message ||
+        (err as { message?: string })?.message ||
+        "Failed to delete folder";
+      toast.error(message);
+    }
+  };
 
   const batches = data?.data || [];
 
@@ -145,7 +180,19 @@ const CSVFolder = () => {
                   onClick={() => setSelectedBatch(batch)}
                   className='group cursor-pointer'
                 >
-                  <Card className='h-full transition-all hover:shadow-lg hover:border-primary/50'>
+                  <Card className='relative h-full transition-all hover:shadow-lg hover:border-primary/50'>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      aria-label='Delete folder'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setBatchToDelete(batch);
+                      }}
+                      className='absolute top-1 right-1 z-10 h-7 w-7 text-muted-foreground opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 focus-visible:opacity-100 group-hover:opacity-100'
+                    >
+                      <Trash2 className='h-4 w-4' />
+                    </Button>
                     <CardContent className='p-3 sm:p-6'>
                       <div className='flex flex-col items-center text-center space-y-2 sm:space-y-4'>
                         {/* Folder Icon */}
@@ -214,6 +261,43 @@ const CSVFolder = () => {
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog
+        open={!!batchToDelete}
+        onOpenChange={(open) => !open && setBatchToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this folder?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove{" "}
+              <span className='font-semibold'>{batchToDelete?.fileName}</span>{" "}
+              and its {batchToDelete?.totalStocks} stock(s). Folders containing
+              sold stocks cannot be deleted. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleDeleteBatch();
+              }}
+              disabled={isDeleting}
+              className='bg-red-600 text-white hover:bg-red-700'
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                  Deleting...
+                </>
+              ) : (
+                "Delete Folder"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

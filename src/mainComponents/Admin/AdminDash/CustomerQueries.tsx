@@ -109,13 +109,8 @@ const CustomerQueries = () => {
           <StatCard key={stat.title} {...stat} index={i} />
         ))}
       </div>
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.45 }}
-      >
-        <RecentMotorcycles />
-      </motion.div>
+
+      <RecentMotorcycles />
     </>
   );
 };

@@ -200,6 +200,23 @@ export const csvStockApi = apiSlice.injectEndpoints({
       ],
       transformErrorResponse: (response) => handleApiError(response),
     }),
+
+    // DELETE /api/csv-stock/batch/:batchId
+    deleteCSVBatch: builder.mutation<
+      { success: boolean; message: string },
+      string
+    >({
+      query: (batchId) => ({
+        url: `/csv-stock/batch/${batchId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_result, _error, batchId) => [
+        { type: "CSVBatch", id: batchId },
+        { type: "CSVBatch", id: "LIST" },
+        { type: "CSVStockList", id: "LIST" },
+      ],
+      transformErrorResponse: (response) => handleApiError(response),
+    }),
   }),
 });
 
@@ -217,4 +234,5 @@ export const {
   useAssignCSVStockMutation,
   useUnassignCSVStockMutation,
   useDeleteCSVStockMutation,
+  useDeleteCSVBatchMutation,
 } = csvStockApi;
