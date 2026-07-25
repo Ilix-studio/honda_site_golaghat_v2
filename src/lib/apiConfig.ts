@@ -22,6 +22,7 @@ export const API_CONFIG = {
 
 export const baseQuery = fetchBaseQuery({
   baseUrl: API_CONFIG.BASE_URL,
+  credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as any).auth.token;
 

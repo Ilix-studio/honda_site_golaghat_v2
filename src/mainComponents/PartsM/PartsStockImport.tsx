@@ -1,5 +1,5 @@
 import { Boxes, Info } from "lucide-react";
-import UploadDataImportForm from "@/mainComponents/DataImport/UploadDataImportForm";
+import PartsStockUploadForm from "@/mainComponents/PartsM/PartsStockUploadForm";
 
 export default function PartsStockImport() {
   return (
@@ -22,22 +22,16 @@ export default function PartsStockImport() {
         <div className='flex items-start gap-2 rounded-lg bg-blue-50 border border-blue-200 p-3 text-sm text-blue-800 mt-4'>
           <Info className='w-4 h-4 mt-0.5 shrink-0' />
           <span>
-            Extracts Availability, Quantity, Status, Description, Part
-            Number, HSN Code, Inventory Location Name, Unit Price, Stock
-            Value, Location Order, Locator 1/2/3, HMSI MAKE, Part Category,
-            Dealer Code, Division Zone, and Division Region from the file.
-            Description is shown together with Inventory Location Name on
-            the dashboard's Inventory Transfer table. Super-Admin sees a
-            sold/not-sold breakdown based on Stock Value across every
-            upload.
+            Extracts Part Number, Description, Quantity, Unit Price, and
+            Location from the file. Every upload is compared against your
+            last one — added, changed, and removed parts are shown with a
+            revenue impact, and an identical re-upload is rejected with no
+            changes made.
           </span>
         </div>
       </div>
 
-      <UploadDataImportForm
-        fixedDatasetType='parts-stock'
-        dashboardPath='/part-admin/dashboard'
-      />
+      <PartsStockUploadForm dashboardPath='/part-admin/dashboard' />
     </div>
   );
 }

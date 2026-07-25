@@ -8,9 +8,6 @@ import type {
   DeleteDatasetResponse,
   DatasetsFilters,
   DatasetRowsFilters,
-  SalesTimeseriesResponse,
-  SalesTimeseriesFilters,
-  PartsStockStatusResponse,
 } from "./dataImport.types";
 
 export const dataImportApi = apiSlice.injectEndpoints({
@@ -34,7 +31,7 @@ export const dataImportApi = apiSlice.injectEndpoints({
         method: "POST",
         body: formData,
       }),
-      invalidatesTags: ["DataImportDataset", "SalesTimeseries"],
+      invalidatesTags: ["DataImportDataset"],
     }),
 
     getDatasets: builder.query<DatasetsListResponse, DatasetsFilters | void>({
@@ -69,32 +66,7 @@ export const dataImportApi = apiSlice.injectEndpoints({
         url: `/data-import/datasets/${batchId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["DataImportDataset", "SalesTimeseries"],
-    }),
-
-    getSalesTimeseries: builder.query<
-      SalesTimeseriesResponse,
-      SalesTimeseriesFilters
-    >({
-      query: (filters) => {
-        const p = new URLSearchParams();
-        Object.entries(filters).forEach(([k, v]) => {
-          if (v !== undefined && v !== "") p.append(k, String(v));
-        });
-        const qs = p.toString();
-        return `/data-import/sales/timeseries${qs ? `?${qs}` : ""}`;
-      },
-      providesTags: ["SalesTimeseries"],
-    }),
-
-    getPartsStockStatus: builder.query<PartsStockStatusResponse, { branchId?: string } | void>({
-      query: (filters) => {
-        const p = new URLSearchParams();
-        if (filters?.branchId) p.append("branchId", filters.branchId);
-        const qs = p.toString();
-        return `/data-import/parts-stock/status${qs ? `?${qs}` : ""}`;
-      },
-      providesTags: ["DataImportDataset"],
+      invalidatesTags: ["DataImportDataset"],
     }),
   }),
 });
@@ -106,6 +78,4 @@ export const {
   useGetDatasetsQuery,
   useGetDatasetRowsQuery,
   useDeleteDatasetMutation,
-  useGetSalesTimeseriesQuery,
-  useGetPartsStockStatusQuery,
 } = dataImportApi;

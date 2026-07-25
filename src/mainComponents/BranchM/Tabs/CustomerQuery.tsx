@@ -1,4 +1,9 @@
-import { AlertTriangle, BanknoteIcon, MessageCircleCode } from "lucide-react";
+import {
+  AlertTriangle,
+  BanknoteIcon,
+  MessageCircleCode,
+  PartyPopper,
+} from "lucide-react";
 
 import { useGetAllApplicationsQuery } from "@/redux-store/services/customer/getApprovedApi";
 import { useGetContactMessagesQuery } from "@/redux-store/services/contactApi";
@@ -45,13 +50,20 @@ const CustomerQueries = () => {
       icon: AlertTriangle,
       loading: false,
       description: "",
-
       action: { label: "View Reports", href: "/accident-reports" },
+    },
+    {
+      title: "Counter Sales Reports",
+      value: 10,
+      icon: PartyPopper,
+      loading: false,
+      description: "",
+      action: { label: "View Reports", href: "/manager/counter-sale" },
     },
   ];
 
   return (
-    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8'>
+    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8 p-3'>
       {stats.map((stat, i) => (
         <StatCard key={stat.title} {...stat} index={i} />
       ))}

@@ -7,14 +7,25 @@ export interface PartsImportResponse {
   message: string;
   data: {
     totalRows: number;
-    successCount: number;
-    failureCount: number;
-    reviewCount: number;
-    batchId: string;
-    sourceFormat: "xlsx" | "csv" | "pdf";
-    detectedColumns: string[];
-    errors: { row: number; data: Record<string, any>; error: string }[];
-    created: string[];
+    // Absent when `duplicate` is true (nothing was parsed into a batch).
+    importedRows?: number;
+    duplicateRows?: number;
+    reviewRows?: number;
+    batchId?: string;
+    sourceFormat?: "xlsx" | "csv" | "pdf";
+    detectedColumns?: string[];
+    errors?: { row: number; data: Record<string, any>; error: string }[];
+    // Upload-over-upload comparison (see partsStockDiff.service.ts)
+    duplicate?: boolean;
+    previousBatchId?: string | null;
+    addedRows?: number;
+    changedRows?: number;
+    removedRows?: number;
+    unchangedRows?: number;
+    revenueBefore?: number;
+    revenueAfter?: number;
+    revenueDelta?: number;
+    changesMarkdown?: string;
   };
 }
 
@@ -27,33 +38,66 @@ export interface PartsStatsResponse {
   };
 }
 
+export interface PartsNormalizedRow {
+  partNumber?: string;
+  description?: string;
+  quantity?: number;
+  unitPrice?: number;
+  inventoryLocationName?: string;
+}
+
+export interface PartsRowDTO {
+  _id: string;
+  partId: string;
+  rowData: Record<string, any>;
+  normalized: PartsNormalizedRow;
+  detectedColumns: string[];
+  sourceFormat: string;
+  importBatch: string;
+  importDate: string;
+  needsReview: boolean;
+  isCurrent?: boolean;
+  changeType?: "added" | "changed";
+  branchId: { _id: string; branchName?: string } | string;
+  createdAt: string;
+}
+
 export interface PartsListResponse {
   success: boolean;
-  data: Array<{
-    _id: string;
-    partId: string;
-    rowData: Record<string, any>;
-    detectedColumns: string[];
-    sourceFormat: string;
-    importBatch: string;
-    importDate: string;
-    needsReview: boolean;
-    branchId: { _id: string; branchName?: string } | string;
-    createdAt: string;
-  }>;
+  data: PartsRowDTO[];
   pagination: { page: number; limit: number; total: number; pages: number };
+}
+
+export interface PartsBatchDTO {
+  _id: string;
+  batchId: string;
+  fileName: string;
+  sourceFormat: "xlsx" | "csv" | "pdf";
+  detectedColumns: string[];
+  totalRows: number;
+  importedRows: number;
+  duplicateRows: number;
+  reviewRows: number;
+  status: "completed" | "completed_with_errors" | "failed";
+  branchId: { _id: string; branchName?: string } | string;
+  uploadedByRole: string;
+  isActive: boolean;
+  previousBatchId?: string | null;
+  addedRows: number;
+  changedRows: number;
+  removedRows: number;
+  unchangedRows: number;
+  revenueBefore: number;
+  revenueAfter: number;
+  revenueDelta: number;
+  changesMarkdown: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PartsBatchesResponse {
   success: boolean;
-  data: Array<{
-    batchId: string;
-    fileName: string;
-    sourceFormat: string;
-    importDate: string;
-    totalParts: number;
-    reviewParts: number;
-  }>;
+  data: PartsBatchDTO[];
 }
 
 export interface PartsAiResponse {
@@ -69,6 +113,42 @@ export interface PartsFilters {
   branchId?: string;
 }
 
+export interface PartsStockKpiByDate {
+  batchId: string;
+  date: string;
+  branchId?: string;
+  branchName?: string;
+  revenueAfter: number;
+  revenueDelta: number;
+  addedRows: number;
+  changedRows: number;
+  removedRows: number;
+}
+
+export interface PartsStockLatestChange {
+  batchId: string;
+  fileName: string;
+  branchId?: string;
+  branchName?: string;
+  createdAt: string;
+  changesMarkdown: string;
+  addedRows: number;
+  changedRows: number;
+  removedRows: number;
+  revenueDelta: number;
+}
+
+export interface PartsStockStatusResponse {
+  success: boolean;
+  data: {
+    totalItems: number;
+    totalRevenue: number;
+    avgUnitPrice: number;
+    byDate: PartsStockKpiByDate[];
+    latestChange: PartsStockLatestChange | null;
+  };
+}
+
 // ─── API ─────────────────────────────────────────────────────────────────────
 
 export const partsApi = apiSlice.injectEndpoints({
@@ -79,7 +159,7 @@ export const partsApi = apiSlice.injectEndpoints({
         method: "POST",
         body: formData,
       }),
-      invalidatesTags: ["Parts", "PartsBatch", "PartsStats"],
+      invalidatesTags: ["Parts", "PartsBatch", "PartsStats", "PartsStockStatus"],
     }),
 
     getPartsStats: builder.query<
@@ -123,6 +203,19 @@ export const partsApi = apiSlice.injectEndpoints({
       providesTags: ["PartsBatch"],
     }),
 
+    getPartsStockStatus: builder.query<
+      PartsStockStatusResponse,
+      { branchId?: string } | void
+    >({
+      query: (params) => {
+        const p = new URLSearchParams();
+        if (params?.branchId) p.append("branchId", params.branchId);
+        const qs = p.toString();
+        return `/parts/stock-status${qs ? `?${qs}` : ""}`;
+      },
+      providesTags: ["PartsStockStatus"],
+    }),
+
     askPartsAi: builder.mutation<
       PartsAiResponse,
       { mode: "summary" | "chat"; question?: string; branchId?: string }
@@ -141,5 +234,6 @@ export const {
   useGetPartsStatsQuery,
   useGetAllPartsQuery,
   useGetPartsBatchesQuery,
+  useGetPartsStockStatusQuery,
   useAskPartsAiMutation,
 } = partsApi;

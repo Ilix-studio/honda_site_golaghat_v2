@@ -83,6 +83,12 @@ const AdminUploadDataImport = () => (
 const NewCustomerList = lazy(
   () => import("@/mainComponents/shared/NewCustomerList"),
 );
+const CounterSaleAdminDashboard = lazy(
+  () => import("@/mainComponents/CounterSaleM/CounterSaleAdminDashboard"),
+);
+const CounterSaleDeletedBatches = lazy(
+  () => import("@/mainComponents/CounterSaleM/CounterSaleDeletedBatches"),
+);
 //
 export const adminAuthRoutes = [
   { path: "/admin/login", component: LoginSuperAdmin },
@@ -115,6 +121,10 @@ export const adminRoutes = [
   // Data Import
   { path: "/admin/data-import", component: DataImportOverview },
   { path: "/admin/data-import/upload", component: AdminUploadDataImport },
+
+  // Counter Sale Reports — Part-Admin uploads, Super-Admin reads/deletes all branches
+  { path: "/admin/counter-sale", component: CounterSaleAdminDashboard },
+  { path: "/admin/counter-sale/deleted", component: CounterSaleDeletedBatches },
 ];
 
 // Write-access bike routes — Super-Admin + Branch-Admin (gated by SharedBikeRouteWrapper)

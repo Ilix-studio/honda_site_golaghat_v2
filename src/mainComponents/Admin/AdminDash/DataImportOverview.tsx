@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  useGetSalesTimeseriesQuery,
-  useGetDatasetsQuery,
-} from "@/redux-store/services/dataImportApi";
+import { useGetDatasetsQuery } from "@/redux-store/services/dataImportApi";
+import { useGetServiceJobcardSalesTimeseriesQuery } from "@/redux-store/services/serviceJobcardApi";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
 import SalesTrendChart from "@/mainComponents/DataImport/SalesTrendChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,9 +11,10 @@ import { UploadCloud } from "lucide-react";
 export default function DataImportOverview() {
   const [granularity, setGranularity] = useState<Granularity>("day");
 
-  const { data: salesData, isLoading: salesLoading } = useGetSalesTimeseriesQuery({
-    granularity,
-  });
+  const { data: salesData, isLoading: salesLoading } =
+    useGetServiceJobcardSalesTimeseriesQuery({
+      granularity,
+    });
   const { data: datasetsData } = useGetDatasetsQuery({ page: 1, limit: 20 });
 
   const data = salesData?.data;

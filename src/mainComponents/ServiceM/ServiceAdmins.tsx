@@ -164,7 +164,8 @@ const ServiceAdmins: React.FC = () => {
       errors.phoneNumber = "Enter a valid 10-digit phone number";
     }
     if (!formData.address.trim()) errors.address = "Address is required";
-    if (!isBranchAdmin && !formData.branch) errors.branch = "Branch is required";
+    if (!isBranchAdmin && !formData.branch)
+      errors.branch = "Branch is required";
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -274,7 +275,7 @@ const ServiceAdmins: React.FC = () => {
                   </Button>
                 </DialogTrigger>
 
-                <DialogContent className='sm:max-w-[500px]'>
+                <DialogContent className='sm:max-w-[500px] p-4'>
                   <DialogHeader>
                     <DialogTitle>Create Service Admin</DialogTitle>
                     <DialogDescription>

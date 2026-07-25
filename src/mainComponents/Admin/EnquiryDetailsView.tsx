@@ -18,6 +18,11 @@ import {
 } from "@/components/ui/select";
 
 import { Label } from "@/components/ui/label";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import {
+  selectActiveTab,
+  setActiveTab,
+} from "@/redux-store/slices/dashboardTabsSlice";
 import {
   User,
   Phone,
@@ -110,11 +115,17 @@ interface BikeRecommendation {
   features: string[];
 }
 
+const ENQUIRY_DETAILS_TAB_KEY = "enquiryDetailsView";
+
 const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
   enquiryId,
   onClose,
   onUpdate,
 }) => {
+  const dispatch = useAppDispatch();
+  const activeTab =
+    useAppSelector(selectActiveTab(ENQUIRY_DETAILS_TAB_KEY)) ?? "overview";
+
   // State management
   const [enquiry, setEnquiry] = useState<EnquiryData | null>(null);
   const [recommendations, setRecommendations] = useState<BikeRecommendation[]>(
@@ -370,7 +381,13 @@ const EnquiryDetailsView: React.FC<EnquiryDetailsProps> = ({
         </div>
       </div>
 
-      <Tabs defaultValue='overview' className='space-y-6'>
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) =>
+          dispatch(setActiveTab({ key: ENQUIRY_DETAILS_TAB_KEY, value: v }))
+        }
+        className='space-y-6'
+      >
         <TabsList>
           <TabsTrigger value='overview'>Overview</TabsTrigger>
           <TabsTrigger value='bike-details'>Bike Preferences</TabsTrigger>

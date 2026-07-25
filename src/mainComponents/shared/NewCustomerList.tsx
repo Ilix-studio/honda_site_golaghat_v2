@@ -62,7 +62,6 @@ export default function NewCustomerList() {
                       <th className='py-2 pr-4'>Name</th>
                       <th className='py-2 pr-4'>Phone</th>
                       <th className='py-2 pr-4'>Source</th>
-                      <th className='py-2 pr-4'>Verified</th>
                       <th className='py-2 pr-4'>Vehicle</th>
                       <th className='py-2 pr-4'>Joined</th>
                     </tr>
@@ -78,18 +77,6 @@ export default function NewCustomerList() {
                         </td>
                         <td className='py-2 pr-4 text-gray-500'>
                           {SOURCE_LABEL[c.creationSource] ?? c.creationSource}
-                        </td>
-                        <td className='py-2 pr-4'>
-                          <Badge
-                            variant='outline'
-                            className={
-                              c.isVerified
-                                ? "bg-green-50 text-green-700 border-green-200"
-                                : "bg-gray-50 text-gray-600 border-gray-200"
-                            }
-                          >
-                            {c.isVerified ? "Verified" : "Unverified"}
-                          </Badge>
                         </td>
                         <td className='py-2 pr-4'>
                           <Badge

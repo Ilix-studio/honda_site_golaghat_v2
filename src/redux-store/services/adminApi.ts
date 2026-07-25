@@ -1,6 +1,6 @@
 import { apiSlice } from "./apiSlice";
-import { User, UserBranch, loginSuccess, logout } from "../slices/authSlice";
-import { persistor } from "../store";
+import { User, UserBranch, loginSuccess } from "../slices/authSlice";
+import { clearAuthState } from "../authHelpers";
 
 // ─── Request Types ───────────────────────────────────────────────────────────
 
@@ -112,6 +112,23 @@ export interface StaffLoginResponse extends BaseResponse {
   };
 }
 
+export interface OtpPhoneCheckResponse extends BaseResponse {
+  exists: boolean;
+}
+
+export interface OtpLoginResponse extends BaseResponse {
+  data: {
+    id: string;
+    name: string;
+    role: string;
+    token: string;
+    email?: string;
+    phoneNumber?: string;
+    branch?: UserBranch;
+    position?: string;
+  };
+}
+
 export interface CreatedUserResponse extends BaseResponse {
   data: {
     id: string;
@@ -167,15 +184,8 @@ export interface UpdateMyProfileRequest {
   bloodGroup?: string;
   lifeInsurance?: string;
   scanfleetStickerId?: string;
+  phoneNumber?: string;
 }
-
-// ─── Shared logout cleanup ──────────────────────────────────────────────────
-
-const clearAuthState = (dispatch: any) => {
-  dispatch(logout());
-  dispatch(apiSlice.util.resetApiState());
-  persistor.purge();
-};
 
 // ─── API Slice ───────────────────────────────────────────────────────────────
 
@@ -318,6 +328,41 @@ export const adminAuthApi = apiSlice.injectEndpoints({
           }
         } catch (error) {
           console.error("Staff login failed:", error);
+        }
+      },
+    }),
+
+    checkOtpPhone: builder.mutation<OtpPhoneCheckResponse, { phoneNumber: string }>({
+      query: (body) => ({
+        url: "/auth/check-phone",
+        method: "POST",
+        body,
+      }),
+    }),
+
+    otpLogin: builder.mutation<OtpLoginResponse, { idToken: string }>({
+      query: (body) => ({
+        url: "/auth/otp-login",
+        method: "POST",
+        body,
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data.success) {
+            const userData: User = {
+              id: data.data.id,
+              name: data.data.name,
+              email: data.data.email,
+              phoneNumber: data.data.phoneNumber,
+              branch: data.data.branch,
+              position: data.data.position,
+              role: data.data.role,
+            };
+            dispatch(loginSuccess({ user: userData, token: data.data.token }));
+          }
+        } catch (error) {
+          console.error("OTP login failed:", error);
         }
       },
     }),
@@ -505,6 +550,8 @@ export const {
   useLoginServiceAdminMutation,
   useLoginPartAdminMutation,
   useLoginStaffMutation,
+  useCheckOtpPhoneMutation,
+  useOtpLoginMutation,
   // Logout
   useLogoutSuperAdminMutation,
   useLogoutUserMutation,

@@ -39,7 +39,7 @@ const BranchQueries = () => {
   const { data: partsAdminData, isLoading: partsAdminLoading } =
     useGetAllPartAdminsQuery();
   const { data: allVehicleData, isLoading: bikesLoading } = useGetBikesQuery(
-    {}
+    {},
   );
   const { data: newCustomersData, isLoading: newCustomersLoading } =
     useGetNewCustomersQuery({ limit: 1 }, { skip: false });
@@ -84,7 +84,7 @@ const BranchQueries = () => {
       },
     },
     {
-      title: "Add Staff",
+      title: "View All Staff",
       value: staffData?.count ?? 0,
       icon: PersonStanding,
       loading: staffLoading,
@@ -216,7 +216,7 @@ const BranchQueries = () => {
                       Math.max(vs.totalVisitors ?? 1, 1)) *
                       100 *
                       10,
-                    100
+                    100,
                   )}%`,
                 }}
                 transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}

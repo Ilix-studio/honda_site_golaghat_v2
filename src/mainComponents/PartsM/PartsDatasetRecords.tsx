@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Package, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -11,7 +12,25 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { useGetDatasetRowsQuery } from "@/redux-store/services/dataImportApi";
+import { useGetAllPartsQuery } from "@/redux-store/services/partsApi";
+
+const qualityBadge = (changeType?: "added" | "changed") => {
+  if (changeType === "added") {
+    return (
+      <Badge variant='outline' className='text-xs bg-green-50 text-green-700 border-green-200'>
+        New
+      </Badge>
+    );
+  }
+  if (changeType === "changed") {
+    return (
+      <Badge variant='outline' className='text-xs bg-amber-50 text-amber-700 border-amber-200'>
+        Changed
+      </Badge>
+    );
+  }
+  return <span className='text-muted-foreground'>—</span>;
+};
 
 const RECORDS_PAGE_SIZE = 25;
 
@@ -23,7 +42,7 @@ const PartsDatasetRecords = ({ batchId }: PartsDatasetRecordsProps) => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  const { data, isLoading } = useGetDatasetRowsQuery({
+  const { data, isLoading } = useGetAllPartsQuery({
     batchId,
     page: 1,
     limit: 1000,
@@ -83,18 +102,14 @@ const PartsDatasetRecords = ({ batchId }: PartsDatasetRecordsProps) => {
                   <TableHead className='min-w-[140px]'>Part Number</TableHead>
                   <TableHead className='min-w-[220px]'>Description</TableHead>
                   <TableHead className='min-w-[100px]'>Quantity</TableHead>
-                  <TableHead className='min-w-[120px]'>Stock Value</TableHead>
+                  <TableHead className='min-w-[120px]'>Unit Price</TableHead>
                   <TableHead className='min-w-[160px]'>Location</TableHead>
-                  <TableHead className='min-w-[140px]'>Locator</TableHead>
-                  <TableHead className='min-w-[100px]'>Status</TableHead>
+                  <TableHead className='min-w-[110px]'>Quality</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedRows.map((r) => {
                   const n = r.normalized || {};
-                  const locator = [n.locator1, n.locator2, n.locator3]
-                    .filter(Boolean)
-                    .join(" / ");
                   return (
                     <TableRow key={r._id}>
                       <TableCell className='font-mono text-xs'>
@@ -104,12 +119,13 @@ const PartsDatasetRecords = ({ batchId }: PartsDatasetRecordsProps) => {
                         {n.description ?? "—"}
                       </TableCell>
                       <TableCell>{n.quantity ?? "—"}</TableCell>
-                      <TableCell>{n.stockValue ?? "—"}</TableCell>
-                      <TableCell>{n.inventoryLocationName ?? "—"}</TableCell>
-                      <TableCell className='text-muted-foreground'>
-                        {locator || "—"}
+                      <TableCell>
+                        {n.unitPrice != null
+                          ? `₹${Number(n.unitPrice).toLocaleString("en-IN")}`
+                          : "—"}
                       </TableCell>
-                      <TableCell>{n.status ?? n.availability ?? "—"}</TableCell>
+                      <TableCell>{n.inventoryLocationName ?? "—"}</TableCell>
+                      <TableCell>{qualityBadge(r.changeType)}</TableCell>
                     </TableRow>
                   );
                 })}

@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/button";
 import { AlertCircle, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuthScreen } from "@/hooks/useAuthScreen";
 import { loginSchema } from "@/zod/loginSchema";
+import OtpLoginForm from "@/mainComponents/shared/OtpLoginForm";
 
 function LoginPartAdmin() {
   const navigate = useNavigate();
   useAuthScreen();
   const [loginPartAdmin, { isLoading }] = useLoginPartAdminMutation();
 
+  const [mode, setMode] = useState<"password" | "otp">("password");
   const [form, setForm] = useState({ phoneNumber: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,83 +59,112 @@ function LoginPartAdmin() {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={handleSubmit} className='space-y-4'>
-              <div className='space-y-1.5'>
-                <Label htmlFor='phoneNumber' className='text-gray-300 text-sm'>
-                  Phone Number
-                </Label>
-                <Input
-                  id='phoneNumber'
-                  type='text'
-                  inputMode='numeric'
-                  maxLength={10}
-                  autoComplete='username'
-                  placeholder='e.g. 8880000000'
-                  value={form.phoneNumber}
-                  onChange={(e) =>
-                    setForm((p) => ({
-                      ...p,
-                      phoneNumber: e.target.value.replace(/\D/g, "").slice(0, 10),
-                    }))
-                  }
-                  className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500'
-                />
-              </div>
-
-              <div className='space-y-1.5'>
-                <Label htmlFor='password' className='text-gray-300 text-sm'>
-                  Password
-                </Label>
-                <div className='relative'>
-                  <Input
-                    id='password'
-                    type={showPassword ? "text" : "password"}
-                    autoComplete='current-password'
-                    placeholder='Enter your password'
-                    value={form.password}
-                    onChange={(e) =>
-                      setForm((p) => ({ ...p, password: e.target.value }))
-                    }
-                    className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500 pr-10'
-                  />
-                  <button
-                    type='button'
-                    onClick={() => setShowPassword((s) => !s)}
-                    tabIndex={-1}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                    className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors'
-                  >
-                    {showPassword ? (
-                      <EyeOff className='w-4 h-4' />
-                    ) : (
-                      <Eye className='w-4 h-4' />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {error && (
-                <div className='flex items-center gap-2 text-red-400 text-sm bg-red-950/40 border border-red-800/40 rounded-lg px-3 py-2'>
-                  <AlertCircle className='w-4 h-4 shrink-0' />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              <Button
-                type='submit'
-                disabled={isLoading}
-                className='w-full bg-blue-600 hover:bg-blue-700 text-white font-medium'
+            <div className='mb-4 grid grid-cols-2 gap-2 rounded-lg bg-gray-800 p-1'>
+              <button
+                type='button'
+                onClick={() => setMode("password")}
+                className={`rounded-md py-1.5 text-sm font-medium transition-colors ${
+                  mode === "password"
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-400 hover:text-white"
+                }`}
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 className='w-4 h-4 mr-2 animate-spin' />
-                    Logging in...
-                  </>
-                ) : (
-                  "Login"
+                Password
+              </button>
+              <button
+                type='button'
+                onClick={() => setMode("otp")}
+                className={`rounded-md py-1.5 text-sm font-medium transition-colors ${
+                  mode === "otp"
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                OTP
+              </button>
+            </div>
+
+            {mode === "otp" ? (
+              <OtpLoginForm redirectPath='/part-admin/dashboard' variant='dark' />
+            ) : (
+              <form onSubmit={handleSubmit} className='space-y-4'>
+                <div className='space-y-1.5'>
+                  <Label htmlFor='phoneNumber' className='text-gray-300 text-sm'>
+                    Phone Number
+                  </Label>
+                  <Input
+                    id='phoneNumber'
+                    type='text'
+                    inputMode='numeric'
+                    maxLength={10}
+                    autoComplete='username'
+                    placeholder='e.g. 8880000000'
+                    value={form.phoneNumber}
+                    onChange={(e) =>
+                      setForm((p) => ({
+                        ...p,
+                        phoneNumber: e.target.value.replace(/\D/g, "").slice(0, 10),
+                      }))
+                    }
+                    className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500'
+                  />
+                </div>
+
+                <div className='space-y-1.5'>
+                  <Label htmlFor='password' className='text-gray-300 text-sm'>
+                    Password
+                  </Label>
+                  <div className='relative'>
+                    <Input
+                      id='password'
+                      type={showPassword ? "text" : "password"}
+                      autoComplete='current-password'
+                      placeholder='Enter your password'
+                      value={form.password}
+                      onChange={(e) =>
+                        setForm((p) => ({ ...p, password: e.target.value }))
+                      }
+                      className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500 pr-10'
+                    />
+                    <button
+                      type='button'
+                      onClick={() => setShowPassword((s) => !s)}
+                      tabIndex={-1}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors'
+                    >
+                      {showPassword ? (
+                        <EyeOff className='w-4 h-4' />
+                      ) : (
+                        <Eye className='w-4 h-4' />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {error && (
+                  <div className='flex items-center gap-2 text-red-400 text-sm bg-red-950/40 border border-red-800/40 rounded-lg px-3 py-2'>
+                    <AlertCircle className='w-4 h-4 shrink-0' />
+                    <span>{error}</span>
+                  </div>
                 )}
-              </Button>
-            </form>
+
+                <Button
+                  type='submit'
+                  disabled={isLoading}
+                  className='w-full bg-blue-600 hover:bg-blue-700 text-white font-medium'
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className='w-4 h-4 mr-2 animate-spin' />
+                      Logging in...
+                    </>
+                  ) : (
+                    "Login"
+                  )}
+                </Button>
+              </form>
+            )}
           </CardContent>
         </Card>
         <div className='flex flex-col gap-3 mt-4'>

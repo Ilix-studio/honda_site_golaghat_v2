@@ -14,13 +14,13 @@ import type {
 } from "@/redux-store/services/dataImport.types";
 import {
   uploadWithProgress,
-  formatEta,
   type UploadProgress,
   type UploadWithProgressError,
 } from "@/lib/uploadWithProgress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ColumnMatchTable from "./ColumnMatchTable";
+import UploadProgressBar from "@/mainComponents/shared/UploadProgressBar";
 import {
   UploadCloud,
   FileSpreadsheet,
@@ -523,32 +523,6 @@ export default function UploadDataImportForm({
           </CardContent>
         </Card>
       )}
-    </div>
-  );
-}
-
-function UploadProgressBar({
-  progress,
-  label,
-}: {
-  progress: UploadProgress | null;
-  label: string;
-}) {
-  const percent = progress?.percent ?? 0;
-  return (
-    <div className='space-y-1.5'>
-      <div className='flex items-center justify-between text-xs text-gray-500'>
-        <span>
-          {label}... {percent}%
-        </span>
-        <span>{formatEta(progress?.etaSeconds ?? null)}</span>
-      </div>
-      <div className='h-2 w-full rounded-full bg-gray-100 overflow-hidden'>
-        <div
-          className='h-full bg-blue-600 transition-[width] duration-200'
-          style={{ width: `${percent}%` }}
-        />
-      </div>
     </div>
   );
 }

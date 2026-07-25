@@ -128,25 +128,25 @@ const StaffHeader = () => {
   };
 
   return (
-    <header className='sticky top-0 z-50 bg-gray-950 border-b border-gray-800'>
+    <header className='sticky top-0 z-50 bg-white border-b border-gray-800'>
       <div className='container px-4'>
         <div className='flex items-center justify-between h-14'>
           {/* ── Left ── */}
           <div className='flex items-center gap-3'>
             {/* Logo mark */}
             <Link
-              to='/manager/dashboard'
+              to='/staff/dashboard'
               className='flex items-center gap-2 shrink-0'
             >
-              <div className='w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center'>
+              <div className='w-7 h-7 rounded-lg bg-black flex items-center justify-center'>
                 <span className='text-white text-xs font-black'>T</span>
               </div>
-              <span className='text-sm font-black text-white tracking-tight hidden sm:block'>
-                Tsangpool <span className='text-red-500'>Staff Member</span>
+              <span className='text-sm font-black text-black tracking-tight hidden sm:block'>
+                Tsangpool <span className='text-red-500'>Staff</span>
               </span>
             </Link>
 
-            <div className='w-px h-5 bg-gray-700 mx-1' />
+            <div className='w-px h-5 bg-black mx-1' />
 
             {/* Back button */}
             {currentRoute.showBack && (
@@ -154,13 +154,13 @@ const StaffHeader = () => {
                 onClick={handleBack}
                 className='flex items-center justify-center w-7 h-7 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors'
               >
-                <ArrowLeft className='w-3.5 h-3.5 text-gray-400' />
+                <ArrowLeft className='w-3.5 h-3.5 text-black' />
               </button>
             )}
 
             {/* Page title */}
             <div className='leading-none'>
-              <p className='text-sm font-bold text-white'>
+              <p className='text-sm font-bold text-black tracking-tight'>
                 {currentRoute.title}
               </p>
               {currentRoute.subtitle && (
@@ -216,7 +216,7 @@ const StaffHeader = () => {
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className='flex items-center gap-1.5 h-8 px-3 rounded-xl bg-red-600/10 hover:bg-red-600/20 border border-red-600/20 hover:border-red-600/40 text-red-400 hover:text-red-300 text-xs font-semibold transition-all disabled:opacity-50'
+              className='flex items-center gap-1.5 h-8 px-3 rounded-xl bg-white hover:bg-red-600/20 border border-black hover:border-red-600/40 text-black hover:text-black text-xs font-semibold transition-all disabled:opacity-50'
             >
               <LogOut className='w-3.5 h-3.5' />
               <span className='hidden sm:inline'>

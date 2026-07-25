@@ -31,6 +31,7 @@ import jobCardReducer from "./slices/jobCardSlice";
 import customerAuthReducer from "./slices/customer/customerAuthSlice";
 //
 import { persistedSetupProgressReducer } from "./slices/setupProgressSlice";
+import dashboardTabsReducer from "./slices/dashboardTabsSlice";
 
 import { apiSlice } from "./services/apiSlice";
 
@@ -59,6 +60,7 @@ const rootReducer = combineReducers({
   setupProgress: persistedSetupProgressReducer,
   serviceBooking: serviceBookingReducer,
   jobCard: jobCardReducer,
+  dashboardTabs: dashboardTabsReducer,
   [apiSlice.reducerPath]: apiSlice.reducer,
 });
 

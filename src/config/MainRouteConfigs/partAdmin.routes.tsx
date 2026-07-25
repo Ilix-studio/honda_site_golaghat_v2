@@ -16,6 +16,13 @@ const PartsFolderDashboard = lazy(
   () => import("@/mainComponents/PartsM/PartsFolderDashboard")
 );
 
+const CounterSaleAdminDashboard = lazy(
+  () => import("@/mainComponents/CounterSaleM/CounterSaleAdminDashboard")
+);
+const CounterSaleUploadForm = lazy(
+  () => import("@/mainComponents/CounterSaleM/CounterSaleUploadForm")
+);
+
 export const partAdminAuthRoutes = [
   { path: "/part-admin/login", component: LoginPartAdmin },
 ];
@@ -31,5 +38,12 @@ export const partAdminRoutes = [
   {
     path: "/part-admin/folder",
     component: PartsFolderDashboard,
+  },
+
+  // Counter Sale Reports — Part-Admin uploads, all three roles read
+  { path: "/part-admin/counter-sale", component: CounterSaleAdminDashboard },
+  {
+    path: "/part-admin/counter-sale/upload",
+    component: CounterSaleUploadForm,
   },
 ];

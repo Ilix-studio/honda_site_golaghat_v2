@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  useGetSalesTimeseriesQuery,
   useGetDatasetsQuery,
   useGetDatasetRowsQuery,
 } from "@/redux-store/services/dataImportApi";
+import { useGetServiceJobcardSalesTimeseriesQuery } from "@/redux-store/services/serviceJobcardApi";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
 import SalesTrendChart from "@/mainComponents/DataImport/SalesTrendChart";
 import {
@@ -19,7 +19,7 @@ export default function BranchDataImportDashboard() {
   const [granularity, setGranularity] = useState<Granularity>("day");
 
   const { data: salesData, isLoading: salesLoading } =
-    useGetSalesTimeseriesQuery({
+    useGetServiceJobcardSalesTimeseriesQuery({
       granularity,
     });
 

@@ -1,16 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { useGetPartsStatsQuery } from "@/redux-store/services/partsApi";
 import {
-  useGetDatasetsQuery,
-  useGetDatasetRowsQuery,
-} from "@/redux-store/services/dataImportApi";
+  useGetPartsStatsQuery,
+  useGetPartsStockStatusQuery,
+} from "@/redux-store/services/partsApi";
+
 import {
   StatCard,
   type StatCardProps,
 } from "@/mainComponents/Admin/AdminDash/StatCard";
-import RagAssistant from "@/mainComponents/RAG/RagAssistant";
+
 import {
   Card,
   CardContent,
@@ -35,23 +35,33 @@ import {
   UploadCloud,
   Boxes,
   Wallet,
-  ShoppingCart,
-  Clock,
-  Home,
   Cog,
   TrendingUp,
   Users,
+  ReceiptText,
+  Webhook,
+  Tag,
 } from "lucide-react";
-import { useAppSelector } from "@/hooks/redux";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
+import {
+  selectActiveTab,
+  setActiveTab,
+} from "@/redux-store/slices/dashboardTabsSlice";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
 import PartsKpiCharts from "./PartsKpiCharts";
+import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSaleApi";
 
 const YEARS = [2026, 2025, 2024];
+const PARTS_ADMIN_DASHBOARD_TAB_KEY = "partsAdminDashboard";
 
 export default function PartsAdminDashboard() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector(selectAuth);
+  const activeTab =
+    useAppSelector(selectActiveTab(PARTS_ADMIN_DASHBOARD_TAB_KEY)) ??
+    "operations";
   const [year, setYear] = useState(new Date().getFullYear());
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -59,64 +69,29 @@ export default function PartsAdminDashboard() {
     {
       year,
     },
-    { skip: !isAuthenticated }
+    { skip: !isAuthenticated },
   );
 
   const stats = statsData?.data;
 
-  // Latest parts-stock import (from the generic DataImport module)
-  const { data: stockBatches, isLoading: stockBatchesLoading } =
-    useGetDatasetsQuery({
-      datasetType: "parts-stock",
-      page: 1,
-      limit: 1,
-    });
-  const latestStockBatchId = stockBatches?.data?.[0]?.batchId;
-  const { data: stockRows, isLoading: stockRowsLoading } =
-    useGetDatasetRowsQuery(
-      { batchId: latestStockBatchId as string, page: 1, limit: 1000 },
-      { skip: !latestStockBatchId }
-    );
+  // Current parts-stock snapshot (from the generic DataImport module) — sourced
+  // from the branch-wide current-state KPI endpoint rather than the latest
+  // batch's rows, since a batch now only contains that upload's added/changed
+  // rows (see partsStockDiff.service.ts), not a full snapshot.
+  const { data: stockStatusData, isLoading: stockStatusLoading } =
+    useGetPartsStockStatusQuery(undefined, { skip: !isAuthenticated });
+  const stockStatus = stockStatusData?.data;
 
-  const stockKpis = useMemo(() => {
-    const rows = stockRows?.data ?? [];
-    const totalQuantity = rows.reduce(
-      (sum, r) => sum + (Number(r.normalized?.quantity) || 0),
-      0
-    );
-    const totalStockValue = rows.reduce(
-      (sum, r) => sum + (Number(r.normalized?.stockValue) || 0),
-      0
-    );
-    return { totalQuantity, totalStockValue };
-  }, [stockRows]);
+  const { data: counterSaleBatches, isLoading: counterSaleBatchesLoading } =
+    useGetCounterSaleBatchesQuery(undefined, {
+      skip: !isAuthenticated,
+    });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
     return () => clearInterval(timer);
   }, []);
-  // Parts sold (from invoice dataset)
-  const { data: invoiceBatches, isLoading: invoiceBatchesLoading } =
-    useGetDatasetsQuery({
-      datasetType: "invoice",
-      page: 1,
-      limit: 1,
-    });
-  const latestInvoiceBatchId = invoiceBatches?.data?.[0]?.batchId;
-  const { data: invoiceRows, isLoading: invoiceRowsLoading } =
-    useGetDatasetRowsQuery(
-      { batchId: latestInvoiceBatchId as string, page: 1, limit: 1000 },
-      { skip: !latestInvoiceBatchId }
-    );
 
-  const partsSold = useMemo(() => {
-    const rows = invoiceRows?.data ?? [];
-    const totalAmount = rows.reduce(
-      (sum, r) => sum + (Number(r.normalized?.totalAmount) || 0),
-      0
-    );
-    return { count: rows.length, totalAmount };
-  }, [invoiceRows]);
   const { data: newCustomersData, isLoading: newCustomersLoading } =
     useGetNewCustomersQuery({ limit: 1 }, { skip: !isAuthenticated });
 
@@ -138,18 +113,23 @@ export default function PartsAdminDashboard() {
       description: "All Customer Detected by this project",
       action: { label: "Open", href: "/customers/new" },
     },
+    {
+      title: "Counter Sale Reports",
+      value: counterSaleBatches?.data?.length ?? 0,
+      loading: counterSaleBatchesLoading,
+      icon: ReceiptText,
+      description: "Upload and browse channel-partner counter sale reports",
+      action: { label: "Open", href: "/part-admin/counter-sale" },
+    },
   ];
 
   const stockValueKpis: Omit<StatCardProps, "index">[] = [
     {
       title: "Stock Quantity",
-      value:
-        stockBatchesLoading || stockRowsLoading ? "—" : stockKpis.totalQuantity,
+      value: stockStatusLoading ? "—" : (stockStatus?.totalItems ?? 0),
       icon: Boxes,
-      loading: stockBatchesLoading || stockRowsLoading,
-      description: latestStockBatchId
-        ? `From batch ${latestStockBatchId}`
-        : "No parts-stock import yet",
+      loading: stockStatusLoading,
+      description: "Current parts in stock, across all uploads",
 
       action: {
         label: "Upload stock file",
@@ -157,14 +137,13 @@ export default function PartsAdminDashboard() {
       },
     },
     {
-      title: "Stock Value",
-      value:
-        stockBatchesLoading || stockRowsLoading
-          ? "—"
-          : `₹${stockKpis.totalStockValue.toLocaleString("en-IN")}`,
+      title: "Stock Revenue",
+      value: stockStatusLoading
+        ? "—"
+        : `₹${(stockStatus?.totalRevenue ?? 0).toLocaleString("en-IN")}`,
       icon: Wallet,
-      loading: stockBatchesLoading || stockRowsLoading,
-      description: "Sum of stock value, latest batch",
+      loading: stockStatusLoading,
+      description: "Current stock revenue (Unit Price × Quantity)",
 
       action: {
         label: "Upload stock file",
@@ -172,16 +151,17 @@ export default function PartsAdminDashboard() {
       },
     },
     {
-      title: "Parts Sold",
-      value:
-        invoiceBatchesLoading || invoiceRowsLoading ? "—" : partsSold.count,
-      icon: ShoppingCart,
-      loading: invoiceBatchesLoading || invoiceRowsLoading,
-      description: `₹${partsSold.totalAmount.toLocaleString("en-IN")} from invoices`,
+      title: "Average Unit Price",
+      value: stockStatusLoading
+        ? "—"
+        : `₹${(stockStatus?.avgUnitPrice ?? 0).toLocaleString("en-IN")}`,
+      icon: Tag,
+      loading: stockStatusLoading,
+      description: "Mean Unit Price across current stock",
 
       action: {
-        label: "Upload invoice",
-        href: "/part-admin/data-import/upload",
+        label: "Upload stock file",
+        href: "/part-admin/parts-stock/upload",
       },
     },
   ];
@@ -191,17 +171,11 @@ export default function PartsAdminDashboard() {
     if (hour < 17) return "Good Afternoon";
     return "Good Evening";
   })();
-  const formattedDate = currentTime.toLocaleDateString("en-IN", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 
   return (
     <div className='min-h-screen bg-gray-50'>
       {/* Hero Banner */}
-      <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-red-950'>
+      <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-red-950 rounded-b-xl shadow-md'>
         <div className='absolute inset-0 opacity-[0.04]'>
           <div
             className='absolute inset-0'
@@ -237,15 +211,11 @@ export default function PartsAdminDashboard() {
             </div>
 
             <div className='flex flex-col items-start md:items-end gap-3'>
-              <div className='flex items-center gap-2 text-gray-400 text-sm'>
-                <Clock className='h-3.5 w-3.5' />
-                <span>{formattedDate}</span>
-              </div>
               <Button
-                className='text-gray-400 text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full bg-white/5 border border-white/10'
-                onClick={() => navigate("/")}
+                className='text-white text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full border-2 bg-white/5 border-blue-700 hover:bg-blue-700/10 hover:text-gray-200 transition-all duration-200'
+                onClick={() => navigate("/part-admin/profile")}
               >
-                <Home className='h-3 w-3 text-gray-400' /> Visit Homepage
+                <Webhook className='h-3 w-3 text-white' /> See Profile
               </Button>
               <div className='flex items-center gap-4'>
                 <div className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20'>
@@ -264,7 +234,15 @@ export default function PartsAdminDashboard() {
 
       {/* Main Content */}
       <div className='container px-2 py-2'>
-        <Tabs defaultValue='operations' className='w-full'>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) =>
+            dispatch(
+              setActiveTab({ key: PARTS_ADMIN_DASHBOARD_TAB_KEY, value: v }),
+            )
+          }
+          className='w-full'
+        >
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -374,12 +352,12 @@ export default function PartsAdminDashboard() {
                   </ResponsiveContainer>
                 )}
               </CardContent>
-              <RagAssistant
+              {/* <RagAssistant
                 title='Parts AI Assistant'
                 subtitle='Ask questions about your branch parts data — answers are grounded in the uploaded reports.'
                 sourceTypes={["parts"]}
                 placeholder='e.g. Which month had the most parts imported?'
-              />
+              /> */}
             </Card>
           </TabsContent>
 
@@ -393,7 +371,7 @@ export default function PartsAdminDashboard() {
               </Link>
             </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4 py-3'>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 py-3'>
               {stockValueKpis.map((kpi, i) => (
                 <StatCard key={kpi.title} {...kpi} index={i} />
               ))}

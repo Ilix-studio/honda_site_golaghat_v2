@@ -1,6 +1,7 @@
 import OtherStaff from "@/mainComponents/StaffM/OtherStaff";
 import { lazy } from "react";
 import ApplyLeave from "@/mainComponents/shared/ApplyLeave";
+import QuotationManager from "@/mainComponents/shared/Quotation/QuotationManager";
 
 const LoginBranchManager = lazy(
   () => import("@/mainComponents/BranchM/LoginBranchManager"),
@@ -82,6 +83,9 @@ const ProfileView = lazy(() => import("@/mainComponents/shared/ProfileView"));
 const BranchApplyLeave = () => (
   <ApplyLeave dashboardPath='/manager/dashboard' />
 );
+const BranchQuotations = () => (
+  <QuotationManager dashboardPath='/manager/dashboard' />
+);
 const BranchDataImportDashboard = lazy(
   () => import("@/mainComponents/BranchM/BranchDataImportDashboard"),
 );
@@ -90,6 +94,9 @@ const UploadDataImportForm = lazy(
 );
 const BranchUploadDataImport = () => (
   <UploadDataImportForm dashboardPath='/manager/data-import' />
+);
+const CounterSaleAdminDashboard = lazy(
+  () => import("@/mainComponents/CounterSaleM/CounterSaleAdminDashboard"),
 );
 export const branchManagerAuthRoutes = [
   { path: "/manager-login", component: LoginBranchManager },
@@ -131,8 +138,12 @@ export const branchManagerRoutes = [
     { path: "/manager/view/stock-concept", component: ViewStockConcept },
   //
   { path: "/manager/apply-leave", component: BranchApplyLeave },
+  { path: "/manager/quotations", component: BranchQuotations },
 
   // Data Import
   { path: "/manager/data-import", component: BranchDataImportDashboard },
   { path: "/manager/data-import/upload", component: BranchUploadDataImport },
+
+  // Counter Sale Reports — Part-Admin uploads, Branch-Admin reads/deletes own branch
+  { path: "/manager/counter-sale", component: CounterSaleAdminDashboard },
 ];

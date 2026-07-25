@@ -25,8 +25,8 @@ const routeConfig: Record<
   }
 > = {
   "/manager/dashboard": {
-    title: "Manager Dashboard",
-    subtitle: "Branch Management",
+    title: "Branch Manager Dashboard",
+    subtitle: "",
   },
   "/manager/customers/signup": {
     title: "New Customer Signup",
@@ -200,7 +200,7 @@ const ManagerHeader = () => {
         addNotification({
           type: "success",
           message: result.message || "Logged out successfully",
-        })
+        }),
       );
     } catch (error: any) {
       dispatch(logout());
@@ -210,7 +210,7 @@ const ManagerHeader = () => {
         addNotification({
           type: "error",
           message: error?.data?.message || "Error logging out",
-        })
+        }),
       );
     } finally {
       navigate("/manager-login", { replace: true });
@@ -232,15 +232,15 @@ const ManagerHeader = () => {
               to='/manager/dashboard'
               className='flex items-center gap-2 shrink-0'
             >
-              <div className='w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center'>
-                <span className='text-white text-xs font-black'>T</span>
+              <div className='w-7 h-7 rounded-lg bg-white flex items-center justify-center'>
+                <span className='text-black text-xs font-black'>T</span>
               </div>
               <span className='text-sm font-black text-white tracking-tight hidden sm:block'>
-                Tsangpool <span className='text-red-500'>Manager</span>
+                Tsangpool <span className='text-white'>Manager</span>
               </span>
             </Link>
 
-            <div className='w-px h-5 bg-gray-700 mx-1' />
+            <div className='w-px h-5 bg-white mx-3' />
 
             {/* Back button */}
             {currentRoute.showBack && (
@@ -310,7 +310,7 @@ const ManagerHeader = () => {
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className='flex items-center gap-1.5 h-8 px-3 rounded-xl bg-red-600/10 hover:bg-red-600/20 border border-red-600/20 hover:border-red-600/40 text-red-400 hover:text-red-300 text-xs font-semibold transition-all disabled:opacity-50'
+              className='flex items-center gap-1.5 h-8 px-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 text-white hover:text-gray-300 text-xs font-semibold transition-all disabled:opacity-50'
             >
               <LogOut className='w-3.5 h-3.5' />
               <span className='hidden sm:inline'>

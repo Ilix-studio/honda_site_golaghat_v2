@@ -154,6 +154,13 @@
   font-size: 0.85em;
   color: var(--ink-soft);
 }
+.pa-folder__sub {
+  display: block;
+  margin-top: 0.2em;
+  font-size: 0.72em;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
 
 @media (hover: hover) {
   .pa-folder:hover .pa-folder__shape {
