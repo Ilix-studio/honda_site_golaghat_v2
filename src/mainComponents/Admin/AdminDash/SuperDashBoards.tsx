@@ -1,8 +1,5 @@
-import { useMemo, useState } from "react";
-import {
-  useGetDatasetsQuery,
-  useGetSalesTimeseriesQuery,
-} from "@/redux-store/services/dataImportApi";
+import { useState } from "react";
+import { useGetDatasetsQuery } from "@/redux-store/services/dataImportApi";
 import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetVasAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
 import { StatCard, type StatCardProps } from "./StatCard";
@@ -18,14 +15,13 @@ import {
   CalendarDays,
   ReceiptText,
 } from "lucide-react";
-import type { Granularity } from "@/redux-store/services/dataImport.types";
-import SalesTrendChart from "@/mainComponents/DataImport/SalesTrendChart";
 
 import DashboardChartPreview from "@/mainComponents/RAG/DashboardChartPreview";
 import type { DashboardSpec } from "@/redux-store/services/ragApi.types";
 import StockInvestmentDashboard from "./StockInvestmentDashboard";
 import JobCardRevenueKpiCharts from "./JobCardRevenueKpiCharts";
 import PartsKpiCharts from "@/mainComponents/PartsM/PartsKpiCharts";
+import ServiceJobcardKpiCharts from "@/mainComponents/ServiceM/ServiceJobcardKpiCharts";
 import CounterSaleKpiCharts from "@/mainComponents/CounterSaleM/CounterSaleKpiCharts";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import {
@@ -68,60 +64,19 @@ function PartsDashboard() {
   return <PartsKpiCharts />;
 }
 
-// ─── Service sub-tab — job-card/timetrack batch totals + revenue trend ───────
+// ─── Service sub-tab — job-card revenue (dedicated KPI set) + timetrack batch total ───
 
 function ServiceDashboard() {
-  const [granularity, setGranularity] = useState<Granularity>("month");
-  const { data: jobcardBatches, isLoading: jobcardLoading } =
-    useGetDatasetsQuery({
-      datasetType: "service-jobcard",
-      limit: 100,
-    });
   const { data: timetrackBatches, isLoading: timetrackLoading } =
     useGetDatasetsQuery({
       datasetType: "service-timetrack",
       limit: 100,
     });
-  const { data: salesData, isLoading: salesLoading } =
-    useGetSalesTimeseriesQuery({
-      granularity,
-    });
 
-  const jobcardRows =
-    jobcardBatches?.data?.reduce((sum, b) => sum + b.importedRows, 0) ?? 0;
   const timetrackRows =
     timetrackBatches?.data?.reduce((sum, b) => sum + b.importedRows, 0) ?? 0;
 
-  const timeseries = useMemo(
-    () => salesData?.data?.timeseries ?? [],
-    [salesData],
-  );
-  const revenueTotals = useMemo(
-    () =>
-      timeseries.reduce(
-        (acc, t) => ({
-          partsRevenue: acc.partsRevenue + t.partsRevenue,
-          lubesRevenue: acc.lubesRevenue + t.lubesRevenue,
-          totalJobCardRevenue: acc.totalJobCardRevenue + t.totalRevenue,
-        }),
-        { partsRevenue: 0, lubesRevenue: 0, totalJobCardRevenue: 0 },
-      ),
-    [timeseries],
-  );
-  const formatCurrency = (v: number) =>
-    v >= 100000
-      ? `₹${(v / 100000).toFixed(1)}L`
-      : `₹${v.toLocaleString("en-IN")}`;
-
   const kpis: Omit<StatCardProps, "index">[] = [
-    {
-      title: "Job Card Rows Imported",
-      value: jobcardLoading ? "—" : jobcardRows,
-      icon: Wrench,
-      loading: jobcardLoading,
-      description: "Historical revenue import",
-      action: { label: "Upload", href: "/admin/data-import/upload" },
-    },
     {
       title: "Time Track Rows Imported",
       value: timetrackLoading ? "—" : timetrackRows,
@@ -130,35 +85,6 @@ function ServiceDashboard() {
       description: "Technician time entries",
 
       action: { label: "Upload", href: "/admin/data-import/upload" },
-    },
-  ];
-
-  const revenueKpis: Omit<StatCardProps, "index">[] = [
-    {
-      title: "Parts Revenue",
-      value: salesLoading ? "—" : formatCurrency(revenueTotals.partsRevenue),
-      icon: Package,
-      loading: salesLoading,
-      description: `Selected range (${granularity})`,
-      action: { label: "View", href: "/admin/data-import" },
-    },
-    {
-      title: "Lubes Revenue",
-      value: salesLoading ? "—" : formatCurrency(revenueTotals.lubesRevenue),
-      icon: IndianRupee,
-      loading: salesLoading,
-      description: `Selected range (${granularity})`,
-      action: { label: "View", href: "/admin/data-import" },
-    },
-    {
-      title: "Total Job Card Revenue",
-      value: salesLoading
-        ? "—"
-        : formatCurrency(revenueTotals.totalJobCardRevenue),
-      icon: Wrench,
-      loading: salesLoading,
-      description: `Selected range (${granularity})`,
-      action: { label: "View", href: "/admin/data-import" },
     },
   ];
 
@@ -180,17 +106,8 @@ function ServiceDashboard() {
           <StatCard key={kpi.title} {...kpi} index={i} />
         ))}
       </div>
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-        {revenueKpis.map((kpi, i) => (
-          <StatCard key={kpi.title} {...kpi} index={i} />
-        ))}
-      </div>
-      <SalesTrendChart
-        granularity={granularity}
-        onGranularityChange={setGranularity}
-        data={timeseries}
-        loading={salesLoading}
-      />
+
+      <ServiceJobcardKpiCharts />
     </div>
   );
 }

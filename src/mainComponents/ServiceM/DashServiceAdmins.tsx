@@ -20,6 +20,7 @@ import {
   UploadCloud,
   Users,
   Webhook,
+  FolderOpen,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -32,9 +33,12 @@ import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 
 import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
 import OpenJobCards from "./OpenJobCards";
-import JobCardStatusChart from "./JobCardStatusChart";
+
 import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
-import { useGetSalesTimeseriesQuery } from "@/redux-store/services/dataImportApi";
+import {
+  useGetServiceJobcardSalesTimeseriesQuery,
+  useGetServiceJobcardBatchesQuery,
+} from "@/redux-store/services/serviceJobcardApi";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
 import SalesKpiCharts, {
@@ -54,7 +58,10 @@ const DashServiceAdmins = () => {
   const [granularity, setGranularity] = useState<Granularity>("day");
 
   const { data: salesData, isLoading: salesLoading } =
-    useGetSalesTimeseriesQuery({ granularity }, { skip: !isAuthenticated });
+    useGetServiceJobcardSalesTimeseriesQuery(
+      { granularity },
+      { skip: !isAuthenticated },
+    );
 
   // RTK Query hooks — skip until authenticated to avoid 401s
   const { data: serviceBookingData, isLoading: serviceBookingLoading } =
@@ -69,6 +76,8 @@ const DashServiceAdmins = () => {
   );
   const { data: newCustomersData, isLoading: newCustomersLoading } =
     useGetNewCustomersQuery({ limit: 1 }, { skip: !isAuthenticated });
+  const { data: jobcardBatchesData, isLoading: jobcardBatchesLoading } =
+    useGetServiceJobcardBatchesQuery(undefined, { skip: !isAuthenticated });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -122,13 +131,15 @@ const DashServiceAdmins = () => {
       action: { label: "Open", href: "/service-admin/apply-leave" },
     },
     {
-      title: "Job Card Catalog",
-      value: 0,
-      icon: Wrench,
-      loading: false,
-      description: "Job card catalog",
-      action: { label: "Open", href: "/service-admin/catalog" },
+      title: "Upload Service Records",
+      //Add Badge
+      value: jobcardBatchesData?.data.length ?? 0,
+      icon: Activity,
+      loading: myLeaveLoading,
+      description: "Upload Service Jobcard Records",
+      action: { label: "Open", href: "/service-admin/service-records" },
     },
+
     {
       title: "View Customer List",
       value: newCustomersData?.pagination.total ?? 0,
@@ -136,6 +147,14 @@ const DashServiceAdmins = () => {
       loading: newCustomersLoading,
       description: "All Customer Detected by this project",
       action: { label: "Open", href: "/customers/new" },
+    },
+    {
+      title: "View Uploaded Folders",
+      value: jobcardBatchesData?.data.length ?? 0,
+      icon: FolderOpen,
+      loading: jobcardBatchesLoading,
+      description: "Uploaded Job Card Report Folders",
+      action: { label: "View Folders", href: "/service-admin/view-records" },
     },
   ];
 
@@ -278,9 +297,7 @@ const DashServiceAdmins = () => {
                   ))}
                 </div>
               </CardContent>
-              <CardContent className='p-2'>
-                <JobCardStatusChart />
-              </CardContent>
+
               <CardContent className='p-2 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm'>
                 <OpenJobCards />
               </CardContent>

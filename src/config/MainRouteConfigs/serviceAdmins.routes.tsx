@@ -27,8 +27,12 @@ const ProfileView = lazy(() => import("@/mainComponents/shared/ProfileView"));
 const ServiceRecordsImport = lazy(
   () => import("@/mainComponents/ServiceM/ServiceRecordsImport"),
 );
-const ServiceRecordsView = lazy(
-  () => import("@/mainComponents/ServiceM/ServiceRecordsView"),
+const ServiceJobcardFolderDashboard = lazy(
+  () => import("@/mainComponents/ServiceM/ServiceJobcardFolderDashboard"),
+);
+
+const ManualJobOpening = lazy(
+  () => import("@/mainComponents/ServiceM/ManualJobOpening"),
 );
 
 export const serviceAdminAuthRoutes = [
@@ -53,6 +57,14 @@ export const serviceAdminRoutes = [
   },
   {
     path: "/service-admin/view-records",
-    component: ServiceRecordsView,
+    component: ServiceJobcardFolderDashboard,
+  },
+  {
+    path: "/service-admin/folder",
+    component: ServiceJobcardFolderDashboard,
+  },
+  {
+    path: "/service-admin/manual-job-opening",
+    component: ManualJobOpening,
   },
 ];

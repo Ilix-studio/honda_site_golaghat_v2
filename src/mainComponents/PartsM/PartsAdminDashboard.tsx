@@ -1,14 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import {
   useGetPartsStatsQuery,
   useGetPartsStockStatusQuery,
 } from "@/redux-store/services/partsApi";
-import {
-  useGetDatasetsQuery,
-  useGetDatasetRowsQuery,
-} from "@/redux-store/services/dataImportApi";
+
 import {
   StatCard,
   type StatCardProps,
@@ -38,7 +35,6 @@ import {
   UploadCloud,
   Boxes,
   Wallet,
-  ShoppingCart,
   Cog,
   TrendingUp,
   Users,
@@ -95,28 +91,7 @@ export default function PartsAdminDashboard() {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
     return () => clearInterval(timer);
   }, []);
-  // Parts sold (from invoice dataset)
-  const { data: invoiceBatches, isLoading: invoiceBatchesLoading } =
-    useGetDatasetsQuery({
-      datasetType: "invoice",
-      page: 1,
-      limit: 1,
-    });
-  const latestInvoiceBatchId = invoiceBatches?.data?.[0]?.batchId;
-  const { data: invoiceRows, isLoading: invoiceRowsLoading } =
-    useGetDatasetRowsQuery(
-      { batchId: latestInvoiceBatchId as string, page: 1, limit: 1000 },
-      { skip: !latestInvoiceBatchId },
-    );
 
-  const partsSold = useMemo(() => {
-    const rows = invoiceRows?.data ?? [];
-    const totalAmount = rows.reduce(
-      (sum, r) => sum + (Number(r.normalized?.totalAmount) || 0),
-      0,
-    );
-    return { count: rows.length, totalAmount };
-  }, [invoiceRows]);
   const { data: newCustomersData, isLoading: newCustomersLoading } =
     useGetNewCustomersQuery({ limit: 1 }, { skip: !isAuthenticated });
 
@@ -187,19 +162,6 @@ export default function PartsAdminDashboard() {
       action: {
         label: "Upload stock file",
         href: "/part-admin/parts-stock/upload",
-      },
-    },
-    {
-      title: "Parts Sold",
-      value:
-        invoiceBatchesLoading || invoiceRowsLoading ? "—" : partsSold.count,
-      icon: ShoppingCart,
-      loading: invoiceBatchesLoading || invoiceRowsLoading,
-      description: `₹${partsSold.totalAmount.toLocaleString("en-IN")} from invoices`,
-
-      action: {
-        label: "Upload invoice",
-        href: "/part-admin/data-import/upload",
       },
     },
   ];

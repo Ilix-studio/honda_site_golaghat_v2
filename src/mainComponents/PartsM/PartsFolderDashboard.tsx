@@ -8,7 +8,7 @@ import {
   useGetPartsStockStatusQuery,
   type PartsBatchDTO,
 } from "@/redux-store/services/partsApi";
-import FolderCard, { type FolderCardTone } from "./FolderCard";
+import FolderCard, { type FolderCardTone } from "@/mainComponents/shared/FolderCard";
 import PartsDatasetRecords from "./PartsDatasetRecords";
 
 const toneForStatus = (status: PartsBatchDTO["status"]): FolderCardTone => {

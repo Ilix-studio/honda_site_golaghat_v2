@@ -119,9 +119,9 @@ export default function StockInvestmentKpiCharts() {
           vasRevenue: 0,
           partsRevenue: 0,
           totalRevenue: 0,
-        }
+        },
       ),
-    [batches]
+    [batches],
   );
 
   const investmentVsRevenueData = [
@@ -146,16 +146,16 @@ export default function StockInvestmentKpiCharts() {
   const batchPieConfig: ChartConfig = useMemo(
     () =>
       Object.fromEntries(
-        topBatchPie.map((d) => [d.key, { label: d.label, color: d.fill }])
+        topBatchPie.map((d) => [d.key, { label: d.label, color: d.fill }]),
       ),
-    [topBatchPie]
+    [topBatchPie],
   );
 
   const recoveryPercent =
     batchTotals.investment > 0
       ? Math.min(
           100,
-          Math.round((batchTotals.totalRevenue / batchTotals.investment) * 100)
+          Math.round((batchTotals.totalRevenue / batchTotals.investment) * 100),
         )
       : 0;
   const radialData = [
@@ -199,14 +199,6 @@ export default function StockInvestmentKpiCharts() {
           bg='bg-blue-50'
           text='text-blue-700'
           sub='text-blue-500'
-        />
-        <MetricTile
-          index={2}
-          label='Investment Recovered'
-          value={`${recoveryPercent}%`}
-          bg='bg-emerald-50'
-          text='text-emerald-700'
-          sub='text-emerald-500'
         />
       </div>
 
@@ -252,7 +244,9 @@ export default function StockInvestmentKpiCharts() {
               <CardTitle className='text-base'>
                 Vehicles Added per {granularity}
               </CardTitle>
-              <CardDescription>Count of CSV stock rows imported</CardDescription>
+              <CardDescription>
+                Count of CSV stock rows imported
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer
@@ -290,7 +284,10 @@ export default function StockInvestmentKpiCharts() {
                 config={cumulativeConfig}
                 className='h-[220px] w-full'
               >
-                <LineChart data={cumulativeData} margin={{ left: 0, right: 12 }}>
+                <LineChart
+                  data={cumulativeData}
+                  margin={{ left: 0, right: 12 }}
+                >
                   <CartesianGrid vertical={false} />
                   <XAxis
                     dataKey='bucket'
@@ -316,8 +313,12 @@ export default function StockInvestmentKpiCharts() {
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         <Card>
           <CardHeader>
-            <CardTitle className='text-base'>Investment by Upload Batch</CardTitle>
-            <CardDescription>Top 5 batches by cost price (this page)</CardDescription>
+            <CardTitle className='text-base'>
+              Investment by Upload Batch
+            </CardTitle>
+            <CardDescription>
+              Top 5 batches by cost price (this page)
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {batchLoading ? (
@@ -341,7 +342,9 @@ export default function StockInvestmentKpiCharts() {
                       <Cell key={entry.key} fill={entry.fill} />
                     ))}
                   </Pie>
-                  <ChartLegend content={<ChartLegendContent nameKey='label' />} />
+                  <ChartLegend
+                    content={<ChartLegendContent nameKey='label' />}
+                  />
                 </PieChart>
               </ChartContainer>
             )}
@@ -386,8 +389,8 @@ export default function StockInvestmentKpiCharts() {
         <CardHeader>
           <CardTitle className='text-base'>Investment Recovered</CardTitle>
           <CardDescription>
-            Share of investment recovered via sales + VAS + parts revenue
-            (this page)
+            Share of investment recovered via sales + VAS + parts revenue (this
+            page)
           </CardDescription>
         </CardHeader>
         <CardContent>

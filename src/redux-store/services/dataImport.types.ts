@@ -1,12 +1,6 @@
-export type DatasetType =
-  | "vehicle-stock"
-  | "service-jobcard"
-  | "service-timetrack"
-  | "invoice";
+export type DatasetType = "vehicle-stock" | "service-timetrack" | "invoice";
 
 export type SourceFormat = "xlsx" | "csv" | "pdf";
-
-export type Granularity = "day" | "week" | "month" | "year";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -160,6 +154,13 @@ export interface DatasetRowsFilters {
 }
 
 // ─── Sales timeseries ───────────────────────────────────────────────────────
+// Generic revenue-timeseries shapes, consumed by several presentational
+// components (SalesKpiCharts.tsx, SalesTrendChart.tsx) regardless of which
+// backend module actually produces the data — currently
+// serviceJobcardApi.ts#getServiceJobcardSalesTimeseries (moved off the
+// generic DataImport module, since service-jobcard is the sales fact table).
+
+export type Granularity = "day" | "week" | "month" | "year";
 
 export interface SalesTimeseriesPoint {
   bucket: string;

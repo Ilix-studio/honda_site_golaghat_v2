@@ -29,7 +29,7 @@ import SalesKpiCharts, {
   YearSelect,
 } from "@/mainComponents/DataImport/SalesKpiCharts";
 
-import { useGetSalesTimeseriesQuery } from "@/redux-store/services/dataImportApi";
+import { useGetServiceJobcardSalesTimeseriesQuery } from "@/redux-store/services/serviceJobcardApi";
 import { useGetPartsStockStatusQuery } from "@/redux-store/services/partsApi";
 import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetVasAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
@@ -39,7 +39,7 @@ import type { Granularity } from "@/redux-store/services/dataImport.types";
 
 const SalesTab = () => {
   const [granularity, setGranularity] = useState<Granularity>("month");
-  const { data, isLoading } = useGetSalesTimeseriesQuery({ granularity });
+  const { data, isLoading } = useGetServiceJobcardSalesTimeseriesQuery({ granularity });
 
   return (
     <SalesKpiCharts

@@ -38,16 +38,16 @@ import {
 import ChangesMarkdown from "@/mainComponents/shared/ChangesMarkdown";
 
 import {
-  useGetPartsStatsQuery,
-  useGetPartsStockStatusQuery,
-} from "@/redux-store/services/partsApi";
+  useGetServiceJobcardStatsQuery,
+  useGetServiceJobcardStatusQuery,
+} from "@/redux-store/services/serviceJobcardApi";
 
 const importedTrendConfig: ChartConfig = {
-  partCount: { label: "Parts Imported", color: "var(--chart-1)" },
+  jobCardCount: { label: "Job Cards Imported", color: "var(--chart-1)" },
 };
 
 const importVsReviewConfig: ChartConfig = {
-  partCount: { label: "Imported", color: "var(--chart-1)" },
+  jobCardCount: { label: "Imported", color: "var(--chart-1)" },
   reviewCount: { label: "Needs Review", color: "var(--chart-4)" },
 };
 
@@ -59,19 +59,19 @@ const revenueDeltaConfig: ChartConfig = {
   revenueDelta: { label: "Revenue Change", color: "var(--chart-2)" },
 };
 
-const PartsKpiCharts = () => {
+const ServiceJobcardKpiCharts = () => {
   const [year, setYear] = useState(() => new Date().getFullYear());
 
-  const { data: statsData, isLoading: statsLoading } = useGetPartsStatsQuery({
+  const { data: statsData, isLoading: statsLoading } = useGetServiceJobcardStatsQuery({
     year,
   });
-  const { data: prevStatsData } = useGetPartsStatsQuery({ year: year - 1 });
-  const { data: stockStatusData, isLoading: stockStatusLoading } =
-    useGetPartsStockStatusQuery();
+  const { data: prevStatsData } = useGetServiceJobcardStatsQuery({ year: year - 1 });
+  const { data: statusData, isLoading: statusLoading } =
+    useGetServiceJobcardStatusQuery();
 
   const monthly = statsData?.data.monthly ?? [];
   const totals = statsData?.data.totals;
-  const stockStatus = stockStatusData?.data;
+  const status = statusData?.data;
 
   const yoyConfig: ChartConfig = useMemo(
     () => ({
@@ -85,24 +85,24 @@ const PartsKpiCharts = () => {
     const prevMonthly = prevStatsData?.data.monthly ?? [];
     return monthly.map((m, i) => ({
       month: m.month,
-      current: m.partCount,
-      previous: prevMonthly[i]?.partCount ?? 0,
+      current: m.jobCardCount,
+      previous: prevMonthly[i]?.jobCardCount ?? 0,
     }));
   }, [monthly, prevStatsData]);
 
   const byDate = useMemo(
     () =>
-      (stockStatus?.byDate ?? []).map((d) => ({
+      (status?.byDate ?? []).map((d) => ({
         ...d,
         label: new Date(d.date).toLocaleDateString("en-IN", {
           day: "2-digit",
           month: "short",
         }),
       })),
-    [stockStatus],
+    [status],
   );
 
-  const latestChange = stockStatus?.latestChange ?? null;
+  const latestChange = status?.latestChange ?? null;
 
   const yearControl = (
     <div className='flex items-center justify-between flex-wrap gap-3'>
@@ -130,13 +130,20 @@ const PartsKpiCharts = () => {
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4'>
         <MetricTile
           index={0}
-          label='Total Parts'
-          value={(totals?.totalParts ?? 0).toLocaleString("en-IN")}
+          label='Total Job Cards'
+          value={(totals?.totalJobCards ?? 0).toLocaleString("en-IN")}
           bg='bg-blue-50'
           text='text-blue-700'
           sub='text-blue-500'
         />
-
+        <MetricTile
+          index={1}
+          label='Needs Review'
+          value={(totals?.reviewJobCards ?? 0).toLocaleString("en-IN")}
+          bg='bg-amber-50'
+          text='text-amber-700'
+          sub='text-amber-500'
+        />
         <MetricTile
           index={2}
           label='Upload Batches'
@@ -147,16 +154,16 @@ const PartsKpiCharts = () => {
         />
         <MetricTile
           index={3}
-          label='Total Revenue (current stock)'
-          value={inr(stockStatus?.totalRevenue ?? 0)}
+          label='Total Revenue (current)'
+          value={inr(status?.totalRevenue ?? 0)}
           bg='bg-emerald-50'
           text='text-emerald-700'
           sub='text-emerald-500'
         />
         <MetricTile
           index={4}
-          label='Average Unit Price'
-          value={inr(stockStatus?.avgUnitPrice ?? 0)}
+          label='Average Revenue / Card'
+          value={inr(status?.avgRevenuePerCard ?? 0)}
           bg='bg-indigo-50'
           text='text-indigo-700'
           sub='text-indigo-500'
@@ -179,15 +186,15 @@ const PartsKpiCharts = () => {
 
       {monthly.length === 0 ? (
         <EmptyChartState
-          message={`No parts imported in ${year} yet — upload a parts report to see trends.`}
+          message={`No job cards imported in ${year} yet — upload a service job card report to see trends.`}
         />
       ) : (
         <>
           <Card>
             <CardHeader>
-              <CardTitle className='text-base'>Parts Imported Trend</CardTitle>
+              <CardTitle className='text-base'>Job Cards Imported Trend</CardTitle>
               <CardDescription>
-                Rows imported per month in {year}
+                Job cards closed per month in {year}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -205,11 +212,11 @@ const PartsKpiCharts = () => {
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Area
-                    dataKey='partCount'
+                    dataKey='jobCardCount'
                     type='monotone'
-                    fill='var(--color-partCount)'
+                    fill='var(--color-jobCardCount)'
                     fillOpacity={0.2}
-                    stroke='var(--color-partCount)'
+                    stroke='var(--color-jobCardCount)'
                   />
                 </AreaChart>
               </ChartContainer>
@@ -222,7 +229,7 @@ const PartsKpiCharts = () => {
                 Imported vs. Needs Review
               </CardTitle>
               <CardDescription>
-                Low-confidence PDF rows flagged for review, per month
+                Low-confidence rows flagged for review, per month
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -241,8 +248,8 @@ const PartsKpiCharts = () => {
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <ChartLegend content={<ChartLegendContent />} />
                   <Bar
-                    dataKey='partCount'
-                    fill='var(--color-partCount)'
+                    dataKey='jobCardCount'
+                    fill='var(--color-jobCardCount)'
                     radius={4}
                   />
                   <Bar
@@ -298,15 +305,14 @@ const PartsKpiCharts = () => {
           <CardHeader>
             <CardTitle className='text-base'>Revenue by Upload Date</CardTitle>
             <CardDescription>
-              Current stock revenue (Unit Price × Quantity) after each
-              parts-stock upload
+              Current job-card revenue after each upload
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {stockStatusLoading ? (
+            {statusLoading ? (
               <ChartSkeleton />
             ) : byDate.length === 0 ? (
-              <EmptyChartState message='No parts-stock uploads yet.' />
+              <EmptyChartState message='No service job card uploads yet.' />
             ) : (
               <ChartContainer
                 config={revenueByDateConfig}
@@ -345,10 +351,10 @@ const PartsKpiCharts = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {stockStatusLoading ? (
+            {statusLoading ? (
               <ChartSkeleton />
             ) : byDate.length === 0 ? (
-              <EmptyChartState message='No parts-stock uploads yet.' />
+              <EmptyChartState message='No service job card uploads yet.' />
             ) : (
               <ChartContainer
                 config={revenueDeltaConfig}
@@ -404,4 +410,4 @@ const PartsKpiCharts = () => {
   );
 };
 
-export default PartsKpiCharts;
+export default ServiceJobcardKpiCharts;

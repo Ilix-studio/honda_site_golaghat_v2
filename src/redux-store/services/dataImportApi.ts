@@ -8,8 +8,6 @@ import type {
   DeleteDatasetResponse,
   DatasetsFilters,
   DatasetRowsFilters,
-  SalesTimeseriesResponse,
-  SalesTimeseriesFilters,
 } from "./dataImport.types";
 
 export const dataImportApi = apiSlice.injectEndpoints({
@@ -33,7 +31,7 @@ export const dataImportApi = apiSlice.injectEndpoints({
         method: "POST",
         body: formData,
       }),
-      invalidatesTags: ["DataImportDataset", "SalesTimeseries"],
+      invalidatesTags: ["DataImportDataset"],
     }),
 
     getDatasets: builder.query<DatasetsListResponse, DatasetsFilters | void>({
@@ -68,22 +66,7 @@ export const dataImportApi = apiSlice.injectEndpoints({
         url: `/data-import/datasets/${batchId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["DataImportDataset", "SalesTimeseries"],
-    }),
-
-    getSalesTimeseries: builder.query<
-      SalesTimeseriesResponse,
-      SalesTimeseriesFilters
-    >({
-      query: (filters) => {
-        const p = new URLSearchParams();
-        Object.entries(filters).forEach(([k, v]) => {
-          if (v !== undefined && v !== "") p.append(k, String(v));
-        });
-        const qs = p.toString();
-        return `/data-import/sales/timeseries${qs ? `?${qs}` : ""}`;
-      },
-      providesTags: ["SalesTimeseries"],
+      invalidatesTags: ["DataImportDataset"],
     }),
   }),
 });
@@ -95,5 +78,4 @@ export const {
   useGetDatasetsQuery,
   useGetDatasetRowsQuery,
   useDeleteDatasetMutation,
-  useGetSalesTimeseriesQuery,
 } = dataImportApi;

@@ -24,7 +24,7 @@ const TONE_VARS: Record<FolderCardTone, CSSProperties> = {
 export interface FolderCardProps {
   title: string;
   countLabel: string;
-  /** Optional second line — e.g. a parts-stock diff summary (added/changed/removed, revenue delta). */
+  /** Optional second line — e.g. a parts-stock/job-card diff summary (added/changed/removed, revenue delta). */
   subLabel?: string;
   onOpen: () => void;
   tone?: FolderCardTone;

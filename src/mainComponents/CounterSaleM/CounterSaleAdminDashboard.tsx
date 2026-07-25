@@ -14,7 +14,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { MetricTile } from "@/mainComponents/Admin/AdminDash/StatCard";
-import FolderCard from "@/mainComponents/PartsM/FolderCard";
+import FolderCard from "@/mainComponents/shared/FolderCard";
 import CounterSaleRecordsTable from "./CounterSaleRecordsTable";
 import { inr } from "@/mainComponents/DataImport/SalesKpiCharts";
 import { useAppSelector } from "@/hooks/redux";
