@@ -24,7 +24,7 @@ const TABS: {
     id: "scanfleet",
     label: "ScanFleet Support",
     icon: <Shield className='h-4 w-4' />,
-    description: "Virtual Number package",
+    description: "",
   },
 ];
 

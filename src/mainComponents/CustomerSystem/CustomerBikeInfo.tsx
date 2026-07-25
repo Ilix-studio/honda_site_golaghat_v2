@@ -320,7 +320,11 @@ export function CustomerBikeInfo() {
                 On-Road Price
               </label>
               <p className='text-lg font-semibold text-green-700'>
-                ₹{vehicle.priceInfo.onRoadPrice.toLocaleString("en-IN")}
+                ₹
+                {(
+                  vehicle.priceInfo.onRoadPrice ||
+                  vehicle.priceInfo.exShowroomPrice
+                )?.toLocaleString("en-IN")}
               </p>
             </div>
           </div>

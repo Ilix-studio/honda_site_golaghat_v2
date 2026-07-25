@@ -186,10 +186,10 @@ const STATUS_CONFIG: Record<
 function VirtualNumberCard() {
   const totalBilled = MOCK_CALL_LOGS.reduce(
     (acc, c) => acc + (c.amount ?? 0),
-    0
+    0,
   );
   const completedCount = MOCK_CALL_LOGS.filter(
-    (c) => c.status === "completed"
+    (c) => c.status === "completed",
   ).length;
 
   return (
@@ -266,7 +266,7 @@ function CallLogRow({ log }: { log: CallLog }) {
         <span
           className={cn(
             "inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold",
-            cfg.className
+            cfg.className,
           )}
         >
           {cfg.icon}
@@ -326,7 +326,8 @@ export default function ScanfleetSupport() {
             Customer Support
           </h1>
           <p className='text-xs text-gray-400 mt-0.5'>
-            Manage your virtual number and monitor incoming call activity
+            Manage your call activity and view call logs for your scanfleet
+            account.
           </p>
         </div>
 
@@ -380,7 +381,7 @@ export default function ScanfleetSupport() {
                   "px-3 py-1 rounded-lg text-xs font-semibold transition-colors border",
                   filter === value
                     ? "bg-red-600 text-white border-red-600"
-                    : "bg-gray-100 text-gray-500 border-gray-100 hover:bg-gray-200 hover:text-gray-700"
+                    : "bg-gray-100 text-gray-500 border-gray-100 hover:bg-gray-200 hover:text-gray-700",
                 )}
               >
                 {label}
@@ -388,7 +389,7 @@ export default function ScanfleetSupport() {
                   <span
                     className={cn(
                       "ml-1.5",
-                      filter === "all" ? "text-red-200" : "text-gray-400"
+                      filter === "all" ? "text-red-200" : "text-gray-400",
                     )}
                   >
                     {MOCK_CALL_LOGS.length}

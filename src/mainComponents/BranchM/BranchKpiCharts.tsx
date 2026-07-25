@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import { IndianRupee, Package, Sparkles } from "lucide-react";
+import { Package, Sparkles } from "lucide-react";
 
 import {
   Card,
@@ -37,9 +37,11 @@ import type { Granularity } from "@/redux-store/services/dataImport.types";
 
 // ─── Sales & Revenue ──────────────────────────────────────────────────────
 
-const SalesTab = () => {
+export const SalesTab = () => {
   const [granularity, setGranularity] = useState<Granularity>("month");
-  const { data, isLoading } = useGetServiceJobcardSalesTimeseriesQuery({ granularity });
+  const { data, isLoading } = useGetServiceJobcardSalesTimeseriesQuery({
+    granularity,
+  });
 
   return (
     <SalesKpiCharts
@@ -125,22 +127,6 @@ const StockTab = () => {
           text='text-blue-700'
           sub='text-blue-500'
         />
-        <MetricTile
-          index={2}
-          label='Parts Revenue'
-          value={inr(parts?.totalRevenue ?? 0)}
-          bg='bg-amber-50'
-          text='text-amber-700'
-          sub='text-amber-500'
-        />
-        <MetricTile
-          index={3}
-          label='Average Unit Price'
-          value={inr(parts?.avgUnitPrice ?? 0)}
-          bg='bg-emerald-50'
-          text='text-emerald-700'
-          sub='text-emerald-500'
-        />
       </div>
 
       <Card>
@@ -156,7 +142,10 @@ const StockTab = () => {
               No vehicle assignments recorded in {year}.
             </p>
           )}
-          <ChartContainer config={stockAssignConfig} className='h-[260px] w-full'>
+          <ChartContainer
+            config={stockAssignConfig}
+            className='h-[260px] w-full'
+          >
             <BarChart data={monthly} margin={{ left: 0, right: 12 }}>
               <CartesianGrid vertical={false} />
               <XAxis
@@ -166,7 +155,11 @@ const StockTab = () => {
                 tickMargin={8}
               />
               <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey='assignedCount' fill='var(--color-assignedCount)' radius={4} />
+              <Bar
+                dataKey='assignedCount'
+                fill='var(--color-assignedCount)'
+                radius={4}
+              />
             </BarChart>
           </ChartContainer>
         </CardContent>
@@ -174,17 +167,29 @@ const StockTab = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle className='text-base'>Parts Revenue by Upload Date</CardTitle>
-          <CardDescription>Current stock revenue after each parts-stock upload</CardDescription>
+          <CardTitle className='text-base'>
+            Parts Revenue by Upload Date
+          </CardTitle>
+          <CardDescription>
+            Current stock revenue after each parts-stock upload
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {partsByDate.length === 0 ? (
             <EmptyChartState message='No parts stock imported yet — upload a parts report to see this trend.' />
           ) : (
-            <ChartContainer config={partsRevenueConfig} className='h-[220px] w-full'>
+            <ChartContainer
+              config={partsRevenueConfig}
+              className='h-[220px] w-full'
+            >
               <AreaChart data={partsByDate} margin={{ left: 0, right: 12 }}>
                 <CartesianGrid vertical={false} />
-                <XAxis dataKey='label' tickLine={false} axisLine={false} tickMargin={8} />
+                <XAxis
+                  dataKey='label'
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Area
                   dataKey='revenueAfter'
@@ -278,7 +283,11 @@ const VasTab = () => {
                 tickMargin={8}
               />
               <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey='activationCount' fill='var(--color-activationCount)' radius={4} />
+              <Bar
+                dataKey='activationCount'
+                fill='var(--color-activationCount)'
+                radius={4}
+              />
             </BarChart>
           </ChartContainer>
         </CardContent>
@@ -294,7 +303,7 @@ const BRANCH_KPI_CHARTS_TAB_KEY = "branchKpiCharts";
 const BranchKpiCharts = () => {
   const dispatch = useAppDispatch();
   const activeTab =
-    useAppSelector(selectActiveTab(BRANCH_KPI_CHARTS_TAB_KEY)) ?? "sales";
+    useAppSelector(selectActiveTab(BRANCH_KPI_CHARTS_TAB_KEY)) ?? "stock";
 
   return (
     <Tabs
@@ -305,22 +314,31 @@ const BranchKpiCharts = () => {
       className='w-full'
     >
       <TabsList className='inline-flex h-11 bg-gray-100 rounded-xl p-1 gap-1'>
-        <TabsTrigger value='sales' className='flex items-center gap-2 px-4 rounded-lg text-sm'>
+        {/* <TabsTrigger
+          value='sales'
+          className='flex items-center gap-2 px-4 rounded-lg text-sm'
+        >
           <IndianRupee className='h-3.5 w-3.5' />
           Sales &amp; Revenue
-        </TabsTrigger>
-        <TabsTrigger value='stock' className='flex items-center gap-2 px-4 rounded-lg text-sm'>
+        </TabsTrigger> */}
+        <TabsTrigger
+          value='stock'
+          className='flex items-center gap-2 px-4 rounded-lg text-sm'
+        >
           <Package className='h-3.5 w-3.5' />
           Stock &amp; Inventory
         </TabsTrigger>
-        <TabsTrigger value='vas' className='flex items-center gap-2 px-4 rounded-lg text-sm'>
+        <TabsTrigger
+          value='vas'
+          className='flex items-center gap-2 px-4 rounded-lg text-sm'
+        >
           <Sparkles className='h-3.5 w-3.5' />
           VAS Performance
         </TabsTrigger>
       </TabsList>
 
       <TabsContent value='sales' className='mt-4'>
-        <SalesTab />
+        {/* <SalesTab /> */}
       </TabsContent>
       <TabsContent value='stock' className='mt-4'>
         <StockTab />
