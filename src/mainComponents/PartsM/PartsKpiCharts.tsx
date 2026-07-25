@@ -127,7 +127,7 @@ const PartsKpiCharts = () => {
     <div className='space-y-6'>
       {yearControl}
 
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
         <MetricTile
           index={0}
           label='Total Parts'
@@ -148,7 +148,7 @@ const PartsKpiCharts = () => {
         <MetricTile
           index={3}
           label='Total Revenue (current stock)'
-          value={inr(stockStatus?.totalRevenue ?? 0)}
+          value={inr(Math.round(stockStatus?.totalRevenue ?? 0))}
           bg='bg-emerald-50'
           text='text-emerald-700'
           sub='text-emerald-500'
@@ -160,20 +160,6 @@ const PartsKpiCharts = () => {
           bg='bg-indigo-50'
           text='text-indigo-700'
           sub='text-indigo-500'
-        />
-        <MetricTile
-          index={5}
-          label='Latest Upload Revenue Change'
-          value={
-            latestChange
-              ? `${latestChange.revenueDelta >= 0 ? "+" : "-"}${inr(
-                  Math.abs(latestChange.revenueDelta),
-                )}`
-              : "—"
-          }
-          bg='bg-red-50'
-          text='text-red-700'
-          sub='text-red-500'
         />
       </div>
 

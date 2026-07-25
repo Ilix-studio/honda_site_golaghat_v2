@@ -62,10 +62,13 @@ const revenueDeltaConfig: ChartConfig = {
 const ServiceJobcardKpiCharts = () => {
   const [year, setYear] = useState(() => new Date().getFullYear());
 
-  const { data: statsData, isLoading: statsLoading } = useGetServiceJobcardStatsQuery({
-    year,
+  const { data: statsData, isLoading: statsLoading } =
+    useGetServiceJobcardStatsQuery({
+      year,
+    });
+  const { data: prevStatsData } = useGetServiceJobcardStatsQuery({
+    year: year - 1,
   });
-  const { data: prevStatsData } = useGetServiceJobcardStatsQuery({ year: year - 1 });
   const { data: statusData, isLoading: statusLoading } =
     useGetServiceJobcardStatusQuery();
 
@@ -127,7 +130,7 @@ const ServiceJobcardKpiCharts = () => {
     <div className='space-y-6'>
       {yearControl}
 
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4'>
         <MetricTile
           index={0}
           label='Total Job Cards'
@@ -136,14 +139,7 @@ const ServiceJobcardKpiCharts = () => {
           text='text-blue-700'
           sub='text-blue-500'
         />
-        <MetricTile
-          index={1}
-          label='Needs Review'
-          value={(totals?.reviewJobCards ?? 0).toLocaleString("en-IN")}
-          bg='bg-amber-50'
-          text='text-amber-700'
-          sub='text-amber-500'
-        />
+
         <MetricTile
           index={2}
           label='Upload Batches'
@@ -155,7 +151,7 @@ const ServiceJobcardKpiCharts = () => {
         <MetricTile
           index={3}
           label='Total Revenue (current)'
-          value={inr(status?.totalRevenue ?? 0)}
+          value={inr(Math.round(status?.totalRevenue ?? 0))}
           bg='bg-emerald-50'
           text='text-emerald-700'
           sub='text-emerald-500'
@@ -163,7 +159,7 @@ const ServiceJobcardKpiCharts = () => {
         <MetricTile
           index={4}
           label='Average Revenue / Card'
-          value={inr(status?.avgRevenuePerCard ?? 0)}
+          value={inr(Math.round(status?.avgRevenuePerCard ?? 0))}
           bg='bg-indigo-50'
           text='text-indigo-700'
           sub='text-indigo-500'
@@ -174,7 +170,7 @@ const ServiceJobcardKpiCharts = () => {
           value={
             latestChange
               ? `${latestChange.revenueDelta >= 0 ? "+" : "-"}${inr(
-                  Math.abs(latestChange.revenueDelta),
+                  Math.round(Math.abs(latestChange.revenueDelta)),
                 )}`
               : "—"
           }
@@ -192,7 +188,9 @@ const ServiceJobcardKpiCharts = () => {
         <>
           <Card>
             <CardHeader>
-              <CardTitle className='text-base'>Job Cards Imported Trend</CardTitle>
+              <CardTitle className='text-base'>
+                Job Cards Imported Trend
+              </CardTitle>
               <CardDescription>
                 Job cards closed per month in {year}
               </CardDescription>

@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useGetDatasetsQuery } from "@/redux-store/services/dataImportApi";
+
 import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetVasAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
 import { StatCard, type StatCardProps } from "./StatCard";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Package,
@@ -19,7 +19,7 @@ import {
 import DashboardChartPreview from "@/mainComponents/RAG/DashboardChartPreview";
 import type { DashboardSpec } from "@/redux-store/services/ragApi.types";
 import StockInvestmentDashboard from "./StockInvestmentDashboard";
-import JobCardRevenueKpiCharts from "./JobCardRevenueKpiCharts";
+
 import PartsKpiCharts from "@/mainComponents/PartsM/PartsKpiCharts";
 import ServiceJobcardKpiCharts from "@/mainComponents/ServiceM/ServiceJobcardKpiCharts";
 import CounterSaleKpiCharts from "@/mainComponents/CounterSaleM/CounterSaleKpiCharts";
@@ -67,30 +67,9 @@ function PartsDashboard() {
 // ─── Service sub-tab — job-card revenue (dedicated KPI set) + timetrack batch total ───
 
 function ServiceDashboard() {
-  const { data: timetrackBatches, isLoading: timetrackLoading } =
-    useGetDatasetsQuery({
-      datasetType: "service-timetrack",
-      limit: 100,
-    });
-
-  const timetrackRows =
-    timetrackBatches?.data?.reduce((sum, b) => sum + b.importedRows, 0) ?? 0;
-
-  const kpis: Omit<StatCardProps, "index">[] = [
-    {
-      title: "Time Track Rows Imported",
-      value: timetrackLoading ? "—" : timetrackRows,
-      icon: Layers,
-      loading: timetrackLoading,
-      description: "Technician time entries",
-
-      action: { label: "Upload", href: "/admin/data-import/upload" },
-    },
-  ];
-
   return (
     <div className='space-y-6'>
-      <Card size='sm' className='border border-gray-100 rounded-2xl shadow-sm'>
+      {/* <Card size='sm' className='border border-gray-100 rounded-2xl shadow-sm'>
         <CardHeader>
           <CardTitle className='text-base font-semibold text-gray-900'>
             Job Card Revenue — Invoiced
@@ -105,7 +84,7 @@ function ServiceDashboard() {
         {kpis.map((kpi, i) => (
           <StatCard key={kpi.title} {...kpi} index={i} />
         ))}
-      </div>
+      </div> */}
 
       <ServiceJobcardKpiCharts />
     </div>
@@ -216,6 +195,72 @@ function VasAssignDashboard() {
   );
 }
 
+// ─── Manual Assign sub-tab — combines Stock Assign + VAS Assign ───────────────
+
+function ManualAssignDashboard() {
+  return (
+    <div className='space-y-8'>
+      <div>
+        <div className='flex items-center gap-2 mb-4'>
+          <Handshake className='h-4 w-4 text-gray-500' />
+          <h3 className='text-sm font-semibold text-gray-700'>Stock Assign</h3>
+        </div>
+        <StockAssignDashboard />
+      </div>
+
+      <div className='border-t border-gray-200' />
+
+      <div>
+        <div className='flex items-center gap-2 mb-4'>
+          <ShieldCheck className='h-4 w-4 text-gray-500' />
+          <h3 className='text-sm font-semibold text-gray-700'>VAS Assign</h3>
+        </div>
+        <VasAssignDashboard />
+      </div>
+    </div>
+  );
+}
+
+// ─── Tab ownership tags — which admin role's uploads feed each tab ───────────
+
+type OwnerRole = "BA" | "PA" | "SA";
+
+const OWNER_ROLE_LABEL: Record<OwnerRole, string> = {
+  BA: "Branch Admin",
+  PA: "Parts Admin",
+  SA: "Service Admin",
+};
+
+const OWNER_ROLE_STYLE: Record<OwnerRole, string> = {
+  BA: "bg-purple-100 text-purple-700",
+  PA: "bg-amber-100 text-amber-700",
+  SA: "bg-green-100 text-green-700",
+};
+
+function TabRoleTag({ role }: { role: OwnerRole }) {
+  return (
+    <span
+      className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full leading-none ${OWNER_ROLE_STYLE[role]}`}
+    >
+      {role}
+    </span>
+  );
+}
+
+function TabOwnershipLegend() {
+  return (
+    <div className='flex items-center flex-wrap gap-x-4 gap-y-1 mb-2 text-xs text-gray-500'>
+      <span className='font-medium text-gray-400'>Data owned by:</span>
+      {(Object.keys(OWNER_ROLE_LABEL) as OwnerRole[]).map((role) => (
+        <span key={role} className='flex items-center gap-1'>
+          <TabRoleTag role={role} />
+          <span>{OWNER_ROLE_LABEL[role]}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
 // ─── Dashboards panel — static KPI dashboards, no AI ──────────────────────────
 
 /**
@@ -236,51 +281,66 @@ export function DashboardsPanel() {
         dispatch(setActiveTab({ key: SUPER_DASHBOARDS_TAB_KEY, value: v }))
       }
     >
+      <TabOwnershipLegend />
+
       <TabsList className='inline-flex h-auto w-full flex-wrap gap-1 bg-gray-100 border border-gray-200 rounded-xl p-1'>
         <TabsTrigger
           value='stock-investment'
-          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+          className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
         >
-          <IndianRupee className='h-3.5 w-3.5' />
-          <span>Stock Investment</span>
+          <span className='flex items-center gap-1.5'>
+            <IndianRupee className='h-3.5 w-3.5' />
+            <span>Stock Investment</span>
+          </span>
+          <TabRoleTag role='BA' />
         </TabsTrigger>
         <TabsTrigger
           value='parts'
-          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+          className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
         >
-          <Package className='h-3.5 w-3.5' />
-          <span>Parts</span>
+          <span className='flex items-center gap-1.5'>
+            <Package className='h-3.5 w-3.5' />
+            <span>Parts</span>
+          </span>
+          <TabRoleTag role='PA' />
         </TabsTrigger>
 
         <TabsTrigger
           value='service'
-          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+          className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
         >
-          <Wrench className='h-3.5 w-3.5' />
-          <span>Service</span>
+          <span className='flex items-center gap-1.5'>
+            <Wrench className='h-3.5 w-3.5' />
+            <span>Service</span>
+          </span>
+          <TabRoleTag role='SA' />
         </TabsTrigger>
-        <TabsTrigger
-          value='stock-assign'
-          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
-        >
-          <Handshake className='h-3.5 w-3.5' />
-          <span>Stock Assign</span>
-        </TabsTrigger>
-        <TabsTrigger
-          value='vas-assign'
-          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
-        >
-          <ShieldCheck className='h-3.5 w-3.5' />
-          <span>VAS Assign</span>
-        </TabsTrigger>
+
         <TabsTrigger
           value='counter-sale'
-          className='flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+          className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
         >
-          <ReceiptText className='h-3.5 w-3.5' />
-          <span>Counter Sale</span>
+          <span className='flex items-center gap-1.5'>
+            <ReceiptText className='h-3.5 w-3.5' />
+            <span>Counter Sale</span>
+          </span>
+          <TabRoleTag role='PA' />
+        </TabsTrigger>
+        <TabsTrigger
+          value='manual-assign'
+          className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+        >
+          <span className='flex items-center gap-1.5'>
+            <Handshake className='h-3.5 w-3.5' />
+            <span>Manual Assign</span>
+          </span>
+          <TabRoleTag role='BA' />
         </TabsTrigger>
       </TabsList>
+
+      <TabsContent value='stock-investment' className='pt-4'>
+        <StockInvestmentDashboard />
+      </TabsContent>
 
       <TabsContent value='parts' className='pt-4'>
         <PartsDashboard />
@@ -288,17 +348,11 @@ export function DashboardsPanel() {
       <TabsContent value='service' className='pt-4'>
         <ServiceDashboard />
       </TabsContent>
-      <TabsContent value='stock-assign' className='pt-4'>
-        <StockAssignDashboard />
-      </TabsContent>
-      <TabsContent value='vas-assign' className='pt-4'>
-        <VasAssignDashboard />
-      </TabsContent>
       <TabsContent value='counter-sale' className='pt-4'>
         <CounterSaleKpiCharts />
       </TabsContent>
-      <TabsContent value='stock-investment' className='pt-4'>
-        <StockInvestmentDashboard />
+      <TabsContent value='manual-assign' className='pt-4'>
+        <ManualAssignDashboard />
       </TabsContent>
     </Tabs>
   );
