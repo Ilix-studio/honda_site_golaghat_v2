@@ -330,100 +330,102 @@ const RecentMotorcycles = () => {
   };
 
   return (
-    <div className='rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden mt-5'>
-      {/* header */}
-      <div className='flex items-center justify-between px-6 py-4 border-b border-gray-100'>
-        <div className='flex items-center gap-3'>
-          <div className='w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center'>
-            <Bike className='h-4.5 w-4.5 text-red-600' />
+    <div className='min-h-screen bg-gray-50'>
+      <div className='rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden mt-5'>
+        {/* header */}
+        <div className='flex items-center justify-between px-6 py-4 border-b border-gray-100'>
+          <div className='flex items-center gap-3'>
+            <div className='w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center'>
+              <Bike className='h-4.5 w-4.5 text-red-600' />
+            </div>
+            <div>
+              <h3 className='text-sm font-bold text-gray-900'>
+                Homepage Vehicles
+              </h3>
+              <p className='text-xs text-gray-500'>
+                List out vehicles on the homepage
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className='text-sm font-bold text-gray-900'>
-              Homepage Vehicles
-            </h3>
-            <p className='text-xs text-gray-500'>
-              List out vehicles on the homepage
-            </p>
-          </div>
+          <Link to='/bikes/add'>
+            <Button
+              size='sm'
+              className='bg-blue-800 text-white hover:bg-blue-900 hover:text-white rounded-xl h-8 text-xs cursor-pointer'
+            >
+              <Plus className='h-3.5 w-3.5 mr-1.5' />
+              Add Vehicle
+            </Button>
+          </Link>
         </div>
-        <Link to='/bikes/add'>
-          <Button
-            size='sm'
-            className='bg-blue-800 text-white hover:bg-blue-900 hover:text-white rounded-xl h-8 text-xs cursor-pointer'
+
+        {/* tabs */}
+        <div className='p-4'>
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) =>
+              dispatch(
+                setActiveTab({ key: RECENT_MOTORCYCLES_TAB_KEY, value: v }),
+              )
+            }
           >
-            <Plus className='h-3.5 w-3.5 mr-1.5' />
-            Add Vehicle
-          </Button>
-        </Link>
-      </div>
+            <TabsList className='w-full grid grid-cols-2 rounded-xl bg-gray-100 p-1 h-auto mb-4'>
+              <TabsTrigger
+                value='bikes'
+                className='rounded-lg py-2 text-xs font-semibold data-[state=active]:bg-white data-[state=active]:shadow-sm flex items-center gap-2'
+              >
+                <Bike className='h-3.5 w-3.5' />
+                Motorcycles
+                {bikesData?.data?.pagination?.total != null && (
+                  <span className='ml-1 px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-600 text-[10px] font-bold'>
+                    {bikesData.data.pagination.total}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger
+                value='scooties'
+                className='rounded-lg py-2 text-xs font-semibold data-[state=active]:bg-white data-[state=active]:shadow-sm flex items-center gap-2'
+              >
+                <Zap className='h-3.5 w-3.5' />
+                Scooters
+                {scootiesData?.data?.pagination?.total != null && (
+                  <span className='ml-1 px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-600 text-[10px] font-bold'>
+                    {scootiesData.data.pagination.total}
+                  </span>
+                )}
+              </TabsTrigger>
+            </TabsList>
 
-      {/* tabs */}
-      <div className='p-4'>
-        <Tabs
-          value={activeTab}
-          onValueChange={(v) =>
-            dispatch(
-              setActiveTab({ key: RECENT_MOTORCYCLES_TAB_KEY, value: v }),
-            )
-          }
-        >
-          <TabsList className='w-full grid grid-cols-2 rounded-xl bg-gray-100 p-1 h-auto mb-4'>
-            <TabsTrigger
-              value='bikes'
-              className='rounded-lg py-2 text-xs font-semibold data-[state=active]:bg-white data-[state=active]:shadow-sm flex items-center gap-2'
-            >
-              <Bike className='h-3.5 w-3.5' />
-              Motorcycles
-              {bikesData?.data?.pagination?.total != null && (
-                <span className='ml-1 px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-600 text-[10px] font-bold'>
-                  {bikesData.data.pagination.total}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger
-              value='scooties'
-              className='rounded-lg py-2 text-xs font-semibold data-[state=active]:bg-white data-[state=active]:shadow-sm flex items-center gap-2'
-            >
-              <Zap className='h-3.5 w-3.5' />
-              Scooters
-              {scootiesData?.data?.pagination?.total != null && (
-                <span className='ml-1 px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-600 text-[10px] font-bold'>
-                  {scootiesData.data.pagination.total}
-                </span>
-              )}
-            </TabsTrigger>
-          </TabsList>
+            <TabsContent value='bikes' className='mt-0'>
+              <VehicleList
+                vehicles={bikesData}
+                isLoading={bikesLoading}
+                isError={bikesError}
+                vehicleType='Bike'
+                icon={Bike}
+                editPath='/bikes/edit'
+                addPath='/bikes/add'
+                imagePath='/bikeimages'
+                deletingId={deletingId}
+                onDelete={handleDelete}
+              />
+            </TabsContent>
 
-          <TabsContent value='bikes' className='mt-0'>
-            <VehicleList
-              vehicles={bikesData}
-              isLoading={bikesLoading}
-              isError={bikesError}
-              vehicleType='Bike'
-              icon={Bike}
-              editPath='/bikes/edit'
-              addPath='/bikes/add'
-              imagePath='/bikeimages'
-              deletingId={deletingId}
-              onDelete={handleDelete}
-            />
-          </TabsContent>
-
-          <TabsContent value='scooties' className='mt-0'>
-            <VehicleList
-              vehicles={scootiesData}
-              isLoading={scootiesLoading}
-              isError={scootiesError}
-              vehicleType='Scooty'
-              icon={Zap}
-              editPath='/bikes/edit'
-              addPath='/scooties/add'
-              imagePath='/scootyimages'
-              deletingId={deletingId}
-              onDelete={handleDelete}
-            />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value='scooties' className='mt-0'>
+              <VehicleList
+                vehicles={scootiesData}
+                isLoading={scootiesLoading}
+                isError={scootiesError}
+                vehicleType='Scooty'
+                icon={Zap}
+                editPath='/bikes/edit'
+                addPath='/scooties/add'
+                imagePath='/scootyimages'
+                deletingId={deletingId}
+                onDelete={handleDelete}
+              />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
