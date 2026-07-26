@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { logout, selectAuth } from "@/redux-store/slices/authSlice";
 import { addNotification } from "@/redux-store/slices/uiSlice";
 import { useLogoutUserMutation } from "@/redux-store/services/adminApi";
+import NotificationBell from "@/mainComponents/shared/NotificationBell";
 
 const routeConfig: Record<
   string,
@@ -144,6 +145,7 @@ const ServiceAdminsHeader = () => {
 
           {/* ── Right ── */}
           <div className='flex items-center gap-2'>
+            <NotificationBell />
             {/* Quick Actions */}
             {currentRoute.menuItems && (
               <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>

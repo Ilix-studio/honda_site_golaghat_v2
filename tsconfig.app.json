@@ -26,5 +26,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // The service worker targets the WebWorker lib (conflicts with DOM `self`);
+  // vite-plugin-pwa compiles it independently via esbuild, so keep it out of the
+  // app typecheck. See tsconfig.worker.json for its own typecheck config.
+  "exclude": ["src/sw.ts"]
 }

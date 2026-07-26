@@ -47,6 +47,7 @@ import {
 } from "./config/routeHelpers";
 
 import { usePageTitle } from "./hooks/usePageTitle";
+import { usePushRegistration } from "./hooks/usePushRegistration";
 import NotificationSystem from "./mainComponents/Admin/NotificationSystem";
 import {
   serviceAdminAuthRoutes,
@@ -64,6 +65,7 @@ import {
 const App: React.FC = () => {
   const location = useLocation();
   usePageTitle();
+  usePushRegistration();
 
   useEffect(() => {
     window.scrollTo(0, 0);
