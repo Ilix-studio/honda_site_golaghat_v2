@@ -90,6 +90,7 @@ export const apiSlice = createApi({
     "DataImportRow",
     "SalesTimeseries",
     "RagChat",
+    "Notification",
   ],
   endpoints: () => ({}),
 });

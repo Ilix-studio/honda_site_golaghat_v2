@@ -5,7 +5,9 @@ import {
   browserLocalPersistence,
 } from "firebase/auth";
 
-const firebaseConfig = {
+// NOTE: this exact config is duplicated (by necessity) in the service worker at
+// `client/src/sw.ts` — a SW cannot import this module. Keep the two in sync.
+export const firebaseConfig = {
   apiKey: "AIzaSyCOLCfkbNXvivcQVujbHOx51697D84BE1g",
   authDomain: "tsangpool-honda-otp.firebaseapp.com",
   projectId: "tsangpool-honda-otp",
@@ -39,4 +41,4 @@ if (typeof window !== "undefined") {
   }
 }
 
-export { auth };
+export { app, auth };

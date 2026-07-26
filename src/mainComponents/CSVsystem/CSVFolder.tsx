@@ -11,6 +11,8 @@ import {
   Folder,
   Trash2,
   Loader2,
+  IndianRupee,
+  ShieldAlert,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -71,10 +73,14 @@ const CSVFolder = () => {
     () =>
       [...batches].sort(
         (a, b) =>
-          new Date(b.importDate).getTime() - new Date(a.importDate).getTime()
+          new Date(b.importDate).getTime() - new Date(a.importDate).getTime(),
       ),
-    [batches]
+    [batches],
   );
+
+  const formatCurrency = (n: number) => `₹${n.toLocaleString("en-IN")}`;
+
+  const batchHasSoldStock = (batchToDelete?.soldStocks ?? 0) > 0;
 
   useEffect(() => {
     if (error) toast.error("Failed to load CSV batches");
@@ -237,6 +243,10 @@ const CSVFolder = () => {
                             </Badge>
                           )}
                         </div>
+                        <div className='flex items-center gap-1 text-[11px] sm:text-xs font-medium text-amber-700'>
+                          <IndianRupee className='h-3 w-3 shrink-0' />
+                          {formatCurrency(batch.totalCostPrice || 0)}
+                        </div>
 
                         {/* Hover Indicator */}
                         <div className='hidden sm:block text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity'>
@@ -267,35 +277,78 @@ const CSVFolder = () => {
         onOpenChange={(open) => !open && setBatchToDelete(null)}
       >
         <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this folder?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will remove{" "}
-              <span className='font-semibold'>{batchToDelete?.fileName}</span>{" "}
-              and its {batchToDelete?.totalStocks} stock(s). Folders containing
-              sold stocks cannot be deleted. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                handleDeleteBatch();
-              }}
-              disabled={isDeleting}
-              className='bg-red-600 text-white hover:bg-red-700'
-            >
-              {isDeleting ? (
-                <>
-                  <Loader2 className='h-4 w-4 mr-2 animate-spin' />
-                  Deleting...
-                </>
-              ) : (
-                "Delete Folder"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
+          {batchHasSoldStock ? (
+            <>
+              <AlertDialogHeader>
+                <AlertDialogTitle className='flex items-center gap-2 text-amber-700'>
+                  <ShieldAlert className='h-5 w-5 shrink-0' />
+                  This folder can't be deleted
+                </AlertDialogTitle>
+                <AlertDialogDescription asChild>
+                  <div className='space-y-3'>
+                    <p>
+                      <span className='font-semibold text-foreground'>
+                        {batchToDelete?.fileName}
+                      </span>{" "}
+                      holds {batchToDelete?.soldStocks} sold stock(s) worth{" "}
+                      <span className='font-semibold text-foreground'>
+                        {formatCurrency(batchToDelete?.totalCostPrice || 0)}
+                      </span>{" "}
+                      in cost price, linked to real sale invoices and customer
+                      vehicle records.
+                    </p>
+                    <div className='rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-800'>
+                      Deleting this folder would permanently remove those
+                      financial and vehicle-ownership records. To delete it
+                      anyway, first unassign each sold stock from its customer
+                      to reverse the sale.
+                    </div>
+                  </div>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogAction onClick={() => setBatchToDelete(null)}>
+                  Understood
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </>
+          ) : (
+            <>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete this folder?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will remove{" "}
+                  <span className='font-semibold'>
+                    {batchToDelete?.fileName}
+                  </span>{" "}
+                  and its {batchToDelete?.totalStocks} stock(s). This action
+                  cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDeleteBatch();
+                  }}
+                  disabled={isDeleting}
+                  className='bg-red-600 text-white hover:bg-red-700'
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                      Deleting...
+                    </>
+                  ) : (
+                    "Delete Folder"
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </>
+          )}
         </AlertDialogContent>
       </AlertDialog>
     </div>
