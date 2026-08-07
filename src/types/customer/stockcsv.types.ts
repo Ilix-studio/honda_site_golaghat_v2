@@ -175,7 +175,11 @@ export interface GetStockInvestmentTimeseriesResponse {
     from: string;
     to: string | null;
     timeseries: StockInvestmentPoint[];
-    totals: { totalCostPrice: number; vehicleCount: number };
+    totals: {
+      totalCostPrice: number;
+      vehicleCount: number;
+      totalRevenue: number;
+    };
   };
 }
 

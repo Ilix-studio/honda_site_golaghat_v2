@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { signInWithPhoneNumber } from "firebase/auth";
+import {
+  clearRecaptchaVerifier,
+  createRecaptchaVerifier,
+} from "@/lib/recaptcha";
 import { auth } from "@/lib/firebase";
 import { useOtpLoginMutation } from "@/redux-store/services/adminApi";
 import { useAdminPhoneValidation } from "@/hooks/useAdminPhoneValidation";
@@ -34,10 +38,16 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
 }) => {
   const navigate = useNavigate();
   const [otpLogin, { isLoading: isVerifying }] = useOtpLoginMutation();
-  const { phoneNumber, validationState, handlePhoneChange, isOtpButtonDisabled } =
-    useAdminPhoneValidation();
+  const {
+    phoneNumber,
+    validationState,
+    handlePhoneChange,
+    isOtpButtonDisabled,
+  } = useAdminPhoneValidation();
 
-  const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
+  const recaptchaRef = useRef<ReturnType<
+    typeof createRecaptchaVerifier
+  > | null>(null);
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [otp, setOtp] = useState("");
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
@@ -48,21 +58,20 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
   const containerId = "admin-otp-recaptcha-container";
 
   useEffect(() => {
-    try {
-      if (!recaptchaRef.current) {
-        recaptchaRef.current = new RecaptchaVerifier(auth, containerId, {
-          size: "invisible",
-        });
-      }
-    } catch (err) {
-      console.error("Recaptcha setup error:", err);
+    const container = document.getElementById(containerId);
+
+    if (!container) {
+      return;
     }
 
+    const verifier = createRecaptchaVerifier(containerId, container);
+    recaptchaRef.current = verifier;
+
     return () => {
-      recaptchaRef.current?.clear();
+      clearRecaptchaVerifier(containerId);
       recaptchaRef.current = null;
     };
-  }, []);
+  }, [containerId]);
 
   useEffect(() => {
     if (otpTimer <= 0) return;
@@ -138,12 +147,15 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
   };
 
   const isDark = variant === "dark";
-  const labelClass = isDark ? "text-gray-300 text-sm" : "text-sm font-medium text-gray-700";
+  const labelClass = isDark
+    ? "text-gray-300 text-sm"
+    : "text-sm font-medium text-gray-700";
   const inputClass = isDark
     ? "bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-red-500 pl-10"
     : "pl-10 focus:border-red-500 focus:ring-red-200";
   const mutedTextClass = isDark ? "text-gray-400" : "text-gray-600";
-  const buttonClass = "w-full bg-red-600 hover:bg-red-700 text-white font-medium";
+  const buttonClass =
+    "w-full bg-red-600 hover:bg-red-700 text-white font-medium";
 
   return (
     <div className='space-y-4'>
@@ -228,7 +240,12 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
           </p>
 
           <div className='flex justify-center'>
-            <InputOTP maxLength={6} value={otp} onChange={setOtp} disabled={isVerifying}>
+            <InputOTP
+              maxLength={6}
+              value={otp}
+              onChange={setOtp}
+              disabled={isVerifying}
+            >
               <InputOTPGroup>
                 {[0, 1, 2, 3, 4, 5].map((index) => (
                   <InputOTPSlot key={index} index={index} />
@@ -263,7 +280,8 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
           <div className={`text-center space-y-2 text-sm ${mutedTextClass}`}>
             {otpTimer > 0 ? (
               <p>
-                Resend OTP in <span className='font-semibold text-red-500'>{otpTimer}s</span>
+                Resend OTP in{" "}
+                <span className='font-semibold text-red-500'>{otpTimer}s</span>
               </p>
             ) : (
               <Button

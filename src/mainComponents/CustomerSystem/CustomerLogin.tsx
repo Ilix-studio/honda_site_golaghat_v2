@@ -11,7 +11,11 @@ import {
 } from "@/components/ui/input-otp";
 import { ShieldCheck, Loader2 } from "lucide-react";
 import { auth } from "../../lib/firebase";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { signInWithPhoneNumber } from "firebase/auth";
+import {
+  clearRecaptchaVerifier,
+  createRecaptchaVerifier,
+} from "@/lib/recaptcha";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { addNotification } from "@/redux-store/slices/uiSlice";
 import {
@@ -35,7 +39,9 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
 
   const isBranchAdmin = useAppSelector(selectIsBranchAdmin);
 
-  const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
+  const recaptchaRef = useRef<ReturnType<
+    typeof createRecaptchaVerifier
+  > | null>(null);
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
@@ -43,33 +49,19 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
   const [otpTimer, setOtpTimer] = useState(0);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
 
-  // Initialize reCAPTCHA once on mount
   useEffect(() => {
-    const initRecaptcha = () => {
-      try {
-        if (!recaptchaRef.current) {
-          recaptchaRef.current = new RecaptchaVerifier(
-            auth,
-            "recaptcha-container",
-            {
-              size: "invisible",
-              callback: () => console.log("Recaptcha solved"),
-              "expired-callback": () => console.warn("Recaptcha expired"),
-            },
-          );
-        }
-      } catch (error) {
-        console.error("Recaptcha setup error:", error);
-      }
-    };
+    const container = document.getElementById("recaptcha-container");
 
-    initRecaptcha();
+    if (!container) {
+      return;
+    }
+
+    const verifier = createRecaptchaVerifier("customer-otp", container);
+    recaptchaRef.current = verifier;
 
     return () => {
-      if (recaptchaRef.current) {
-        recaptchaRef.current.clear();
-        recaptchaRef.current = null;
-      }
+      clearRecaptchaVerifier("customer-otp");
+      recaptchaRef.current = null;
     };
   }, []);
 
