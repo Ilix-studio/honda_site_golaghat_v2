@@ -204,7 +204,9 @@ function ManualAssignDashboard() {
       <div>
         <div className='flex items-center gap-2 mb-4'>
           <Handshake className='h-4 w-4 text-gray-500' />
-          <h3 className='text-sm font-semibold text-gray-700'>Stock Assign</h3>
+          <h3 className='text-sm font-semibold text-gray-700'>
+            Stock Assign(Manual)
+          </h3>
         </div>
         <StockAssignDashboard />
       </div>
@@ -214,7 +216,9 @@ function ManualAssignDashboard() {
       <div>
         <div className='flex items-center gap-2 mb-4'>
           <ShieldCheck className='h-4 w-4 text-gray-500' />
-          <h3 className='text-sm font-semibold text-gray-700'>VAS Assign</h3>
+          <h3 className='text-sm font-semibold text-gray-700'>
+            VAS Assign(Manual)
+          </h3>
         </div>
         <VasAssignDashboard />
       </div>
@@ -290,8 +294,18 @@ export function DashboardsPanel() {
           className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
         >
           <span className='flex items-center gap-1.5'>
-            <IndianRupee className='h-3.5 w-3.5' />
-            <span>Stock Investment</span>
+            <IndianRupee className='h-2.0 w-2.0' />
+            <span>Vehicle</span>
+          </span>
+          <TabRoleTag role='BA' />
+        </TabsTrigger>
+        <TabsTrigger
+          value='manual-assign'
+          className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
+        >
+          <span className='flex items-center gap-1.5'>
+            <Handshake className='h-3.5 w-3.5' />
+            <span>B2B</span>
           </span>
           <TabRoleTag role='BA' />
         </TabsTrigger>
@@ -312,7 +326,7 @@ export function DashboardsPanel() {
         >
           <span className='flex items-center gap-1.5'>
             <ReceiptText className='h-3.5 w-3.5' />
-            <span>Counter Sale</span>
+            <span>CTOS</span>
           </span>
           <TabRoleTag role='PA' />
         </TabsTrigger>
@@ -326,20 +340,13 @@ export function DashboardsPanel() {
           </span>
           <TabRoleTag role='SA' />
         </TabsTrigger>
-        <TabsTrigger
-          value='manual-assign'
-          className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
-        >
-          <span className='flex items-center gap-1.5'>
-            <Handshake className='h-3.5 w-3.5' />
-            <span>Manual Assign</span>
-          </span>
-          <TabRoleTag role='BA' />
-        </TabsTrigger>
       </TabsList>
 
       <TabsContent value='stock-investment' className='pt-4'>
         <StockInvestmentDashboard />
+      </TabsContent>
+      <TabsContent value='manual-assign' className='pt-4'>
+        <ManualAssignDashboard />
       </TabsContent>
 
       <TabsContent value='parts' className='pt-4'>
@@ -351,9 +358,6 @@ export function DashboardsPanel() {
       </TabsContent>
       <TabsContent value='service' className='pt-4'>
         <ServiceDashboard />
-      </TabsContent>
-      <TabsContent value='manual-assign' className='pt-4'>
-        <ManualAssignDashboard />
       </TabsContent>
     </Tabs>
   );

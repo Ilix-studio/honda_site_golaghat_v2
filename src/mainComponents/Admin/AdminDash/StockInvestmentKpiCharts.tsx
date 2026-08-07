@@ -136,6 +136,14 @@ export default function StockInvestmentKpiCharts() {
           text='text-blue-700'
           sub='text-blue-500'
         />
+        <MetricTile
+          index={1}
+          label='Total Revenue'
+          value={inr(totals?.totalRevenue ?? 0)}
+          bg='bg-green-50'
+          text='text-green-700'
+          sub='text-green-500'
+        />
       </div>
 
       {timeseries.length === 0 ? (

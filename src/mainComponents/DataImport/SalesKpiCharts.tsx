@@ -47,7 +47,8 @@ export const GRANULARITIES: { value: Granularity; label: string }[] = [
   { value: "year", label: "Year" },
 ];
 
-export const inr = (value: number) => `₹${value.toLocaleString("en-IN")}`;
+export const inr = (value: number) =>
+  `₹${value.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 
 export const GranularityToggle = ({
   value,
@@ -76,7 +77,7 @@ export const GranularityToggle = ({
 
 export const YEAR_OPTIONS = Array.from(
   { length: 4 },
-  (_, i) => new Date().getFullYear() - i
+  (_, i) => new Date().getFullYear() - i,
 );
 
 export const YearSelect = ({
@@ -160,7 +161,11 @@ export function RevenueByBarChart<
           <p className='text-sm text-muted-foreground'>No data yet.</p>
         ) : (
           <ChartContainer config={config} className='h-[220px] w-full'>
-            <BarChart data={chartData} layout='vertical' margin={{ left: 12, right: 12 }}>
+            <BarChart
+              data={chartData}
+              layout='vertical'
+              margin={{ left: 12, right: 12 }}
+            >
               <CartesianGrid horizontal={false} />
               <XAxis type='number' hide />
               <YAxis
@@ -171,14 +176,18 @@ export function RevenueByBarChart<
                 width={110}
               />
               <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey='totalRevenue' fill='var(--color-totalRevenue)' radius={4} />
+              <Bar
+                dataKey='totalRevenue'
+                fill='var(--color-totalRevenue)'
+                radius={4}
+              />
             </BarChart>
           </ChartContainer>
         )}
       </CardContent>
     </Card>
   );
-};
+}
 
 export interface SalesKpiChartsProps {
   granularity: Granularity;
@@ -204,8 +213,9 @@ const SalesKpiCharts = ({
   emptyMessage = "No sales data yet — import a service-jobcard report to see revenue trends.",
 }: SalesKpiChartsProps) => {
   const topModels = useMemo(
-    () => [...byModel].sort((a, b) => b.totalRevenue - a.totalRevenue).slice(0, 5),
-    [byModel]
+    () =>
+      [...byModel].sort((a, b) => b.totalRevenue - a.totalRevenue).slice(0, 5),
+    [byModel],
   );
 
   const totals = useMemo(
@@ -215,9 +225,9 @@ const SalesKpiCharts = ({
           revenue: acc.revenue + point.totalRevenue,
           jobCards: acc.jobCards + point.jobCardCount,
         }),
-        { revenue: 0, jobCards: 0 }
+        { revenue: 0, jobCards: 0 },
       ),
-    [timeseries]
+    [timeseries],
   );
 
   const granularityControl = (
@@ -271,7 +281,9 @@ const SalesKpiCharts = ({
           index={2}
           label='Avg Revenue / Job Card'
           value={inr(
-            totals.jobCards > 0 ? Math.round(totals.revenue / totals.jobCards) : 0
+            totals.jobCards > 0
+              ? Math.round(totals.revenue / totals.jobCards)
+              : 0,
           )}
           bg='bg-emerald-50'
           text='text-emerald-700'
@@ -285,10 +297,18 @@ const SalesKpiCharts = ({
           <CardDescription>Total revenue by {granularity}</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={revenueTrendConfig} className='h-[260px] w-full'>
+          <ChartContainer
+            config={revenueTrendConfig}
+            className='h-[260px] w-full'
+          >
             <AreaChart data={timeseries} margin={{ left: 0, right: 12 }}>
               <CartesianGrid vertical={false} />
-              <XAxis dataKey='bucket' tickLine={false} axisLine={false} tickMargin={8} />
+              <XAxis
+                dataKey='bucket'
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+              />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Area
                 dataKey='totalRevenue'
@@ -310,16 +330,44 @@ const SalesKpiCharts = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={revenueMixConfig} className='h-[280px] w-full'>
+          <ChartContainer
+            config={revenueMixConfig}
+            className='h-[280px] w-full'
+          >
             <BarChart data={timeseries} margin={{ left: 0, right: 12 }}>
               <CartesianGrid vertical={false} />
-              <XAxis dataKey='bucket' tickLine={false} axisLine={false} tickMargin={8} />
+              <XAxis
+                dataKey='bucket'
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+              />
               <ChartTooltip content={<ChartTooltipContent />} />
               <ChartLegend content={<ChartLegendContent />} />
-              <Bar dataKey='labourRevenue' stackId='mix' fill='var(--color-labourRevenue)' radius={[0, 0, 0, 0]} />
-              <Bar dataKey='partsRevenue' stackId='mix' fill='var(--color-partsRevenue)' radius={[0, 0, 0, 0]} />
-              <Bar dataKey='lubesRevenue' stackId='mix' fill='var(--color-lubesRevenue)' radius={[0, 0, 0, 0]} />
-              <Bar dataKey='accessoriesRevenue' stackId='mix' fill='var(--color-accessoriesRevenue)' radius={[4, 4, 0, 0]} />
+              <Bar
+                dataKey='labourRevenue'
+                stackId='mix'
+                fill='var(--color-labourRevenue)'
+                radius={[0, 0, 0, 0]}
+              />
+              <Bar
+                dataKey='partsRevenue'
+                stackId='mix'
+                fill='var(--color-partsRevenue)'
+                radius={[0, 0, 0, 0]}
+              />
+              <Bar
+                dataKey='lubesRevenue'
+                stackId='mix'
+                fill='var(--color-lubesRevenue)'
+                radius={[0, 0, 0, 0]}
+              />
+              <Bar
+                dataKey='accessoriesRevenue'
+                stackId='mix'
+                fill='var(--color-accessoriesRevenue)'
+                radius={[4, 4, 0, 0]}
+              />
             </BarChart>
           </ChartContainer>
         </CardContent>

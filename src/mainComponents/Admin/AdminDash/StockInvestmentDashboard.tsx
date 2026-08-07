@@ -1,26 +1,26 @@
-import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+// import { useState } from "react";
+// import {
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableHead,
+//   TableHeader,
+//   TableRow,
+// } from "@/components/ui/table";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Button } from "@/components/ui/button";
 
-import { useGetStockBatchReportsQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
+// import { useGetStockBatchReportsQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 import StockInvestmentKpiCharts from "./StockInvestmentKpiCharts";
 
-const formatCurrency = (n: number) => `₹${n.toLocaleString("en-IN")}`;
+// const formatCurrency = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
-const formatDate = (dateString: string) =>
-  new Date(dateString).toLocaleDateString("en-IN", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+// const formatDate = (dateString: string) =>
+//   new Date(dateString).toLocaleDateString("en-IN", {
+//     year: "numeric",
+//     month: "short",
+//     day: "numeric",
+//   });
 
 /**
  * Per-upload-batch investment/revenue report for Stock-Inventory files:
@@ -28,20 +28,20 @@ const formatDate = (dateString: string) =>
  * (vehicle sale + VAS + parts revenue on that batch's vehicles).
  */
 export default function StockInvestmentDashboard() {
-  const [page, setPage] = useState(1);
-  const { data, isLoading } = useGetStockBatchReportsQuery({
-    page,
-    limit: 10,
-  });
+  // const [page, setPage] = useState(1);
+  // const { data, isLoading } = useGetStockBatchReportsQuery({
+  //   page,
+  //   limit: 10,
+  // });
 
-  const batches = data?.data ?? [];
-  const pagination = data?.pagination;
+  // const batches = data?.data ?? [];
+  // const pagination = data?.pagination;
 
   return (
     <div className='space-y-6'>
       <StockInvestmentKpiCharts />
 
-      <Card size='sm' className='border border-gray-200 shadow-sm'>
+      {/* <Card size='sm' className='border border-gray-200 shadow-sm'>
         <CardHeader>
           <CardTitle>Stock-Inventory Upload Reports</CardTitle>
         </CardHeader>
@@ -146,7 +146,7 @@ export default function StockInvestmentDashboard() {
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }
