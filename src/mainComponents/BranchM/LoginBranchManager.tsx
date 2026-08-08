@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import { Link, useNavigate } from "react-router-dom";
 import { useLoginBranchAdminMutation } from "@/redux-store/services/adminApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import { AlertCircle, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuthScreen } from "@/hooks/useAuthScreen";
 import { loginSchema } from "@/zod/loginSchema";
 import OtpLoginForm from "@/mainComponents/shared/OtpLoginForm";
+import CompanyLogo from "../CompanyLogo";
 
 const LoginBranchManager = () => {
   const navigate = useNavigate();
@@ -45,6 +47,7 @@ const LoginBranchManager = () => {
       <section className='min-h-[100dvh] flex items-center justify-center bg-gray-950 px-4 py-8'>
         <div className='w-full max-w-md'>
           <div className='mb-6 text-center sm:mb-8 '>
+            <CompanyLogo />
             <h1 className='text-sm font-black text-white tracking-tight hidden sm:block'>
               Tsangpool Honda <span className='text-red-500'>Manager</span>
             </h1>
