@@ -9,6 +9,7 @@ import { AlertCircle, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuthScreen } from "@/hooks/useAuthScreen";
 import { loginSchema } from "@/zod/loginSchema";
 import OtpLoginForm from "@/mainComponents/shared/OtpLoginForm";
+import CompanyLogo from "../CompanyLogo";
 
 const LoginStaffs = () => {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ const LoginStaffs = () => {
       <section className='min-h-[100dvh] flex items-center justify-center bg-gray-950 px-4 py-8'>
         <div className='w-full max-w-md'>
           <div className='mb-6 text-center sm:mb-8 '>
+            <CompanyLogo />
             <h1 className='text-sm font-black text-white tracking-tight hidden sm:block'>
               Tsangpool Honda <span className='text-red-500'>Staff Access</span>
             </h1>
@@ -106,7 +108,9 @@ const LoginStaffs = () => {
                       onChange={(e) =>
                         setForm((p) => ({
                           ...p,
-                          phoneNumber: e.target.value.replace(/\D/g, "").slice(0, 10),
+                          phoneNumber: e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 10),
                         }))
                       }
                       className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-red-500'
@@ -133,7 +137,9 @@ const LoginStaffs = () => {
                         type='button'
                         onClick={() => setShowPassword((s) => !s)}
                         tabIndex={-1}
-                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
                         className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors'
                       >
                         {showPassword ? (

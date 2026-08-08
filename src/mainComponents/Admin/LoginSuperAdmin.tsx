@@ -9,14 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  AlertCircle,
-  ArrowLeft,
-  Eye,
-  EyeOff,
-  LogIn,
-  Shield,
-} from "lucide-react";
+import { AlertCircle, ArrowLeft, Eye, EyeOff, LogIn } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -28,6 +21,7 @@ import { selectAuth } from "../../redux-store/slices/authSlice";
 import { addNotification } from "../../redux-store/slices/uiSlice";
 import { useLoginSuperAdminMutation } from "@/redux-store/services/adminApi";
 import OtpLoginForm from "@/mainComponents/shared/OtpLoginForm";
+import CompanyLogo from "../CompanyLogo";
 
 const LoginSuperAdmin = () => {
   const [mode, setMode] = useState<"password" | "otp">("password");
@@ -94,7 +88,7 @@ const LoginSuperAdmin = () => {
           addNotification({
             type: "success",
             message: `Welcome back, ${result.data.name}!`,
-          })
+          }),
         );
 
         // Store remember me preference
@@ -116,7 +110,7 @@ const LoginSuperAdmin = () => {
         addNotification({
           type: "error",
           message: errorMsg,
-        })
+        }),
       );
     }
   };
@@ -140,14 +134,7 @@ const LoginSuperAdmin = () => {
       >
         <Card className='shadow-xl border-0'>
           <CardHeader className='text-center pb-8'>
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className='mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4'
-            >
-              <Shield className='h-8 w-8 text-red-600' />
-            </motion.div>
+            <CompanyLogo />
             <CardTitle className='text-2xl font-bold text-gray-900'>
               Super Admin Login
             </CardTitle>
@@ -177,7 +164,7 @@ const LoginSuperAdmin = () => {
                 onClick={() => setMode("password")}
                 className={`rounded-md py-1.5 text-sm font-medium transition-colors ${
                   mode === "password"
-                    ? "bg-red-600 text-white"
+                    ? "bg-green-600 text-white"
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
@@ -188,7 +175,7 @@ const LoginSuperAdmin = () => {
                 onClick={() => setMode("otp")}
                 className={`rounded-md py-1.5 text-sm font-medium transition-colors ${
                   mode === "otp"
-                    ? "bg-red-600 text-white"
+                    ? "bg-green-600 text-white"
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
@@ -199,128 +186,128 @@ const LoginSuperAdmin = () => {
             {mode === "otp" ? (
               <OtpLoginForm redirectPath='/admin/dashboard' variant='light' />
             ) : (
-            <form onSubmit={handleSubmit} className='space-y-6'>
-              <div className='space-y-2'>
-                <Label
-                  htmlFor='email'
-                  className='text-sm font-medium text-gray-700'
-                >
-                  Email Address
-                </Label>
-                <Input
-                  id='email'
-                  type='email'
-                  placeholder='admin@hondamotors.com'
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className={`transition-all duration-200 ${
-                    errorMessageSA && !email
-                      ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                      : "focus:border-red-500 focus:ring-red-200"
-                  }`}
-                  disabled={isLoading}
-                />
-              </div>
-
-              <div className='space-y-2'>
-                <Label
-                  htmlFor='password'
-                  className='text-sm font-medium text-gray-700'
-                >
-                  Password
-                </Label>
-                <div className='relative'>
+              <form onSubmit={handleSubmit} className='space-y-6'>
+                <div className='space-y-2'>
+                  <Label
+                    htmlFor='email'
+                    className='text-sm font-medium text-gray-700'
+                  >
+                    Email Address
+                  </Label>
                   <Input
-                    id='password'
-                    type={showPassword ? "text" : "password"}
-                    placeholder='Enter your password'
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    id='email'
+                    type='email'
+                    placeholder='admin@hondamotors.com'
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
-                    className={`pr-10 transition-all duration-200 ${
-                      errorMessageSA && !password
+                    className={`transition-all duration-200 ${
+                      errorMessageSA && !email
                         ? "border-red-300 focus:border-red-500 focus:ring-red-200"
                         : "focus:border-red-500 focus:ring-red-200"
                     }`}
                     disabled={isLoading}
                   />
-                  <button
-                    type='button'
-                    className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors'
-                    onClick={toggleShowPassword}
-                    tabIndex={-1}
-                    disabled={isLoading}
+                </div>
+
+                <div className='space-y-2'>
+                  <Label
+                    htmlFor='password'
+                    className='text-sm font-medium text-gray-700'
                   >
-                    {showPassword ? (
-                      <EyeOff className='h-4 w-4' />
-                    ) : (
-                      <Eye className='h-4 w-4' />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center space-x-2'>
-                  <input
-                    id='remember'
-                    type='checkbox'
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className='h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded'
-                    disabled={isLoading}
-                  />
-                  <Label htmlFor='remember' className='text-sm text-gray-600'>
-                    Remember email
+                    Password
                   </Label>
+                  <div className='relative'>
+                    <Input
+                      id='password'
+                      type={showPassword ? "text" : "password"}
+                      placeholder='Enter your password'
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className={`pr-10 transition-all duration-200 ${
+                        errorMessageSA && !password
+                          ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                          : "focus:border-red-500 focus:ring-red-200"
+                      }`}
+                      disabled={isLoading}
+                    />
+                    <button
+                      type='button'
+                      className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors'
+                      onClick={toggleShowPassword}
+                      tabIndex={-1}
+                      disabled={isLoading}
+                    >
+                      {showPassword ? (
+                        <EyeOff className='h-4 w-4' />
+                      ) : (
+                        <Eye className='h-4 w-4' />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
-                <Link
-                  to='/admin/forgot-password'
-                  className='text-sm text-red-600 hover:text-red-500 transition-colors'
-                >
-                  Forgot password?
-                </Link>
-              </div>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center space-x-2'>
+                    <input
+                      id='remember'
+                      type='checkbox'
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className='h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded'
+                      disabled={isLoading}
+                    />
+                    <Label htmlFor='remember' className='text-sm text-gray-600'>
+                      Remember email
+                    </Label>
+                  </div>
 
-              <Button
-                type='submit'
-                className='w-full bg-red-600 hover:bg-red-700 text-white py-2.5 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]'
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className='flex items-center justify-center gap-2'>
-                    <svg
-                      className='animate-spin h-4 w-4'
-                      xmlns='http://www.w3.org/2000/svg'
-                      fill='none'
-                      viewBox='0 0 24 24'
-                    >
-                      <circle
-                        className='opacity-25'
-                        cx='12'
-                        cy='12'
-                        r='10'
-                        stroke='currentColor'
-                        strokeWidth='4'
-                      />
-                      <path
-                        className='opacity-75'
-                        fill='currentColor'
-                        d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                      />
-                    </svg>
-                    Signing in...
-                  </div>
-                ) : (
-                  <div className='flex items-center justify-center gap-2'>
-                    <LogIn className='h-4 w-4' />
-                    Sign In
-                  </div>
-                )}
-              </Button>
-            </form>
+                  <Link
+                    to='/admin/forgot-password'
+                    className='text-sm text-red-600 hover:text-red-500 transition-colors'
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+
+                <Button
+                  type='submit'
+                  className='w-full bg-green-600 hover:bg-red-700 text-white py-2.5 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]'
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <div className='flex items-center justify-center gap-2'>
+                      <svg
+                        className='animate-spin h-4 w-4'
+                        xmlns='http://www.w3.org/2000/svg'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                      >
+                        <circle
+                          className='opacity-25'
+                          cx='12'
+                          cy='12'
+                          r='10'
+                          stroke='currentColor'
+                          strokeWidth='4'
+                        />
+                        <path
+                          className='opacity-75'
+                          fill='currentColor'
+                          d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                        />
+                      </svg>
+                      Signing in...
+                    </div>
+                  ) : (
+                    <div className='flex items-center justify-center gap-2'>
+                      <LogIn className='h-4 w-4' />
+                      Sign In
+                    </div>
+                  )}
+                </Button>
+              </form>
             )}
             <br />
             <div className='flex flex-col gap-3 '>
