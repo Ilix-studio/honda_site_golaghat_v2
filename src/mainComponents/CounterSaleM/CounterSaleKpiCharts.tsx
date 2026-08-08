@@ -15,7 +15,11 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { MetricTile } from "@/mainComponents/Admin/AdminDash/StatCard";
-import { ChartSkeleton, EmptyChartState, inr } from "@/mainComponents/DataImport/SalesKpiCharts";
+import {
+  ChartSkeleton,
+  EmptyChartState,
+  inr,
+} from "@/mainComponents/DataImport/SalesKpiCharts";
 import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSaleApi";
 import { useAppSelector } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
@@ -50,7 +54,8 @@ export default function CounterSaleKpiCharts() {
   const batches = useMemo(
     () =>
       [...(data?.data ?? [])].sort(
-        (a, b) => new Date(a.importDate).getTime() - new Date(b.importDate).getTime(),
+        (a, b) =>
+          new Date(a.importDate).getTime() - new Date(b.importDate).getTime(),
       ),
     [data],
   );
@@ -95,7 +100,7 @@ export default function CounterSaleKpiCharts() {
       <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
         <MetricTile
           index={0}
-          label='Batches'
+          label='Upload Batches'
           value={totals.totalBatches.toLocaleString("en-IN")}
           bg='bg-gray-100'
           text='text-gray-900'
@@ -103,7 +108,7 @@ export default function CounterSaleKpiCharts() {
         />
         <MetricTile
           index={1}
-          label='Records'
+          label='Parts Count'
           value={totals.totalRecords.toLocaleString("en-IN")}
           bg='bg-blue-50'
           text='text-blue-700'
@@ -111,7 +116,7 @@ export default function CounterSaleKpiCharts() {
         />
         <MetricTile
           index={2}
-          label='Revenue Collected'
+          label='Total Revenue'
           value={inr(totals.totalRevenue)}
           bg='bg-emerald-50'
           text='text-emerald-700'
@@ -140,7 +145,11 @@ export default function CounterSaleKpiCharts() {
                   tickMargin={8}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey='totalInvoice' fill='var(--color-totalInvoice)' radius={4} />
+                <Bar
+                  dataKey='totalInvoice'
+                  fill='var(--color-totalInvoice)'
+                  radius={4}
+                />
               </BarChart>
             </ChartContainer>
           </CardContent>

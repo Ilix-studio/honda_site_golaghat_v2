@@ -137,7 +137,7 @@ export interface UpdateStatusRequest {
 
 export interface AssignStockRequest {
   customerId: string;
-  stockType?: "csv" | "manual"; // Make optional since endpoint is CSV-specific
+  stockType: "csv"; // Make optional since endpoint is CSV-specific
   salePrice: number;
   invoiceNumber: string;
   insurance?: boolean;

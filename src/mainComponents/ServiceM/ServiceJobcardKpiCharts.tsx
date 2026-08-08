@@ -35,7 +35,6 @@ import {
   inr,
   YearSelect,
 } from "@/mainComponents/DataImport/SalesKpiCharts";
-import ChangesMarkdown from "@/mainComponents/shared/ChangesMarkdown";
 
 import {
   useGetServiceJobcardStatsQuery,
@@ -44,11 +43,6 @@ import {
 
 const importedTrendConfig: ChartConfig = {
   jobCardCount: { label: "Job Cards Imported", color: "var(--chart-1)" },
-};
-
-const importVsReviewConfig: ChartConfig = {
-  jobCardCount: { label: "Imported", color: "var(--chart-1)" },
-  reviewCount: { label: "Needs Review", color: "var(--chart-4)" },
 };
 
 const revenueByDateConfig: ChartConfig = {
@@ -130,7 +124,7 @@ const ServiceJobcardKpiCharts = () => {
     <div className='space-y-6'>
       {yearControl}
 
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
         <MetricTile
           index={0}
           label='Total Job Cards'
@@ -150,23 +144,16 @@ const ServiceJobcardKpiCharts = () => {
         />
         <MetricTile
           index={3}
-          label='Total Revenue (current)'
+          label='Total Revenue'
           value={inr(Math.round(status?.totalRevenue ?? 0))}
           bg='bg-emerald-50'
           text='text-emerald-700'
           sub='text-emerald-500'
         />
-        <MetricTile
-          index={4}
-          label='Average Revenue / Card'
-          value={inr(Math.round(status?.avgRevenuePerCard ?? 0))}
-          bg='bg-indigo-50'
-          text='text-indigo-700'
-          sub='text-indigo-500'
-        />
+
         <MetricTile
           index={5}
-          label='Latest Upload Revenue Change'
+          label='Latest Upload Revenue Add'
           value={
             latestChange
               ? `${latestChange.revenueDelta >= 0 ? "+" : "-"}${inr(
@@ -189,7 +176,7 @@ const ServiceJobcardKpiCharts = () => {
           <Card>
             <CardHeader>
               <CardTitle className='text-base'>
-                Job Cards Imported Trend
+                Job Cards Created Date
               </CardTitle>
               <CardDescription>
                 Job cards closed per month in {year}
@@ -217,45 +204,6 @@ const ServiceJobcardKpiCharts = () => {
                     stroke='var(--color-jobCardCount)'
                   />
                 </AreaChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className='text-base'>
-                Imported vs. Needs Review
-              </CardTitle>
-              <CardDescription>
-                Low-confidence rows flagged for review, per month
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={importVsReviewConfig}
-                className='h-[260px] w-full'
-              >
-                <BarChart data={monthly} margin={{ left: 0, right: 12 }}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey='month'
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <ChartLegend content={<ChartLegendContent />} />
-                  <Bar
-                    dataKey='jobCardCount'
-                    fill='var(--color-jobCardCount)'
-                    radius={4}
-                  />
-                  <Bar
-                    dataKey='reviewCount'
-                    fill='var(--color-reviewCount)'
-                    radius={4}
-                  />
-                </BarChart>
               </ChartContainer>
             </CardContent>
           </Card>
@@ -301,7 +249,7 @@ const ServiceJobcardKpiCharts = () => {
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         <Card>
           <CardHeader>
-            <CardTitle className='text-base'>Revenue by Upload Date</CardTitle>
+            <CardTitle className='text-base'>Job Card Created Date</CardTitle>
             <CardDescription>
               Current job-card revenue after each upload
             </CardDescription>
@@ -385,25 +333,6 @@ const ServiceJobcardKpiCharts = () => {
           </CardContent>
         </Card>
       </div>
-
-      {latestChange && (
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-base'>Latest Changes</CardTitle>
-            <CardDescription>
-              {latestChange.fileName} —{" "}
-              {new Date(latestChange.createdAt).toLocaleDateString("en-IN", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChangesMarkdown markdown={latestChange.changesMarkdown} />
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };
