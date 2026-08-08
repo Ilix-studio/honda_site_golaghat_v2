@@ -235,7 +235,7 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
         </>
       ) : (
         <>
-          <p className={`text-sm text-center ${mutedTextClass}`}>
+          <p className={`text-sm text-center text-white ${mutedTextClass}`}>
             Enter the 6-digit code sent to +91 {phoneNumber}
           </p>
 
@@ -246,7 +246,7 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
               onChange={setOtp}
               disabled={isVerifying}
             >
-              <InputOTPGroup>
+              <InputOTPGroup className='text-sm text-white'>
                 {[0, 1, 2, 3, 4, 5].map((index) => (
                   <InputOTPSlot key={index} index={index} />
                 ))}
