@@ -86,7 +86,10 @@ const LoginBranchManager = () => {
               </div>
 
               {mode === "otp" ? (
-                <OtpLoginForm redirectPath='/manager/dashboard' variant='dark' />
+                <OtpLoginForm
+                  redirectPath='/manager/dashboard'
+                  variant='dark'
+                />
               ) : (
                 <form onSubmit={handleSubmit} className='space-y-4'>
                   <div className='space-y-1.5'>
@@ -107,7 +110,9 @@ const LoginBranchManager = () => {
                       onChange={(e) =>
                         setForm((p) => ({
                           ...p,
-                          phoneNumber: e.target.value.replace(/\D/g, "").slice(0, 10),
+                          phoneNumber: e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 10),
                         }))
                       }
                       className='bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-red-500'
@@ -134,7 +139,9 @@ const LoginBranchManager = () => {
                         type='button'
                         onClick={() => setShowPassword((s) => !s)}
                         tabIndex={-1}
-                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
                         className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors'
                       >
                         {showPassword ? (

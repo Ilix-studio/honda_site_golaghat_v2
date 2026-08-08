@@ -37,6 +37,7 @@ import {
   useGetStockBatchReportsQuery,
   useGetStockInvestmentTimeseriesQuery,
 } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
+import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import type { InvestmentGranularity } from "@/types/customer/stockcsv.types";
 
 const investmentTrendConfig: ChartConfig = {
@@ -63,11 +64,13 @@ export default function StockInvestmentKpiCharts() {
   const { data, isLoading } = useGetStockInvestmentTimeseriesQuery({
     granularity,
   });
+  const { data: stockAssignStats } = useGetStockAssignStatsQuery({});
   const { data: batchData, isLoading: batchLoading } =
     useGetStockBatchReportsQuery({ page: 1, limit: 10 });
 
   const timeseries = useMemo(() => data?.data.timeseries ?? [], [data]);
   const totals = data?.data.totals;
+  const manualStockAssignRevenue = stockAssignStats?.data.totals.totalRevenue ?? 0;
   const batches = useMemo(() => batchData?.data ?? [], [batchData]);
 
   const batchTotals = useMemo(
@@ -139,7 +142,7 @@ export default function StockInvestmentKpiCharts() {
         <MetricTile
           index={1}
           label='Total Revenue'
-          value={inr(totals?.totalRevenue ?? 0)}
+          value={inr((totals?.totalRevenue ?? 0) + manualStockAssignRevenue)}
           bg='bg-green-50'
           text='text-green-700'
           sub='text-green-500'

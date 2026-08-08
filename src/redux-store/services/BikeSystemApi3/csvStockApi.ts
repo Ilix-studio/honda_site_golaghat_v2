@@ -123,7 +123,8 @@ export const csvStockApi = apiSlice.injectEndpoints({
     >({
       query: (filters = {}) => {
         const params = new URLSearchParams();
-        if (filters.granularity) params.append("granularity", filters.granularity);
+        if (filters.granularity)
+          params.append("granularity", filters.granularity);
         if (filters.from) params.append("from", filters.from);
         if (filters.to) params.append("to", filters.to);
         if (filters.branchId) params.append("branchId", filters.branchId);
@@ -217,6 +218,23 @@ export const csvStockApi = apiSlice.injectEndpoints({
       ],
       transformErrorResponse: (response) => handleApiError(response),
     }),
+    getCSVStockAssignStats: builder.query<
+      {
+        success: boolean;
+        data: {
+          totals: { totalAssigned: number; totalRevenue: number };
+          monthly: { month: string; assignedCount: number }[];
+        };
+      },
+      { year: number }
+    >({
+      query: ({ year }) => `/csv-stock/assign-stats?year=${year}`,
+      providesTags: [
+        { type: "CSVStock" },
+        { type: "CSVStockList", id: "LIST" },
+      ],
+      transformErrorResponse: (response) => handleApiError(response),
+    }),
   }),
 });
 
@@ -229,6 +247,7 @@ export const {
   useGetCSVBatchesQuery,
   useGetStocksByBatchQuery,
   useGetStockBatchReportsQuery,
+  useGetCSVStockAssignStatsQuery,
   useGetStockInvestmentTimeseriesQuery,
   useUpdateCSVStockStatusMutation,
   useAssignCSVStockMutation,

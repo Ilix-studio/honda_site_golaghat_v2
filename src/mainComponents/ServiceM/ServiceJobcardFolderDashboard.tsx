@@ -227,18 +227,6 @@ const ServiceJobcardFolderDashboard = () => {
             </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className='p-4'>
-            <p className='text-xs text-muted-foreground'>
-              Average Revenue / Card
-            </p>
-            <p className='text-xl font-semibold text-indigo-700'>
-              {statusLoading
-                ? "—"
-                : `₹${(status?.avgRevenuePerCard ?? 0).toLocaleString("en-IN")}`}
-            </p>
-          </CardContent>
-        </Card>
       </div>
 
       {isLoading && (

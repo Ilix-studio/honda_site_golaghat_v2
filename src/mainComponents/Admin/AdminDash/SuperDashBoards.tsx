@@ -1,23 +1,13 @@
-import { useState } from "react";
-
-import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
-import { useGetVasAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
-import { StatCard, type StatCardProps } from "./StatCard";
-
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Package,
-  Layers,
   Wrench,
   Handshake,
-  ShieldCheck,
   IndianRupee,
   CalendarDays,
   ReceiptText,
 } from "lucide-react";
 
-import DashboardChartPreview from "@/mainComponents/RAG/DashboardChartPreview";
-import type { DashboardSpec } from "@/redux-store/services/ragApi.types";
 import StockInvestmentDashboard from "./StockInvestmentDashboard";
 
 import PartsKpiCharts from "@/mainComponents/PartsM/PartsKpiCharts";
@@ -29,12 +19,13 @@ import {
   selectActiveTab,
   setActiveTab,
 } from "@/redux-store/slices/dashboardTabsSlice";
+import { ManualAssignDashboard } from "./KPIDashs/AssignSystem";
 
 const SUPER_DASHBOARDS_TAB_KEY = "superDashBoards";
 
 const YEARS = [2026, 2025, 2024];
 
-function YearSelect({
+export function YearSelect({
   year,
   onChange,
 }: {
@@ -88,140 +79,6 @@ function ServiceDashboard() {
       </div> */}
 
       <ServiceJobcardKpiCharts />
-    </div>
-  );
-}
-
-// ─── Stock / VAS Assign sub-tabs — share the same KPI+chart shape ─────────────
-
-function StockAssignDashboard() {
-  const [year, setYear] = useState(new Date().getFullYear());
-  const { data, isLoading } = useGetStockAssignStatsQuery({ year });
-  const stats = data?.data;
-
-  const kpis: Omit<StatCardProps, "index">[] = [
-    {
-      title: "Bikes Assigned",
-      value: stats?.totals.totalAssigned ?? "—",
-      icon: Handshake,
-      loading: isLoading,
-      description: `Year ${year}, all branches`,
-      action: { label: "Details", href: "/admin/dashboard" },
-    },
-    {
-      title: "Revenue",
-      value: stats
-        ? `₹${stats.totals.totalRevenue.toLocaleString("en-IN")}`
-        : "—",
-      icon: Layers,
-      loading: isLoading,
-      description: "Sum of sale price",
-      action: { label: "Details", href: "/admin/dashboard" },
-    },
-  ];
-
-  const spec: DashboardSpec | null = stats
-    ? {
-        title: `Monthly Stock Assignments — ${year}`,
-        chartType: "bar",
-        data: stats.monthly,
-        xKey: "month",
-        yKey: "assignedCount",
-      }
-    : null;
-
-  return (
-    <div className='space-y-6'>
-      <div className='flex items-center justify-end'>
-        <YearSelect year={year} onChange={setYear} />
-      </div>
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-        {kpis.map((kpi, i) => (
-          <StatCard key={kpi.title} {...kpi} index={i} />
-        ))}
-      </div>
-      {spec && <DashboardChartPreview spec={spec} />}
-    </div>
-  );
-}
-
-function VasAssignDashboard() {
-  const [year, setYear] = useState(new Date().getFullYear());
-  const { data, isLoading } = useGetVasAssignStatsQuery({ year });
-  const stats = data?.data;
-
-  const kpis: Omit<StatCardProps, "index">[] = [
-    {
-      title: "VAS Activations",
-      value: stats?.totals.totalActivations ?? "—",
-      icon: ShieldCheck,
-      loading: isLoading,
-      description: `Year ${year}, all branches`,
-      action: { label: "Details", href: "/admin/dashboard" },
-    },
-    {
-      title: "Revenue",
-      value: stats
-        ? `₹${stats.totals.totalRevenue.toLocaleString("en-IN")}`
-        : "—",
-      icon: Layers,
-      loading: isLoading,
-      description: "Sum of purchase price",
-      action: { label: "Details", href: "/admin/dashboard" },
-    },
-  ];
-
-  const spec: DashboardSpec | null = stats
-    ? {
-        title: `Monthly VAS Activations — ${year}`,
-        chartType: "bar",
-        data: stats.monthly,
-        xKey: "month",
-        yKey: "activationCount",
-      }
-    : null;
-
-  return (
-    <div className='space-y-6'>
-      <div className='flex items-center justify-end'>
-        <YearSelect year={year} onChange={setYear} />
-      </div>
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-        {kpis.map((kpi, i) => (
-          <StatCard key={kpi.title} {...kpi} index={i} />
-        ))}
-      </div>
-      {spec && <DashboardChartPreview spec={spec} />}
-    </div>
-  );
-}
-
-// ─── Manual Assign sub-tab — combines Stock Assign + VAS Assign ───────────────
-
-function ManualAssignDashboard() {
-  return (
-    <div className='space-y-8'>
-      <div>
-        <div className='flex items-center gap-2 mb-4'>
-          <Handshake className='h-4 w-4 text-gray-500' />
-          <h3 className='text-sm font-semibold text-gray-700'>
-            Stock Assign(Manual)
-          </h3>
-        </div>
-        <StockAssignDashboard />
-      </div>
-
-      <div className='border-t border-gray-200' />
-
-      <div>
-        <div className='flex items-center gap-2 mb-4'>
-          <ShieldCheck className='h-4 w-4 text-gray-500' />
-          <h3 className='text-sm font-semibold text-gray-700'>
-            VAS Assign(Manual)
-          </h3>
-        </div>
-        <VasAssignDashboard />
-      </div>
     </div>
   );
 }

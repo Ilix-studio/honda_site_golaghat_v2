@@ -40,7 +40,6 @@ import {
   Users,
   ReceiptText,
   Webhook,
-  Tag,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
@@ -144,20 +143,6 @@ export default function PartsAdminDashboard() {
       icon: Wallet,
       loading: stockStatusLoading,
       description: "Current stock revenue (Unit Price × Quantity)",
-
-      action: {
-        label: "Upload stock file",
-        href: "/part-admin/parts-stock/upload",
-      },
-    },
-    {
-      title: "Average Unit Price",
-      value: stockStatusLoading
-        ? "—"
-        : `₹${(stockStatus?.avgUnitPrice ?? 0).toLocaleString("en-IN")}`,
-      icon: Tag,
-      loading: stockStatusLoading,
-      description: "Mean Unit Price across current stock",
 
       action: {
         label: "Upload stock file",

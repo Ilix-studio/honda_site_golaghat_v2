@@ -28,13 +28,13 @@ self.addEventListener("message", (event) => {
 
 // --- FCM background messages -------------------------------------------------
 const firebaseConfig = {
-  apiKey: "AIzaSyCOLCfkbNXvivcQVujbHOx51697D84BE1g",
-  authDomain: "tsangpool-honda-otp.firebaseapp.com",
-  projectId: "tsangpool-honda-otp",
-  storageBucket: "tsangpool-honda-otp.firebasestorage.app",
-  messagingSenderId: "250001962767",
-  appId: "1:250001962767:web:39df9fb05c92c10a74f07a",
-  measurementId: "G-RSGK59KR4X",
+  apiKey: "AIzaSyDPZwEsY3MwqORqdbaA1_ALZtJhV0YL3k4",
+  authDomain: "tsangpool-honda-otp-52508.firebaseapp.com",
+  projectId: "tsangpool-honda-otp-52508",
+  storageBucket: "tsangpool-honda-otp-52508.firebasestorage.app",
+  messagingSenderId: "347701781396",
+  appId: "1:347701781396:web:c8cc4ebb9cc3c105d8a581",
+  measurementId: "G-CDNZQP9Q2P",
 };
 
 const app = initializeApp(firebaseConfig);

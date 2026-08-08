@@ -35,7 +35,6 @@ import {
   inr,
   YearSelect,
 } from "@/mainComponents/DataImport/SalesKpiCharts";
-import ChangesMarkdown from "@/mainComponents/shared/ChangesMarkdown";
 
 import {
   useGetPartsStatsQuery,
@@ -102,8 +101,6 @@ const PartsKpiCharts = () => {
     [stockStatus],
   );
 
-  const latestChange = stockStatus?.latestChange ?? null;
-
   const yearControl = (
     <div className='flex items-center justify-between flex-wrap gap-3'>
       <span className='text-xs font-medium text-muted-foreground'>
@@ -127,7 +124,7 @@ const PartsKpiCharts = () => {
     <div className='space-y-6'>
       {yearControl}
 
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
         <MetricTile
           index={0}
           label='Total Parts'
@@ -147,19 +144,11 @@ const PartsKpiCharts = () => {
         />
         <MetricTile
           index={3}
-          label='Total Revenue (current stock)'
+          label='Total Revenue '
           value={inr(Math.round(stockStatus?.totalRevenue ?? 0))}
           bg='bg-emerald-50'
           text='text-emerald-700'
           sub='text-emerald-500'
-        />
-        <MetricTile
-          index={4}
-          label='Average Unit Price'
-          value={inr(stockStatus?.avgUnitPrice ?? 0)}
-          bg='bg-indigo-50'
-          text='text-indigo-700'
-          sub='text-indigo-500'
         />
       </div>
 
@@ -171,7 +160,9 @@ const PartsKpiCharts = () => {
         <>
           <Card>
             <CardHeader>
-              <CardTitle className='text-base'>Parts Imported Trend</CardTitle>
+              <CardTitle className='text-base'>
+                Parts Imported vs. Sold
+              </CardTitle>
               <CardDescription>
                 Rows imported per month in {year}
               </CardDescription>
@@ -367,25 +358,6 @@ const PartsKpiCharts = () => {
           </CardContent>
         </Card>
       </div>
-
-      {latestChange && (
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-base'>Latest Changes</CardTitle>
-            <CardDescription>
-              {latestChange.fileName} —{" "}
-              {new Date(latestChange.createdAt).toLocaleDateString("en-IN", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChangesMarkdown markdown={latestChange.changesMarkdown} />
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };
