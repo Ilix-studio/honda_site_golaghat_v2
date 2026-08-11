@@ -1,5 +1,7 @@
 // import BillMemo from "@/mainComponents/ZBillMemo";
 // import ZBillMemo2 from "@/mainComponents/ZBillMemo2";
+import BillMemo from "@/mainComponents/ZBillMemo";
+import BillMemo2 from "@/mainComponents/ZBillMemo2";
 import { lazy } from "react";
 
 const Finance = lazy(() => import("@/mainComponents/NavMenu/Finance"));
@@ -55,12 +57,12 @@ export const publicRoutes = [
     path: "/download/safety-feature-stickers",
     component: DownloadSafetyfeature,
   },
-  // {
-  //   path: "/bill-memo/preview/1",
-  //   component: BillMemo,
-  // },
-  // {
-  //   path: "/bill-memo/preview/2",
-  //   component: ZBillMemo2,
-  // },
+  {
+    path: "/bill-memo/preview/1",
+    component: BillMemo,
+  },
+  {
+    path: "/bill-memo/preview/2",
+    component: BillMemo2,
+  },
 ];

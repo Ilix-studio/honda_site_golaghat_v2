@@ -10,7 +10,7 @@ export interface PriceBreakdown {
   exShowroom: number;
   rto?: number;
   insurance?: number;
-  onRoad: number;
+  onRoad?: number;
 }
 
 export interface KeySpecifications {

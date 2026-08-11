@@ -50,6 +50,7 @@ import {
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
 import PartsKpiCharts from "./PartsKpiCharts";
 import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSaleApi";
+import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
 
 const YEARS = [2026, 2025, 2024];
 const PARTS_ADMIN_DASHBOARD_TAB_KEY = "partsAdminDashboard";
@@ -196,7 +197,7 @@ export default function PartsAdminDashboard() {
             </div>
 
             <div className='flex flex-col items-start md:items-end gap-3'>
-              <Button
+              <Button data-onboarding='dashboard-profile'
                 className='text-white text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full border-2 bg-white/5 border-blue-700 hover:bg-blue-700/10 hover:text-gray-200 transition-all duration-200'
                 onClick={() => navigate("/part-admin/profile")}
               >
@@ -234,7 +235,7 @@ export default function PartsAdminDashboard() {
             transition={{ duration: 0.4, ease: "easeOut" }}
             className='sticky top-1 z-10 mb-2'
           >
-            <TabsList className='inline-flex h-12 w-full md:w-auto bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-xl p-1 gap-1'>
+            <TabsList data-onboarding='dashboard-navigation' className='inline-flex h-12 w-full md:w-auto bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-xl p-1 gap-1'>
               <TabsTrigger
                 value='operations'
                 className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
@@ -281,7 +282,7 @@ export default function PartsAdminDashboard() {
                   </Link>
                 </div>
               </CardHeader>
-              <CardContent className='p-2'>
+              <CardContent data-onboarding='dashboard-features' className='p-2'>
                 <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                   {kpis.map((kpi, i) => (
                     <StatCard key={kpi.title} {...kpi} index={i} />
@@ -366,6 +367,7 @@ export default function PartsAdminDashboard() {
           </TabsContent>
         </Tabs>
       </div>
+      <RoleOnboarding />
     </div>
   );
 }

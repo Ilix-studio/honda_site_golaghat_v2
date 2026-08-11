@@ -148,7 +148,7 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
 
   const isDark = variant === "dark";
   const labelClass = isDark
-    ? "text-gray-300 text-sm"
+    ? "text-gray-900 text-sm"
     : "text-sm font-medium text-gray-700";
   const inputClass = isDark
     ? "bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-red-500 pl-10"
@@ -181,10 +181,10 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
               />
               <div className='absolute right-3 top-1/2 -translate-y-1/2'>
                 {validationState.isChecking && (
-                  <Loader2 className='h-4 w-4 animate-spin text-blue-500' />
+                  <Loader2 className='h-4 w-4 animate-spin text-white' />
                 )}
                 {!validationState.isChecking && validationState.exists && (
-                  <CheckCircle className='h-4 w-4 text-green-500' />
+                  <CheckCircle className='h-4 w-4 text-green-900' />
                 )}
                 {!validationState.isChecking &&
                   phoneNumber.length === 10 &&
@@ -208,7 +208,7 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
           </div>
 
           {error && (
-            <div className='flex items-center gap-2 text-red-400 text-sm bg-red-950/40 border border-red-800/40 rounded-lg px-3 py-2'>
+            <div className='flex items-center gap-2 text-red-400 text-sm bg-black border border-red-800/40 rounded-lg px-3 py-2'>
               <AlertCircle className='w-4 h-4 shrink-0' />
               <span>{error}</span>
             </div>
