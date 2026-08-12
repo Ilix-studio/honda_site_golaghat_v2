@@ -267,11 +267,38 @@ const BACKEND_ITEMS: LineItem[] = [
   },
 ];
 
+const formatINR = (value: number) => `₹${value.toLocaleString("en-IN")}`;
+
 const TOTALS: TotalRow[] = [
-  { label: "Frontend Subtotal", value: "₹60,900" },
-  { label: "Backend Subtotal", value: "₹88,550" },
-  { label: "Gross Total", value: "₹1,49,450" },
-  { label: "Grand Total", value: "₹1,49,450", variant: "grand" },
+  {
+    label: "Frontend Subtotal",
+    value: formatINR(
+      FRONTEND_ITEMS.reduce((sum, item) => sum + item.charge, 0),
+    ),
+  },
+  {
+    label: "Backend Subtotal",
+    value: formatINR(BACKEND_ITEMS.reduce((sum, item) => sum + item.charge, 0)),
+  },
+  {
+    label: "Gross Total",
+    value: formatINR(
+      [...FRONTEND_ITEMS, ...BACKEND_ITEMS].reduce(
+        (sum, item) => sum + item.charge,
+        0,
+      ),
+    ),
+  },
+  {
+    label: "Grand Total",
+    value: formatINR(
+      [...FRONTEND_ITEMS, ...BACKEND_ITEMS].reduce(
+        (sum, item) => sum + item.charge,
+        0,
+      ),
+    ),
+    variant: "grand",
+  },
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -446,8 +473,7 @@ const NOTE_BOXES: NoteBox[] = [
     title: "Previous Engagement",
     content: (
       <p className='text-sm text-gray-600 leading-relaxed'>
-        Initial system build (Bill Memo v1) — ₹88,600 quoted, ₹37,000
-        received.
+        Initial system build (Bill Memo v1) — ₹88,600 quoted, ₹37,000 received.
         <br />
         This bill covers only the subsequent system-upgrade work described
         below.
@@ -504,7 +530,7 @@ const NOTE_BOXES: NoteBox[] = [
   },
 ];
 
-const BillMemo: React.FC = () => {
+const BillMemo2: React.FC = () => {
   const [copied, setCopied] = useState(false);
 
   const handleCopyBill = async () => {
@@ -584,7 +610,10 @@ const BillMemo: React.FC = () => {
           >
             <MetaItem label='Issue Date' value='25 July 2026' />
             <MetaItem label='Due Date' value='14 August 2026' />
-            <MetaItem label='Project' value='TsangPool Honda DMS — System Upgrade' />
+            <MetaItem
+              label='Project'
+              value='TsangPool Honda DMS — System Upgrade'
+            />
             <MetaItem label='Currency' value='INR (₹)' />
             <MetaItem
               label='Status'
@@ -793,4 +822,4 @@ const BillMemo: React.FC = () => {
   );
 };
 
-export default BillMemo;
+export default BillMemo2;

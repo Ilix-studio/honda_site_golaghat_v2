@@ -1,7 +1,6 @@
 import { lazy } from "react";
 import { SimpleBookService } from "@/mainComponents/BookService/SimpleBookService";
 
-
 const CustomerLogin = lazy(() =>
   import("@/mainComponents/CustomerSystem/CustomerLogin").then((m) => ({
     default: m.default,
@@ -50,7 +49,11 @@ const ActivateVAS = lazy(
 const UseToken = lazy(() => import("@/mainComponents/Scanfleet/UseToken"));
 
 const CustomerFinalBillConfirm = lazy(
-  () => import("@/mainComponents/CustomerSystem/JobCard/CustomerFinalBillConfirm"),
+  () =>
+    import("@/mainComponents/CustomerSystem/JobCard/CustomerFinalBillConfirm"),
+);
+const ViewAllNotification = lazy(
+  () => import("@/mainComponents/shared/ViewAllNotification"),
 );
 
 export const customerAuthRoutes = [
@@ -67,10 +70,14 @@ export const customerRoutes = [
   { path: "/customer/vehicle/:vehicleId", component: CustomerVehicleDetail },
   { path: "/customer/dashboard", component: CustomerMainDash },
   { path: "/customer/profile-info", component: CustomerProfile },
+  { path: "/customer/notifications", component: ViewAllNotification },
   { path: "/customer/services", component: CustomerServices },
   { path: "/customer/support", component: CustomerSupport },
   { path: "/customer/services/vas", component: ActivateVAS },
   { path: "/customer/book-service", component: SimpleBookService },
   { path: "/customer/attach-stickers", component: UseToken },
-  { path: "/customer/job-card/:jobCardId/confirm", component: CustomerFinalBillConfirm },
+  {
+    path: "/customer/job-card/:jobCardId/confirm",
+    component: CustomerFinalBillConfirm,
+  },
 ];

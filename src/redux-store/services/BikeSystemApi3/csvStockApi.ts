@@ -247,6 +247,7 @@ export const {
   useGetCSVBatchesQuery,
   useGetStocksByBatchQuery,
   useGetStockBatchReportsQuery,
+
   useGetCSVStockAssignStatsQuery,
   useGetStockInvestmentTimeseriesQuery,
   useUpdateCSVStockStatusMutation,

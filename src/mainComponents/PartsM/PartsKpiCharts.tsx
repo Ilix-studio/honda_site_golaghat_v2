@@ -274,10 +274,7 @@ const PartsKpiCharts = () => {
         <Card>
           <CardHeader>
             <CardTitle className='text-base'>Revenue by Upload Date</CardTitle>
-            <CardDescription>
-              Current stock revenue (Unit Price × Quantity) after each
-              parts-stock upload
-            </CardDescription>
+            <CardDescription>Current stock revenue</CardDescription>
           </CardHeader>
           <CardContent>
             {stockStatusLoading ? (

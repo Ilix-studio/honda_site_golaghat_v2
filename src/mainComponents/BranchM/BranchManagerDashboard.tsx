@@ -47,6 +47,7 @@ import RecentMotorcycles from "../Admin/AdminDash/RecentMotocycles";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
 import { useGetQuotationsQuery } from "@/redux-store/services/NewFeatures/quotationApi";
 import BranchKpiCharts from "./BranchKpiCharts";
+import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
 
 const BRANCH_DASHBOARD_TAB_KEY = "branchManagerDashboard";
 
@@ -128,12 +129,31 @@ const BranchManagerDashboard = () => {
       action: { label: "Open VAS Manager", href: "/manager/vas/select" },
     },
     {
-      title: "Add Stock-Inventory",
+      title: "Add Stock-Vehicles",
       value: stockData?.total ?? 0,
       icon: Activity,
       loading: stockLoading,
-      description: "Inventory Details",
+      description: "CSV upload and manual additions",
       action: { label: "Open Stock-Inventory", href: "/manager/stockC/select" },
+    },
+    {
+      title: "Add Service Admins",
+      value: serviceAdminsData?.count ?? 0,
+      icon: Cog,
+      loading: serviceAdminsLoading,
+      description: "Create & manage Service Admins for your branch",
+      action: {
+        label: "Manage Service Admins",
+        href: "/manager/service-admins",
+      },
+    },
+    {
+      title: "Add Part Admins",
+      value: partsAdminData?.count ?? 0,
+      icon: Package,
+      loading: partsAdminLoading,
+      description: "Create & manage Part Admins for your branch",
+      action: { label: "Manage Part Admins", href: "/manager/part-admins" },
     },
     {
       title: "Add Staff Memebers",
@@ -147,25 +167,6 @@ const BranchManagerDashboard = () => {
       },
     },
 
-    {
-      title: "Add Part Admins",
-      value: partsAdminData?.count ?? 0,
-      icon: Package,
-      loading: partsAdminLoading,
-      description: "Create & manage Part Admins for your branch",
-      action: { label: "Manage Part Admins", href: "/manager/part-admins" },
-    },
-    {
-      title: "Add Service Admins",
-      value: serviceAdminsData?.count ?? 0,
-      icon: Cog,
-      loading: serviceAdminsLoading,
-      description: "Create & manage Service Admins for your branch",
-      action: {
-        label: "Manage Service Admins",
-        href: "/manager/service-admins",
-      },
-    },
     {
       title: "Apply Leave",
       //Add Badge
@@ -249,6 +250,7 @@ const BranchManagerDashboard = () => {
 
             <div className='flex flex-col items-start md:items-end gap-3'>
               <Button
+                data-onboarding='dashboard-profile'
                 className='text-black text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full border-2 bg-white/5 border-blue-700 hover:bg-blue-700/10 hover:text-orange-700 transition-all duration-200'
                 onClick={() => navigate("/manager/profile")}
               >
@@ -285,7 +287,10 @@ const BranchManagerDashboard = () => {
             transition={{ duration: 0.4, ease: "easeOut" }}
             className='sticky top-1 z-10 mb-2'
           >
-            <TabsList className='inline-flex h-12 w-full md:w-auto bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-xl p-1 gap-1'>
+            <TabsList
+              data-onboarding='dashboard-navigation'
+              className='inline-flex h-12 w-full md:w-auto bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-xl p-1 gap-1'
+            >
               <TabsTrigger
                 value='operations'
                 className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-gray-900 hover:bg-gray-50 data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
@@ -310,10 +315,10 @@ const BranchManagerDashboard = () => {
             </TabsList>
           </motion.div>
 
-          <TabsContent value='operations' className='mt-2'>
+          <TabsContent value='operations' className='mt-0.5'>
             <Card
               size='sm'
-              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+              className='gap-0.1 border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
             >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
                 <div className='flex items-center gap-3'>
@@ -330,7 +335,7 @@ const BranchManagerDashboard = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className='p-3'>
+              <CardContent data-onboarding='dashboard-features' className='p-3'>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                   {operationsStats.map((stat, i) => (
                     <StatCard key={stat.title} {...stat} index={i} />
@@ -352,10 +357,10 @@ const BranchManagerDashboard = () => {
             </div> */}
           </TabsContent>
 
-          <TabsContent value='customer-reports' className='mt-2'>
+          <TabsContent value='customer-reports' className='mt-0.5'>
             <Card
               size='sm'
-              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+              className=' gap-0.1 border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
             >
               <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
                 <div className='flex items-center gap-3'>
@@ -384,12 +389,12 @@ const BranchManagerDashboard = () => {
             </motion.div>
           </TabsContent>
 
-          <TabsContent value='analytics' className='mt-2'>
+          <TabsContent value='analytics' className='mt-0.5'>
             <Card
               size='sm'
-              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+              className='gap-0.1 border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
             >
-              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
+              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-3 py-3'>
                 <div className='flex items-center gap-3'>
                   <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-blue-800 text-white shadow-sm'>
                     <TrendingUp className='h-5 w-5' />
@@ -404,13 +409,14 @@ const BranchManagerDashboard = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className='p-4 sm:p-6'>
+              <CardContent className='pt-5 sm:p-2 md:p-3 lg:p-4'>
                 <BranchKpiCharts />
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
+      <RoleOnboarding />
     </div>
   );
 };

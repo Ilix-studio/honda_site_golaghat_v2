@@ -134,7 +134,9 @@ const LoginSuperAdmin = () => {
       >
         <Card className='shadow-xl border-0'>
           <CardHeader className='text-center pb-8'>
-            <CompanyLogo />
+            <div>
+              <CompanyLogo />
+            </div>
             <CardTitle className='text-2xl font-bold text-gray-900'>
               Super Admin Login
             </CardTitle>

@@ -89,6 +89,9 @@ const CounterSaleAdminDashboard = lazy(
 const CounterSaleDeletedBatches = lazy(
   () => import("@/mainComponents/CounterSaleM/CounterSaleDeletedBatches"),
 );
+const ViewAllNotification = lazy(
+  () => import("@/mainComponents/shared/ViewAllNotification"),
+);
 //
 export const adminAuthRoutes = [
   { path: "/admin/login", component: LoginSuperAdmin },
@@ -101,6 +104,7 @@ export const adminRoutes = [
   { path: "/admin/branches/service-admins", component: ServiceAdmins },
   { path: "/admin/branches/part-admins", component: PartAdmins },
   { path: "/admin/profile", component: ProfileView },
+  { path: "/admin/notifications", component: ViewAllNotification },
   //
   { path: "/admin/branches", component: BranchManagement },
 

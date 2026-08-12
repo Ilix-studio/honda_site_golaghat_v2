@@ -108,9 +108,15 @@ const CustomerCSVStock = () => {
     return;
   }
 
-const salePrice: number = stock.priceInfo?.onRoadPrice 
-  ?? stock.priceInfo?.exShowroomPrice 
-  ?? 1;
+// CSV stock stores its price in `costPrice` (parsed from the CSV at import);
+// it has no `priceInfo` object, so the old `?? 1` fallback meant every CSV
+// assignment was recorded as ₹1. Prefer any priceInfo if ever populated, then
+// fall back to costPrice — never a hardcoded 1.
+const salePrice: number =
+  stock.priceInfo?.onRoadPrice ??
+  stock.priceInfo?.exShowroomPrice ??
+  stock.costPrice ??
+  0;
   try {
     const assignmentData = {
       customerId: customer.id,

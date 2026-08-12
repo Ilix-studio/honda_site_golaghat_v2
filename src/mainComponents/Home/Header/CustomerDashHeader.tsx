@@ -7,6 +7,7 @@ import { useAppDispatch } from "@/hooks/redux";
 import { useAuthForCustomer } from "@/hooks/useAuthforCustomer";
 import { logout } from "@/redux-store/slices/customer/customerAuthSlice";
 import { addNotification } from "@/redux-store/slices/uiSlice";
+import NotificationBell from "@/mainComponents/shared/NotificationBell";
 
 import { useGetCustomerProfileQuery } from "@/redux-store/services/customer/customerApi";
 import { ApiResponse } from "@/mainComponents/CustomerSystem/CustomerProfileInto";
@@ -182,6 +183,8 @@ export function CustomerDashHeader() {
                 Book Service
               </Button>
             </Link>
+
+            <NotificationBell />
 
             <div className='flex items-center gap-2'>
               <button className='flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-gray-100 transition-colors group'>

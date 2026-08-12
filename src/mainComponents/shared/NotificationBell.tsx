@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { Bell, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   useGetNotificationsQuery,
   useMarkNotificationReadMutation,
   useMarkAllNotificationsReadMutation,
   type AppNotification,
 } from "@/redux-store/services/notificationApi";
+import { selectUserRole } from "@/redux-store/slices/authSlice";
+import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
+import { getNotificationRoutePath } from "./notificationRoutes";
 
-function timeAgo(iso: string): string {
+export function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";
@@ -29,6 +33,12 @@ const NotificationBell = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const role = useSelector(selectUserRole);
+  const customerAuth = useSelector(selectCustomerAuth);
+  const notificationPath = getNotificationRoutePath({
+    role,
+    isCustomer: customerAuth.isAuthenticated && !!customerAuth.firebaseToken,
+  });
 
   const { data } = useGetNotificationsQuery(
     { page: 1, limit: 20 },
@@ -90,6 +100,12 @@ const NotificationBell = () => {
                 Mark all read
               </button>
             )}
+            <button
+              className='text-sm font-medium text-blue-600 hover:text-blue-700'
+              onClick={() => navigate(notificationPath)}
+            >
+              View All
+            </button>
           </div>
 
           <div className='overflow-y-auto'>

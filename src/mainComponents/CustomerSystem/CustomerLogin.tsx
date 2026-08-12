@@ -9,7 +9,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { ShieldCheck, Loader2 } from "lucide-react";
+import { ShieldCheck, Loader2, ArrowLeft } from "lucide-react";
 import { auth } from "../../lib/firebase";
 import { signInWithPhoneNumber } from "firebase/auth";
 import {
@@ -332,8 +332,8 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
 
         {isBranchAdmin && (
           <Link to='/manager/dashboard'>
-            <p className='text-center text-xs text-gray-500 mt-4 hover:underline cursor-pointer'>
-              Back to Manager Dash
+            <p className=' flex text-center text-xs text-red-500 mt-4 hover:underline cursor-pointer gap-5'>
+              <ArrowLeft className='w-4.5 h-4.5' /> Back to Manager Dash
             </p>
           </Link>
         )}

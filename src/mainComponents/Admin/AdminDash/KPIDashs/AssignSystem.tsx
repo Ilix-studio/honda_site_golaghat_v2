@@ -10,7 +10,7 @@ import DashboardChartPreview from "@/mainComponents/RAG/DashboardChartPreview";
 import type { DashboardSpec } from "@/redux-store/services/ragApi.types";
 import { StatCard, StatCardProps } from "../StatCard";
 import { YearSelect } from "../SuperDashBoards";
-import { useGetStockBatchReportsQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
+import { useGetCSVStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 import {
   selectActiveTab,
   setActiveTab,
@@ -70,39 +70,14 @@ function StockAssignDashboard() {
 }
 
 function CSVAssignDashboard() {
-  const { data, isLoading } = useGetStockBatchReportsQuery({
-    page: 1,
-    limit: 1000,
-  });
-
-  const branchName = "Admin manual csv assign";
-
-  const batches = data?.data?.filter((batch) => {
-    const batchBranch =
-      (batch as { branchName?: string; branch?: string }).branchName ??
-      (batch as { branchName?: string; branch?: string }).branch;
-
-    return batchBranch === branchName;
-  });
-
-  const totalAssigned = data?.data.reduce(
-    (total, batch) => total + batch.assignedCount,
-    0,
-  );
-  const totalRevenue = batches?.reduce((total, batch) => {
-    const salePrice = Number(
-      (batch as { salePrice?: number; revenue?: number }).salePrice ??
-        (batch as { salePrice?: number; revenue?: number }).revenue ??
-        0,
-    );
-
-    return total + salePrice;
-  }, 0);
+  const [year, setYear] = useState(new Date().getFullYear());
+  const { data, isLoading } = useGetCSVStockAssignStatsQuery({ year });
+  const stats = data?.data;
 
   const kpis: Omit<StatCardProps, "index">[] = [
     {
       title: "Bikes Assigned",
-      value: totalAssigned ?? "—",
+      value: stats?.totals.totalAssigned ?? "—",
       icon: Handshake,
       loading: isLoading,
       description: "All branches",
@@ -111,8 +86,8 @@ function CSVAssignDashboard() {
     {
       title: "Revenue",
       value:
-        totalRevenue !== undefined
-          ? `₹${totalRevenue.toLocaleString("en-IN")}`
+        stats
+          ? `₹${stats.totals.totalRevenue.toLocaleString("en-IN")}`
           : "—",
       icon: Layers,
       loading: isLoading,
@@ -122,6 +97,9 @@ function CSVAssignDashboard() {
   ];
   return (
     <div className='space-y-6'>
+      <div className='flex items-center justify-end'>
+        <YearSelect year={year} onChange={setYear} />
+      </div>
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         {kpis.map((kpi, i) => (
           <StatCard key={kpi.title} {...kpi} index={i} />
