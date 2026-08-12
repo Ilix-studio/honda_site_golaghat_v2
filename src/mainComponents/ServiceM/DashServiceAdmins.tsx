@@ -101,6 +101,32 @@ const DashServiceAdmins = () => {
   // Stat cards built from live query data
   const operationsStats: Omit<StatCardProps, "index">[] = [
     {
+      title: "Upload Service Records",
+      //Add Badge
+      value: jobcardBatchesData?.data.length ?? 0,
+      icon: Activity,
+      loading: myLeaveLoading,
+      description: "Upload Service Jobcard Records",
+      action: { label: "Open", href: "/service-admin/service-records" },
+    },
+
+    {
+      title: "View Customer List",
+      value: newCustomersData?.pagination.total ?? 0,
+      icon: Users,
+      loading: newCustomersLoading,
+      description: "All Customer Detected by this project",
+      action: { label: "Open", href: "/customers/new" },
+    },
+    {
+      title: "View Uploaded Folders",
+      value: jobcardBatchesData?.data.length ?? 0,
+      icon: FolderOpen,
+      loading: jobcardBatchesLoading,
+      description: "Uploaded Job Card Report Folders",
+      action: { label: "View Folders", href: "/service-admin/view-records" },
+    },
+    {
       title: "Service Booking Requests",
       value: bookingsData?.total ?? "—",
       icon: Wrench,
@@ -130,32 +156,6 @@ const DashServiceAdmins = () => {
       loading: myLeaveLoading,
       description: "My Leave Application",
       action: { label: "Open", href: "/service-admin/apply-leave" },
-    },
-    {
-      title: "Upload Service Records",
-      //Add Badge
-      value: jobcardBatchesData?.data.length ?? 0,
-      icon: Activity,
-      loading: myLeaveLoading,
-      description: "Upload Service Jobcard Records",
-      action: { label: "Open", href: "/service-admin/service-records" },
-    },
-
-    {
-      title: "View Customer List",
-      value: newCustomersData?.pagination.total ?? 0,
-      icon: Users,
-      loading: newCustomersLoading,
-      description: "All Customer Detected by this project",
-      action: { label: "Open", href: "/customers/new" },
-    },
-    {
-      title: "View Uploaded Folders",
-      value: jobcardBatchesData?.data.length ?? 0,
-      icon: FolderOpen,
-      loading: jobcardBatchesLoading,
-      description: "Uploaded Job Card Report Folders",
-      action: { label: "View Folders", href: "/service-admin/view-records" },
     },
   ];
 
@@ -214,7 +214,8 @@ const DashServiceAdmins = () => {
             </div>
 
             <div className='flex flex-col items-start md:items-end gap-3'>
-              <Button data-onboarding='dashboard-profile'
+              <Button
+                data-onboarding='dashboard-profile'
                 className='text-black text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full border-2 bg-white/5 border-blue-700 hover:bg-blue-700/10 hover:text-orange-700 transition-all duration-200'
                 onClick={() => navigate("/service-admin/profile")}
               >
@@ -252,7 +253,10 @@ const DashServiceAdmins = () => {
             transition={{ duration: 0.4, ease: "easeOut" }}
             className='sticky top-1 z-10 mb-2'
           >
-            <TabsList data-onboarding='dashboard-navigation' className='inline-flex h-12 w-full md:w-auto bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-xl p-1 gap-1'>
+            <TabsList
+              data-onboarding='dashboard-navigation'
+              className='inline-flex h-12 w-full md:w-auto bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-xl p-1 gap-1'
+            >
               <TabsTrigger
                 value='operations'
                 className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'

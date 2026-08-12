@@ -105,11 +105,6 @@ export interface StockVehicleListResponse {
   message?: string;
 }
 
-
-
-
-
-
 export const stockCustomerVehicleApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getMyStockVehicles: builder.query<StockVehicleListResponse, void>({

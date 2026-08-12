@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ReceiptText, UploadCloud, Trash2, ArrowLeft, Archive } from "lucide-react";
+import {
+  ReceiptText,
+  UploadCloud,
+  Trash2,
+  ArrowLeft,
+  Archive,
+  RefreshCw,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -24,16 +31,21 @@ import {
   useDeleteCounterSaleBatchMutation,
 } from "@/redux-store/services/counterSaleApi";
 
-const formatDate = (value: string) => new Date(value).toLocaleDateString("en-IN");
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString("en-IN");
 
 export default function CounterSaleAdminDashboard() {
   const { user, isAuthenticated } = useAppSelector(selectAuth);
   const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null);
 
-  const { data, isLoading } = useGetCounterSaleBatchesQuery(undefined, {
-    skip: !isAuthenticated,
-  });
-  const [deleteBatch, { isLoading: isDeleting }] = useDeleteCounterSaleBatchMutation();
+  const { data, isLoading, refetch } = useGetCounterSaleBatchesQuery(
+    undefined,
+    {
+      skip: !isAuthenticated,
+    },
+  );
+  const [deleteBatch, { isLoading: isDeleting }] =
+    useDeleteCounterSaleBatchMutation();
 
   const batches = data?.data ?? [];
   const totalRevenue = batches.reduce((sum, b) => sum + b.totalInvoice, 0);
@@ -70,7 +82,9 @@ export default function CounterSaleAdminDashboard() {
               <ReceiptText className='h-5 w-5' />
             </div>
             <div>
-              <h1 className='text-xl font-bold text-gray-900'>Counter Sale Reports</h1>
+              <h1 className='text-xl font-bold text-gray-900'>
+                Counter Sale Reports
+              </h1>
               <p className='text-sm text-gray-500'>
                 Channel-partner counter sale uploads and revenue by batch
               </p>
@@ -85,11 +99,18 @@ export default function CounterSaleAdminDashboard() {
               </Link>
             )}
             {user?.role === "Part-Admin" && (
-              <Link to='/part-admin/counter-sale/upload'>
-                <Button size='sm'>
-                  <UploadCloud className='h-4 w-4 mr-1.5' /> Upload report
+              <div>
+                {" "}
+                <Link to='/part-admin/counter-sale/upload'>
+                  <Button size='sm'>
+                    <UploadCloud className='h-4 w-4 mr-1.5' /> Upload report
+                  </Button>
+                </Link>
+                <Button variant='outline' size='sm' onClick={() => refetch()}>
+                  {" "}
+                  <RefreshCw className='h-4 w-4 mr-2' /> Refresh{" "}
                 </Button>
-              </Link>
+              </div>
             )}
           </div>
         </div>
@@ -132,7 +153,7 @@ export default function CounterSaleAdminDashboard() {
             </p>
           </div>
         ) : (
-          <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6'>
+          <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 border-2 rounded-2xl p-6 bg-white'>
             {batches.map((b) => (
               <div key={b.batchId} className='relative group'>
                 <FolderCard
@@ -156,9 +177,9 @@ export default function CounterSaleAdminDashboard() {
                         <AlertDialogTitle>Delete this batch?</AlertDialogTitle>
                         <AlertDialogDescription>
                           This removes {b.totalRecords} record(s) from batch{" "}
-                          <span className='font-mono'>{b.batchId}</span>. It can be
-                          re-imported later; the deletion is logged for Super-Admin
-                          review.
+                          <span className='font-mono'>{b.batchId}</span>. It can
+                          be re-imported later; the deletion is logged for
+                          Super-Admin review.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

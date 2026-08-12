@@ -34,6 +34,7 @@ import {
 } from "@/mainComponents/DataImport/SalesKpiCharts";
 
 import {
+  useGetCSVStockAssignStatsQuery,
   useGetStockBatchReportsQuery,
   useGetStockInvestmentTimeseriesQuery,
 } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
@@ -65,12 +66,17 @@ export default function StockInvestmentKpiCharts() {
     granularity,
   });
   const { data: stockAssignStats } = useGetStockAssignStatsQuery({});
+  const { data: csvStockAssignStats } = useGetCSVStockAssignStatsQuery({
+    year: new Date().getFullYear(),
+  });
   const { data: batchData, isLoading: batchLoading } =
     useGetStockBatchReportsQuery({ page: 1, limit: 10 });
 
   const timeseries = useMemo(() => data?.data.timeseries ?? [], [data]);
   const totals = data?.data.totals;
   const manualStockAssignRevenue = stockAssignStats?.data.totals.totalRevenue ?? 0;
+  const csvStockAssignRevenue =
+    csvStockAssignStats?.data.totals.totalRevenue ?? 0;
   const batches = useMemo(() => batchData?.data ?? [], [batchData]);
 
   const batchTotals = useMemo(
@@ -142,7 +148,7 @@ export default function StockInvestmentKpiCharts() {
         <MetricTile
           index={1}
           label='Total Revenue'
-          value={inr((totals?.totalRevenue ?? 0) + manualStockAssignRevenue)}
+          value={inr(manualStockAssignRevenue + csvStockAssignRevenue)}
           bg='bg-green-50'
           text='text-green-700'
           sub='text-green-500'

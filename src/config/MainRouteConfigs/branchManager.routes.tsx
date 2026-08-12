@@ -43,12 +43,10 @@ const AssignStock = lazy(
 );
 const ViewVAS = lazy(() => import("@/mainComponents/ViewBS2/ViewVAS"));
 
-
 const SelectVas = lazy(() => import("@/mainComponents/VASsystem/SelectVas"));
 const ViewStockConcept = lazy(
   () => import("@/mainComponents/ViewBS2/ViewStockConcept"),
 );
-
 
 const BranchServiceBookings = lazy(
   () => import("@/mainComponents/BranchM/BranchServiceBookings"),
@@ -98,6 +96,9 @@ const BranchUploadDataImport = () => (
 const CounterSaleAdminDashboard = lazy(
   () => import("@/mainComponents/CounterSaleM/CounterSaleAdminDashboard"),
 );
+const ViewAllNotification = lazy(
+  () => import("@/mainComponents/shared/ViewAllNotification"),
+);
 export const branchManagerAuthRoutes = [
   { path: "/manager-login", component: LoginBranchManager },
 ];
@@ -135,7 +136,8 @@ export const branchManagerRoutes = [
   { path: "/manager/part-admins", component: PartAdmins },
   { path: "/manager/service-admins", component: ServiceAdmins },
   { path: "/manager/profile", component: ProfileView },
-    { path: "/manager/view/stock-concept", component: ViewStockConcept },
+  { path: "/manager/notifications", component: ViewAllNotification },
+  { path: "/manager/view/stock-concept", component: ViewStockConcept },
   //
   { path: "/manager/apply-leave", component: BranchApplyLeave },
   { path: "/manager/quotations", component: BranchQuotations },

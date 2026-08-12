@@ -34,6 +34,9 @@ const ServiceJobcardFolderDashboard = lazy(
 const ManualJobOpening = lazy(
   () => import("@/mainComponents/ServiceM/ManualJobOpening"),
 );
+const ViewAllNotification = lazy(
+  () => import("@/mainComponents/shared/ViewAllNotification"),
+);
 
 export const serviceAdminAuthRoutes = [
   { path: "/service-admin/login", component: LoginServiceAdmins },
@@ -50,6 +53,7 @@ export const serviceAdminRoutes = [
   { path: "/service-admin/catalog", component: JobCardCatalogManager },
   { path: "/service-admin/customer-invoices", component: CustomerInvoices },
   { path: "/service-admin/profile", component: ProfileView },
+  { path: "/service-admin/notifications", component: ViewAllNotification },
 
   {
     path: "/service-admin/service-records",

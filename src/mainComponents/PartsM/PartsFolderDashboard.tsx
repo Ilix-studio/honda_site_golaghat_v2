@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Package, RefreshCw } from "lucide-react";
+import { ArrowLeft, Package, RefreshCw, UploadCloud } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -8,8 +8,11 @@ import {
   useGetPartsStockStatusQuery,
   type PartsBatchDTO,
 } from "@/redux-store/services/partsApi";
-import FolderCard, { type FolderCardTone } from "@/mainComponents/shared/FolderCard";
+import FolderCard, {
+  type FolderCardTone,
+} from "@/mainComponents/shared/FolderCard";
 import PartsDatasetRecords from "./PartsDatasetRecords";
+import { Link } from "react-router-dom";
 
 const toneForStatus = (status: PartsBatchDTO["status"]): FolderCardTone => {
   if (status === "failed") return "danger";
@@ -31,14 +34,16 @@ const diffSubLabel = (batch: PartsBatchDTO): string | undefined => {
   if (batch.removedRows) parts.push(`-${batch.removedRows} removed`);
   if (batch.revenueDelta) {
     const sign = batch.revenueDelta > 0 ? "+" : "-";
-    parts.push(`${sign}₹${Math.abs(batch.revenueDelta).toLocaleString("en-IN")}`);
+    parts.push(
+      `${sign}₹${Math.abs(batch.revenueDelta).toLocaleString("en-IN")}`,
+    );
   }
   return parts.length > 0 ? parts.join(" · ") : "No stock changes";
 };
 
 const PartsFolderDashboard = () => {
   const [selectedBatch, setSelectedBatch] = useState<PartsBatchDTO | null>(
-    null
+    null,
   );
 
   const { data, isLoading, refetch } = useGetPartsBatchesQuery();
@@ -48,7 +53,7 @@ const PartsFolderDashboard = () => {
 
   const batches = data?.data ?? [];
   const sortedBatches = [...batches].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
   if (selectedBatch) {
@@ -86,10 +91,17 @@ const PartsFolderDashboard = () => {
     <div className='max-w-7xl mx-auto p-6 space-y-6'>
       <div className='flex items-center justify-between'>
         <h2 className='text-xl font-semibold'>Imported Parts Reports</h2>
-        <Button variant='outline' size='sm' onClick={() => refetch()}>
-          <RefreshCw className='h-4 w-4 mr-2' />
-          Refresh
-        </Button>
+        <div className='flex items-center gap-2'>
+          <Button variant='outline' size='sm' onClick={() => refetch()}>
+            <RefreshCw className='h-4 w-4 mr-2' />
+            Refresh
+          </Button>
+          <Link to='/part-admin/parts-stock/upload'>
+            <Button className='bg-gray-600 hover:bg-blue-800'>
+              <UploadCloud className='w-4 h-4 mr-2' /> Upload Report{" "}
+            </Button>{" "}
+          </Link>
+        </div>
       </div>
 
       <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
@@ -97,7 +109,9 @@ const PartsFolderDashboard = () => {
           <CardContent className='p-4'>
             <p className='text-xs text-muted-foreground'>Current Parts</p>
             <p className='text-xl font-semibold'>
-              {stockStatusLoading ? "—" : (stockStatus?.totalItems ?? 0).toLocaleString("en-IN")}
+              {stockStatusLoading
+                ? "—"
+                : (stockStatus?.totalItems ?? 0).toLocaleString("en-IN")}
             </p>
           </CardContent>
         </Card>
@@ -105,7 +119,9 @@ const PartsFolderDashboard = () => {
           <CardContent className='p-4'>
             <p className='text-xs text-muted-foreground'>Total Revenue</p>
             <p className='text-xl font-semibold text-emerald-700'>
-              {stockStatusLoading ? "—" : `₹${(stockStatus?.totalRevenue ?? 0).toLocaleString("en-IN")}`}
+              {stockStatusLoading
+                ? "—"
+                : `₹${(stockStatus?.totalRevenue ?? 0).toLocaleString("en-IN")}`}
             </p>
           </CardContent>
         </Card>
@@ -113,7 +129,9 @@ const PartsFolderDashboard = () => {
           <CardContent className='p-4'>
             <p className='text-xs text-muted-foreground'>Average Unit Price</p>
             <p className='text-xl font-semibold text-indigo-700'>
-              {stockStatusLoading ? "—" : `₹${(stockStatus?.avgUnitPrice ?? 0).toLocaleString("en-IN")}`}
+              {stockStatusLoading
+                ? "—"
+                : `₹${(stockStatus?.avgUnitPrice ?? 0).toLocaleString("en-IN")}`}
             </p>
           </CardContent>
         </Card>
