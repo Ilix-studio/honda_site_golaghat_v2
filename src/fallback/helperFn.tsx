@@ -254,7 +254,7 @@ export function BikeCard({
           <p className='text-[10px] text-blue-500 mb-3'>
             {bike.variants.length} variants · from{" "}
             {formatPrice(
-              Math.min(...bike.variants.map((v) => v.onRoadPrice ?? v.price))
+              Math.min(...bike.variants.map((v) => v.onRoadPrice ?? v.price)),
             )}
           </p>
         )}
@@ -328,7 +328,7 @@ export function useMockBikesQuery(params: {
       let filtered = MOCK_BIKES.filter((b) => b.isActive);
       if (params.mainCategory)
         filtered = filtered.filter(
-          (b) => b.mainCategory === params.mainCategory
+          (b) => b.mainCategory === params.mainCategory,
         );
       if (params.limit) filtered = filtered.slice(0, params.limit);
       setState({ data: { bikes: filtered }, isLoading: false });
