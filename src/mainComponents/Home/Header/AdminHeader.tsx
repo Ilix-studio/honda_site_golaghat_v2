@@ -128,6 +128,18 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/admin/dashboard",
   },
+  "/admin/branches/part-admins": {
+    title: "Part Admin Details",
+    subtitle: "",
+    showBack: true,
+    backTo: "/admin/dashboard",
+  },
+  "/admin/viewVehicles": {
+    title: "Homepage Vehicles",
+    subtitle: "",
+    showBack: true,
+    backTo: "/admin/dashboard",
+  },
 };
 
 const AdminHeader = () => {

@@ -19,6 +19,9 @@ const FinanceQueries = lazy(
 );
 
 const VASForm = lazy(() => import("@/mainComponents/VASsystem/VASForm"));
+const EditVas = lazy(() => import("@/mainComponents/VASsystem/EditVas"));
+const SelectVas = lazy(() => import("@/mainComponents/VASsystem/SelectVas"));
+
 const StockConceptForm = lazy(
   () => import("@/mainComponents/CSVsystem/StockConceptForm"),
 );
@@ -43,7 +46,6 @@ const AssignStock = lazy(
 );
 const ViewVAS = lazy(() => import("@/mainComponents/ViewBS2/ViewVAS"));
 
-const SelectVas = lazy(() => import("@/mainComponents/VASsystem/SelectVas"));
 const ViewStockConcept = lazy(
   () => import("@/mainComponents/ViewBS2/ViewStockConcept"),
 );
@@ -106,10 +108,14 @@ export const branchManagerAuthRoutes = [
 export const branchManagerRoutes = [
   { path: "/manager/dashboard", component: BranchManagerDashboard },
   { path: "/manager/customers/signup", component: CustomerSignUp },
-  // Handling Customers
-
+  // Handling Vas
+  { path: "/manager/vas", component: BranchVASManagement },
   { path: "/manager/vas/select", component: SelectVas },
+  { path: "/manager/edit/vas/:id", component: EditVas },
   { path: "/manager/forms/vas", component: VASForm },
+  { path: "/manager/view/vas", component: ViewVAS },
+  //Handling Stock Concept
+  { path: "/manager/stock", component: BranchStockManagement },
   { path: "/manager/stockC/select", component: SelectStockForm },
   { path: "/manager/forms/stock-concept", component: StockConceptForm },
   { path: "/manager/forms/stock-concept-csv", component: UploadCSVForm },
@@ -126,9 +132,7 @@ export const branchManagerRoutes = [
   { path: "/manager/finanace-query", component: FinanceQueries },
   { path: "/manager/enquiries", component: BranchEnquiries },
   { path: "/manager/applications", component: BranchApplications },
-  { path: "/manager/stock", component: BranchStockManagement },
-  { path: "/manager/vas", component: BranchVASManagement },
-  { path: "/manager/view/vas", component: ViewVAS },
+
   { path: "/manager/customer-vehicles", component: BranchCustomerVehicles },
   { path: "/manager/finance-queries", component: BranchFinanceQueries },
   { path: "/manager/any-messages", component: SeeMessages },

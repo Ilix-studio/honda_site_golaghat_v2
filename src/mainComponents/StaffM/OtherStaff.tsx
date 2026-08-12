@@ -385,7 +385,7 @@ const OtherStaff: React.FC = () => {
                 <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
                 <Input
                   type='search'
-                  placeholder='Search by name, application ID, email, or position...'
+                  placeholder='Search by name,  email, or position...'
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className='pl-8'
@@ -410,7 +410,7 @@ const OtherStaff: React.FC = () => {
                       <TableRow>
                         <TableHead>Name</TableHead>
                         <TableHead>Position</TableHead>
-                        <TableHead>Application ID</TableHead>
+
                         <TableHead className='hidden md:table-cell'>
                           Email
                         </TableHead>

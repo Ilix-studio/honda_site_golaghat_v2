@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAppSelector } from "@/hooks/redux";
-import { selectAuth, selectIsBranchAdmin } from "@/redux-store/slices/authSlice";
+import { selectIsBranchAdmin } from "@/redux-store/slices/authSlice";
 import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
 import { useGetBikeImagesQuery } from "@/redux-store/services/BikeSystemApi/bikeImageApi";
 import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
@@ -72,7 +72,8 @@ const BikePicker: React.FC<{
       category: bike.category,
       mainCategory: bike.mainCategory,
       exShowroomPrice: bike.priceBreakdown.exShowroomPrice,
-      onRoadPrice: bike.priceBreakdown.onRoadPrice ?? bike.priceBreakdown.exShowroomPrice,
+      onRoadPrice:
+        bike.priceBreakdown.onRoadPrice ?? bike.priceBreakdown.exShowroomPrice,
     });
   };
 
@@ -104,10 +105,19 @@ const BikePicker: React.FC<{
           )}
         </div>
         <div className='min-w-0 flex-1'>
-          <p className='truncate font-semibold text-gray-900'>{selected.modelName}</p>
-          <p className='text-xs capitalize text-gray-500'>{selected.category}</p>
+          <p className='truncate font-semibold text-gray-900'>
+            {selected.modelName}
+          </p>
+          <p className='text-xs capitalize text-gray-500'>
+            {selected.category}
+          </p>
         </div>
-        <Button type='button' variant='ghost' size='sm' onClick={() => onSelect(null)}>
+        <Button
+          type='button'
+          variant='ghost'
+          size='sm'
+          onClick={() => onSelect(null)}
+        >
           <X className='h-4 w-4' />
         </Button>
       </div>
@@ -159,9 +169,12 @@ const BikePicker: React.FC<{
 
 // ─── Create Form ───────────────────────────────────────────────────────────────
 
-const CreateQuotationForm: React.FC<{ onCreated: () => void }> = ({ onCreated }) => {
+const CreateQuotationForm: React.FC<{ onCreated: () => void }> = ({
+  onCreated,
+}) => {
   const [bike, setBike] = useState<SelectedBike | null>(null);
-  const [pricingType, setPricingType] = useState<QuotationPricingType>("standard");
+  const [pricingType, setPricingType] =
+    useState<QuotationPricingType>("standard");
   const [exShowroomPrice, setExShowroomPrice] = useState<string>("");
   const [onRoadTax, setOnRoadTax] = useState<string>("");
   const [variationLabel, setVariationLabel] = useState("");
@@ -356,7 +369,9 @@ const CreateQuotationForm: React.FC<{ onCreated: () => void }> = ({ onCreated })
             <ShieldCheck className='h-4 w-4 text-gray-400' />
             Insurance {showInsurance ? "" : "(optional)"}
           </span>
-          <span className='text-xs text-gray-400'>{showInsurance ? "Hide" : "Add"}</span>
+          <span className='text-xs text-gray-400'>
+            {showInsurance ? "Hide" : "Add"}
+          </span>
         </button>
         {showInsurance && (
           <div className='mt-3 space-y-3'>
@@ -414,7 +429,11 @@ const CreateQuotationForm: React.FC<{ onCreated: () => void }> = ({ onCreated })
         </div>
       )}
 
-      <Button type='submit' disabled={isLoading} className='w-full bg-red-600 hover:bg-red-700'>
+      <Button
+        type='submit'
+        disabled={isLoading}
+        className='w-full bg-red-600 hover:bg-red-700'
+      >
         {isLoading ? (
           <>
             <Loader2 className='h-4 w-4 mr-2 animate-spin' /> Creating…
@@ -430,10 +449,12 @@ const CreateQuotationForm: React.FC<{ onCreated: () => void }> = ({ onCreated })
 // ─── List ──────────────────────────────────────────────────────────────────────
 
 const QuotationCard: React.FC<{ quotation: Quotation }> = ({ quotation }) => {
-  const [deleteQuotation, { isLoading: isDeleting }] = useDeleteQuotationMutation();
+  const [deleteQuotation, { isLoading: isDeleting }] =
+    useDeleteQuotationMutation();
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const isVariation = quotation.pricingType === "variation" && quotation.variation;
+  const isVariation =
+    quotation.pricingType === "variation" && quotation.variation;
   const total = isVariation
     ? quotation.variation!.onRoadPrice
     : quotation.exShowroomPrice + quotation.onRoadTax;
@@ -450,7 +471,12 @@ const QuotationCard: React.FC<{ quotation: Quotation }> = ({ quotation }) => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm(`Delete quotation for "${quotation.bikeSnapshot.modelName}"?`)) return;
+    if (
+      !window.confirm(
+        `Delete quotation for "${quotation.bikeSnapshot.modelName}"?`,
+      )
+    )
+      return;
     try {
       await deleteQuotation(quotation._id).unwrap();
       toast.success("Quotation deleted");
@@ -483,7 +509,13 @@ const QuotationCard: React.FC<{ quotation: Quotation }> = ({ quotation }) => {
           {fmtMoney(total)} on-road
         </p>
       </div>
-      <Button type='button' variant='ghost' size='sm' onClick={handleDownload} disabled={isGenerating}>
+      <Button
+        type='button'
+        variant='ghost'
+        size='sm'
+        onClick={handleDownload}
+        disabled={isGenerating}
+      >
         {isGenerating ? (
           <Loader2 className='h-4 w-4 animate-spin' />
         ) : (
@@ -535,30 +567,19 @@ const QuotationListView: React.FC = () => {
 
 // ─── Main ────────────────────────────────────────────────────────────────────
 
-const QuotationManager: React.FC<QuotationManagerProps> = ({ dashboardPath }) => {
+const QuotationManager: React.FC<QuotationManagerProps> = () => {
   const [mode, setMode] = useState<"create" | "list">("create");
-  const { user } = useAppSelector(selectAuth);
 
   return (
     <div className='mx-auto max-w-2xl px-4 py-8'>
-      <div className='mb-6 flex items-center justify-between'>
-        <div>
-          <h1 className='text-xl font-bold text-gray-900'>Quotations</h1>
-          <p className='text-sm text-gray-500'>
-            {user?.name ? `Signed in as ${user.name}` : "Build a customer quotation"}
-          </p>
-        </div>
-        <Link to={dashboardPath} className='text-sm text-gray-500 underline'>
-          Back to dashboard
-        </Link>
-      </div>
-
       <div className='mb-5 grid grid-cols-2 gap-2 rounded-xl bg-gray-100 p-1'>
         <button
           type='button'
           onClick={() => setMode("create")}
           className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-medium transition-colors ${
-            mode === "create" ? "bg-white shadow-sm text-gray-900" : "text-gray-500"
+            mode === "create"
+              ? "bg-white shadow-sm text-gray-900"
+              : "text-gray-500"
           }`}
         >
           <PlusCircle className='h-4 w-4' /> New Quotation
@@ -567,7 +588,9 @@ const QuotationManager: React.FC<QuotationManagerProps> = ({ dashboardPath }) =>
           type='button'
           onClick={() => setMode("list")}
           className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-medium transition-colors ${
-            mode === "list" ? "bg-white shadow-sm text-gray-900" : "text-gray-500"
+            mode === "list"
+              ? "bg-white shadow-sm text-gray-900"
+              : "text-gray-500"
           }`}
         >
           <ListIcon className='h-4 w-4' /> My Quotations

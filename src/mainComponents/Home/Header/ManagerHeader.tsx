@@ -171,6 +171,36 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/manager/dashboard",
   },
+  "/manager/counter-sale": {
+    title: "Counter Sale Reports",
+    subtitle: "View and manage counter sale reports",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/bikes/add": {
+    title: "Add New Bike",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/service-admins": {
+    title: "Service Admins",
+    subtitle: "Manage service administrators",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/part-admins": {
+    title: "Part Admins",
+    subtitle: "Manage part administrators",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
+  "/manager/quotations": {
+    title: "Create Quotations",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
 };
 
 const ManagerHeader = () => {

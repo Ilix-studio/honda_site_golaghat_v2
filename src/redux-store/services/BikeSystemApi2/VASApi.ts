@@ -19,7 +19,16 @@ export interface IValueAddedService {
   createdAt: Date;
   updatedAt: Date;
 }
-
+export interface CreateVASRequest {
+  serviceName: string;
+  description?: string; // ← add this
+  coverageYears: number;
+  priceStructure: {
+    basePrice: number;
+  };
+  benefits: string[];
+  applicableBranches: string[];
+}
 export interface ICustomerActiveService {
   _id?: string;
   serviceId: string;
@@ -46,8 +55,7 @@ export interface VASResponse {
   message?: string;
 }
 
-export interface VASListResponse
-  extends BackendPaginationResponse<IValueAddedService> {}
+export interface VASListResponse extends BackendPaginationResponse<IValueAddedService> {}
 
 export interface CustomerActiveServicesResponse {
   success: boolean;
@@ -245,7 +253,10 @@ export const vasApi = apiSlice.injectEndpoints({
     }),
 
     // VAS-activation KPIs + monthly breakdown (Dashboards tab)
-    getVasAssignStats: builder.query<VasAssignStatsResponse, VasAssignStatsArgs>({
+    getVasAssignStats: builder.query<
+      VasAssignStatsResponse,
+      VasAssignStatsArgs
+    >({
       query: (args = {}) => {
         const params = new URLSearchParams();
         if (args.year) params.append("year", args.year.toString());

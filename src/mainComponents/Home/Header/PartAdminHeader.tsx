@@ -22,6 +22,18 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/part-admin/dashboard",
   },
+  "/part-admin/folder": {
+    title: "Parts Stock Folder",
+    subtitle: "Import XLSX / CSV",
+    showBack: true,
+    backTo: "/part-admin/dashboard",
+  },
+  "/part-admin/counter-sale": {
+    title: "CPOTC Orders ",
+    subtitle: "Import XLSX / CSV",
+    showBack: true,
+    backTo: "/part-admin/dashboard",
+  },
 };
 
 const PartAdminHeader = () => {
@@ -49,7 +61,7 @@ const PartAdminHeader = () => {
         addNotification({
           type: "success",
           message: result.message || "Logged out successfully",
-        })
+        }),
       );
     } catch (error: any) {
       dispatch(logout());
@@ -59,7 +71,7 @@ const PartAdminHeader = () => {
         addNotification({
           type: "error",
           message: error?.data?.message || "Error logging out",
-        })
+        }),
       );
     } finally {
       navigate("/part-admin/login", { replace: true });

@@ -25,57 +25,15 @@ const routeConfig: Record<
     menuItems?: Array<{ label: string; href: string }>;
   }
 > = {
-  "/manager/dashboard": {
-    title: "Manager Dashboard",
-    subtitle: "Branch Management",
+  "/staff/dashboard": {
+    title: "Staff Dashboard",
+    subtitle: "",
   },
-  "/manager/service-bookings": {
-    title: "Service Bookings",
-    subtitle: "Manage service appointments",
+  "/staff/quotations": {
+    title: "Quotation Maker",
+    subtitle: "",
     showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/accident-reports": {
-    title: "Accident Reports",
-    subtitle: "View and manage accident cases",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/enquiries": {
-    title: "Customer Enquiries",
-    subtitle: "Handle customer queries",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/applications": {
-    title: "Applications",
-    subtitle: "Process loan and finance applications",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/stock": {
-    title: "Stock Management",
-    subtitle: "Manage branch inventory",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/vas": {
-    title: "Value Added Services",
-    subtitle: "Manage VAS offerings",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/customer-vehicles": {
-    title: "Customer Vehicles",
-    subtitle: "View customer vehicle information",
-    showBack: true,
-    backTo: "/manager/dashboard",
-  },
-  "/manager/finance-queries": {
-    title: "Finance Queries",
-    subtitle: "Handle finance-related requests",
-    showBack: true,
-    backTo: "/manager/dashboard",
+    backTo: "/staff/dashboard",
   },
 };
 
@@ -153,7 +111,7 @@ const StaffHeader = () => {
             {currentRoute.showBack && (
               <button
                 onClick={handleBack}
-                className='flex items-center justify-center w-7 h-7 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors'
+                className='flex items-center justify-center w-7 h-7 rounded-lg bg-white hover:bg-gray-700 transition-colors'
               >
                 <ArrowLeft className='w-3.5 h-3.5 text-black' />
               </button>

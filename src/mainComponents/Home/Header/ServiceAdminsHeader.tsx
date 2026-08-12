@@ -47,6 +47,24 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/service-admin/dashboard",
   },
+  "/service-admin/service-records": {
+    title: "Service Records",
+    subtitle: "Manage service records",
+    showBack: true,
+    backTo: "/service-admin/dashboard",
+  },
+  "/service-admin/view-records": {
+    title: "View Records",
+    subtitle: "Manage View Records",
+    showBack: true,
+    backTo: "/service-admin/dashboard",
+  },
+  "/service-admin/job-card": {
+    title: "Job Card",
+    subtitle: "Manage job cards",
+    showBack: true,
+    backTo: "/service-admin/dashboard",
+  },
 };
 // SB-20260523-0001
 
