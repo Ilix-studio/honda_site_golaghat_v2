@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { ImageIcon, RefreshCw, Edit, Plus } from "lucide-react";
+import { ImageIcon, RefreshCw, Edit, Plus, ArrowLeft } from "lucide-react";
 import { toast } from "react-hot-toast";
 import {
   useGetBikeImagesQuery,
@@ -75,7 +76,7 @@ const ViewBikeImages = () => {
       setDeletingId(null);
     }
   };
-
+  const navigate = useNavigate();
   const prevImage = () =>
     setLightboxIndex((i) =>
       i !== null ? (i - 1 + images.length) % images.length : null,
@@ -159,6 +160,15 @@ const ViewBikeImages = () => {
           {/* Header */}
           <div className='flex items-start justify-between gap-4'>
             <div className='flex items-center gap-3'>
+              <div className='flex items-start gap-4'>
+                <button
+                  onClick={() => navigate(-1)}
+                  className='mt-1 inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-gray-200 bg-white text-gray-700 shadow-sm transition-colors hover:bg-gray-50'
+                  aria-label='Go back'
+                >
+                  <ArrowLeft className='h-4 w-4' />
+                </button>
+              </div>
               <div>
                 <h2 className='text-xl font-semibold text-gray-900'>
                   {bike?.modelName ?? "Bike"} — Images

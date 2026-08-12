@@ -35,6 +35,12 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/staff/dashboard",
   },
+  "/staff/profile": {
+    title: "Profile",
+    subtitle: "",
+    showBack: true,
+    backTo: "/staff/dashboard",
+  },
 };
 
 const StaffHeader = () => {
@@ -111,7 +117,7 @@ const StaffHeader = () => {
             {currentRoute.showBack && (
               <button
                 onClick={handleBack}
-                className='flex items-center justify-center w-7 h-7 rounded-lg bg-white hover:bg-gray-700 transition-colors'
+                className='flex items-center justify-center w-7 h-7 rounded-lg bg-white hover:bg-gray-200 transition-colors'
               >
                 <ArrowLeft className='w-3.5 h-3.5 text-black' />
               </button>

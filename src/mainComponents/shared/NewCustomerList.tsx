@@ -2,8 +2,15 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Users,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  ArrowLeft,
+} from "lucide-react";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
+import { useNavigate } from "react-router-dom";
 
 const SOURCE_LABEL: Record<string, string> = {
   otp: "Self sign-up (OTP)",
@@ -13,6 +20,7 @@ const SOURCE_LABEL: Record<string, string> = {
 
 export default function NewCustomerList() {
   const [page, setPage] = useState(1);
+  const navigate = useNavigate();
   const limit = 20;
   const { data, isLoading, isFetching } = useGetNewCustomersQuery({
     page,
@@ -26,6 +34,15 @@ export default function NewCustomerList() {
     <div className='min-h-screen bg-gray-50 p-4 md:p-8'>
       <div className='max-w-5xl mx-auto space-y-4'>
         <div className='flex items-center gap-3'>
+          <div className='flex items-start gap-4'>
+            <button
+              onClick={() => navigate(-1)}
+              className='mt-1 inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-gray-200 bg-white text-gray-700 shadow-sm transition-colors hover:bg-gray-50'
+              aria-label='Go back'
+            >
+              <ArrowLeft className='h-4 w-4' />
+            </button>
+          </div>
           <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white'>
             <Users className='h-5 w-5' />
           </div>

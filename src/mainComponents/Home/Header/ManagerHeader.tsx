@@ -201,6 +201,12 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/manager/dashboard",
   },
+  "/manager/profile": {
+    title: "Profile",
+    subtitle: "",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
 };
 
 const ManagerHeader = () => {

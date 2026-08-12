@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, X, Loader2, AlertCircle, Images } from "lucide-react";
+import { Plus, X, Loader2, AlertCircle, Images, ArrowLeft } from "lucide-react";
 
 // Redux
 import { useAppDispatch } from "../../../hooks/redux";
@@ -301,6 +301,15 @@ const EditBikes = () => {
         {/* Header */}
         <div className='flex items-center justify-between mb-6'>
           <div className='flex items-center gap-4'>
+            <div className='flex items-start gap-4'>
+              <button
+                onClick={() => navigate(-1)}
+                className='mt-1 inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-gray-200 bg-white text-gray-700 shadow-sm transition-colors hover:bg-gray-50'
+                aria-label='Go back'
+              >
+                <ArrowLeft className='h-4 w-4' />
+              </button>
+            </div>
             <div>
               <h1 className='text-2xl font-semibold'>Edit Vehicle</h1>
               <p className='text-muted-foreground'>
