@@ -85,10 +85,9 @@ function CSVAssignDashboard() {
     },
     {
       title: "Revenue",
-      value:
-        stats
-          ? `₹${stats.totals.totalRevenue.toLocaleString("en-IN")}`
-          : "—",
+      value: stats
+        ? `₹${stats.totals.totalRevenue.toLocaleString("en-IN")}`
+        : "—",
       icon: Layers,
       loading: isLoading,
       description: "Sum of sale price",

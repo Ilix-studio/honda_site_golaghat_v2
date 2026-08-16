@@ -15,14 +15,12 @@ import {
   Building2,
   Cog,
   User,
-  Settings2,
   TrendingUp,
-  Activity,
   Regex,
-  Package,
   Users,
   FileText,
   Webhook,
+  Activity,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -30,15 +28,10 @@ import {
   selectActiveTab,
   setActiveTab,
 } from "../../redux-store/slices/dashboardTabsSlice";
-import {
-  useGetAllPartAdminsQuery,
-  useGetAllServiceAdminsQuery,
-  useGetAllStaffQuery,
-} from "../../redux-store/services/adminApi";
+
 import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 import { useGetAllCustomersQuery } from "@/redux-store/services/customer/customerApi";
-import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
-import { useGetAllStockItemsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
+
 import CustomerQueries from "./Tabs/CustomerQuery";
 import JobCardCatalogManager from "../CustomerSystem/JobCard/JobCardCatalogManager";
 import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
@@ -48,6 +41,8 @@ import { useGetNewCustomersQuery } from "@/redux-store/services/customer/custome
 import { useGetQuotationsQuery } from "@/redux-store/services/NewFeatures/quotationApi";
 import BranchKpiCharts from "./BranchKpiCharts";
 import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
+import OperationOpz from "./Tabs/OperationOpz";
+import { useGetAllStockItemsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 
 const BRANCH_DASHBOARD_TAB_KEY = "branchManagerDashboard";
 
@@ -63,29 +58,15 @@ const BranchManagerDashboard = () => {
   const { data: customersData, isLoading: customersLoading } =
     useGetAllCustomersQuery({ page: 1, limit: 1 }, { skip: !isAuthenticated });
 
-  const { data: staffData, isLoading: staffLoading } = useGetAllStaffQuery(
-    undefined,
+  const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
+    {},
     { skip: !isAuthenticated },
   );
-
-  const { data: vasData, isLoading: vasLoading } = useGetAllVASQuery(
-    { page: 1, limit: 1 },
-    { skip: !isAuthenticated },
-  );
-
   const { data: stockData, isLoading: stockLoading } = useGetAllStockItemsQuery(
     { page: 1, limit: 1 },
     { skip: !isAuthenticated },
   );
 
-  const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
-    {},
-    { skip: !isAuthenticated },
-  );
-  const { data: partsAdminData, isLoading: partsAdminLoading } =
-    useGetAllPartAdminsQuery();
-  const { data: serviceAdminsData, isLoading: serviceAdminsLoading } =
-    useGetAllServiceAdminsQuery();
   const { data: newCustomersData, isLoading: newCustomersLoading } =
     useGetNewCustomersQuery({ limit: 1 }, { skip: false });
   const { data: quotationsData, isLoading: quotationsLoading } =
@@ -119,15 +100,6 @@ const BranchManagerDashboard = () => {
       description: "Total Customers",
       action: { label: "Open Sign-up form", href: "/manager/customers/signup" },
     },
-
-    {
-      title: "Add Value-Added Services",
-      value: vasData?.total ?? "—",
-      icon: TrendingUp,
-      loading: vasLoading,
-      description: "Activate VAS on vehicles",
-      action: { label: "Open VAS Manager", href: "/manager/vas/select" },
-    },
     {
       title: "Add Stock-Vehicles",
       value: stockData?.total ?? 0,
@@ -135,36 +107,6 @@ const BranchManagerDashboard = () => {
       loading: stockLoading,
       description: "CSV upload and manual additions",
       action: { label: "Open Stock-Inventory", href: "/manager/stockC/select" },
-    },
-    {
-      title: "Add Service Admins",
-      value: serviceAdminsData?.count ?? 0,
-      icon: Cog,
-      loading: serviceAdminsLoading,
-      description: "Create & manage Service Admins for your branch",
-      action: {
-        label: "Manage Service Admins",
-        href: "/manager/service-admins",
-      },
-    },
-    {
-      title: "Add Part Admins",
-      value: partsAdminData?.count ?? 0,
-      icon: Package,
-      loading: partsAdminLoading,
-      description: "Create & manage Part Admins for your branch",
-      action: { label: "Manage Part Admins", href: "/manager/part-admins" },
-    },
-    {
-      title: "Add Staff Memebers",
-      value: staffData?.count ?? 0,
-      icon: Settings2,
-      loading: staffLoading,
-      description: "Active other staff",
-      action: {
-        label: "Add Other Staff",
-        href: "/manager/staff",
-      },
     },
 
     {
@@ -186,6 +128,22 @@ const BranchManagerDashboard = () => {
     },
     {
       title: "Create Quotation",
+      value: quotationsData?.total ?? 0,
+      icon: FileText,
+      loading: quotationsLoading,
+      description: "Build a customer price quotation",
+      action: { label: "Open Quotations", href: "/manager/quotations" },
+    },
+    {
+      title: "Create B2B Info",
+      value: quotationsData?.total ?? 0,
+      icon: FileText,
+      loading: quotationsLoading,
+      description: "Build a customer price quotation",
+      action: { label: "Open Quotations", href: "/manager/quotations" },
+    },
+    {
+      title: "Upload Customer Sales Info",
       value: quotationsData?.total ?? 0,
       icon: FileText,
       loading: quotationsLoading,
@@ -299,6 +257,13 @@ const BranchManagerDashboard = () => {
                 <span>Operations</span>
               </TabsTrigger>
               <TabsTrigger
+                value='operations_type_two'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-gray-900 hover:bg-gray-50 data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <Cog className='h-4 w-4' />
+                <span>Operations Type 2</span>
+              </TabsTrigger>
+              <TabsTrigger
                 value='customer-reports'
                 className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-orange-700 hover:bg-orange-50 data-[state=active]:bg-gray-600 data-[state=active]:text-white data-[state=active]:shadow-md'
               >
@@ -346,15 +311,31 @@ const BranchManagerDashboard = () => {
             <div className='mt-10 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm p-5'>
               <JobCardCatalogManager />
             </div>
-
-            {/* <div className='mt-6'>
-              <RagAssistant
-                title='Branch AI Assistant'
-                subtitle='Ask questions about job cards and accident reports for your branch — answers are grounded in live data and cite their sources.'
-                sourceTypes={["jobcard-live", "accident-report"]}
-                placeholder='e.g. How many open job cards do we have?'
-              />
-            </div> */}
+          </TabsContent>
+          <TabsContent value='operations_type_two' className='mt-0.5'>
+            <Card
+              size='sm'
+              className='gap-0.1 border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
+              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
+                <div className='flex items-center gap-3'>
+                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white shadow-sm'>
+                    <Building2 className='h-5 w-5' />
+                  </div>
+                  <div>
+                    <CardTitle className='text-lg font-semibold text-gray-900'>
+                      Branch Operations
+                    </CardTitle>
+                    <CardDescription className='text-gray-500 mt-0.5'>
+                      Customers, staff, stock, and VAS overview
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent data-onboarding='dashboard-features' className='p-3'>
+                <OperationOpz />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value='customer-reports' className='mt-0.5'>

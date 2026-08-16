@@ -28,7 +28,7 @@ import {
 import toast from "react-hot-toast";
 
 import {
-  useAssignCSVStockMutation,
+  useAssignOrCreateCSVStockMutation,
   useGetCSVBatchesQuery,
   useGetStocksByBatchQuery,
 } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
@@ -61,8 +61,8 @@ const CustomerCSVStock = () => {
     { skip: !selectedBatch }
   );
 
-  const [assignCSVStock, { isLoading: isAssigning }] =
-    useAssignCSVStockMutation();
+  const [assignOrCreateCSVStock, { isLoading: isAssigning }] =
+    useAssignOrCreateCSVStockMutation();
 
   const batches = batchesData?.data || [];
   const stocks = stocksData?.data || [];
@@ -86,6 +86,19 @@ const CustomerCSVStock = () => {
         stock.color.toLowerCase().includes(query)
     );
   }, [stocks, searchQuery]);
+
+  const selectedBatchAssignedRevenue = useMemo(
+    () =>
+      filteredStocks.reduce((sum, stock) => {
+        const price =
+          stock.priceInfo?.onRoadPrice ??
+          stock.priceInfo?.exShowroomPrice ??
+          stock.costPrice ??
+          0;
+        return sum + (Number.isFinite(price) ? price : 0);
+      }, 0),
+    [filteredStocks],
+  );
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
@@ -126,9 +139,12 @@ const salePrice: number =
       isPaid: true,
     };
 
-    await assignCSVStock({
+    await assignOrCreateCSVStock({
       stockId: stock._id,
-      data: assignmentData,
+      data: {
+        ...assignmentData,
+        stockData: stock as unknown as Record<string, unknown>,
+      },
     }).unwrap();
 
     toast.success("Vehicle assigned successfully!");
@@ -166,7 +182,25 @@ const salePrice: number =
 
   if (selectedBatch) {
     return (
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardContent className="p-5">
+              <p className="text-sm text-muted-foreground">
+                Assign bike count
+              </p>
+              <p className="mt-2 text-3xl font-bold">{filteredStocks.length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-5">
+              <p className="text-sm text-muted-foreground">Assign revenue</p>
+              <p className="mt-2 text-3xl font-bold">
+                ₹{selectedBatchAssignedRevenue.toLocaleString("en-IN")}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -271,7 +305,7 @@ const salePrice: number =
                               stock.stockStatus.status !== "Available" ||
                               isAssigning
                             }
-                          >
+                            >
                             {isAssigning ? (
                               <>
                                 <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
