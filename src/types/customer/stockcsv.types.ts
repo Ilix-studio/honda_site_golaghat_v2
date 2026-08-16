@@ -151,6 +151,7 @@ export interface CSVStockFilters {
   batchId?: string;
   status?: IStockConceptCSV["stockStatus"]["status"];
   location?: string;
+  search?: string;
 }
 
 export interface BatchStockFilters {

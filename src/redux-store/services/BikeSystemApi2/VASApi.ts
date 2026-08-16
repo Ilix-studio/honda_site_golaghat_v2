@@ -121,6 +121,13 @@ export interface VasAssignStatsResponse {
   data: VasAssignStats;
 }
 
+export interface CombinedVasAssignStats extends VasAssignStats {}
+
+export interface CombinedVasAssignStatsResponse {
+  success: boolean;
+  data: CombinedVasAssignStats;
+}
+
 export interface VasAssignStatsArgs {
   year?: number;
   branchId?: string;
@@ -267,6 +274,21 @@ export const vasApi = apiSlice.injectEndpoints({
       providesTags: ["CustomerActiveService"],
       transformErrorResponse: (response) => handleApiError(response),
     }),
+
+    getCombinedVasAssignStats: builder.query<
+      CombinedVasAssignStatsResponse,
+      VasAssignStatsArgs
+    >({
+      query: (args = {}) => {
+        const params = new URLSearchParams();
+        if (args.year) params.append("year", args.year.toString());
+        if (args.branchId) params.append("branchId", args.branchId);
+        const qs = params.toString();
+        return `/value-added-services/vas-assign-stats${qs ? `?${qs}` : ""}`;
+      },
+      providesTags: ["CustomerActiveService"],
+      transformErrorResponse: (response) => handleApiError(response),
+    }),
   }),
 });
 
@@ -292,4 +314,5 @@ export const {
   useDeleteVASMutation,
   useActivateServiceForCustomerMutation,
   useGetVasAssignStatsQuery,
+  useGetCombinedVasAssignStatsQuery,
 } = vasApi;

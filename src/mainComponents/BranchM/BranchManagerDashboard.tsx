@@ -43,6 +43,7 @@ import BranchKpiCharts from "./BranchKpiCharts";
 import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
 import OperationOpz from "./Tabs/OperationOpz";
 import { useGetAllStockItemsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
+import { useGetCSVStocksQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 
 const BRANCH_DASHBOARD_TAB_KEY = "branchManagerDashboard";
 
@@ -66,6 +67,8 @@ const BranchManagerDashboard = () => {
     { page: 1, limit: 1 },
     { skip: !isAuthenticated },
   );
+  const { data: stockCSVData, isLoading: stockCSVLoading } =
+    useGetCSVStocksQuery({ page: 1, limit: 1 }, { skip: !isAuthenticated });
 
   const { data: newCustomersData, isLoading: newCustomersLoading } =
     useGetNewCustomersQuery({ limit: 1 }, { skip: false });
@@ -89,6 +92,9 @@ const BranchManagerDashboard = () => {
     if (hour < 17) return "Good Afternoon";
     return "Good Evening";
   })();
+  const totalStockVehicles =
+    (stockData?.total ?? 0) + (stockCSVData?.pagination?.total ?? 0);
+  const stockVehiclesLoading = stockLoading || stockCSVLoading;
 
   // Stat cards built from live query data
   const operationsStats: Omit<StatCardProps, "index">[] = [
@@ -102,9 +108,9 @@ const BranchManagerDashboard = () => {
     },
     {
       title: "Add Stock-Vehicles",
-      value: stockData?.total ?? 0,
+      value: totalStockVehicles,
       icon: Activity,
-      loading: stockLoading,
+      loading: stockVehiclesLoading,
       description: "CSV upload and manual additions",
       action: { label: "Open Stock-Inventory", href: "/manager/stockC/select" },
     },

@@ -37,6 +37,7 @@ export const csvStockApi = apiSlice.injectEndpoints({
         if (filters.batchId) params.append("batchId", filters.batchId);
         if (filters.status) params.append("status", filters.status);
         if (filters.location) params.append("location", filters.location);
+        if (filters.search) params.append("search", filters.search);
         const queryString = params.toString();
         return `/csv-stock${queryString ? `?${queryString}` : ""}`;
       },
