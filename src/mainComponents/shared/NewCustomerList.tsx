@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ArrowLeft,
+  Info,
 } from "lucide-react";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +18,9 @@ const SOURCE_LABEL: Record<string, string> = {
   automatic_creation: "Auto (service import)",
   branch_admin_manual: "Branch-Admin",
 };
+
+const formatINR = (value?: number | null) =>
+  value == null ? "—" : `₹${value.toLocaleString("en-IN")}`;
 
 export default function NewCustomerList() {
   const [page, setPage] = useState(1);
@@ -96,16 +100,40 @@ export default function NewCustomerList() {
                           {SOURCE_LABEL[c.creationSource] ?? c.creationSource}
                         </td>
                         <td className='py-2 pr-4'>
-                          <Badge
-                            variant='outline'
-                            className={
-                              c.hasVehicle
-                                ? "bg-blue-50 text-blue-700 border-blue-200"
-                                : "bg-gray-50 text-gray-500 border-gray-200"
-                            }
-                          >
-                            {c.hasVehicle ? "Assigned" : "None"}
-                          </Badge>
+                          {c.hasVehicle ? (
+                            <div className='group relative inline-flex'>
+                              <Badge
+                                variant='outline'
+                                className='bg-blue-50 text-blue-700 border-blue-200 cursor-help'
+                              >
+                                Assigned
+                                <Info className='ml-1 h-3 w-3' />
+                              </Badge>
+                              <div className='pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-52 -translate-x-1/2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 shadow-lg opacity-0 transition-opacity group-hover:opacity-100'>
+                                <div className='font-medium text-gray-900'>
+                                  Vehicle pricing
+                                </div>
+                                <div className='mt-1 space-y-1'>
+                                  <div>
+                                    {c.vehicleSummary?.priceLabel ?? "Price"}:{" "}
+                                    <span className='font-semibold'>
+                                      {formatINR(c.vehicleSummary?.priceValue)}
+                                    </span>
+                                  </div>
+                                  <div className='text-gray-500'>
+                                    Stock ID: {c.vehicleSummary?.stockId ?? "—"}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <Badge
+                              variant='outline'
+                              className='bg-gray-50 text-gray-500 border-gray-200'
+                            >
+                              None
+                            </Badge>
+                          )}
                         </td>
                         <td className='py-2 pr-4 text-gray-500'>
                           {new Date(c.createdAt).toLocaleDateString("en-IN", {

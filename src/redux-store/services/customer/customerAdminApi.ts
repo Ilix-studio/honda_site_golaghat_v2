@@ -8,6 +8,12 @@ export interface NewCustomerDTO {
   createdAt: string;
   name: string | null;
   hasVehicle: boolean;
+  vehicleSummary?: {
+    stockId: string | null;
+    stockType: "StockConcept" | "StockConceptCSV";
+    priceLabel: string;
+    priceValue: number | null;
+  } | null;
 }
 
 export interface NewCustomersFilters {
