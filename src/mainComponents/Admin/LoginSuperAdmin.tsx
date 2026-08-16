@@ -327,6 +327,13 @@ const LoginSuperAdmin = () => {
                 <ArrowLeft className='w-4 h-4' />
                 Sign in as Service Admin
               </Link>
+              <Link
+                to='/part-admin/login'
+                className='flex items-center gap-2 text-gray-800 underline  transition-colors'
+              >
+                <ArrowLeft className='w-4 h-4' />
+                Sign in as Parts Admin
+              </Link>
 
               <Link
                 to='/staff/login'

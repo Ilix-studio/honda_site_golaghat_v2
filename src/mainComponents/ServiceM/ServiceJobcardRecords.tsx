@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Package, Search } from "lucide-react";
+import { skipToken } from "@reduxjs/toolkit/query";
+import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +14,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { useGetAllServiceJobcardsQuery } from "@/redux-store/services/serviceJobcardApi";
+import {
+  useGetAllServiceJobcardsQuery,
+  useGetServiceJobcardsByDateQuery,
+} from "@/redux-store/services/serviceJobcardApi";
 
 const qualityBadge = (changeType?: "added" | "changed") => {
   if (changeType === "added") {
@@ -35,18 +40,25 @@ const qualityBadge = (changeType?: "added" | "changed") => {
 const RECORDS_PAGE_SIZE = 25;
 
 export interface ServiceJobcardRecordsProps {
-  batchId: string;
+  batchId?: string;
+  date?: Date;
 }
 
-const ServiceJobcardRecords = ({ batchId }: ServiceJobcardRecordsProps) => {
+const ServiceJobcardRecords = ({ batchId, date }: ServiceJobcardRecordsProps) => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  const { data, isLoading } = useGetAllServiceJobcardsQuery({
-    batchId,
-    page: 1,
-    limit: 1000,
-  });
+  const dateKey = date ? format(date, "yyyy-MM-dd") : undefined;
+
+  const batchQuery = useGetAllServiceJobcardsQuery(
+    batchId ? { batchId, page: 1, limit: 1000 } : undefined,
+  );
+  const dateQuery = useGetServiceJobcardsByDateQuery(
+    dateKey ? { date: dateKey, page: 1, limit: 1000 } : skipToken,
+  );
+
+  const data = dateKey ? dateQuery.data : batchQuery.data;
+  const isLoading = dateKey ? dateQuery.isLoading : batchQuery.isLoading;
 
   const rows = data?.data ?? [];
 
@@ -63,7 +75,7 @@ const ServiceJobcardRecords = ({ batchId }: ServiceJobcardRecordsProps) => {
 
   useEffect(() => {
     setPage(1);
-  }, [search, batchId]);
+  }, [search, batchId, dateKey]);
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / RECORDS_PAGE_SIZE));
   const paginatedRows = useMemo(() => {

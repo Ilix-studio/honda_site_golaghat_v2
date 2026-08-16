@@ -99,6 +99,10 @@ export interface ServiceJobcardListResponse {
   pagination: { page: number; limit: number; total: number; pages: number };
 }
 
+export interface ServiceJobcardByDateFilters extends ServiceJobcardFilters {
+  date: string;
+}
+
 export interface ServiceJobcardBatchDTO {
   _id: string;
   batchId: string;
@@ -129,6 +133,11 @@ export interface ServiceJobcardBatchDTO {
 export interface ServiceJobcardBatchesResponse {
   success: boolean;
   data: ServiceJobcardBatchDTO[];
+}
+
+export interface ServiceJobcardBatchesByDateFilters {
+  date: string;
+  branchId?: string;
 }
 
 export interface ServiceJobcardFilters {
@@ -230,6 +239,23 @@ export const serviceJobcardApi = apiSlice.injectEndpoints({
       providesTags: ["ServiceJobcard"],
     }),
 
+    getServiceJobcardsByDate: builder.query<
+      ServiceJobcardListResponse,
+      ServiceJobcardByDateFilters
+    >({
+      query: (filters) => {
+        const p = new URLSearchParams();
+        p.append("date", filters.date);
+        Object.entries(filters).forEach(([k, v]) => {
+          if (k === "date") return;
+          if (v !== undefined && v !== "") p.append(k, String(v));
+        });
+        const qs = p.toString();
+        return `/service-jobcard/by-date${qs ? `?${qs}` : ""}`;
+      },
+      providesTags: ["ServiceJobcard"],
+    }),
+
     getServiceJobcardBatches: builder.query<
       ServiceJobcardBatchesResponse,
       { branchId?: string } | void
@@ -239,6 +265,20 @@ export const serviceJobcardApi = apiSlice.injectEndpoints({
         if (params?.branchId) p.append("branchId", params.branchId);
         const qs = p.toString();
         return `/service-jobcard/batches${qs ? `?${qs}` : ""}`;
+      },
+      providesTags: ["ServiceJobcardBatch"],
+    }),
+
+    getServiceJobcardBatchesByDate: builder.query<
+      ServiceJobcardBatchesResponse,
+      ServiceJobcardBatchesByDateFilters
+    >({
+      query: (params) => {
+        const p = new URLSearchParams();
+        p.append("date", params.date);
+        if (params.branchId) p.append("branchId", params.branchId);
+        const qs = p.toString();
+        return `/service-jobcard/batches/by-date${qs ? `?${qs}` : ""}`;
       },
       providesTags: ["ServiceJobcardBatch"],
     }),
@@ -305,7 +345,9 @@ export const {
   useImportServiceJobcardReportMutation,
   useGetServiceJobcardStatsQuery,
   useGetAllServiceJobcardsQuery,
+  useGetServiceJobcardsByDateQuery,
   useGetServiceJobcardBatchesQuery,
+  useGetServiceJobcardBatchesByDateQuery,
   useGetServiceJobcardStatusQuery,
   useGetServiceJobcardSalesTimeseriesQuery,
   useRerunServiceJobcardRegistrationMutation,
