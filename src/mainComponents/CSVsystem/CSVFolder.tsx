@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   FolderOpen,
-  Calendar,
+  Calendar as CalendarIcon,
   Package,
   RefreshCw,
   ArrowLeft,
@@ -14,9 +14,16 @@ import {
   IndianRupee,
   ShieldAlert,
 } from "lucide-react";
+import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +39,7 @@ import toast from "react-hot-toast";
 import {
   useDeleteCSVBatchMutation,
   useGetCSVBatchesQuery,
+  useGetCSVBatchesByDateQuery,
 } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 import GetCSVFiles from "./GetCSVFiles";
 import { CSVBatch } from "@/types/customer/stockcsv.types";
@@ -41,11 +49,20 @@ const CSVFolder = () => {
   const navigate = useNavigate();
   const [selectedBatch, setSelectedBatch] = useState<CSVBatch | null>(null);
   const [batchToDelete, setBatchToDelete] = useState<CSVBatch | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    undefined,
+  );
 
   const { data, isLoading, error, refetch } = useGetCSVBatchesQuery({
     page: 1,
     limit: 50,
   });
+  const dateKey = selectedDate ? format(selectedDate, "yyyy-MM-dd") : undefined;
+  const { data: dateBatchesData, isLoading: dateBatchesLoading } =
+    useGetCSVBatchesByDateQuery(
+      dateKey ? { date: dateKey } : ({ date: "" } as any),
+      { skip: !dateKey },
+    );
 
   const [deleteCSVBatch, { isLoading: isDeleting }] =
     useDeleteCSVBatchMutation();
@@ -66,7 +83,11 @@ const CSVFolder = () => {
     }
   };
 
-  const batches = data?.data || [];
+  const batches = useMemo(
+    () => (dateKey ? (dateBatchesData?.data ?? []) : (data?.data ?? [])),
+    [dateKey, dateBatchesData, data],
+  );
+  const showDateMode = Boolean(dateKey);
 
   // Sort batches by import date (newest first)
   const sortedBatches = useMemo(
@@ -148,6 +169,33 @@ const CSVFolder = () => {
               CSV Import Folders
             </CardTitle>
             <div className='flex flex-wrap gap-2'>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant='outline' size='sm' className='w-fit'>
+                    <CalendarIcon className='h-4 w-4 mr-2' />
+                    {selectedDate
+                      ? format(selectedDate, "dd MMM yyyy")
+                      : "Pick date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className='w-auto p-0' align='end'>
+                  <Calendar
+                    mode='single'
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                  />
+                </PopoverContent>
+              </Popover>
+              {selectedDate && (
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  onClick={() => setSelectedDate(undefined)}
+                  className='w-fit'
+                >
+                  Clear
+                </Button>
+              )}
               <Button
                 variant='outline'
                 size='sm'
@@ -171,15 +219,21 @@ const CSVFolder = () => {
         </CardHeader>
 
         <CardContent>
-          {isLoading && (
+          {(isLoading || dateBatchesLoading) && (
             <div className='text-center py-12'>
               <RefreshCw className='h-8 w-8 animate-spin mx-auto mb-3 text-primary' />
               <p className='text-muted-foreground'>Loading batches...</p>
             </div>
           )}
 
-          {!isLoading && sortedBatches.length > 0 && (
-            <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4'>
+          {!isLoading && !dateBatchesLoading && sortedBatches.length > 0 && (
+            <div className='space-y-4'>
+              {showDateMode && (
+                <h3 className='text-sm font-semibold text-foreground'>
+                  Batches for {format(selectedDate!, "dd MMMM yyyy")}
+                </h3>
+              )}
+              <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4'>
               {sortedBatches.map((batch) => (
                 <div
                   key={batch.batchId}
@@ -218,7 +272,7 @@ const CSVFolder = () => {
                             {batch.fileName}
                           </h3>
                           <div className='flex items-center justify-center gap-1 text-[11px] sm:text-xs text-muted-foreground'>
-                            <Calendar className='h-3 w-3 shrink-0' />
+                            <CalendarIcon className='h-3 w-3 shrink-0' />
                             <span className='truncate'>
                               {formatDate(batch.importDate)} at{" "}
                               {formatTime(batch.importDate)}
@@ -257,15 +311,18 @@ const CSVFolder = () => {
                   </Card>
                 </div>
               ))}
+              </div>
             </div>
           )}
 
-          {!isLoading && sortedBatches.length === 0 && (
+          {!isLoading && !dateBatchesLoading && sortedBatches.length === 0 && (
             <div className='text-center py-12 border rounded-lg'>
               <Package className='h-12 w-12 mx-auto mb-3 text-muted-foreground' />
               <h3 className='font-semibold mb-1'>No CSV imports found</h3>
               <p className='text-sm text-muted-foreground'>
-                Upload a CSV file to create your first import batch
+                {showDateMode
+                  ? "No batches found for the selected date."
+                  : "Upload a CSV file to create your first import batch"}
               </p>
             </div>
           )}
