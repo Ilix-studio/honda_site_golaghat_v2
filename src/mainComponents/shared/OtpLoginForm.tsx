@@ -4,6 +4,7 @@ import { signInWithPhoneNumber } from "firebase/auth";
 import {
   clearRecaptchaVerifier,
   createRecaptchaVerifier,
+  recreateRecaptchaVerifier,
 } from "@/lib/recaptcha";
 import { auth } from "@/lib/firebase";
 import { useOtpLoginMutation } from "@/redux-store/services/adminApi";
@@ -112,6 +113,7 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
           message = err.message || message;
       }
       setError(message);
+      recaptchaRef.current = recreateRecaptchaVerifier(containerId);
     } finally {
       setIsSending(false);
     }
@@ -144,6 +146,7 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
     setOtp("");
     setConfirmationResult(null);
     setError(null);
+    recaptchaRef.current = recreateRecaptchaVerifier(containerId);
   };
 
   const isDark = variant === "dark";

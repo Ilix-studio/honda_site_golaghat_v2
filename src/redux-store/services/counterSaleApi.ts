@@ -82,6 +82,11 @@ export interface CounterSaleFilters {
   branchId?: string;
 }
 
+export interface CounterSaleBatchesByDateFilters {
+  date: string;
+  branchId?: string;
+}
+
 // ─── API ─────────────────────────────────────────────────────────────────────
 
 export const counterSaleApi = apiSlice.injectEndpoints({
@@ -122,6 +127,20 @@ export const counterSaleApi = apiSlice.injectEndpoints({
       providesTags: ["CounterSaleBatch"],
     }),
 
+    getCounterSaleBatchesByDate: builder.query<
+      CounterSaleBatchesResponse,
+      CounterSaleBatchesByDateFilters
+    >({
+      query: (params) => {
+        const p = new URLSearchParams();
+        p.append("date", params.date);
+        if (params.branchId) p.append("branchId", params.branchId);
+        const qs = p.toString();
+        return `/counter-sale/batches/by-date${qs ? `?${qs}` : ""}`;
+      },
+      providesTags: ["CounterSaleBatch"],
+    }),
+
     getDeletedCounterSaleBatches: builder.query<CounterSaleDeletedBatchesResponse, void>({
       query: () => "/counter-sale/deleted-batches",
       providesTags: ["CounterSaleDeletedBatch"],
@@ -144,6 +163,7 @@ export const {
   useImportCounterSaleReportMutation,
   useGetAllCounterSalesQuery,
   useGetCounterSaleBatchesQuery,
+  useGetCounterSaleBatchesByDateQuery,
   useGetDeletedCounterSaleBatchesQuery,
   useDeleteCounterSaleBatchMutation,
 } = counterSaleApi;

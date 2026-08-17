@@ -44,3 +44,17 @@ export const clearRecaptchaVerifier = (containerId: string) => {
     verifierStore.delete(containerId);
   }
 };
+
+/**
+ * An invisible RecaptchaVerifier's challenge token is single-use — reusing the
+ * same instance for a second `signInWithPhoneNumber` call (resend, or retry
+ * after a failed attempt) sends a stale token and Firebase's phone-auth
+ * backend responds with `auth/too-many-requests` (or the widget silently
+ * fails to re-render), even though nothing was actually rate-limited. Call
+ * this instead of reusing the ref before every retry/resend.
+ */
+export const recreateRecaptchaVerifier = (containerId: string) => {
+  clearRecaptchaVerifier(containerId);
+  const containerElement = document.getElementById(containerId);
+  return createRecaptchaVerifier(containerId, containerElement);
+};

@@ -15,6 +15,7 @@ import { signInWithPhoneNumber } from "firebase/auth";
 import {
   clearRecaptchaVerifier,
   createRecaptchaVerifier,
+  recreateRecaptchaVerifier,
 } from "@/lib/recaptcha";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { addNotification } from "@/redux-store/slices/uiSlice";
@@ -126,6 +127,7 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
 
       dispatch(setError(errorMessage));
       dispatch(addNotification({ type: "error", message: errorMessage }));
+      recaptchaRef.current = recreateRecaptchaVerifier("customer-otp");
     } finally {
       setIsLoading(false);
     }
@@ -201,6 +203,7 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onLoginSuccess }) => {
     setConfirmationResult(null);
     setOtpTimer(0);
     setStep("phone"); // Go back to phone step for re-validation
+    recaptchaRef.current = recreateRecaptchaVerifier("customer-otp");
   };
 
   return (
