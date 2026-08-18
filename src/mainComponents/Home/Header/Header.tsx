@@ -7,7 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Redux
 import {
@@ -21,6 +21,7 @@ import { branches } from "@/mainComponents/NavMenu/Branches/TwoBranch";
 
 export function Header() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const isMobileMenuOpen = useAppSelector(selectIsMobileMenuOpen);
   const comparisonBikes = useAppSelector(selectComparisonBikes);
 
@@ -44,6 +45,11 @@ export function Header() {
     dispatch(setMobileMenuOpen(false));
   };
 
+  const handleBack = () => {
+    closeMobileMenu();
+    navigate(-1);
+  };
+
   return (
     <motion.header
       className='fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b overflow-y-auto'
@@ -52,9 +58,9 @@ export function Header() {
       transition={{ duration: 0.5 }}
     >
       <div className='container flex items-center justify-between h-16 px-4 md:px-6'>
-        <Link to='/' className='flex items-center' onClick={closeMobileMenu}>
+        <button type='button' className='flex items-center' onClick={handleBack}>
           <ArrowLeft />
-        </Link>
+        </button>
 
         <div className='hidden md:flex md:items-center md:gap-4'>
           <nav className='flex items-center gap-6'>

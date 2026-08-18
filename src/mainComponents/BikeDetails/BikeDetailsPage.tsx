@@ -467,7 +467,12 @@ const BikeDetailPage: React.FC = () => {
                   for your needs.
                 </p>
                 <Link to={`/compare?bike=${bike._id}`}>
-                  <Button variant='outline'>Compare Bikes</Button>
+                  <Button
+                    variant='outline'
+                    className='bg-red-500 text-white rounded-2xl'
+                  >
+                    Compare Bikes
+                  </Button>
                 </Link>
               </CardContent>
             </Card>

@@ -39,6 +39,7 @@ import RecentMotorcycles from "../Admin/AdminDash/RecentMotocycles";
 // import RagAssistant from "@/mainComponents/RAG/RagAssistant";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
 import { useGetQuotationsQuery } from "@/redux-store/services/NewFeatures/quotationApi";
+import { useGetB2BSalesQuery } from "@/redux-store/services/BikeSystemApi2/b2bSalesApi";
 import BranchKpiCharts from "./BranchKpiCharts";
 import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
 import OperationOpz from "./Tabs/OperationOpz";
@@ -74,6 +75,8 @@ const BranchManagerDashboard = () => {
     useGetNewCustomersQuery({ limit: 1 }, { skip: false });
   const { data: quotationsData, isLoading: quotationsLoading } =
     useGetQuotationsQuery({ limit: 1 }, { skip: !isAuthenticated });
+  const { data: b2bSalesData, isLoading: b2bSalesLoading } =
+    useGetB2BSalesQuery({ limit: 1 }, { skip: !isAuthenticated });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -142,10 +145,10 @@ const BranchManagerDashboard = () => {
     },
     {
       title: "Create B2B Info",
-      value: quotationsData?.total ?? 0,
+      value: b2bSalesData?.pagination?.total ?? 0,
       icon: FileText,
-      loading: quotationsLoading,
-      description: "Build a customer price quotation",
+      loading: b2bSalesLoading,
+      description: "Build a B2B sales challan",
       action: { label: "Create Challan", href: "/manager/b2b-sales" },
     },
     {

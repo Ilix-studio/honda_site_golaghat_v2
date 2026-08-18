@@ -39,6 +39,9 @@ const DealershipReviews = lazy(
 const DownloadSafetyfeature = lazy(
   () => import("@/mainComponents/ViewBS2/DownloadSafetyfeature"),
 );
+const PublicQuotationView = lazy(
+  () => import("@/mainComponents/shared/Quotation/PublicQuotationView"),
+);
 
 export const publicRoutes = [
   { path: "/finance", component: Finance },
@@ -64,5 +67,13 @@ export const publicRoutes = [
   {
     path: "/bill-memo/preview/2",
     component: BillMemo2,
+  },
+];
+
+// No site Header — a standalone shareable document, not a marketing page.
+export const bareRoutes = [
+  {
+    path: "/quotation/:quotationNo/:token",
+    component: PublicQuotationView,
   },
 ];

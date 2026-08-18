@@ -4,13 +4,13 @@ import { ContactSection } from "../Home/ContactSection";
 
 export function Contact() {
   return (
-    <main className='min-h-screen flex flex-col'>
+    <>
       <Header />
-
-      <ContactSection />
-
+      <main className='min-h-screen flex flex-col'>
+        <ContactSection />
+      </main>
       <Footer />
-    </main>
+    </>
   );
 }
 

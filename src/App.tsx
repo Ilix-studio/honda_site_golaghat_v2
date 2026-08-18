@@ -10,7 +10,7 @@ import {
 } from "./config/MainRouteConfigs/immediate.routes";
 
 // Public
-import { publicRoutes } from "./config/MainRouteConfigs/public.routes";
+import { publicRoutes, bareRoutes } from "./config/MainRouteConfigs/public.routes";
 
 // Admin
 import {
@@ -35,6 +35,7 @@ import {
 import {
   createImmediateRoute,
   createPublicRoute,
+  createBareRoute,
   createAdminRoute,
   createSharedBikeRoute,
   createSharedAllRolesRoute,
@@ -130,6 +131,11 @@ const App: React.FC = () => {
         {/* PUBLIC — lazy, public header */}
         {publicRoutes.map(({ path, component }) =>
           createPublicRoute(path, component),
+        )}
+
+        {/* BARE — lazy, no header (standalone shareable documents) */}
+        {bareRoutes.map(({ path, component }) =>
+          createBareRoute(path, component),
         )}
 
         {/* ADMIN AUTH — login pages, no header */}

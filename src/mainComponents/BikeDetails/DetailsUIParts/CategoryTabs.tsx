@@ -41,12 +41,12 @@ export function CategoryTabs({ className }: CategoryTabsProps) {
       onValueChange={handleCategoryChange}
       className={className}
     >
-      <TabsList className='grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 h-auto gap-1 bg-gray-100 dark:bg-gray-800 p-1'>
+      <TabsList className='flex w-full justify-start overflow-x-auto scrollbar-hidden snap-x snap-mandatory md:grid md:grid-cols-5 md:overflow-visible lg:grid-cols-10 h-auto gap-1 bg-gray-100 dark:bg-gray-800 p-1'>
         {categories.map((category) => (
           <TabsTrigger
             key={category.id}
             value={category.id}
-            className='py-2 px-3 text-xs md:text-sm whitespace-nowrap data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm'
+            className='shrink-0 snap-start py-2 px-3 text-xs md:text-sm whitespace-nowrap data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm'
           >
             {category.name}
           </TabsTrigger>
