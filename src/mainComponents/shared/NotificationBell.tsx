@@ -39,6 +39,8 @@ const NotificationBell = () => {
     role,
     isCustomer: customerAuth.isAuthenticated && !!customerAuth.firebaseToken,
   });
+  const hiddenRoles = new Set(["Branch-Admin", "Service-Admin", "Part-Admin"]);
+  const isCustomerView = customerAuth.isAuthenticated;
 
   const { data } = useGetNotificationsQuery(
     { page: 1, limit: 20 },
@@ -47,8 +49,10 @@ const NotificationBell = () => {
   const [markRead] = useMarkNotificationReadMutation();
   const [markAllRead] = useMarkAllNotificationsReadMutation();
 
-  const notifications = data?.data ?? [];
-  const unreadCount = data?.unreadCount ?? 0;
+  const notifications = (data?.data ?? []).filter((notification) =>
+    isCustomerView ? !hiddenRoles.has(notification.role) : true,
+  );
+  const unreadCount = notifications.filter((notification) => !notification.isRead).length;
 
   useEffect(() => {
     const onClickOutside = (e: MouseEvent) => {

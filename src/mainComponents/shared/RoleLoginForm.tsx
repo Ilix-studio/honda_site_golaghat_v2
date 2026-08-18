@@ -174,6 +174,28 @@ const RoleLoginForm = ({
                           password: event.target.value,
                         }))
                       }
+                      onPaste={(event) => {
+                        // Passwords copied from notes/chat apps often carry a
+                        // trailing newline/space, which silently breaks login
+                        // since the extra character isn't visible in the
+                        // masked field. Trim only the pasted chunk, not the
+                        // whole value, so a typed leading/trailing space is
+                        // still possible.
+                        event.preventDefault();
+                        const pasted = event.clipboardData
+                          .getData("text")
+                          .trim();
+                        const input = event.currentTarget;
+                        const start = input.selectionStart ?? form.password.length;
+                        const end = input.selectionEnd ?? form.password.length;
+                        setForm((current) => ({
+                          ...current,
+                          password:
+                            current.password.slice(0, start) +
+                            pasted +
+                            current.password.slice(end),
+                        }));
+                      }}
                       className={`${inputClass} pr-10`}
                     />
                     <button

@@ -132,7 +132,7 @@ export function ViewAllBikes() {
             <div className='flex-1'>
               {/* Controls Bar */}
               <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6'>
-                <div className='flex items-center gap-4'>
+                <div className='hidden sm:flex items-center gap-4'>
                   <Button
                     variant='outline'
                     onClick={handleToggleFilter}

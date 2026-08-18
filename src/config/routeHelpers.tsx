@@ -171,6 +171,23 @@ export const createPublicRoute = (
   />
 );
 
+// No Header/wrapper — for standalone shareable documents (e.g. the public
+// quotation link) that shouldn't show the marketing site nav.
+export const createBareRoute = (
+  path: string,
+  Component: React.ComponentType,
+) => (
+  <Route
+    key={path}
+    path={path}
+    element={
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <Component />
+      </Suspense>
+    }
+  />
+);
+
 export const createAdminRoute = (
   path: string,
   Component: React.ComponentType,

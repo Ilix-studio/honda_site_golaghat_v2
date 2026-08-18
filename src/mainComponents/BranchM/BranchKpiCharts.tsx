@@ -30,7 +30,7 @@ import SalesKpiCharts, {
 
 import { useGetServiceJobcardSalesTimeseriesQuery } from "@/redux-store/services/serviceJobcardApi";
 
-import { useGetVasAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
+import { useGetCombinedVasAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
 import { StockTab } from "./Tabs/StockTab";
 
@@ -54,8 +54,6 @@ export const SalesTab = () => {
   );
 };
 
-
-
 // ─── VAS Performance ──────────────────────────────────────────────────────
 
 const vasConfig: ChartConfig = {
@@ -64,7 +62,7 @@ const vasConfig: ChartConfig = {
 
 const VasTab = () => {
   const [year, setYear] = useState(() => new Date().getFullYear());
-  const { data, isLoading } = useGetVasAssignStatsQuery({ year });
+  const { data, isLoading } = useGetCombinedVasAssignStatsQuery({ year });
 
   const monthly = data?.data.monthly ?? [];
   const totals = data?.data.totals;
@@ -113,7 +111,8 @@ const VasTab = () => {
         <CardHeader>
           <CardTitle className='text-base'>VAS Activations</CardTitle>
           <CardDescription>
-            Value-added services activated, per month in {year}
+            Value-added services activated across manual and CSV stock, per
+            month in {year}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -161,7 +160,7 @@ const BranchKpiCharts = () => {
         dispatch(setActiveTab({ key: BRANCH_KPI_CHARTS_TAB_KEY, value: v }))
       }
     >
-      <TabsList className='inline-flex h-11 bg-gray-100 rounded-xl p-1 gap-1'>
+      <TabsList className='inline-flex h-11 bg-gray-300 rounded-xl p-1 gap-1'>
         <TabsTrigger
           value='stock'
           className='flex items-center gap-2 px-4 rounded-lg text-sm'

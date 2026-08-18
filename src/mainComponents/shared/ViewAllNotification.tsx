@@ -14,6 +14,8 @@ import {
   useMarkAllNotificationsReadMutation,
   type AppNotification,
 } from "@/redux-store/services/notificationApi";
+import { useSelector } from "react-redux";
+import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
 import { timeAgo } from "./NotificationBell";
 
 const ViewAllNotification = () => {
@@ -25,9 +27,22 @@ const ViewAllNotification = () => {
   );
   const [markRead] = useMarkNotificationReadMutation();
   const [markAllRead] = useMarkAllNotificationsReadMutation();
+  const customerAuth = useSelector(selectCustomerAuth);
 
-  const notifications = data?.data ?? [];
-  const unreadCount = data?.unreadCount ?? 0;
+  const isCustomerView = customerAuth.isAuthenticated;
+  const hiddenRoles = new Set(["Branch-Admin", "Service-Admin", "Part-Admin"]);
+
+  const notifications = useMemo(
+    () =>
+      (data?.data ?? []).filter((notification) =>
+        isCustomerView ? !hiddenRoles.has(notification.role) : true,
+      ),
+    [data?.data, isCustomerView],
+  );
+  const unreadCount = useMemo(
+    () => notifications.filter((notification) => !notification.isRead).length,
+    [notifications],
+  );
   const readCount = useMemo(
     () => Math.max(notifications.length - unreadCount, 0),
     [notifications.length, unreadCount],

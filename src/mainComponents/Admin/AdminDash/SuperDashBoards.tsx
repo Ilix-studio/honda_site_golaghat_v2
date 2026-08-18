@@ -19,7 +19,8 @@ import {
   selectActiveTab,
   setActiveTab,
 } from "@/redux-store/slices/dashboardTabsSlice";
-import { ManualAssignDashboard } from "./KPIDashs/AssignSystem";
+
+import B2BSalesData from "./B2B-Sales/B2BSalesData";
 
 const SUPER_DASHBOARDS_TAB_KEY = "superDashBoards";
 
@@ -61,23 +62,6 @@ function PartsDashboard() {
 function ServiceDashboard() {
   return (
     <div className='space-y-6'>
-      {/* <Card size='sm' className='border border-gray-100 rounded-2xl shadow-sm'>
-        <CardHeader>
-          <CardTitle className='text-base font-semibold text-gray-900'>
-            Job Card Revenue — Invoiced
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <JobCardRevenueKpiCharts />
-        </CardContent>
-      </Card>
-
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-        {kpis.map((kpi, i) => (
-          <StatCard key={kpi.title} {...kpi} index={i} />
-        ))}
-      </div> */}
-
       <ServiceJobcardKpiCharts />
     </div>
   );
@@ -203,7 +187,7 @@ export function DashboardsPanel() {
         <StockInvestmentDashboard />
       </TabsContent>
       <TabsContent value='manual-assign' className='pt-4'>
-        <ManualAssignDashboard />
+        <B2BSalesData />
       </TabsContent>
 
       <TabsContent value='parts' className='pt-4'>

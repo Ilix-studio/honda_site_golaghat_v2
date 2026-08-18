@@ -3,8 +3,10 @@ import { handleApiError } from "@/lib/apiConfig";
 import {
   AssignStockRequest,
   BatchStockFilters,
+  CSVBatchesByDateFilters,
   CSVImportResponse,
   CSVStockFilters,
+  GetCSVBatchesByDateResponse,
   GetCSVBatchesResponse,
   GetCSVStocksResponse,
   GetStockBatchReportsResponse,
@@ -37,6 +39,7 @@ export const csvStockApi = apiSlice.injectEndpoints({
         if (filters.batchId) params.append("batchId", filters.batchId);
         if (filters.status) params.append("status", filters.status);
         if (filters.location) params.append("location", filters.location);
+        if (filters.search) params.append("search", filters.search);
         const queryString = params.toString();
         return `/csv-stock${queryString ? `?${queryString}` : ""}`;
       },
@@ -73,6 +76,22 @@ export const csvStockApi = apiSlice.injectEndpoints({
         if (params.limit) queryParams.append("limit", params.limit.toString());
         const queryString = queryParams.toString();
         return `/csv-stock/batches/list${queryString ? `?${queryString}` : ""}`;
+      },
+      providesTags: [{ type: "CSVBatch", id: "LIST" }],
+      transformErrorResponse: (response) => handleApiError(response),
+    }),
+
+    // GET /api/csv-stock/batches/by-date
+    getCSVBatchesByDate: builder.query<
+      GetCSVBatchesByDateResponse,
+      CSVBatchesByDateFilters
+    >({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        queryParams.append("date", params.date);
+        if (params.branchId) queryParams.append("branchId", params.branchId);
+        const queryString = queryParams.toString();
+        return `/csv-stock/batches/by-date${queryString ? `?${queryString}` : ""}`;
       },
       providesTags: [{ type: "CSVBatch", id: "LIST" }],
       transformErrorResponse: (response) => handleApiError(response),
@@ -245,6 +264,7 @@ export const {
   useGetCSVStocksQuery,
   useGetCSVStockByIdQuery,
   useGetCSVBatchesQuery,
+  useGetCSVBatchesByDateQuery,
   useGetStocksByBatchQuery,
   useGetStockBatchReportsQuery,
 

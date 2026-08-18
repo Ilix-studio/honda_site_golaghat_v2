@@ -92,6 +92,16 @@ export interface GetCSVBatchesResponse {
   };
 }
 
+export interface GetCSVBatchesByDateResponse {
+  success: boolean;
+  data: CSVBatch[];
+}
+
+export interface CSVBatchesByDateFilters {
+  date: string;
+  branchId?: string;
+}
+
 export interface GetStockByIdResponse {
   success: boolean;
   data: IStockConceptCSV;
@@ -151,6 +161,7 @@ export interface CSVStockFilters {
   batchId?: string;
   status?: IStockConceptCSV["stockStatus"]["status"];
   location?: string;
+  search?: string;
 }
 
 export interface BatchStockFilters {

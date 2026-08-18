@@ -86,6 +86,9 @@ const NewCustomerList = lazy(
 const CounterSaleAdminDashboard = lazy(
   () => import("@/mainComponents/CounterSaleM/CounterSaleAdminDashboard"),
 );
+const B2BSalesManager = lazy(
+  () => import("@/mainComponents/B2BSalesM/B2BSalesManager"),
+);
 const CounterSaleDeletedBatches = lazy(
   () => import("@/mainComponents/CounterSaleM/CounterSaleDeletedBatches"),
 );
@@ -129,6 +132,9 @@ export const adminRoutes = [
   // Counter Sale Reports — Part-Admin uploads, Super-Admin reads/deletes all branches
   { path: "/admin/counter-sale", component: CounterSaleAdminDashboard },
   { path: "/admin/counter-sale/deleted", component: CounterSaleDeletedBatches },
+
+  // B2B Sales (Challans) — Branch-Admin submits, Super-Admin reads/reports all branches
+  { path: "/admin/b2b-sales", component: B2BSalesManager },
 ];
 
 // Write-access bike routes — Super-Admin + Branch-Admin (gated by SharedBikeRouteWrapper)

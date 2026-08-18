@@ -321,7 +321,7 @@ const EditVas = ({ vasId: propVasId, onClose, onSuccess }: EditVasProps) => {
               </span>
               <input
                 type='number'
-                value={formData.basePrice}
+                value={formData.basePrice || ""}
                 onChange={(e) =>
                   handleInputChange("basePrice", Number(e.target.value))
                 }

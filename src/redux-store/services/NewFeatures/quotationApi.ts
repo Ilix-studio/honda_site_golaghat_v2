@@ -30,16 +30,37 @@ export interface QuotationVasSelection {
   price: number;
 }
 
+export interface QuotationAccessory {
+  name: string;
+  quantity: number;
+  amount: number;
+}
+
+export interface QuotationTo {
+  name: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2?: string;
+}
+
 export interface Quotation {
   _id: string;
+  quotationNo: string;
+  publicToken: string;
   bike: string;
   bikeSnapshot: QuotationBikeSnapshot;
   pricingType: QuotationPricingType;
   exShowroomPrice: number;
   onRoadTax: number;
+  onRoadPrice?: number;
   variation?: QuotationVariation;
   insurance?: QuotationInsurance;
   vasSelections: QuotationVasSelection[];
+  accessories: QuotationAccessory[];
+  to: QuotationTo;
+  topHeading: string;
+  bankDetails: string;
+  termsAndConditions: string;
   createdByRole: "Branch-Admin" | "Staff";
   branch: string | { _id: string; branchName: string; address?: string };
   createdAt: string;
@@ -56,10 +77,17 @@ export interface CreateQuotationRequest {
   variation?: QuotationVariation;
   insurance?: QuotationInsurance;
   vasSelections?: { vasId: string }[];
+  accessories?: QuotationAccessory[];
+  to: QuotationTo;
+  topHeading?: string;
+  bankDetails?: string;
+  termsAndConditions?: string;
 }
 
-export interface UpdateQuotationRequest extends Partial<CreateQuotationRequest> {
+export interface UpdateQuotationRequest
+  extends Partial<Omit<CreateQuotationRequest, "to">> {
   id: string;
+  to?: QuotationTo;
 }
 
 export interface GetQuotationsParams {
@@ -114,6 +142,15 @@ export const quotationApi = apiSlice.injectEndpoints({
       providesTags: (_result, _error, id) => [{ type: "Quotation", id }],
     }),
 
+    // Anonymous share-link read — no auth needed, but reusing the standard
+    // base query is harmless since this route sits outside `protect`.
+    getPublicQuotation: builder.query<
+      SingleQuotationResponse,
+      { quotationNo: string; token: string }
+    >({
+      query: ({ quotationNo, token }) => `/quotations/public/${quotationNo}/${token}`,
+    }),
+
     updateQuotation: builder.mutation<SingleQuotationResponse, UpdateQuotationRequest>({
       query: ({ id, ...body }) => ({
         url: `/quotations/${id}`,
@@ -139,4 +176,5 @@ export const {
   useGetQuotationByIdQuery,
   useUpdateQuotationMutation,
   useDeleteQuotationMutation,
+  useGetPublicQuotationQuery,
 } = quotationApi;

@@ -92,7 +92,7 @@ export const StockTab = () => {
           dispatch(setActiveTab({ key: BRANCH_KPI_CHARTS_Stock_TAB, value: v }))
         }
       >
-        <TabsList className='w-full'>
+        <TabsList className='w-full bg-gray-300 rounded-xl p-1 gap-1'>
           <TabsTrigger value='Manual' className='w-full'>
             Manual Assignment
           </TabsTrigger>
@@ -102,7 +102,7 @@ export const StockTab = () => {
         </TabsList>
         <TabsContent value='Manual' className='space-y-4'>
           {yearControl}
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4'>
             <MetricTile
               index={0}
               label={`Vehicles Assigned (${year})`}
@@ -158,7 +158,7 @@ export const StockTab = () => {
         </TabsContent>
         <TabsContent value='Auto' className='space-y-4'>
           {yearControl}
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4'>
             <MetricTile
               index={0}
               label={`Vehicles Assigned (${year})`}
