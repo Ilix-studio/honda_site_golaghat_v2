@@ -98,6 +98,9 @@ const BranchUploadDataImport = () => (
 const CounterSaleAdminDashboard = lazy(
   () => import("@/mainComponents/CounterSaleM/CounterSaleAdminDashboard"),
 );
+const B2BSalesManager = lazy(
+  () => import("@/mainComponents/B2BSalesM/B2BSalesManager"),
+);
 const ViewAllNotification = lazy(
   () => import("@/mainComponents/shared/ViewAllNotification"),
 );
@@ -152,4 +155,7 @@ export const branchManagerRoutes = [
 
   // Counter Sale Reports — Part-Admin uploads, Branch-Admin reads/deletes own branch
   { path: "/manager/counter-sale", component: CounterSaleAdminDashboard },
+
+  // B2B Sales (Challans) — Branch-Admin submits/reads own branch
+  { path: "/manager/b2b-sales", component: B2BSalesManager },
 ];

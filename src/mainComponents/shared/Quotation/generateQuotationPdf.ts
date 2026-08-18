@@ -1,5 +1,6 @@
 // mainComponents/shared/Quotation/generateQuotationPdf.ts
 import type { Quotation } from "@/redux-store/services/NewFeatures/quotationApi";
+import { loadImageAsDataUrl } from "@/lib/loadImageAsDataUrl";
 
 // jsPDF's built-in "helvetica" font has no glyph for ₹ (U+20B9) — it renders
 // as a garbled/mismeasured character, which also throws off right-aligned
@@ -14,42 +15,6 @@ const fmtDate = (iso: string) =>
     month: "long",
     year: "numeric",
   });
-
-/**
- * Fetches an image URL and converts it to a data URL + detected jsPDF format
- * ("PNG"/"JPEG"), so it can be embedded via doc.addImage. Returns null on any
- * failure (CORS, network) so PDF generation can gracefully skip the image
- * rather than throwing.
- */
-async function loadImageAsDataUrl(
-  src: string,
-): Promise<{ dataUrl: string; format: "PNG" | "JPEG"; width: number; height: number } | null> {
-  try {
-    const res = await fetch(src, { mode: "cors" });
-    if (!res.ok) return null;
-    const blob = await res.blob();
-
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-
-    const format: "PNG" | "JPEG" = dataUrl.includes("image/png") ? "PNG" : "JPEG";
-
-    const dims = await new Promise<{ width: number; height: number }>((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve({ width: img.width, height: img.height });
-      img.onerror = reject;
-      img.src = dataUrl;
-    });
-
-    return { dataUrl, format, ...dims };
-  } catch {
-    return null;
-  }
-}
 
 export const generateQuotationPdf = async (quotation: Quotation) => {
   const jsPDF = (await import("jspdf")).default;

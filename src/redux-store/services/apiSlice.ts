@@ -91,6 +91,7 @@ export const apiSlice = createApi({
     "SalesTimeseries",
     "RagChat",
     "Notification",
+    "B2BSales",
   ],
   endpoints: () => ({}),
 });
