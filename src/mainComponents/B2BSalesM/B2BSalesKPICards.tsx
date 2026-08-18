@@ -29,7 +29,7 @@ const B2BSalesKPICards = ({ kpis, loading }: B2BSalesKPICardsProps) => {
       />
       <MetricTile
         index={2}
-        label='Total Payable Value'
+        label='Total Final Value'
         value={loading ? "—" : inr(kpis?.totalPayableValue ?? 0)}
         bg='bg-emerald-50'
         text='text-emerald-900'

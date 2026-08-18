@@ -52,13 +52,44 @@ export const generateB2BChallanPdf = async (sale: B2BSale) => {
     doc.addImage(logo.dataUrl, logo.format, m, 6, logoW, logoH);
   }
 
+  // ── Date, top-right (mirrors the logo on the top-left) ──────────────────
+  doc
+    .setFont("helvetica", "normal")
+    .setFontSize(8)
+    .setTextColor(...MID);
+  doc.text("Date", pageW - m, 10, { align: "right" });
+  doc
+    .setFont("helvetica", "bold")
+    .setFontSize(10)
+    .setTextColor(...DARK);
+  doc.text(fmtDate(sale.date), pageW - m, 15, { align: "right" });
+
   // ── Editable top heading (centered) ────────────────────────────────────────
+  // A saved heading can end up with the same phone number listed twice (e.g.
+  // pasted twice while editing) — collapse repeated numbers on a line to
+  // their first occurrence. Only tokens that look like a number (7+ digits)
+  // are deduped, so comma-separated address text (e.g. "Road, Golaghat") is
+  // left untouched.
+  const dedupeNumbers = (line: string): string => {
+    const seen = new Set<string>();
+    return line
+      .split(",")
+      .filter((part) => {
+        const digits = part.replace(/\D/g, "");
+        if (digits.length < 7) return true;
+        if (seen.has(digits)) return false;
+        seen.add(digits);
+        return true;
+      })
+      .map((part) => part.trim())
+      .join(", ");
+  };
   const headingLines = (sale.topHeading || "").split("\n").filter(Boolean);
   doc
     .setFont("helvetica", "bold")
     .setFontSize(14)
     .setTextColor(...DARK);
-  doc.text(headingLines[0] ?? "", pageW / 2, y, { align: "center" });
+  doc.text(dedupeNumbers(headingLines[0] ?? ""), pageW / 2, y, { align: "center" });
   y += 6;
   if (headingLines.length > 1) {
     doc
@@ -66,7 +97,7 @@ export const generateB2BChallanPdf = async (sale: B2BSale) => {
       .setFontSize(9)
       .setTextColor(...MID);
     for (const line of headingLines.slice(1)) {
-      doc.text(line, pageW / 2, y, { align: "center" });
+      doc.text(dedupeNumbers(line), pageW / 2, y, { align: "center" });
       y += 5;
     }
   }
@@ -107,14 +138,7 @@ export const generateB2BChallanPdf = async (sale: B2BSale) => {
     .setTextColor(...DARK);
   doc.text(sale.from, m + 4, y + 11.5);
   doc.text(sale.to, m + halfW + 12, y + 11.5);
-  y += infoRowH + 4;
-
-  doc
-    .setFont("helvetica", "normal")
-    .setFontSize(8)
-    .setTextColor(...MID);
-  doc.text(`Date: ${fmtDate(sale.date)}`, m, y);
-  y += 8;
+  y += infoRowH + 12;
 
   // ── Items table (stock items then extra items) ───────────────────────────
   interface Row {

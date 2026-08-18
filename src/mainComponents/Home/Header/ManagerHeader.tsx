@@ -207,6 +207,12 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/manager/dashboard",
   },
+  "/manager/b2b-sales": {
+    title: "B2B Sales",
+    subtitle: "Manage business-to-business sales and challans",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
 };
 
 const ManagerHeader = () => {
@@ -295,7 +301,7 @@ const ManagerHeader = () => {
                 {currentRoute.title}
               </p>
               {currentRoute.subtitle && (
-                <p className='text-[11px] text-gray-500 mt-0.5'>
+                <p className='text-[11px] text-gray-200 mt-0.5'>
                   {currentRoute.subtitle}
                 </p>
               )}

@@ -146,7 +146,7 @@ const BranchManagerDashboard = () => {
       icon: FileText,
       loading: quotationsLoading,
       description: "Build a customer price quotation",
-      action: { label: "Open Quotations", href: "/manager/quotations" },
+      action: { label: "Create Challan", href: "/manager/b2b-sales" },
     },
     {
       title: "Upload Customer Sales Info",
