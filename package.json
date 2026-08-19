@@ -47,6 +47,7 @@
     "jspdf": "^4.2.1",
     "lodash": "^4.17.21",
     "lucide-react": "^0.488.0",
+    "qr-creator": "^1.0.0",
     "qrcode.react": "^4.2.0",
     "radix-ui": "^1.4.3",
     "react": "^19.0.0",

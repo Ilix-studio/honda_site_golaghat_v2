@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import { format } from "date-fns";
 import {
   Bike as BikeIcon,
   X,
@@ -12,12 +13,29 @@ import {
   ShieldCheck,
   Pencil,
   Eye,
+  Calendar as CalendarIcon,
+  TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -47,6 +65,7 @@ import {
   useCreateQuotationMutation,
   useUpdateQuotationMutation,
   useDeleteQuotationMutation,
+  useBulkExpireQuotationsMutation,
   useGetQuotationsQuery,
   type Quotation,
   type QuotationPricingType,
@@ -909,7 +928,8 @@ const QuotationTable: React.FC<{ onEdit: (q: Quotation) => void }> = ({
             <TableHead>Quotation No</TableHead>
             <TableHead>To</TableHead>
             <TableHead>Date</TableHead>
-            <TableHead className='w-32' />
+            <TableHead>Status</TableHead>
+            <TableHead className='w-40' />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -920,6 +940,17 @@ const QuotationTable: React.FC<{ onEdit: (q: Quotation) => void }> = ({
               </TableCell>
               <TableCell>{q.to?.name}</TableCell>
               <TableCell>{fmtDate(q.createdAt)}</TableCell>
+              <TableCell>
+                {q.isExpired ? (
+                  <span className='inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700'>
+                    Expired
+                  </span>
+                ) : (
+                  <span className='inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700'>
+                    Active
+                  </span>
+                )}
+              </TableCell>
               <TableCell>
                 <div className='flex items-center justify-end gap-1'>
                   <Button
@@ -990,6 +1021,107 @@ const QuotationTable: React.FC<{ onEdit: (q: Quotation) => void }> = ({
   );
 };
 
+// ─── Bulk "Mark Price Increase" (expire everything before a cutoff date) ───
+
+const BulkExpireDialog: React.FC = () => {
+  const [open, setOpen] = useState(false);
+  const [cutoffDate, setCutoffDate] = useState<Date | undefined>(undefined);
+  const [bulkExpire, { isLoading }] = useBulkExpireQuotationsMutation();
+
+  const handleConfirm = async () => {
+    if (!cutoffDate) return;
+    try {
+      const result = await bulkExpire({
+        beforeDate: cutoffDate.toISOString(),
+      }).unwrap();
+      toast.success(result.message);
+      setOpen(false);
+      setCutoffDate(undefined);
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to mark quotations expired");
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) setCutoffDate(undefined);
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button type='button' variant='outline'>
+          <TrendingUp className='h-4 w-4 mr-2' /> Mark Price Increase
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            Mark quotations expired due to price increase
+          </DialogTitle>
+          <DialogDescription>
+            Every quotation issued before the date you pick will be marked as
+            expired due to a price increase — their public links will show a
+            price-increase notice instead of the old price. This can't be
+            undone.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className='space-y-1.5'>
+          <Label>Prices increased on</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant='outline' className='w-full justify-start'>
+                <CalendarIcon className='h-4 w-4 mr-2' />
+                {cutoffDate ? format(cutoffDate, "dd MMM yyyy") : "Pick a date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='w-auto p-0' align='start'>
+              <Calendar
+                mode='single'
+                selected={cutoffDate}
+                onSelect={setCutoffDate}
+              />
+            </PopoverContent>
+          </Popover>
+          {cutoffDate && (
+            <p className='text-xs text-gray-500'>
+              All quotations created before{" "}
+              <span className='font-medium text-gray-700'>
+                {format(cutoffDate, "dd MMM yyyy")}
+              </span>{" "}
+              will be marked expired. Quotations created on or after this date
+              are unaffected.
+            </p>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button
+            type='button'
+            variant='outline'
+            onClick={() => setOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            type='button'
+            disabled={!cutoffDate || isLoading}
+            onClick={handleConfirm}
+            className='bg-amber-600 text-white hover:bg-amber-700'
+          >
+            {isLoading ? (
+              <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+            ) : null}
+            Mark Expired
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 const QuotationManager: React.FC<QuotationManagerProps> = () => {
@@ -1023,23 +1155,28 @@ const QuotationManager: React.FC<QuotationManagerProps> = () => {
   }
 
   return (
-    <div className='mx-auto max-w-4xl px-4 py-8 space-y-4'>
-      <div className='flex items-center justify-between'>
-        <h2 className='text-lg font-semibold text-gray-900'>Quotations</h2>
-        <Button
-          type='button'
-          onClick={() => setView("create")}
-          className='bg-red-600 hover:bg-red-700'
-        >
-          <PlusCircle className='h-4 w-4 mr-2' /> New Quotation
-        </Button>
+    <div className='min-h-screen bg-gray-50'>
+      <div className='mx-auto max-w-4xl px-4 py-8 space-y-4'>
+        <div className='flex items-center justify-between'>
+          <h2 className='text-lg font-semibold text-gray-900'>Quotations</h2>
+          <div className='flex items-center gap-2'>
+            <BulkExpireDialog />
+            <Button
+              type='button'
+              onClick={() => setView("create")}
+              className='bg-red-600 hover:bg-red-700'
+            >
+              <PlusCircle className='h-4 w-4 mr-2' /> New Quotation
+            </Button>
+          </div>
+        </div>
+        <QuotationTable
+          onEdit={(q) => {
+            setEditingQuotation(q);
+            setView("edit");
+          }}
+        />
       </div>
-      <QuotationTable
-        onEdit={(q) => {
-          setEditingQuotation(q);
-          setView("edit");
-        }}
-      />
     </div>
   );
 };

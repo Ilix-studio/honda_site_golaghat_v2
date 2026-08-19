@@ -61,6 +61,9 @@ export interface Quotation {
   topHeading: string;
   bankDetails: string;
   termsAndConditions: string;
+  isExpired: boolean;
+  expiredAt?: string;
+  expiredReason?: string;
   createdByRole: "Branch-Admin" | "Staff";
   branch: string | { _id: string; branchName: string; address?: string };
   createdAt: string;
@@ -96,6 +99,11 @@ export interface GetQuotationsParams {
   branch?: string;
 }
 
+export interface BulkExpireQuotationsRequest {
+  beforeDate: string;
+  branch?: string;
+}
+
 // ─── Response Wrappers ────────────────────────────────────────────────────────
 
 interface SingleQuotationResponse {
@@ -110,6 +118,17 @@ interface QuotationListResponse {
   page: number;
   pages: number;
   data: Quotation[];
+}
+
+interface BulkExpireQuotationsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    matchedCount: number;
+    modifiedCount: number;
+    cutoffDate: string;
+    expiredReason: string;
+  };
 }
 
 // ─── Endpoints ────────────────────────────────────────────────────────────────
@@ -167,6 +186,21 @@ export const quotationApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Quotation"],
     }),
+
+    // Bulk-marks every not-yet-expired quotation created before a chosen
+    // cutoff date as expired due to a price increase — e.g. picking 1 Aug
+    // expires every quotation issued before 1 Aug in one action.
+    bulkExpireQuotations: builder.mutation<
+      BulkExpireQuotationsResponse,
+      BulkExpireQuotationsRequest
+    >({
+      query: (body) => ({
+        url: "/quotations/bulk-expire",
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["Quotation"],
+    }),
   }),
 });
 
@@ -176,5 +210,6 @@ export const {
   useGetQuotationByIdQuery,
   useUpdateQuotationMutation,
   useDeleteQuotationMutation,
+  useBulkExpireQuotationsMutation,
   useGetPublicQuotationQuery,
 } = quotationApi;
