@@ -81,7 +81,9 @@ export const generateQuotationPdf = async (quotation: Quotation) => {
     .setFont("helvetica", "bold")
     .setFontSize(14)
     .setTextColor(...DARK);
-  doc.text(dedupeNumbers(headingLines[0] ?? ""), pageW / 2, y, { align: "center" });
+  doc.text(dedupeNumbers(headingLines[0] ?? ""), pageW / 2, y, {
+    align: "center",
+  });
   y += 6;
   if (headingLines.length > 1) {
     doc
@@ -108,8 +110,26 @@ export const generateQuotationPdf = async (quotation: Quotation) => {
     .setFont("helvetica", "bold")
     .setFontSize(11)
     .setTextColor(...RED);
-  doc.text(`Quotation No: ${quotation.quotationNo}`, pageW - m, y, { align: "right" });
+  doc.text(`Quotation No: ${quotation.quotationNo}`, pageW - m, y, {
+    align: "right",
+  });
   y += 8;
+
+  // ── Price increase banner ────────────────────────────────────────────────
+  if (quotation.isExpired) {
+    const bannerH = 8;
+    doc.setFillColor(...RED);
+    doc.roundedRect(m, y, cW, bannerH, 1.5, 1.5, "F");
+    doc.setFont("helvetica", "bold").setFontSize(8).setTextColor(255, 255, 255);
+    doc.text(
+      quotation.expiredReason ||
+        "PRICE INCREASE — Prices have changed since this quotation was issued",
+      pageW / 2,
+      y + 5.5,
+      { align: "center" },
+    );
+    y += bannerH + 6;
+  }
 
   // ── To block ──────────────────────────────────────────────────────────────
   const toLines = [
@@ -146,13 +166,19 @@ export const generateQuotationPdf = async (quotation: Quotation) => {
     .setFontSize(8)
     .setTextColor(...MID);
   const specLine = `${quotation.bikeSnapshot.mainCategory === "scooter" ? "Scooter" : "Motorcycle"} · ${quotation.bikeSnapshot.category}`;
-  doc.text(specLine.replace(/^\w/, (c) => c.toUpperCase()), pageW - m, y, {
-    align: "right",
-  });
+  doc.text(
+    specLine.replace(/^\w/, (c) => c.toUpperCase()),
+    pageW - m,
+    y,
+    {
+      align: "right",
+    },
+  );
   y += 8;
 
   // ── Price breakdown ──────────────────────────────────────────────────────
-  const isVariation = quotation.pricingType === "variation" && !!quotation.variation;
+  const isVariation =
+    quotation.pricingType === "variation" && !!quotation.variation;
 
   interface Row {
     label: string;
@@ -169,11 +195,18 @@ export const generateQuotationPdf = async (quotation: Quotation) => {
     });
     onRoadSubtotal = quotation.variation!.onRoadPrice;
   } else {
-    priceRows.push({ label: "Ex-Showroom Price", value: quotation.exShowroomPrice });
+    priceRows.push({
+      label: "Ex-Showroom Price",
+      value: quotation.exShowroomPrice,
+    });
     priceRows.push({ label: "On-Road Tax", value: quotation.onRoadTax });
     onRoadSubtotal = quotation.exShowroomPrice + quotation.onRoadTax;
   }
-  priceRows.push({ label: "On-Road Price", value: onRoadSubtotal, emphasis: true });
+  priceRows.push({
+    label: "On-Road Price",
+    value: onRoadSubtotal,
+    emphasis: true,
+  });
 
   if (quotation.insurance?.premium) {
     const label = quotation.insurance.provider
@@ -297,7 +330,10 @@ export const generateQuotationPdf = async (quotation: Quotation) => {
   y += 4;
 
   const bankLines = doc.splitTextToSize(quotation.bankDetails, halfW - 2);
-  const termsLines = doc.splitTextToSize(quotation.termsAndConditions, halfW - 2);
+  const termsLines = doc.splitTextToSize(
+    quotation.termsAndConditions,
+    halfW - 2,
+  );
   doc
     .setFont("helvetica", "normal")
     .setFontSize(7)
@@ -315,23 +351,42 @@ export const generateQuotationPdf = async (quotation: Quotation) => {
   doc.setDrawColor(...DARK).setLineWidth(0.3);
   doc.line(sigX1, sigY, sigX2, sigY);
   doc
-    .setFont("helvetica", "normal")
+    .setFont("poppins", "normal")
     .setFontSize(8)
     .setTextColor(...MID);
   doc.text("Authorized Signature", (sigX1 + sigX2) / 2, sigY + 5, {
     align: "center",
   });
 
+  // ── QR code (public link), bottom-left, above the footer note ───────────
+  const publicUrl = buildPublicQuotationUrl(quotation);
+  const QrCreator = (await import("qr-creator")).default;
+  const qrCanvas = document.createElement("canvas");
+  QrCreator.render(
+    {
+      text: publicUrl,
+      radius: 0,
+      ecLevel: "M",
+      fill: "#111827",
+      background: "#FFFFFF",
+      size: 256,
+    },
+    qrCanvas,
+  );
+  const qrDataUrl = qrCanvas.toDataURL("image/png");
+
+  const footerY = pageH - 8;
+  const qrSize = 20;
+  const qrGap = 4;
+  const qrY = footerY - qrSize - qrGap;
+  doc.addImage(qrDataUrl, "PNG", m, qrY, qrSize, qrSize);
+
   // ── Footer note — public link ────────────────────────────────────────────
   doc
-    .setFont("helvetica", "normal")
-    .setFontSize(7)
+    .setFont("poppins", "normal")
+    .setFontSize(12)
     .setTextColor(...MID);
-  doc.text(
-    `Please save the link: ${buildPublicQuotationUrl(quotation)}`,
-    m,
-    pageH - 8,
-  );
+  doc.text(`Please save the link: ${publicUrl}`, m, footerY);
 
   doc.save(`quotation_${quotation.quotationNo}.pdf`);
 };

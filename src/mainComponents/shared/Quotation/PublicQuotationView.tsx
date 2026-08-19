@@ -80,6 +80,22 @@ const PublicQuotationView: React.FC = () => {
   return (
     <div className='mx-auto max-w-2xl px-4 py-8'>
       <div className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>
+        {quotation.isExpired && (
+          <div className='mb-4 flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3'>
+            <FileWarning className='h-4 w-4 shrink-0 text-amber-600 mt-0.5' />
+            <div>
+              <p className='text-sm font-semibold text-amber-800'>
+                Price Increase
+              </p>
+              <p className='text-xs text-amber-700'>
+                {quotation.expiredReason ||
+                  "Prices have increased since this quotation was issued."}{" "}
+                Please contact the dealership for updated pricing.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Logo + date */}
         <div className='mb-4 flex items-start justify-between'>
           <img src={companyLogoUrl} alt='Tsangpool Honda' className='h-12 w-auto' />
