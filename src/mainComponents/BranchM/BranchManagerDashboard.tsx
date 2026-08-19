@@ -21,6 +21,7 @@ import {
   FileText,
   Webhook,
   Activity,
+  ReceiptText,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -40,6 +41,7 @@ import RecentMotorcycles from "../Admin/AdminDash/RecentMotocycles";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
 import { useGetQuotationsQuery } from "@/redux-store/services/NewFeatures/quotationApi";
 import { useGetB2BSalesQuery } from "@/redux-store/services/BikeSystemApi2/b2bSalesApi";
+import { useGetSalesReportBatchesQuery } from "@/redux-store/services/salesReportApi";
 import BranchKpiCharts from "./BranchKpiCharts";
 import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
 import OperationOpz from "./Tabs/OperationOpz";
@@ -77,6 +79,8 @@ const BranchManagerDashboard = () => {
     useGetQuotationsQuery({ limit: 1 }, { skip: !isAuthenticated });
   const { data: b2bSalesData, isLoading: b2bSalesLoading } =
     useGetB2BSalesQuery({ limit: 1 }, { skip: !isAuthenticated });
+  const { data: salesReportBatchesData, isLoading: salesReportBatchesLoading } =
+    useGetSalesReportBatchesQuery(undefined, { skip: !isAuthenticated });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -152,12 +156,12 @@ const BranchManagerDashboard = () => {
       action: { label: "Create Challan", href: "/manager/b2b-sales" },
     },
     {
-      title: "Upload Customer Sales Info",
-      value: quotationsData?.total ?? 0,
-      icon: FileText,
-      loading: quotationsLoading,
-      description: "Build a customer price quotation",
-      action: { label: "Open Quotations", href: "/manager/quotations" },
+      title: "Upload Sales Report",
+      value: salesReportBatchesData?.data?.length ?? 0,
+      icon: ReceiptText,
+      loading: salesReportBatchesLoading,
+      description: "Upload sold-vehicle CSV/XLSX reports",
+      action: { label: "Upload Sales Info", href: "/manager/sales-report" },
     },
   ];
 

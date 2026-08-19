@@ -16,8 +16,17 @@ import { useNavigate } from "react-router-dom";
 const SOURCE_LABEL: Record<string, string> = {
   otp: "Self sign-up (OTP)",
   automatic_creation: "Auto (service import)",
-  branch_admin_manual: "Branch-Admin",
+  branch_admin_manual: "Manual Assigned",
+  new_csv_sales_report: "New (CSV Sales Report)",
 };
+
+/**
+ * Legacy customer documents predate the creationSource field entirely (it
+ * was added later), so they simply have no stored value — "Old Csv" is a
+ * display-only fallback computed from that absence, not a stored enum value.
+ */
+const sourceLabelFor = (creationSource: string | undefined) =>
+  !creationSource ? "Old Csv" : (SOURCE_LABEL[creationSource] ?? creationSource);
 
 const formatINR = (value?: number | null) =>
   value == null ? "—" : `₹${value.toLocaleString("en-IN")}`;
@@ -96,8 +105,37 @@ export default function NewCustomerList() {
                         <td className='py-2 pr-4 tabular-nums text-gray-700'>
                           {c.phoneNumber}
                         </td>
-                        <td className='py-2 pr-4 text-gray-500'>
-                          {SOURCE_LABEL[c.creationSource] ?? c.creationSource}
+                        <td className='py-2 pr-4'>
+                          <div className='group relative inline-flex'>
+                            <Badge
+                              variant='outline'
+                              className='bg-gray-50 text-gray-600 border-gray-200 cursor-help'
+                            >
+                              {sourceLabelFor(c.creationSource)}
+                              <Info className='ml-1 h-3 w-3' />
+                            </Badge>
+                            <div className='pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-56 -translate-x-1/2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 shadow-lg opacity-0 transition-opacity group-hover:opacity-100'>
+                              <div className='font-medium text-gray-900'>
+                                Creation source
+                              </div>
+                              <div className='mt-1 space-y-1'>
+                                <div>
+                                  Value:{" "}
+                                  <span className='font-mono font-semibold'>
+                                    {c.creationSource ?? "not stored"}
+                                  </span>
+                                </div>
+                                <div className='text-gray-500'>
+                                  Joined:{" "}
+                                  {new Date(c.createdAt).toLocaleDateString("en-IN", {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </td>
                         <td className='py-2 pr-4'>
                           {c.hasVehicle ? (
@@ -122,6 +160,9 @@ export default function NewCustomerList() {
                                   </div>
                                   <div className='text-gray-500'>
                                     Stock ID: {c.vehicleSummary?.stockId ?? "—"}
+                                  </div>
+                                  <div className='text-gray-500 pt-1 border-t border-gray-100 mt-1'>
+                                    Source: {sourceLabelFor(c.creationSource)}
                                   </div>
                                 </div>
                               </div>

@@ -213,6 +213,12 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/manager/dashboard",
   },
+  "/manager/sales-report": {
+    title: "Sales Report",
+    subtitle: "View sales reports and analytics",
+    showBack: true,
+    backTo: "/manager/dashboard",
+  },
 };
 
 const ManagerHeader = () => {

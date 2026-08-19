@@ -4,7 +4,12 @@ export interface NewCustomerDTO {
   _id: string;
   phoneNumber: string;
   isVerified: boolean;
-  creationSource: "otp" | "automatic_creation" | "branch_admin_manual";
+  creationSource:
+    | "otp"
+    | "automatic_creation"
+    | "branch_admin_manual"
+    | "new_csv_sales_report"
+    | undefined;
   createdAt: string;
   name: string | null;
   hasVehicle: boolean;

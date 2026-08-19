@@ -56,6 +56,7 @@ export const SimpleBookService: React.FC = () => {
 
   const vehicle = vehicleResponse?.data ?? null;
   const usedServices = statsResponse?.data?.usedServiceTypes ?? [];
+  const freeServicesDisabled = statsResponse?.data?.freeServicesDisabled ?? false;
   const serviceLocations: ServiceLocation[] = branchesResponse?.data ?? [];
   const availableDates = getAvailableDates();
 
@@ -232,41 +233,51 @@ export const SimpleBookService: React.FC = () => {
         <div className='space-y-2'>
           <label className='text-sm font-medium'>Service Type</label>
           <div className='space-y-2'>
-            <p className='text-xs font-medium text-green-600 uppercase tracking-wide'>
-              Free Services
-            </p>
-            {FREE_SERVICES.map((s) => {
-              const isUsed = usedServices.includes(s.id);
-              return (
-                <label
-                  key={s.id}
-                  className={`flex items-center gap-3 p-3 border rounded-md cursor-pointer transition-colors ${
-                    isUsed
-                      ? "opacity-50 cursor-not-allowed bg-gray-50"
-                      : serviceType === s.id
-                      ? "border-red-600 bg-red-50"
-                      : "hover:border-gray-400"
-                  }`}
-                >
-                  <input
-                    type='radio'
-                    name='serviceType'
-                    value={s.id}
-                    disabled={isUsed}
-                    checked={serviceType === s.id}
-                    onChange={() => setServiceType(s.id)}
-                    className='accent-red-600'
-                  />
-                  <span className='text-sm flex-1'>{s.name}</span>
-                  <span className='text-xs text-green-600 font-medium'>
-                    FREE
-                  </span>
-                  {isUsed && (
-                    <span className='text-xs text-gray-500'>Used</span>
-                  )}
-                </label>
-              );
-            })}
+            {freeServicesDisabled ? (
+              <p className='text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-3'>
+                Free services are no longer available for this account — a
+                paid service has already been recorded. Only paid services
+                can be booked below.
+              </p>
+            ) : (
+              <>
+                <p className='text-xs font-medium text-green-600 uppercase tracking-wide'>
+                  Free Services
+                </p>
+                {FREE_SERVICES.map((s) => {
+                  const isUsed = usedServices.includes(s.id);
+                  return (
+                    <label
+                      key={s.id}
+                      className={`flex items-center gap-3 p-3 border rounded-md cursor-pointer transition-colors ${
+                        isUsed
+                          ? "opacity-50 cursor-not-allowed bg-gray-50"
+                          : serviceType === s.id
+                          ? "border-red-600 bg-red-50"
+                          : "hover:border-gray-400"
+                      }`}
+                    >
+                      <input
+                        type='radio'
+                        name='serviceType'
+                        value={s.id}
+                        disabled={isUsed}
+                        checked={serviceType === s.id}
+                        onChange={() => setServiceType(s.id)}
+                        className='accent-red-600'
+                      />
+                      <span className='text-sm flex-1'>{s.name}</span>
+                      <span className='text-xs text-green-600 font-medium'>
+                        FREE
+                      </span>
+                      {isUsed && (
+                        <span className='text-xs text-gray-500'>Used</span>
+                      )}
+                    </label>
+                  );
+                })}
+              </>
+            )}
 
             <p className='text-xs font-medium text-blue-600 uppercase tracking-wide mt-3'>
               Paid Services
