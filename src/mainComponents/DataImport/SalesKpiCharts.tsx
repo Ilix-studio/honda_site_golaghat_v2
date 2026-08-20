@@ -50,6 +50,14 @@ export const GRANULARITIES: { value: Granularity; label: string }[] = [
 export const inr = (value: number) =>
   `₹${value.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 
+/** Compact ₹ for axis ticks and bar labels — ₹1.2L / ₹3.4Cr — so axes stay narrow. */
+export const compactInr = (value: number) => {
+  if (Math.abs(value) >= 1e7) return `₹${(value / 1e7).toFixed(1)}Cr`;
+  if (Math.abs(value) >= 1e5) return `₹${(value / 1e5).toFixed(1)}L`;
+  if (Math.abs(value) >= 1e3) return `₹${Math.round(value / 1e3)}k`;
+  return `₹${value}`;
+};
+
 export const GranularityToggle = ({
   value,
   onChange,

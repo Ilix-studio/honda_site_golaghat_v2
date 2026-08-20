@@ -26,6 +26,7 @@ import {
 import { MetricTile } from "@/mainComponents/Admin/AdminDash/StatCard";
 import {
   ChartSkeleton,
+  compactInr,
   EmptyChartState,
   inr,
 } from "@/mainComponents/DataImport/SalesKpiCharts";
@@ -57,14 +58,6 @@ const monthLabel = (key: string) => {
     month: "short",
     year: "2-digit",
   });
-};
-
-/** Compact axis ticks — ₹1.2L / ₹3.4Cr — so the axis never crowds the plot. */
-const compactInr = (value: number) => {
-  if (Math.abs(value) >= 1e7) return `₹${(value / 1e7).toFixed(1)}Cr`;
-  if (Math.abs(value) >= 1e5) return `₹${(value / 1e5).toFixed(1)}L`;
-  if (Math.abs(value) >= 1e3) return `₹${Math.round(value / 1e3)}k`;
-  return `₹${value}`;
 };
 
 export default function CPOTC() {

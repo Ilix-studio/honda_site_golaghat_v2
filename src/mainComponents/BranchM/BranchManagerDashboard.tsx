@@ -10,13 +10,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ScrollableTabs from "@/mainComponents/shared/ScrollableTabs";
 import {
   MessageSquare,
   Building2,
   Cog,
   User,
   TrendingUp,
-  Regex,
   Users,
   FileText,
   Webhook,
@@ -35,7 +35,7 @@ import { useGetAllCustomersQuery } from "@/redux-store/services/customer/custome
 
 import CustomerQueries from "./Tabs/CustomerQuery";
 import JobCardCatalogManager from "../CustomerSystem/JobCard/JobCardCatalogManager";
-import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
+
 import RecentMotorcycles from "../Admin/AdminDash/RecentMotocycles";
 // import RagAssistant from "@/mainComponents/RAG/RagAssistant";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
@@ -62,10 +62,6 @@ const BranchManagerDashboard = () => {
   const { data: customersData, isLoading: customersLoading } =
     useGetAllCustomersQuery({ page: 1, limit: 1 }, { skip: !isAuthenticated });
 
-  const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
-    {},
-    { skip: !isAuthenticated },
-  );
   const { data: stockData, isLoading: stockLoading } = useGetAllStockItemsQuery(
     { page: 1, limit: 1 },
     { skip: !isAuthenticated },
@@ -106,14 +102,6 @@ const BranchManagerDashboard = () => {
   // Stat cards built from live query data
   const operationsStats: Omit<StatCardProps, "index">[] = [
     {
-      title: "Add Customers",
-      value: customersData?.pagination?.total ?? 0,
-      icon: User,
-      loading: customersLoading,
-      description: "Total Customers",
-      action: { label: "Open Sign-up form", href: "/manager/customers/signup" },
-    },
-    {
       title: "Add Stock-Vehicles",
       value: totalStockVehicles,
       icon: Activity,
@@ -121,16 +109,31 @@ const BranchManagerDashboard = () => {
       description: "CSV upload and manual additions",
       action: { label: "Open Stock-Inventory", href: "/manager/stockC/select" },
     },
-
     {
-      title: "Apply Leave",
-      //Add Badge
-      value: myLeaveData?.data?.length ?? 0,
-      icon: Regex,
-      loading: myLeaveLoading,
-      description: "My Leave Application",
-      action: { label: "Open", href: "/manager/apply-leave" },
+      title: "Upload Sales Report",
+      value: salesReportBatchesData?.data?.length ?? 0,
+      icon: ReceiptText,
+      loading: salesReportBatchesLoading,
+      description: "Upload sold-vehicle CSV/XLSX reports",
+      action: { label: "Upload Sales Info", href: "/manager/sales-report" },
     },
+    {
+      title: "Add Customers (Manual way)",
+      value: customersData?.pagination?.total ?? 0,
+      icon: User,
+      loading: customersLoading,
+      description: "Total Customers",
+      action: { label: "Open Sign-up form", href: "/manager/customers/signup" },
+    },
+    {
+      title: "Create B2B Info",
+      value: b2bSalesData?.pagination?.total ?? 0,
+      icon: FileText,
+      loading: b2bSalesLoading,
+      description: "Build a B2B sales challan",
+      action: { label: "Create Challan", href: "/manager/b2b-sales" },
+    },
+
     {
       title: "View Customer List",
       value: newCustomersData?.pagination.total ?? 0,
@@ -146,22 +149,6 @@ const BranchManagerDashboard = () => {
       loading: quotationsLoading,
       description: "Build a customer price quotation",
       action: { label: "Open Quotations", href: "/manager/quotations" },
-    },
-    {
-      title: "Create B2B Info",
-      value: b2bSalesData?.pagination?.total ?? 0,
-      icon: FileText,
-      loading: b2bSalesLoading,
-      description: "Build a B2B sales challan",
-      action: { label: "Create Challan", href: "/manager/b2b-sales" },
-    },
-    {
-      title: "Upload Sales Report",
-      value: salesReportBatchesData?.data?.length ?? 0,
-      icon: ReceiptText,
-      loading: salesReportBatchesLoading,
-      description: "Upload sold-vehicle CSV/XLSX reports",
-      action: { label: "Upload Sales Info", href: "/manager/sales-report" },
     },
   ];
 
@@ -258,39 +245,44 @@ const BranchManagerDashboard = () => {
             transition={{ duration: 0.4, ease: "easeOut" }}
             className='sticky top-1 z-10 mb-2'
           >
-            <TabsList
-              data-onboarding='dashboard-navigation'
-              className='inline-flex h-12 w-full md:w-auto bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-xl p-1 gap-1'
-            >
-              <TabsTrigger
-                value='operations'
-                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-gray-900 hover:bg-gray-50 data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+            {/* Scroll container sits inside the sticky wrapper on purpose:
+                putting overflow on the sticky element itself disables
+                position: sticky. */}
+            <ScrollableTabs>
+              <TabsList
+                data-onboarding='dashboard-navigation'
+                className='inline-flex h-12 w-max min-w-full md:w-auto bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md rounded-xl p-1 gap-1'
               >
-                <Cog className='h-4 w-4' />
-                <span>Operations</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value='operations_type_two'
-                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-gray-900 hover:bg-gray-50 data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
-              >
-                <Cog className='h-4 w-4' />
-                <span>Operations Type 2</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value='customer-reports'
-                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-orange-700 hover:bg-orange-50 data-[state=active]:bg-gray-600 data-[state=active]:text-white data-[state=active]:shadow-md'
-              >
-                <MessageSquare className='h-4 w-4' />
-                <span>Add Vehicles & Reports</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value='analytics'
-                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-orange-700 hover:bg-orange -50 data-[state=active]:bg-blue-800 data-[state=active]:text-white data-[state=active]:shadow-md'
-              >
-                <TrendingUp className='h-4 w-4' />
-                <span>Branch Analytics</span>
-              </TabsTrigger>
-            </TabsList>
+                <TabsTrigger
+                  value='operations'
+                  className='flex shrink-0 whitespace-nowrap items-center gap-1.5 sm:gap-2 px-3 sm:px-5 rounded-lg text-xs sm:text-sm font-medium text-gray-500 transition-all duration-200 hover:text-gray-900 hover:bg-gray-50 data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+                >
+                  <Cog className='h-4 w-4 shrink-0' />
+                  <span>Operations</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value='operations_type_two'
+                  className='flex shrink-0 whitespace-nowrap items-center gap-1.5 sm:gap-2 px-3 sm:px-5 rounded-lg text-xs sm:text-sm font-medium text-gray-500 transition-all duration-200 hover:text-gray-900 hover:bg-gray-50 data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+                >
+                  <Cog className='h-4 w-4 shrink-0' />
+                  <span>Operations Type 2</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value='customer-reports'
+                  className='flex shrink-0 whitespace-nowrap items-center gap-1.5 sm:gap-2 px-3 sm:px-5 rounded-lg text-xs sm:text-sm font-medium text-gray-500 transition-all duration-200 hover:text-orange-700 hover:bg-orange-50 data-[state=active]:bg-gray-600 data-[state=active]:text-white data-[state=active]:shadow-md'
+                >
+                  <MessageSquare className='h-4 w-4 shrink-0' />
+                  <span>Add Vehicles & Reports</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value='analytics'
+                  className='flex shrink-0 whitespace-nowrap items-center gap-1.5 sm:gap-2 px-3 sm:px-5 rounded-lg text-xs sm:text-sm font-medium text-gray-500 transition-all duration-200 hover:text-orange-700 hover:bg-orange-50 data-[state=active]:bg-blue-800 data-[state=active]:text-white data-[state=active]:shadow-md'
+                >
+                  <TrendingUp className='h-4 w-4 shrink-0' />
+                  <span>Branch Analytics</span>
+                </TabsTrigger>
+              </TabsList>
+            </ScrollableTabs>
           </motion.div>
 
           <TabsContent value='operations' className='mt-0.5'>

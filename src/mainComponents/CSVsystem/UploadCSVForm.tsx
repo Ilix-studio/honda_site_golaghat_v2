@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Upload,
+  Download,
   FileSpreadsheet,
   X,
   AlertCircle,
@@ -12,6 +13,10 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  CSV_STOCK_TEMPLATE_COLUMNS,
+  downloadCsvStockTemplate,
+} from "@/lib/csvStockTemplate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -56,7 +61,7 @@ const UploadCSVForm = () => {
   const [uploadStage, setUploadStage] = useState<UploadStage>("idle");
   const [duplicates, setDuplicates] = useState<DuplicateError[]>([]);
   const [redirectCountdown, setRedirectCountdown] = useState<number | null>(
-    null
+    null,
   );
 
   const [importCSV, { isLoading: importing, data: importResult }] =
@@ -99,7 +104,7 @@ const UploadCSVForm = () => {
   useEffect(() => {
     if (importResult?.data?.errors) {
       const duplicateErrors = importResult.data.errors.filter((err) =>
-        err.error.toLowerCase().includes("duplicate")
+        err.error.toLowerCase().includes("duplicate"),
       );
       setDuplicates(duplicateErrors);
     }
@@ -108,7 +113,7 @@ const UploadCSVForm = () => {
   const validateFile = (selectedFile: File): string | null => {
     const name = selectedFile.name.toLowerCase();
     const hasAllowedExtension = ALLOWED_EXTENSIONS.some((ext) =>
-      name.endsWith(ext)
+      name.endsWith(ext),
     );
     if (!ALLOWED_TYPES.includes(selectedFile.type) && !hasAllowedExtension) {
       return "Invalid file type. Only CSV, XLS, and XLSX files are allowed.";
@@ -204,6 +209,49 @@ const UploadCSVForm = () => {
           </CardHeader>
 
           <CardContent className='space-y-6'>
+            <div className='rounded-lg border border-gray-200 bg-white p-4'>
+              <div className='flex items-start justify-between gap-4 flex-wrap'>
+                <div className='min-w-0'>
+                  <p className='text-sm text-gray-500 mt-0.5'>
+                    Download the template, fill it in, and upload it here.
+                  </p>
+                </div>
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={downloadCsvStockTemplate}
+                  className='shrink-0'
+                >
+                  <Download className='h-4 w-4 mr-2' />
+                  Download template (CSV)
+                </Button>
+              </div>
+
+              <div className='mt-3 pt-3 border-t border-gray-100 space-y-1.5'>
+                {CSV_STOCK_TEMPLATE_COLUMNS.map((column) => (
+                  <div
+                    key={column.header}
+                    className='flex items-start gap-2 text-xs'
+                  >
+                    <span className='bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md font-mono shrink-0'>
+                      {column.header}
+                    </span>
+                    {column.required && (
+                      <span className='text-red-600 font-semibold shrink-0'>
+                        required
+                      </span>
+                    )}
+                    <span className='text-gray-400'>{column.hint}</span>
+                  </div>
+                ))}
+                <p className='text-xs text-gray-400 pt-1'>
+                  Extra columns are kept on each stored row. Delete the example
+                  row before uploading real data.
+                </p>
+              </div>
+            </div>
+
             {/* File Upload Zone */}
             {uploadStage !== "success" && (
               <div className='space-y-2'>
@@ -355,7 +403,7 @@ const UploadCSVForm = () => {
                                         </span>{" "}
                                         {String(value)}
                                       </div>
-                                    )
+                                    ),
                                   )}
                                 </div>
                               </TableCell>

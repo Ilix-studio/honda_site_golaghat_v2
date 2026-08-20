@@ -31,9 +31,6 @@ export default function ServiceRecordsImport() {
         <div className='rounded-lg border border-gray-200 bg-white p-4 mt-4'>
           <div className='flex items-start justify-between gap-4 flex-wrap'>
             <div className='min-w-0'>
-              <p className='text-sm font-semibold text-gray-900'>
-                Not using a dealer export?
-              </p>
               <p className='text-sm text-gray-500 mt-0.5'>
                 Download the template, fill it in, and upload it here.
               </p>

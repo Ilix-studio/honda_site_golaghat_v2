@@ -1,6 +1,10 @@
 import { useRef, useState } from "react";
-import { ReceiptText, Info, UploadCloud, Loader2 } from "lucide-react";
+import { ReceiptText, Download, UploadCloud, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  SALES_REPORT_TEMPLATE_COLUMNS,
+  downloadSalesReportTemplate,
+} from "@/lib/salesReportTemplate";
 import { useAppSelector, useAppDispatch } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
 import {
@@ -84,16 +88,45 @@ export default function SalesReportUploadForm({
           </div>
         </div>
 
-        <div className='flex items-start gap-2 rounded-lg bg-blue-50 border border-blue-200 p-3 text-sm text-blue-800 mt-4'>
-          <Info className='w-4 h-4 mt-0.5 shrink-0' />
-          <span>
-            Requires Model Name, Model Variant, Customer First Name, Customer
-            Last Name, Contact Mobile, Frame No, Engine No, Purchase Type, and
-            Total Payment columns. Each row is matched against existing stock by
-            Frame No or Engine No — a match flips that stock to "Sold" and
-            creates/links the customer. Rows are de-duplicated by Frame No
-            within your branch.
-          </span>
+        <div className='rounded-lg border border-gray-200 bg-white p-4 mt-4'>
+          <div className='flex items-start justify-between gap-4 flex-wrap'>
+            <div className='min-w-0'>
+              <p className='text-sm text-gray-500 mt-0.5'>
+                Download the template, fill it in, and upload it here.
+              </p>
+            </div>
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              onClick={downloadSalesReportTemplate}
+              className='shrink-0'
+            >
+              <Download className='h-4 w-4 mr-2' />
+              Download template (CSV)
+            </Button>
+          </div>
+
+          <div className='mt-3 pt-3 border-t border-gray-100 space-y-1.5'>
+            <p className='text-xs font-medium text-gray-500'>
+              All {SALES_REPORT_TEMPLATE_COLUMNS.length} columns are required —
+              an upload missing any of them is rejected:
+            </p>
+            {SALES_REPORT_TEMPLATE_COLUMNS.map((column) => (
+              <div
+                key={column.header}
+                className='flex items-start gap-2 text-xs'
+              >
+                <span className='bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md font-mono shrink-0'>
+                  {column.header}
+                </span>
+                <span className='text-gray-400'>{column.hint}</span>
+              </div>
+            ))}
+            <p className='text-xs text-gray-400 pt-1'>
+              Delete the example row before uploading real data.
+            </p>
+          </div>
         </div>
 
         <form

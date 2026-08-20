@@ -1,4 +1,4 @@
-import { Cog, Settings2, TrendingUp, Package } from "lucide-react";
+import { Cog, Settings2, TrendingUp, Package, Regex } from "lucide-react";
 
 import { StatCard, type StatCardProps } from "../../Admin/AdminDash/StatCard";
 
@@ -8,6 +8,7 @@ import {
   useGetAllStaffQuery,
 } from "../../../redux-store/services/adminApi";
 import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
+import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
 
 const OperationOpz = () => {
   const { data: staffData, isLoading: staffLoading } =
@@ -22,6 +23,9 @@ const OperationOpz = () => {
     useGetAllPartAdminsQuery();
   const { data: serviceAdminsData, isLoading: serviceAdminsLoading } =
     useGetAllServiceAdminsQuery();
+  const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
+    {},
+  );
 
   // Stat cards built from live query data
   const operationsStatsZ: Omit<StatCardProps, "index">[] = [
@@ -63,6 +67,15 @@ const OperationOpz = () => {
         label: "Add Other Staff",
         href: "/manager/staff",
       },
+    },
+    {
+      title: "Apply Leave",
+      //Add Badge
+      value: myLeaveData?.data?.length ?? 0,
+      icon: Regex,
+      loading: myLeaveLoading,
+      description: "My Leave Application",
+      action: { label: "Open", href: "/manager/apply-leave" },
     },
   ];
 
