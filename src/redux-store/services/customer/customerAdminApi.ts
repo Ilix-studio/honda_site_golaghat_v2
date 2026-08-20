@@ -16,8 +16,6 @@ export interface NewCustomerDTO {
   vehicleSummary?: {
     engineNumber: string | null;
     stockType: "StockConcept" | "StockConceptCSV";
-    priceLabel: string;
-    priceValue: number | null;
   } | null;
 }
 
@@ -25,6 +23,8 @@ export interface NewCustomersFilters {
   page?: number;
   limit?: number;
   days?: number;
+  /** Matches phone number, profile name, or the name on an imported job card. */
+  search?: string;
 }
 
 export interface NewCustomersResponse {

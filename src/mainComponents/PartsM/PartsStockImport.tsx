@@ -1,5 +1,10 @@
-import { Boxes, Info } from "lucide-react";
+import { Boxes, Download } from "lucide-react";
 import PartsStockUploadForm from "@/mainComponents/PartsM/PartsStockUploadForm";
+import { Button } from "@/components/ui/button";
+import {
+  PARTS_STOCK_TEMPLATE_COLUMNS,
+  downloadPartsStockTemplate,
+} from "@/lib/partsStockTemplate";
 
 export default function PartsStockImport() {
   return (
@@ -19,15 +24,50 @@ export default function PartsStockImport() {
           </div>
         </div>
 
-        <div className='flex items-start gap-2 rounded-lg bg-blue-50 border border-blue-200 p-3 text-sm text-blue-800 mt-4'>
-          <Info className='w-4 h-4 mt-0.5 shrink-0' />
-          <span>
-            Extracts Part Number, Description, Quantity, Unit Price, and
-            Location from the file. Every upload is compared against your
-            last one — added, changed, and removed parts are shown with a
-            revenue impact, and an identical re-upload is rejected with no
-            changes made.
-          </span>
+        <div className='rounded-lg border border-gray-200 bg-white p-4 mt-4'>
+          <div className='flex items-start justify-between gap-4 flex-wrap'>
+            <div className='min-w-0'>
+              <p className='text-sm font-semibold text-gray-900'>
+                Not using an inventory export?
+              </p>
+              <p className='text-sm text-gray-500 mt-0.5'>
+                Download the template, fill it in, and upload it here.
+              </p>
+            </div>
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              onClick={downloadPartsStockTemplate}
+              className='shrink-0'
+            >
+              <Download className='h-4 w-4 mr-2' />
+              Download template (CSV)
+            </Button>
+          </div>
+
+          <div className='mt-3 pt-3 border-t border-gray-100 space-y-1.5'>
+            {PARTS_STOCK_TEMPLATE_COLUMNS.map((column) => (
+              <div
+                key={column.header}
+                className='flex items-start gap-2 text-xs'
+              >
+                <span className='bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md font-mono shrink-0'>
+                  {column.header}
+                </span>
+                {column.required && (
+                  <span className='text-red-600 font-semibold shrink-0'>
+                    required
+                  </span>
+                )}
+                <span className='text-gray-400'>{column.hint}</span>
+              </div>
+            ))}
+            <p className='text-xs text-gray-400 pt-1'>
+              Extra columns are kept as-is on each stored row. Delete the
+              example row before uploading real data.
+            </p>
+          </div>
         </div>
       </div>
 

@@ -7,14 +7,13 @@
  * the upload when a required column is missing. The normalizer is forgiving
  * about case, spacing and `-`/`_`/`.`/`:` punctuation, but not about wording.
  */
+import {
+  buildTemplateCsv,
+  downloadCsv,
+  type TemplateColumn,
+} from "@/lib/csvTemplate";
 
-export interface TemplateColumn {
-  header: string;
-  required: boolean;
-  /** Value used in the template's example row. */
-  example: string;
-  hint?: string;
-}
+export type { TemplateColumn };
 
 export const SERVICE_JOBCARD_TEMPLATE_COLUMNS: TemplateColumn[] = [
   {
@@ -67,34 +66,13 @@ export const SERVICE_JOBCARD_TEMPLATE_COLUMNS: TemplateColumn[] = [
   { header: "Technician Name", required: false, example: "RAJU DAS" },
 ];
 
-/** RFC-4180 quoting: wrap when the value carries a comma, quote or newline. */
-const escapeCsvCell = (value: string): string =>
-  /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
-
-const toCsvRow = (cells: string[]): string => cells.map(escapeCsvCell).join(",");
-
-/**
- * Header row plus one example row. The example is intentionally included so the
- * expected date and number formatting is visible in the file itself — delete it
- * before uploading real data (an example-only upload would import that one row).
- */
 export function buildServiceJobcardTemplateCsv(): string {
-  const headers = SERVICE_JOBCARD_TEMPLATE_COLUMNS.map((c) => c.header);
-  const example = SERVICE_JOBCARD_TEMPLATE_COLUMNS.map((c) => c.example);
-  // CRLF + BOM so Excel opens it as UTF-8 without mangling the header row.
-  return `\uFEFF${toCsvRow(headers)}\r\n${toCsvRow(example)}\r\n`;
+  return buildTemplateCsv(SERVICE_JOBCARD_TEMPLATE_COLUMNS);
 }
 
 export function downloadServiceJobcardTemplate(): void {
-  const blob = new Blob([buildServiceJobcardTemplateCsv()], {
-    type: "text/csv;charset=utf-8;",
-  });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "service-jobcard-import-template.csv";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  downloadCsv(
+    "service-jobcard-import-template.csv",
+    buildServiceJobcardTemplateCsv(),
+  );
 }
