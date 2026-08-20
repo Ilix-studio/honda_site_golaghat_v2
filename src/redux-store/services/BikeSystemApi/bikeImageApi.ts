@@ -62,6 +62,13 @@ export interface SetPrimaryImageResponse {
 export interface GetPrimaryImageByModelResponse {
   success: boolean;
   data: { src: string; alt: string } | null;
+  /** Catalog entry the lookup landed on — differs from the requested name on a prefix match. */
+  matchedModelName?: string;
+  /**
+   * "prefix" means the requested name was a dealer-export string (e.g.
+   * "NX200-OBD2B") resolved to a catalog model ("NX200") by shared prefix.
+   */
+  matchType?: "exact" | "prefix";
 }
 
 export const bikeImageApi = apiSlice.injectEndpoints({

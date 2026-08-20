@@ -10,10 +10,11 @@ import {
 } from "@/redux-store/services/counterSaleApi";
 import {
   uploadWithProgress,
-  type UploadProgress,
   type UploadWithProgressError,
 } from "@/lib/uploadWithProgress";
-import UploadProgressBar from "@/mainComponents/shared/UploadProgressBar";
+import UploadingAnimation, {
+  type UploadAnimationStatus,
+} from "@/mainComponents/shared/UploadingAnimation";
 
 export default function CounterSaleUploadForm() {
   const navigate = useNavigate();
@@ -21,22 +22,20 @@ export default function CounterSaleUploadForm() {
   const { token } = useAppSelector(selectAuth);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(
-    null,
-  );
+  const [status, setStatus] = useState<UploadAnimationStatus>("idle");
   const [result, setResult] = useState<CounterSaleImportResponse["data"] | null>(
     null,
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const isUploading = status === "uploading";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
     setErrorMsg(null);
     setResult(null);
-    setUploadProgress(null);
-    setIsUploading(true);
+    setStatus("uploading");
 
     const formData = new FormData();
     formData.append("file", file);
@@ -46,9 +45,10 @@ export default function CounterSaleUploadForm() {
         "/counter-sale/import",
         formData,
         token,
-        setUploadProgress,
+        () => {},
       );
       setResult(res.data);
+      setStatus("success");
       // uploadWithProgress bypasses RTK Query, so replicate
       // importCounterSaleReport's invalidatesTags manually.
       dispatch(
@@ -57,8 +57,7 @@ export default function CounterSaleUploadForm() {
     } catch (err) {
       const uploadErr = err as UploadWithProgressError;
       setErrorMsg(uploadErr?.data?.message || "Upload failed. Please try again.");
-    } finally {
-      setIsUploading(false);
+      setStatus("error");
     }
   };
 
@@ -112,11 +111,10 @@ export default function CounterSaleUploadForm() {
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
 
-          {isUploading && (
-            <div className='mt-4'>
-              <UploadProgressBar progress={uploadProgress} label='Uploading' />
-            </div>
-          )}
+          <UploadingAnimation
+            status={status}
+            onComplete={() => setStatus("idle")}
+          />
 
           <div className='flex justify-end mt-4'>
             <Button type='submit' disabled={!file || isUploading}>

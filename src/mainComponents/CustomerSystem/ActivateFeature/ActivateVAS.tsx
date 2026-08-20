@@ -3,7 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 
-import { CheckCircle, User, Shield, Calendar, DollarSign } from "lucide-react";
+import {
+  CheckCircle,
+  User,
+  Shield,
+  Calendar,
+  DollarSign,
+  Bike,
+} from "lucide-react";
 import {
   useActivateServiceForCustomerMutation,
   useGetAllVASQuery,
@@ -11,6 +18,7 @@ import {
 import { formatCurrency } from "@/lib/formatters";
 import { selectCustomerAuth } from "@/redux-store/slices/customer/customerAuthSlice";
 import { setSelectVASCompleted } from "@/redux-store/slices/setupProgressSlice";
+import { useGetMyVehiclesQuery } from "@/redux-store/services/customer/customerVehicleApi";
 
 const ActivateVAS = () => {
   const navigate = useNavigate();
@@ -26,6 +34,15 @@ const ActivateVAS = () => {
     page: 1,
     limit: 50,
   });
+
+  // VAS rows attach to a CustomerVehicle, so the activation endpoint 404s with
+  // "No active vehicle found for this customer" when none exists. Check up
+  // front rather than letting the user pick a service and hit a dead end.
+  const { data: vehicleData, isLoading: vehiclesLoading } =
+    useGetMyVehiclesQuery(undefined, {
+      skip: !isAuthenticated || !customerId,
+    });
+  const hasVehicle = (vehicleData?.data?.length ?? 0) > 0;
 
   const [activateService, { isLoading: activatingService }] =
     useActivateServiceForCustomerMutation();
@@ -45,6 +62,11 @@ const ActivateVAS = () => {
   const handleActivateService = async (serviceId: string) => {
     if (!customerId || !isAuthenticated) {
       toast.error("Customer authentication required");
+      return;
+    }
+
+    if (!hasVehicle) {
+      toast.error("Assign a vehicle before activating a service");
       return;
     }
 
@@ -75,7 +97,7 @@ const ActivateVAS = () => {
     }
   };
 
-  if (vasLoading) {
+  if (vasLoading || vehiclesLoading) {
     return (
       <div className='flex justify-center items-center min-h-screen'>
         <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600'></div>
@@ -100,6 +122,30 @@ const ActivateVAS = () => {
       <div className='max-w-2xl mx-auto p-6'>
         <div className='bg-yellow-50 border border-yellow-200 rounded-lg p-4'>
           <p className='text-yellow-600'>Customer authentication required</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Reachable by deep link even though the checklist now disables the step.
+  if (!hasVehicle) {
+    return (
+      <div className='max-w-2xl mx-auto p-6'>
+        <div className='bg-white rounded-lg shadow-sm border p-8 text-center'>
+          <Bike className='h-12 w-12 text-gray-300 mx-auto mb-4' />
+          <h2 className='text-xl font-semibold text-gray-900 mb-2'>
+            No vehicle assigned yet
+          </h2>
+          <p className='text-gray-600 mb-6'>
+            Value Added Services attach to a vehicle, so one has to be assigned
+            before any service can be activated.
+          </p>
+          <button
+            onClick={() => navigate("/customer/select/stock")}
+            className='bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-lg transition-colors'
+          >
+            Assign a vehicle
+          </button>
         </div>
       </div>
     );

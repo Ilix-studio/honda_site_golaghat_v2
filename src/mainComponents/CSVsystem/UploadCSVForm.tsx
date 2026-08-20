@@ -9,16 +9,12 @@ import {
   AlertCircle,
   CheckCircle2,
   Loader2,
-  FileCheck,
-  Database,
-  CheckCircle,
   AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Progress } from "@/components/ui/progress";
 import {
   Table,
   TableBody,
@@ -30,6 +26,9 @@ import {
 import toast from "react-hot-toast";
 
 import { useImportCSVStockMutation } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
+import UploadingAnimation, {
+  type UploadAnimationStatus,
+} from "@/mainComponents/shared/UploadingAnimation";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = [
@@ -39,13 +38,7 @@ const ALLOWED_TYPES = [
 ];
 const ALLOWED_EXTENSIONS = [".csv", ".xls", ".xlsx"];
 
-type UploadStage =
-  | "idle"
-  | "uploading"
-  | "validating"
-  | "checking"
-  | "success"
-  | "error";
+type UploadStage = UploadAnimationStatus;
 
 interface DuplicateError {
   row: number;
@@ -61,7 +54,6 @@ const UploadCSVForm = () => {
   const [dragActive, setDragActive] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [uploadStage, setUploadStage] = useState<UploadStage>("idle");
-  const [progress, setProgress] = useState(0);
   const [duplicates, setDuplicates] = useState<DuplicateError[]>([]);
   const [redirectCountdown, setRedirectCountdown] = useState<number | null>(
     null
@@ -69,32 +61,6 @@ const UploadCSVForm = () => {
 
   const [importCSV, { isLoading: importing, data: importResult }] =
     useImportCSVStockMutation();
-
-  const uploadStages = {
-    uploading: { icon: Upload, text: "Uploading CSV file...", progress: 33 },
-    validating: {
-      icon: FileCheck,
-      text: "Validating data...",
-      progress: 66,
-    },
-    checking: {
-      icon: Database,
-      text: "Checking for duplicates...",
-      progress: 90,
-    },
-    success: {
-      icon: CheckCircle,
-      text: "Import completed successfully!",
-      progress: 100,
-    },
-    error: { icon: AlertCircle, text: "Upload failed", progress: 0 },
-  };
-
-  useEffect(() => {
-    if (uploadStage !== "idle") {
-      setProgress(uploadStages[uploadStage]?.progress || 0);
-    }
-  }, [uploadStage]);
 
   useEffect(() => {
     if (uploadStage !== "success" || !importResult?.data) return;
@@ -196,23 +162,11 @@ const UploadCSVForm = () => {
     setFile(null);
     setValidationError(null);
     setUploadStage("idle");
-    setProgress(0);
     setDuplicates([]);
     setRedirectCountdown(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  };
-
-  const simulateStages = async () => {
-    setUploadStage("uploading");
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    setUploadStage("validating");
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    setUploadStage("checking");
-    await new Promise((resolve) => setTimeout(resolve, 800));
   };
 
   const handleSubmit = async () => {
@@ -224,11 +178,9 @@ const UploadCSVForm = () => {
     const formData = new FormData();
     formData.append("file", file);
 
+    setUploadStage("uploading");
     try {
-      await simulateStages();
-
       const result = await importCSV(formData).unwrap();
-
       setUploadStage("success");
       toast.success(result.message);
     } catch (error: unknown) {
@@ -239,9 +191,6 @@ const UploadCSVForm = () => {
   };
 
   const isSubmitDisabled = !file || importing;
-
-  const currentStageInfo =
-    uploadStage !== "idle" ? uploadStages[uploadStage] : null;
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -332,23 +281,7 @@ const UploadCSVForm = () => {
             )}
 
             {/* Upload Progress */}
-            {currentStageInfo && (
-              <div className='space-y-3'>
-                <div className='flex items-center gap-3'>
-                  <currentStageInfo.icon
-                    className={`h-5 w-5 ${
-                      uploadStage === "success"
-                        ? "text-green-600"
-                        : uploadStage === "error"
-                          ? "text-destructive"
-                          : "text-primary animate-pulse"
-                    }`}
-                  />
-                  <p className='text-sm font-medium'>{currentStageInfo.text}</p>
-                </div>
-                <Progress value={progress} className='h-2' />
-              </div>
-            )}
+            <UploadingAnimation status={uploadStage} onComplete={() => {}} />
 
             {/* Import Result Summary */}
             {importResult?.data && uploadStage === "success" && (

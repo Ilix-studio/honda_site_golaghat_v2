@@ -32,6 +32,8 @@ interface ActionItem {
   onClick: () => void;
   description: string;
   completed?: boolean;
+  /** Step cannot be started yet because an earlier step is unfinished. */
+  disabled?: boolean;
   accent: string;
 }
 
@@ -90,11 +92,16 @@ const InitialDashboard: React.FC = () => {
     }
   }, [location.state, navigate, dispatch]);
 
-  const handleItemClick = (itemId: string, originalOnClick: () => void) => {
-    if (itemId === "vehicle") dispatch(setVehicleCompleted(true));
-    if (itemId === "add-VAS") dispatch(setSelectVASCompleted(true));
-    originalOnClick();
-  };
+  // A step is complete when the server says so — the effects above sync that
+  // from getMyVehicles. Marking it done merely because the user clicked into
+  // the step made the checklist lie whenever they backed out without finishing.
+  //
+  // Read the gate off the query rather than setupProgress.vehicle: that flag is
+  // persisted to localStorage per browser, not per customer, so it carries over
+  // stale when a Branch-Admin onboards the next customer. Undefined while
+  // loading resolves to false, which fails safe.
+  const hasVehicle =
+    Array.isArray(vehicleData?.data) && vehicleData.data.length > 0;
 
   const actionItems: ActionItem[] = [
     {
@@ -123,8 +130,13 @@ const InitialDashboard: React.FC = () => {
       buttonText: "Choose Services",
       icon: Check,
       onClick: () => navigate("/customer/services/vas"),
-      description: "Unlock Value Added Services for your vehicle",
+      // Value Added Services attach to a vehicle, so activation fails outright
+      // ("No active vehicle found for this customer") until one is assigned.
+      description: hasVehicle
+        ? "Unlock Value Added Services for your vehicle"
+        : "Add a vehicle first — services attach to a vehicle",
       completed: setupProgress.selectVAS,
+      disabled: !hasVehicle,
       accent: "#10b981",
     },
   ];
@@ -282,8 +294,9 @@ const InitialDashboard: React.FC = () => {
                   ) : (
                     <Button
                       size='sm'
-                      onClick={() => handleItemClick(item.id, item.onClick)}
-                      className='rounded-xl h-8 px-3 text-xs font-semibold text-white border-0'
+                      disabled={item.disabled}
+                      onClick={item.onClick}
+                      className='rounded-xl h-8 px-3 text-xs font-semibold text-white border-0 disabled:opacity-40 disabled:cursor-not-allowed'
                       style={{ background: item.accent }}
                     >
                       {item.buttonText}

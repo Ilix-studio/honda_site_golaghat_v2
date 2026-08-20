@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import {
   Users,
@@ -106,15 +111,17 @@ export default function NewCustomerList() {
                           {c.phoneNumber}
                         </td>
                         <td className='py-2 pr-4'>
-                          <div className='group relative inline-flex'>
-                            <Badge
-                              variant='outline'
-                              className='bg-gray-50 text-gray-600 border-gray-200 cursor-help'
-                            >
-                              {sourceLabelFor(c.creationSource)}
-                              <Info className='ml-1 h-3 w-3' />
-                            </Badge>
-                            <div className='pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-56 -translate-x-1/2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 shadow-lg opacity-0 transition-opacity group-hover:opacity-100'>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge
+                                variant='outline'
+                                className='bg-gray-50 text-gray-600 border-gray-200 cursor-help'
+                              >
+                                {sourceLabelFor(c.creationSource)}
+                                <Info className='ml-1 h-3 w-3' />
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent className='w-56'>
                               <div className='font-medium text-gray-900'>
                                 Creation source
                               </div>
@@ -134,20 +141,22 @@ export default function NewCustomerList() {
                                   })}
                                 </div>
                               </div>
-                            </div>
-                          </div>
+                            </TooltipContent>
+                          </Tooltip>
                         </td>
                         <td className='py-2 pr-4'>
                           {c.hasVehicle ? (
-                            <div className='group relative inline-flex'>
-                              <Badge
-                                variant='outline'
-                                className='bg-blue-50 text-blue-700 border-blue-200 cursor-help'
-                              >
-                                Assigned
-                                <Info className='ml-1 h-3 w-3' />
-                              </Badge>
-                              <div className='pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-52 -translate-x-1/2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 shadow-lg opacity-0 transition-opacity group-hover:opacity-100'>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge
+                                  variant='outline'
+                                  className='bg-blue-50 text-blue-700 border-blue-200 cursor-help'
+                                >
+                                  Assigned
+                                  <Info className='ml-1 h-3 w-3' />
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent className='w-52'>
                                 <div className='font-medium text-gray-900'>
                                   Vehicle pricing
                                 </div>
@@ -159,14 +168,17 @@ export default function NewCustomerList() {
                                     </span>
                                   </div>
                                   <div className='text-gray-500'>
-                                    Stock ID: {c.vehicleSummary?.stockId ?? "—"}
+                                    Engine No:{" "}
+                                    <span className='font-mono'>
+                                      {c.vehicleSummary?.engineNumber ?? "—"}
+                                    </span>
                                   </div>
                                   <div className='text-gray-500 pt-1 border-t border-gray-100 mt-1'>
                                     Source: {sourceLabelFor(c.creationSource)}
                                   </div>
                                 </div>
-                              </div>
-                            </div>
+                              </TooltipContent>
+                            </Tooltip>
                           ) : (
                             <Badge
                               variant='outline'

@@ -14,7 +14,7 @@ export interface NewCustomerDTO {
   name: string | null;
   hasVehicle: boolean;
   vehicleSummary?: {
-    stockId: string | null;
+    engineNumber: string | null;
     stockType: "StockConcept" | "StockConceptCSV";
     priceLabel: string;
     priceValue: number | null;

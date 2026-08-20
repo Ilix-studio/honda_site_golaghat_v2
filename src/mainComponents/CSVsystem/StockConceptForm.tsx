@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import Confetti from "react-confetti";
 import { toast } from "react-hot-toast";
 import { useCreateStockItemMutation } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
@@ -8,18 +9,20 @@ import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 interface StockConceptFormData {
   modelName: string;
   category: "Bike" | "Scooty";
-  engineCC: number;
+  engineCC: number | "";
   engineNumber: string;
   chassisNumber: string;
   color: string;
   variant: string;
-  yearOfManufacture: number;
-  exShowroomPrice: number;
-  roadTax: number;
+  yearOfManufacture: number | "";
+  exShowroomPrice: number | "";
+  roadTax: number | "";
   branchId: string;
   location: "Showroom" | "Warehouse" | "Service Center" | "Customer";
   uniqueBookRecord?: string;
 }
+
+const CONFETTI_MS = 4000;
 
 export default function StockConceptForm() {
   const navigate = useNavigate();
@@ -30,18 +33,28 @@ export default function StockConceptForm() {
   const [formData, setFormData] = useState<StockConceptFormData>({
     modelName: "",
     category: "Bike",
-    engineCC: 0,
+    engineCC: "",
     engineNumber: "",
     chassisNumber: "",
     color: "",
     variant: "",
     yearOfManufacture: new Date().getFullYear(),
-    exShowroomPrice: 0,
-    roadTax: 0,
+    exShowroomPrice: "",
+    roadTax: "",
     branchId: "",
     location: "Warehouse",
     uniqueBookRecord: "",
   });
+
+  const [showConfetti, setShowConfetti] = useState(false);
+  const confettiTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(
+    () => () => {
+      if (confettiTimerRef.current) clearTimeout(confettiTimerRef.current);
+    },
+    [],
+  );
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -49,16 +62,28 @@ export default function StockConceptForm() {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "number" ? Number(value) : value,
+      [name]:
+        type === "number" ? (value === "" ? "" : Number(value)) : value,
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const result = await createStockItem(formData).unwrap();
+      const payload = {
+        ...formData,
+        engineCC: Number(formData.engineCC),
+        yearOfManufacture: Number(formData.yearOfManufacture),
+        exShowroomPrice: Number(formData.exShowroomPrice),
+        roadTax: formData.roadTax === "" ? 0 : Number(formData.roadTax),
+      };
+      const result = await createStockItem(payload).unwrap();
       toast.success(result.message || "Stock item created successfully!");
-      navigate("/manager/view/stock-concept");
+      setShowConfetti(true);
+      confettiTimerRef.current = setTimeout(() => {
+        setShowConfetti(false);
+        navigate("/manager/view/stock-concept");
+      }, CONFETTI_MS);
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to create stock item");
       console.error("Error submitting form:", error);
@@ -67,6 +92,15 @@ export default function StockConceptForm() {
 
   return (
     <div className='min-h-screen bg-gray-50'>
+      {showConfetti && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          numberOfPieces={250}
+          recycle={false}
+          className='!fixed !inset-0 !z-[60]'
+        />
+      )}
       <div className='max-w-4xl mx-auto p-6'>
         <h1 className='text-2xl font-bold mb-6'>Add Stock Item</h1>
 
@@ -334,15 +368,15 @@ export default function StockConceptForm() {
           <div className='flex gap-3 pt-4'>
             <button
               type='submit'
-              disabled={isLoading}
+              disabled={isLoading || showConfetti}
               className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-blue-400 disabled:cursor-not-allowed'
             >
-              {isLoading ? "Creating..." : "Submit"}
+              {isLoading ? "Creating..." : showConfetti ? "Created!" : "Submit"}
             </button>
             <button
               type='button'
               onClick={() => navigate(-1)}
-              disabled={isLoading}
+              disabled={isLoading || showConfetti}
               className='px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed'
             >
               Cancel

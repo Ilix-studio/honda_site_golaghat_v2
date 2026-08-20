@@ -61,8 +61,11 @@ const CustomerCSVStock = () => {
     { skip: !selectedBatch },
   );
 
-  const [assignCSVStock, { isLoading: isAssigning }] =
-    useAssignCSVStockMutation();
+  // One mutation hook backs every row, so its `isLoading` is true for the whole
+  // table while any single assignment is in flight — which made every Assign
+  // button spin at once. Track the specific row instead and derive the rest.
+  const [assigningStockId, setAssigningStockId] = useState<string | null>(null);
+  const [assignCSVStock] = useAssignCSVStockMutation();
 
   const batches = batchesData?.data || [];
   const stocks = stocksData?.data || [];
@@ -117,6 +120,7 @@ const CustomerCSVStock = () => {
       stock.priceInfo?.exShowroomPrice ??
       stock.costPrice ??
       0;
+    setAssigningStockId(stock._id);
     try {
       const assignmentData = {
         customerId: customer.id,
@@ -138,6 +142,9 @@ const CustomerCSVStock = () => {
       });
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to assign vehicle");
+      // Only clear on failure — on success the row stays in its spinning state
+      // until the navigate() above unmounts the table, so it can't be clicked twice.
+      setAssigningStockId(null);
     }
   };
 
@@ -269,10 +276,10 @@ const CustomerCSVStock = () => {
                             onClick={() => handleAssign(stock)}
                             disabled={
                               stock.stockStatus.status !== "Available" ||
-                              isAssigning
+                              assigningStockId !== null
                             }
                           >
-                            {isAssigning ? (
+                            {assigningStockId === stock._id ? (
                               <>
                                 <RefreshCw className='h-4 w-4 mr-1 animate-spin' />
                                 Assigning...
