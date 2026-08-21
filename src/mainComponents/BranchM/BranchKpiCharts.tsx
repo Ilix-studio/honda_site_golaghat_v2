@@ -33,6 +33,8 @@ import { useGetServiceJobcardSalesTimeseriesQuery } from "@/redux-store/services
 import { useGetCombinedVasAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
 import { StockTab } from "./Tabs/StockTab";
+import SoldDataKpis from "./Tabs/SoldDataKpis";
+import ScrollableTabs from "@/mainComponents/shared/ScrollableTabs";
 
 // ─── Sales & Revenue ──────────────────────────────────────────────────────
 
@@ -160,28 +162,42 @@ const BranchKpiCharts = () => {
         dispatch(setActiveTab({ key: BRANCH_KPI_CHARTS_TAB_KEY, value: v }))
       }
     >
-      <TabsList className='inline-flex h-11 bg-gray-300 rounded-xl p-1 gap-1'>
-        <TabsTrigger
-          value='stock'
-          className='flex items-center gap-2 px-4 rounded-lg text-sm'
-        >
-          <Package className='h-3.5 w-3.5' />
-          Stock Vehicles
-        </TabsTrigger>
-        <TabsTrigger
-          value='vas'
-          className='flex items-center gap-2 px-4 rounded-lg text-sm'
-        >
-          <Sparkles className='h-3.5 w-3.5' />
-          VAS Performance
-        </TabsTrigger>
-      </TabsList>
+      {/* Scrolls horizontally rather than clipping once the labels
+          outgrow a phone-width viewport. */}
+      <ScrollableTabs>
+        <TabsList className='inline-flex h-11 w-max bg-gray-300 rounded-xl p-1 gap-1'>
+          <TabsTrigger
+            value='stock'
+            className='flex shrink-0 whitespace-nowrap items-center gap-1.5 sm:gap-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm'
+          >
+            <Package className='h-3.5 w-3.5 shrink-0' />
+            Stock Vehicles
+          </TabsTrigger>
+          <TabsTrigger
+            value='vas'
+            className='flex shrink-0 whitespace-nowrap items-center gap-1.5 sm:gap-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm'
+          >
+            <Sparkles className='h-3.5 w-3.5 shrink-0' />
+            VAS Performance
+          </TabsTrigger>
+          <TabsTrigger
+            value='sales'
+            className='flex shrink-0 whitespace-nowrap items-center gap-1.5 sm:gap-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm'
+          >
+            <Sparkles className='h-3.5 w-3.5 shrink-0' />
+            Sold Data
+          </TabsTrigger>
+        </TabsList>
+      </ScrollableTabs>
 
       <TabsContent value='stock' className='mt-4'>
         <StockTab />
       </TabsContent>
       <TabsContent value='vas' className='mt-4'>
         <VasTab />
+      </TabsContent>
+      <TabsContent value='sales' className='mt-4'>
+        <SoldDataKpis />
       </TabsContent>
     </Tabs>
   );

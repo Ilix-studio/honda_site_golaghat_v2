@@ -203,6 +203,22 @@ export const partsApi = apiSlice.injectEndpoints({
       providesTags: ["PartsBatch"],
     }),
 
+    // Batches uploaded on one calendar day — same response shape as
+    // getPartsBatches, so the folder grid renders either without branching.
+    getPartsBatchesByDate: builder.query<
+      PartsBatchesResponse,
+      { date: string; branchId?: string }
+    >({
+      query: (params) => {
+        const p = new URLSearchParams();
+        p.append("date", params.date);
+        if (params.branchId) p.append("branchId", params.branchId);
+        const qs = p.toString();
+        return `/parts/batches/by-date${qs ? `?${qs}` : ""}`;
+      },
+      providesTags: ["PartsBatch"],
+    }),
+
     getPartsStockStatus: builder.query<
       PartsStockStatusResponse,
       { branchId?: string } | void
@@ -234,6 +250,7 @@ export const {
   useGetPartsStatsQuery,
   useGetAllPartsQuery,
   useGetPartsBatchesQuery,
+  useGetPartsBatchesByDateQuery,
   useGetPartsStockStatusQuery,
   useAskPartsAiMutation,
 } = partsApi;

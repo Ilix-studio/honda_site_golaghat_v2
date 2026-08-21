@@ -1,3 +1,4 @@
+import ApplyLeave from "@/mainComponents/shared/ApplyLeave";
 import { lazy } from "react";
 
 const LoginPartAdmin = lazy(
@@ -10,6 +11,10 @@ const ProfileView = lazy(() => import("@/mainComponents/shared/ProfileView"));
 
 const PartsStockImport = lazy(
   () => import("@/mainComponents/PartsM/PartsStockImport"),
+);
+
+const PartsApplyLeave = () => (
+  <ApplyLeave dashboardPath='/part-admin/dashboard' />
 );
 
 const PartsFolderDashboard = lazy(
@@ -34,6 +39,7 @@ export const partAdminRoutes = [
   { path: "/part-admin/dashboard", component: PartsAdminDashboard },
   { path: "/part-admin/profile", component: ProfileView },
   { path: "/part-admin/notifications", component: ViewAllNotification },
+  { path: "/part-admin/apply-leave", component: PartsApplyLeave },
 
   {
     path: "/part-admin/parts-stock/upload",

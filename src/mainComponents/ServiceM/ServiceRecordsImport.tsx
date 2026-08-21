@@ -1,5 +1,14 @@
-import { Wrench, Info } from "lucide-react";
+import { Wrench, Download } from "lucide-react";
 import ServiceJobcardUploadForm from "@/mainComponents/ServiceM/ServiceJobcardUploadForm";
+import { Button } from "@/components/ui/button";
+import {
+  SERVICE_JOBCARD_TEMPLATE_COLUMNS,
+  downloadServiceJobcardTemplate,
+} from "@/lib/serviceJobcardTemplate";
+
+const requiredColumns = SERVICE_JOBCARD_TEMPLATE_COLUMNS.filter(
+  (c) => c.required,
+);
 
 export default function ServiceRecordsImport() {
   return (
@@ -19,25 +28,47 @@ export default function ServiceRecordsImport() {
           </div>
         </div>
 
-        <div className='flex items-start gap-2 rounded-lg bg-blue-50 border border-blue-200 p-3 text-sm text-blue-800 mt-4'>
-          <Info className='w-4 h-4 mt-0.5 shrink-0' />
-          <span>
-            Every upload is compared against your last one — added and
-            corrected job cards are shown with a revenue impact, and an
-            identical re-upload is rejected with no changes made. Each row is
-            matched by Frame Number and Customer Mobile: customers and
-            vehicle assignments are created automatically (no OTP required)
-            using Customer Name, Customer Mobile, Model Name, Model Variant,
-            Current KMs, Service Type and AMC Service from the file — the
-            row's Customer Name is also checked against the matched
-            customer's profile name and flagged for review on a mismatch.
-            Parts Revenue, Lubes Revenue and Total Job Card Revenue are added
-            to each matched customer's vehicle as service expenses (corrected
-            by the exact delta if a job card is re-uploaded with different
-            figures). If a row's Service Type is <strong>PAID</strong> for a
-            phone number already on record, that customer's complimentary
-            free services are disabled going forward.
-          </span>
+        <div className='rounded-lg border border-gray-200 bg-white p-4 mt-4'>
+          <div className='flex items-start justify-between gap-4 flex-wrap'>
+            <div className='min-w-0'>
+              <p className='text-sm text-gray-500 mt-0.5'>
+                Download the template, fill it in, and upload it here.
+              </p>
+            </div>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={downloadServiceJobcardTemplate}
+              className='shrink-0'
+            >
+              <Download className='h-4 w-4 mr-2' />
+              Download template (CSV)
+            </Button>
+          </div>
+
+          <div className='mt-3 pt-3 border-t border-gray-100'>
+            <p className='text-xs font-medium text-gray-500 mb-1.5'>
+              Required columns — an upload missing any of these is rejected:
+            </p>
+            <div className='flex flex-wrap gap-1.5'>
+              {requiredColumns.map((column) => (
+                <span
+                  key={column.header}
+                  className='bg-gray-100 text-gray-700 text-[11px] px-2 py-0.5 rounded-md font-mono'
+                >
+                  {column.header}
+                </span>
+              ))}
+            </div>
+            <p className='text-xs text-gray-400 mt-2'>
+              The other{" "}
+              {SERVICE_JOBCARD_TEMPLATE_COLUMNS.length - requiredColumns.length}{" "}
+              columns in the template are optional, but Customer Name, Customer
+              Mobile and Model Name are what let a row create or match a
+              customer. Dates are DD-MM-YYYY; the example row shows the expected
+              formatting and should be deleted before uploading real data.
+            </p>
+          </div>
         </div>
       </div>
 

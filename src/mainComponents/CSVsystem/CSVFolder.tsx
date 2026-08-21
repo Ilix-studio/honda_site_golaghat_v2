@@ -2,22 +2,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  FolderOpen,
+  FileSpreadsheet,
   Calendar as CalendarIcon,
   Package,
   RefreshCw,
   ArrowLeft,
-  Upload,
-  Folder,
+  UploadCloud,
   Trash2,
   Loader2,
-  IndianRupee,
   ShieldAlert,
 } from "lucide-react";
 import { format } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -36,6 +32,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import toast from "react-hot-toast";
 
+import { MetricTile } from "@/mainComponents/Admin/AdminDash/StatCard";
+import FolderCard from "@/mainComponents/shared/FolderCard";
+import { inr } from "@/mainComponents/DataImport/SalesKpiCharts";
 import {
   useDeleteCSVBatchMutation,
   useGetCSVBatchesQuery,
@@ -99,9 +98,14 @@ const CSVFolder = () => {
     [batches],
   );
 
-  const formatCurrency = (n: number) => `₹${n.toLocaleString("en-IN")}`;
-
   const batchHasSoldStock = (batchToDelete?.soldStocks ?? 0) > 0;
+
+  const totalStocks = sortedBatches.reduce((sum, b) => sum + b.totalStocks, 0);
+  const totalAvailable = sortedBatches.reduce(
+    (sum, b) => sum + b.availableStocks,
+    0,
+  );
+  const totalSold = sortedBatches.reduce((sum, b) => sum + b.soldStocks, 0);
 
   useEffect(() => {
     if (error) toast.error("Failed to load CSV batches");
@@ -125,33 +129,21 @@ const CSVFolder = () => {
   // Show batch files view
   if (selectedBatch) {
     return (
-      <div className='max-w-7xl mx-auto p-3 sm:p-6'>
-        <Card size='sm'>
-          <CardHeader>
-            <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={() => setSelectedBatch(null)}
-                className='w-fit'
-              >
-                <ArrowLeft className='h-4 w-4 mr-2' />
-                Back to Folders
-              </Button>
-              <div className='min-w-0'>
-                <CardTitle className='flex items-center gap-2 text-base sm:text-lg'>
-                  <FolderOpen className='h-5 w-5 shrink-0 text-yellow-600' />
-                  <span className='truncate'>{selectedBatch.fileName}</span>
-                </CardTitle>
-                <p className='text-sm text-muted-foreground'>
-                  {selectedBatch.totalStocks} stocks • Imported{" "}
-                  {formatDate(selectedBatch.importDate)}
-                </p>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-        <div className='mt-4 sm:mt-6'>
+      <div className='min-h-screen bg-gray-50'>
+        <div className='max-w-6xl mx-auto px-4 sm:px-6 py-8'>
+          <button
+            onClick={() => setSelectedBatch(null)}
+            className='flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 mb-4'
+          >
+            <ArrowLeft className='h-4 w-4' /> Back to folders
+          </button>
+          <h1 className='text-xl font-bold text-gray-900 mb-1'>
+            {selectedBatch.fileName}
+          </h1>
+          <p className='text-sm text-gray-500 mb-6'>
+            {selectedBatch.totalStocks} stocks • Imported{" "}
+            {formatDate(selectedBatch.importDate)}
+          </p>
           <GetCSVFiles batchId={selectedBatch.batchId} />
         </div>
       </div>
@@ -160,174 +152,150 @@ const CSVFolder = () => {
 
   // Show batch folder grid
   return (
-    <div className='max-w-7xl mx-auto p-3 sm:p-6'>
-      <Card size='sm'>
-        <CardHeader>
-          <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
-            <CardTitle className='flex items-center gap-2'>
-              <Folder className='h-5 w-5 shrink-0' />
-              CSV Import Folders
-            </CardTitle>
-            <div className='flex flex-wrap gap-2'>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant='outline' size='sm' className='w-fit'>
-                    <CalendarIcon className='h-4 w-4 mr-2' />
-                    {selectedDate
-                      ? format(selectedDate, "dd MMM yyyy")
-                      : "Pick date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className='w-auto p-0' align='end'>
-                  <Calendar
-                    mode='single'
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                  />
-                </PopoverContent>
-              </Popover>
-              {selectedDate && (
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => setSelectedDate(undefined)}
-                  className='w-fit'
-                >
-                  Clear
-                </Button>
-              )}
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={() => refetch()}
-                className='w-fit'
-              >
-                <RefreshCw className='h-4 w-4 mr-2' />
-                Refresh
-              </Button>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={() => navigate("/manager/forms/stock-concept-csv")}
-                className='w-fit bg-blue-800 text-white hover:bg-blue-900 hover:text-white'
-              >
-                <Upload className='h-4 w-4 mr-2' />
-                Add New CSV
-              </Button>
+    <div className='min-h-screen bg-gray-50'>
+      <div className='max-w-6xl mx-auto px-4 sm:px-6 py-8'>
+        <div className='flex items-center justify-between flex-wrap gap-3 mb-6'>
+          <div className='flex items-center gap-3'>
+            <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-900 text-white'>
+              <FileSpreadsheet className='h-5 w-5' />
             </div>
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          {(isLoading || dateBatchesLoading) && (
-            <div className='text-center py-12'>
-              <RefreshCw className='h-8 w-8 animate-spin mx-auto mb-3 text-primary' />
-              <p className='text-muted-foreground'>Loading batches...</p>
-            </div>
-          )}
-
-          {!isLoading && !dateBatchesLoading && sortedBatches.length > 0 && (
-            <div className='space-y-4'>
-              {showDateMode && (
-                <h3 className='text-sm font-semibold text-foreground'>
-                  Batches for {format(selectedDate!, "dd MMMM yyyy")}
-                </h3>
-              )}
-              <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4'>
-              {sortedBatches.map((batch) => (
-                <div
-                  key={batch.batchId}
-                  onClick={() => setSelectedBatch(batch)}
-                  className='group cursor-pointer'
-                >
-                  <Card className='relative h-full transition-all hover:shadow-lg hover:border-primary/50'>
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      aria-label='Delete folder'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setBatchToDelete(batch);
-                      }}
-                      className='absolute top-1 right-1 z-10 h-7 w-7 text-muted-foreground opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 focus-visible:opacity-100 group-hover:opacity-100'
-                    >
-                      <Trash2 className='h-4 w-4' />
-                    </Button>
-                    <CardContent className='p-3 sm:p-6'>
-                      <div className='flex flex-col items-center text-center space-y-2 sm:space-y-4'>
-                        {/* Folder Icon */}
-                        <div className='relative'>
-                          <Folder className='h-12 w-12 sm:h-20 sm:w-20 text-blue-400 transition-transform group-hover:scale-110' />
-                          <Badge
-                            variant='secondary'
-                            className='absolute -top-2 -right-2 h-5 w-5 sm:h-6 sm:w-6 rounded-full p-0 flex items-center justify-center text-[10px] sm:text-xs'
-                          >
-                            {batch.totalStocks}
-                          </Badge>
-                        </div>
-
-                        {/* Batch Info */}
-                        <div className='space-y-1 w-full min-w-0'>
-                          <h3 className='font-semibold text-xs sm:text-sm line-clamp-2 break-words'>
-                            {batch.fileName}
-                          </h3>
-                          <div className='flex items-center justify-center gap-1 text-[11px] sm:text-xs text-muted-foreground'>
-                            <CalendarIcon className='h-3 w-3 shrink-0' />
-                            <span className='truncate'>
-                              {formatDate(batch.importDate)} at{" "}
-                              {formatTime(batch.importDate)}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Stats */}
-                        <div className='flex flex-wrap items-center gap-1.5 sm:gap-2 w-full justify-center'>
-                          <Badge
-                            variant='outline'
-                            className='text-[10px] sm:text-xs bg-green-50 text-green-700'
-                          >
-                            {batch.availableStocks} available
-                          </Badge>
-                          {batch.soldStocks > 0 && (
-                            <Badge
-                              variant='outline'
-                              className='text-[10px] sm:text-xs bg-blue-50 text-blue-700'
-                            >
-                              {batch.soldStocks} sold
-                            </Badge>
-                          )}
-                        </div>
-                        <div className='flex items-center gap-1 text-[11px] sm:text-xs font-medium text-amber-700'>
-                          <IndianRupee className='h-3 w-3 shrink-0' />
-                          {formatCurrency(batch.totalCostPrice || 0)}
-                        </div>
-
-                        {/* Hover Indicator */}
-                        <div className='hidden sm:block text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity'>
-                          Click to view stocks →
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
-              </div>
-            </div>
-          )}
-
-          {!isLoading && !dateBatchesLoading && sortedBatches.length === 0 && (
-            <div className='text-center py-12 border rounded-lg'>
-              <Package className='h-12 w-12 mx-auto mb-3 text-muted-foreground' />
-              <h3 className='font-semibold mb-1'>No CSV imports found</h3>
-              <p className='text-sm text-muted-foreground'>
-                {showDateMode
-                  ? "No batches found for the selected date."
-                  : "Upload a CSV file to create your first import batch"}
+            <div>
+              <h1 className='text-xl font-bold text-gray-900'>
+                CSV Import Folders
+              </h1>
+              <p className='text-sm text-gray-500'>
+                Daily stock CSV/Excel imports, grouped by upload batch
               </p>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+          <div className='flex items-center gap-2 flex-wrap'>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant='outline' size='sm'>
+                  <CalendarIcon className='h-4 w-4 mr-2' />
+                  {selectedDate
+                    ? format(selectedDate, "dd MMM yyyy")
+                    : "Pick date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className='w-auto p-0' align='end'>
+                <Calendar
+                  mode='single'
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                />
+              </PopoverContent>
+            </Popover>
+            {selectedDate && (
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => setSelectedDate(undefined)}
+              >
+                Clear
+              </Button>
+            )}
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => navigate("/manager/forms/stock-concept-csv")}
+            >
+              <UploadCloud className='h-4 w-4 mr-2' />
+              Add New CSV
+            </Button>
+            <Button variant='outline' size='sm' onClick={() => refetch()}>
+              <RefreshCw className='h-4 w-4 mr-2' />
+              Refresh
+            </Button>
+          </div>
+        </div>
+
+        <div className='grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8'>
+          <MetricTile
+            index={0}
+            label='Batches'
+            value={sortedBatches.length}
+            bg='bg-gray-900'
+            text='text-white'
+            sub='text-gray-300'
+          />
+          <MetricTile
+            index={1}
+            label='Total Stocks'
+            value={totalStocks}
+            bg='bg-blue-50'
+            text='text-blue-900'
+            sub='text-blue-600'
+          />
+          <MetricTile
+            index={2}
+            label='Available'
+            value={totalAvailable}
+            bg='bg-green-50'
+            text='text-green-900'
+            sub='text-green-600'
+          />
+          <MetricTile
+            index={3}
+            label='Sold'
+            value={totalSold}
+            bg='bg-purple-50'
+            text='text-purple-900'
+            sub='text-purple-600'
+          />
+        </div>
+
+        {(isLoading || dateBatchesLoading) && (
+          <div className='text-center py-12'>
+            <RefreshCw className='h-8 w-8 animate-spin mx-auto mb-3 text-primary' />
+            <p className='text-muted-foreground'>Loading batches...</p>
+          </div>
+        )}
+
+        {!isLoading && !dateBatchesLoading && sortedBatches.length === 0 && (
+          <div className='text-center py-16 border rounded-lg bg-white'>
+            <Package className='h-12 w-12 mx-auto mb-3 text-muted-foreground' />
+            <h3 className='font-semibold mb-1'>No CSV imports found</h3>
+            <p className='text-sm text-muted-foreground'>
+              {showDateMode
+                ? "No batches found for the selected date."
+                : "Upload a CSV file to create your first import batch"}
+            </p>
+          </div>
+        )}
+
+        {!isLoading && !dateBatchesLoading && sortedBatches.length > 0 && (
+          <div className='space-y-4'>
+            {showDateMode && (
+              <h3 className='text-base font-semibold text-gray-900'>
+                Batches for {format(selectedDate!, "dd MMMM yyyy")}
+              </h3>
+            )}
+            <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 border-2 rounded-2xl p-6 bg-white'>
+              {sortedBatches.map((batch) => (
+                <div key={batch.batchId} className='relative group'>
+                  <FolderCard
+                    title={batch.fileName}
+                    countLabel={`${formatDate(batch.importDate)} at ${formatTime(batch.importDate)} · ${batch.totalStocks} stock(s)`}
+                    subLabel={`${batch.availableStocks} available · ${batch.soldStocks} sold · ${inr(batch.totalCostPrice || 0)}`}
+                    onOpen={() => setSelectedBatch(batch)}
+                  />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setBatchToDelete(batch);
+                    }}
+                    aria-label='Delete folder'
+                    className='absolute top-1 right-1 p-1.5 rounded-md bg-white/90 border border-gray-200 opacity-0 transition-opacity hover:bg-red-50 focus-visible:opacity-100 group-hover:opacity-100'
+                  >
+                    <Trash2 className='h-3.5 w-3.5 text-red-600' />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       <AlertDialog
         open={!!batchToDelete}
@@ -349,7 +317,7 @@ const CSVFolder = () => {
                       </span>{" "}
                       holds {batchToDelete?.soldStocks} sold stock(s) worth{" "}
                       <span className='font-semibold text-foreground'>
-                        {formatCurrency(batchToDelete?.totalCostPrice || 0)}
+                        {inr(batchToDelete?.totalCostPrice || 0)}
                       </span>{" "}
                       in cost price, linked to real sale invoices and customer
                       vehicle records.

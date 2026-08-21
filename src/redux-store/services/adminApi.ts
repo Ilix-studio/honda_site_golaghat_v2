@@ -42,6 +42,13 @@ export interface CreatePartAdminRequest {
   branch?: string;
 }
 
+/** Developer takes no branch or address — it is a project-wide account. */
+export interface CreateDeveloperRequest {
+  name: string;
+  email: string;
+  phoneNumber: string;
+}
+
 export interface CreateStaffRequest {
   name: string;
   email: string;
@@ -100,6 +107,23 @@ export interface PartAdminLoginResponse extends BaseResponse {
   };
 }
 
+/** Developer signs in with email — it is a project-wide account, not a branch one. */
+export interface DeveloperLoginResponse extends BaseResponse {
+  data: {
+    id: string;
+    name: string;
+    email: string;
+    phoneNumber: string;
+    role: string;
+    token: string;
+  };
+}
+
+export interface DeveloperLoginRequest {
+  email: string;
+  password: string;
+}
+
 export interface StaffLoginResponse extends BaseResponse {
   data: {
     id: string;
@@ -139,6 +163,35 @@ export interface CreatedUserResponse extends BaseResponse {
     branch: string;
     position?: string;
   };
+}
+
+/**
+ * Separate from CreatedUserResponse: that type requires `branch`, which a
+ * Developer account does not have.
+ */
+export interface CreatedDeveloperResponse extends BaseResponse {
+  data: {
+    id: string;
+    name: string;
+    email: string;
+    phoneNumber: string;
+    password: string;
+  };
+}
+
+export interface DeveloperListItem {
+  _id: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  isActive: boolean;
+  createdBy?: { name: string; email?: string };
+  createdAt: string;
+}
+
+export interface DeveloperListResponse extends BaseResponse {
+  count: number;
+  data: DeveloperListItem[];
 }
 
 export interface UserListItem {
@@ -302,6 +355,34 @@ export const adminAuthApi = apiSlice.injectEndpoints({
           }
         } catch (error) {
           console.error("Part-Admin login failed:", error);
+        }
+      },
+    }),
+
+    loginDeveloper: builder.mutation<
+      DeveloperLoginResponse,
+      DeveloperLoginRequest
+    >({
+      query: (credentials) => ({
+        url: "/auth/developer/login",
+        method: "POST",
+        body: credentials,
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data.success) {
+            const userData: User = {
+              id: data.data.id,
+              name: data.data.name,
+              email: data.data.email,
+              phoneNumber: data.data.phoneNumber,
+              role: data.data.role,
+            };
+            dispatch(loginSuccess({ user: userData, token: data.data.token }));
+          }
+        } catch (error) {
+          console.error("Developer login failed:", error);
         }
       },
     }),
@@ -509,6 +590,35 @@ export const adminAuthApi = apiSlice.injectEndpoints({
     }),
 
     // ═════════════════════════════════════════════════════════════════════
+    // USER MANAGEMENT — DEVELOPER — /api/users/* (Super-Admin only)
+    // ═════════════════════════════════════════════════════════════════════
+
+    createDeveloper: builder.mutation<
+      CreatedDeveloperResponse,
+      CreateDeveloperRequest
+    >({
+      query: (data) => ({
+        url: "/users/developer",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Developer"],
+    }),
+
+    getAllDevelopers: builder.query<DeveloperListResponse, void>({
+      query: () => "/users/developers",
+      providesTags: ["Developer"],
+    }),
+
+    deleteDeveloper: builder.mutation<BaseResponse, string>({
+      query: (id) => ({
+        url: `/users/developer/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Developer"],
+    }),
+
+    // ═════════════════════════════════════════════════════════════════════
     // USER MANAGEMENT — STAFF — /api/users/*
     // ═════════════════════════════════════════════════════════════════════
 
@@ -549,6 +659,7 @@ export const {
   useLoginBranchAdminMutation,
   useLoginServiceAdminMutation,
   useLoginPartAdminMutation,
+  useLoginDeveloperMutation,
   useLoginStaffMutation,
   useCheckOtpPhoneMutation,
   useOtpLoginMutation,
@@ -569,6 +680,9 @@ export const {
   // Part-Admin management
   useCreatePartAdminMutation,
   useGetAllPartAdminsQuery,
+  useCreateDeveloperMutation,
+  useGetAllDevelopersQuery,
+  useDeleteDeveloperMutation,
   useDeletePartAdminMutation,
   // Staff management
   useCreateStaffMutation,

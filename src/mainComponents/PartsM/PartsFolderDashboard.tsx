@@ -1,10 +1,24 @@
 import { useState } from "react";
-import { ArrowLeft, Package, RefreshCw, UploadCloud } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar as CalendarIcon,
+  Package,
+  RefreshCw,
+  UploadCloud,
+} from "lucide-react";
+import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 import {
   useGetPartsBatchesQuery,
+  useGetPartsBatchesByDateQuery,
   useGetPartsStockStatusQuery,
   type PartsBatchDTO,
 } from "@/redux-store/services/partsApi";
@@ -46,12 +60,27 @@ const PartsFolderDashboard = () => {
     null,
   );
 
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+
   const { data, isLoading, refetch } = useGetPartsBatchesQuery();
   const { data: stockStatusData, isLoading: stockStatusLoading } =
     useGetPartsStockStatusQuery();
   const stockStatus = stockStatusData?.data;
 
-  const batches = data?.data ?? [];
+  // Local calendar date, not toISOString() — the latter converts to UTC first,
+  // so an evening pick in IST would query the previous day.
+  const dateKey = selectedDate ? format(selectedDate, "yyyy-MM-dd") : undefined;
+  const { data: dateBatchesData, isLoading: dateBatchesLoading } =
+    useGetPartsBatchesByDateQuery(
+      { date: dateKey ?? "" },
+      { skip: !dateKey },
+    );
+
+  const showDateMode = Boolean(dateKey);
+  const batches = showDateMode
+    ? (dateBatchesData?.data ?? [])
+    : (data?.data ?? []);
+  const listLoading = showDateMode ? dateBatchesLoading : isLoading;
   const sortedBatches = [...batches].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
@@ -89,9 +118,42 @@ const PartsFolderDashboard = () => {
 
   return (
     <div className='max-w-7xl mx-auto p-6 space-y-6'>
-      <div className='flex items-center justify-between'>
-        <h2 className='text-xl font-semibold'>Imported Parts Reports</h2>
+      <div className='flex items-center justify-between flex-wrap gap-3'>
+        <div>
+          <h2 className='text-xl font-semibold'>Imported Parts Reports</h2>
+          {showDateMode && (
+            <p className='text-sm text-muted-foreground'>
+              Uploaded on {format(selectedDate!, "dd MMMM yyyy")}
+            </p>
+          )}
+        </div>
         <div className='flex items-center gap-2'>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant='outline' size='sm'>
+                <CalendarIcon className='h-4 w-4 mr-2' />
+                {selectedDate
+                  ? format(selectedDate, "dd MMM yyyy")
+                  : "Pick date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='w-auto p-0' align='end'>
+              <Calendar
+                mode='single'
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+              />
+            </PopoverContent>
+          </Popover>
+          {selectedDate && (
+            <Button
+              variant='ghost'
+              size='sm'
+              onClick={() => setSelectedDate(undefined)}
+            >
+              Clear
+            </Button>
+          )}
           <Button variant='outline' size='sm' onClick={() => refetch()}>
             <RefreshCw className='h-4 w-4 mr-2' />
             Refresh
@@ -137,14 +199,14 @@ const PartsFolderDashboard = () => {
         </Card>
       </div>
 
-      {isLoading && (
+      {listLoading && (
         <div className='text-center py-12'>
           <RefreshCw className='h-8 w-8 animate-spin mx-auto mb-3 text-primary' />
           <p className='text-muted-foreground'>Loading imports...</p>
         </div>
       )}
 
-      {!isLoading && sortedBatches.length > 0 && (
+      {!listLoading && sortedBatches.length > 0 && (
         <div className='flex flex-wrap gap-x-10 gap-y-12'>
           {sortedBatches.map((batch) => (
             <FolderCard
@@ -159,12 +221,18 @@ const PartsFolderDashboard = () => {
         </div>
       )}
 
-      {!isLoading && sortedBatches.length === 0 && (
+      {!listLoading && sortedBatches.length === 0 && (
         <div className='text-center py-12 border rounded-lg'>
           <Package className='h-12 w-12 mx-auto mb-3 text-muted-foreground' />
-          <h3 className='font-semibold mb-1'>No parts reports found</h3>
+          <h3 className='font-semibold mb-1'>
+            {showDateMode
+              ? "No parts reports on this date"
+              : "No parts reports found"}
+          </h3>
           <p className='text-sm text-muted-foreground'>
-            Upload a parts report to create your first import batch
+            {showDateMode
+              ? "Pick another date, or clear the filter to see every batch"
+              : "Upload a parts report to create your first import batch"}
           </p>
         </div>
       )}

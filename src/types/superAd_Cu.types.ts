@@ -281,17 +281,37 @@ export interface VehiclesByPhoneResponse {
   message?: string;
 }
 
+/**
+ * A vehicle's `stockConcept` is populated through a polymorphic `refPath`, so it
+ * is either a StockConcept (manually created) or a StockConceptCSV (imported).
+ * The two name the same ideas differently, hence every field being optional —
+ * use `resolveStockDisplay()` in `@/lib/stockDisplay` rather than reading
+ * `modelName` directly, or CSV stock renders as "Unknown Model".
+ */
 export interface IPopulatedStockConcept {
   _id: string;
   stockId: string;
-  modelName: string;
-  category?: string; // StockConcept has this, CSV may not
-  engineCC?: number;
   color: string;
+
+  // StockConcept (manual) only
+  modelName?: string;
+  category?: string;
+  engineCC?: number;
   variant?: string;
   yearOfManufacture?: number;
-  engineNumber?: string;
   chassisNumber?: string;
+
+  // StockConceptCSV (imported) only
+  modelVariant?: string;
+  frameNumber?: string;
+  costPrice?: number;
+  stockStatus?: {
+    status: "Available" | "Sold" | "Reserved" | "Service";
+    location: string;
+  };
+
+  // Present on both
+  engineNumber?: string;
   priceInfo?: {
     exShowroomPrice: number;
     roadTax: number;

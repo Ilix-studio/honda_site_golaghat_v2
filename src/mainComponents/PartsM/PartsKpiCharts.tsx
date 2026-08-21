@@ -6,10 +6,6 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
-  PolarAngleAxis,
-  PolarGrid,
-  Radar,
-  RadarChart,
   XAxis,
 } from "recharts";
 
@@ -45,18 +41,53 @@ const importedTrendConfig: ChartConfig = {
   partCount: { label: "Parts Imported", color: "var(--chart-1)" },
 };
 
+/**
+ * Two series share one plot here, so the pair has to stay separable for
+ * colour-vision-deficient readers. --chart-4 (amber #ffb900) used to hold the
+ * second slot and sits at 1.68:1 against a white card — below the 3:1 floor,
+ * and effectively invisible. --chart-2 clears every check against this surface.
+ */
 const importVsReviewConfig: ChartConfig = {
   partCount: { label: "Imported", color: "var(--chart-1)" },
-  reviewCount: { label: "Needs Review", color: "var(--chart-4)" },
+  reviewCount: { label: "Needs Review", color: "var(--chart-2)" },
 };
 
 const revenueByDateConfig: ChartConfig = {
   revenueAfter: { label: "Revenue", color: "var(--chart-1)" },
 };
 
+/**
+ * Revenue change is polarity, not identity, so it wants a diverging pair —
+ * two hues either side of zero rather than two arbitrary categorical slots.
+ * These are the hues the card's own caption promises; the previous
+ * chart-1/chart-4 pairing rendered orange/amber while claiming green/red.
+ */
+const REVENUE_UP = "#059669";
+const REVENUE_DOWN = "#dc2626";
+
 const revenueDeltaConfig: ChartConfig = {
-  revenueDelta: { label: "Revenue Change", color: "var(--chart-2)" },
+  revenueDelta: { label: "Revenue Change", color: REVENUE_UP },
 };
+
+/** What each chart on this tab plots, and which field it reads. */
+const CHART_DOCS: { title: string; body: string }[] = [
+  {
+    title: "Parts Imported",
+    body: "Rows accepted per month for the selected import year, from the parts report uploads. Duplicate rows rejected at upload never appear here.",
+  },
+  {
+    title: "Imported vs. Needs Review",
+    body: "The same monthly rows split by confidence. 'Needs Review' counts rows whose numeric or date cells could not be parsed — PDF uploads are the usual source, since their extraction is best-effort.",
+  },
+  {
+    title: "Revenue by Upload Date",
+    body: "Stock revenue as it stood after each parts-stock upload — a running position, not per-upload takings.",
+  },
+  {
+    title: "Revenue Change per Upload",
+    body: "The difference each upload made to that position. Bars above zero are increases (green), below zero decreases (red); the direction carries the sign as well as the colour.",
+  },
+];
 
 const PartsKpiCharts = () => {
   const [year, setYear] = useState(() => new Date().getFullYear());
@@ -64,30 +95,12 @@ const PartsKpiCharts = () => {
   const { data: statsData, isLoading: statsLoading } = useGetPartsStatsQuery({
     year,
   });
-  const { data: prevStatsData } = useGetPartsStatsQuery({ year: year - 1 });
   const { data: stockStatusData, isLoading: stockStatusLoading } =
     useGetPartsStockStatusQuery();
 
   const monthly = statsData?.data.monthly ?? [];
   const totals = statsData?.data.totals;
   const stockStatus = stockStatusData?.data;
-
-  const yoyConfig: ChartConfig = useMemo(
-    () => ({
-      current: { label: `${year}`, color: "var(--chart-1)" },
-      previous: { label: `${year - 1}`, color: "var(--chart-3)" },
-    }),
-    [year],
-  );
-
-  const yoyData = useMemo(() => {
-    const prevMonthly = prevStatsData?.data.monthly ?? [];
-    return monthly.map((m, i) => ({
-      month: m.month,
-      current: m.partCount,
-      previous: prevMonthly[i]?.partCount ?? 0,
-    }));
-  }, [monthly, prevStatsData]);
 
   const byDate = useMemo(
     () =>
@@ -160,9 +173,7 @@ const PartsKpiCharts = () => {
         <>
           <Card>
             <CardHeader>
-              <CardTitle className='text-base'>
-                Parts Imported vs. Sold
-              </CardTitle>
+              <CardTitle className='text-base'>Parts Imported</CardTitle>
               <CardDescription>
                 Rows imported per month in {year}
               </CardDescription>
@@ -187,6 +198,7 @@ const PartsKpiCharts = () => {
                     fill='var(--color-partCount)'
                     fillOpacity={0.2}
                     stroke='var(--color-partCount)'
+                    strokeWidth={2}
                   />
                 </AreaChart>
               </ChartContainer>
@@ -231,42 +243,6 @@ const PartsKpiCharts = () => {
               </ChartContainer>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className='text-base'>
-                Import Volume, Year over Year
-              </CardTitle>
-              <CardDescription>
-                {year} vs {year - 1} — monthly import shape
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={yoyConfig}
-                className='mx-auto h-[300px] w-full max-w-[420px]'
-              >
-                <RadarChart data={yoyData}>
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey='month' tick={{ fontSize: 11 }} />
-                  <Radar
-                    dataKey='current'
-                    fill='var(--color-current)'
-                    fillOpacity={0.4}
-                    stroke='var(--color-current)'
-                  />
-                  <Radar
-                    dataKey='previous'
-                    fill='var(--color-previous)'
-                    fillOpacity={0.2}
-                    stroke='var(--color-previous)'
-                  />
-                  <ChartLegend content={<ChartLegendContent />} />
-                </RadarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
         </>
       )}
 
@@ -301,6 +277,7 @@ const PartsKpiCharts = () => {
                     fill='var(--color-revenueAfter)'
                     fillOpacity={0.2}
                     stroke='var(--color-revenueAfter)'
+                    strokeWidth={2}
                   />
                 </AreaChart>
               </ChartContainer>
@@ -341,11 +318,7 @@ const PartsKpiCharts = () => {
                     {byDate.map((d) => (
                       <Cell
                         key={d.batchId}
-                        fill={
-                          d.revenueDelta >= 0
-                            ? "var(--chart-1)"
-                            : "var(--chart-4)"
-                        }
+                        fill={d.revenueDelta >= 0 ? REVENUE_UP : REVENUE_DOWN}
                       />
                     ))}
                   </Bar>
@@ -355,6 +328,39 @@ const PartsKpiCharts = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className='text-base'>Documentation</CardTitle>
+          <CardDescription>
+            What each chart above plots, and where the numbers come from
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <dl className='space-y-3'>
+            {CHART_DOCS.map((doc) => (
+              <div key={doc.title}>
+                <dt className='text-sm font-semibold text-gray-900'>
+                  {doc.title}
+                </dt>
+                <dd className='text-sm text-muted-foreground mt-0.5'>
+                  {doc.body}
+                </dd>
+              </div>
+            ))}
+            <div className='pt-3 border-t border-gray-100'>
+              <dt className='text-sm font-semibold text-gray-900'>
+                Import year
+              </dt>
+              <dd className='text-sm text-muted-foreground mt-0.5'>
+                The year selector at the top filters the two monthly charts
+                only. The revenue charts track parts-stock uploads and always
+                show the full history.
+              </dd>
+            </div>
+          </dl>
+        </CardContent>
+      </Card>
     </div>
   );
 };

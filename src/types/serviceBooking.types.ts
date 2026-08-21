@@ -77,6 +77,7 @@ export interface ServiceStatsResponse {
     usedServicesCount: number;
     usedServiceTypes: string[];
     availableServices: string[];
+    freeServicesDisabled: boolean;
     breakdown: {
       freeServicesUsed: number;
       paidServicesUsed: number;

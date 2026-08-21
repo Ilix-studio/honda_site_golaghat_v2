@@ -1,8 +1,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Cog, BookAudio } from "lucide-react";
+import { Cog, BookAudio, ReceiptText } from "lucide-react";
 import ViewAssignedStock from "./ViewAssignedStock";
 import ViewAssignedStockCSV from "./ViewAssignedStockCSV";
+import SalesReportAdminDashboard from "@/mainComponents/SalesReportImportM/SalesReportAdminDashboard";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import {
   selectActiveTab,
@@ -49,6 +50,13 @@ const SalesReport = () => {
                 <BookAudio className='h-4 w-4' />
                 <span>Bulk Order Requests</span>
               </TabsTrigger>
+              <TabsTrigger
+                value='sold-vehicles-import'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <ReceiptText className='h-4 w-4' />
+                <span>Sold Vehicles Import</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value='assigned-stock' className='mt-6'>
@@ -72,6 +80,14 @@ const SalesReport = () => {
                   <h2 className='text-center text-2xl font-bold text-gray-900'>
                     Bulk Order Sales Report
                   </h2>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value='sold-vehicles-import' className='mt-6'>
+              <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
+                <CardContent className='p-4'>
+                  <SalesReportAdminDashboard />
                 </CardContent>
               </Card>
             </TabsContent>

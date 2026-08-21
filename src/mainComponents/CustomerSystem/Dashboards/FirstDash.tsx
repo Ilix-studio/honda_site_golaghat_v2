@@ -15,6 +15,7 @@ import { useGetMyVehiclesQuery } from "@/redux-store/services/customer/customerV
 import { useAppSelector } from "@/hooks/redux";
 import { selectIsBranchAdmin } from "@/redux-store/slices/authSlice";
 import { IPopulatedCustomerVehicle } from "@/types/superAd_Cu.types";
+import { resolveStockDisplay } from "@/lib/stockDisplay";
 
 // ─── Vehicle Card ─────────────────────────────────────────────────────────────
 
@@ -26,12 +27,9 @@ function VehicleCard({
   index: number;
 }) {
   const navigate = useNavigate();
-  const stock = vehicle.stockConcept;
-  const modelName = stock?.modelName ?? "Unknown Model";
-  const category = stock?.category ?? "—";
-  const color = stock?.color ?? "—";
-  const variant = stock?.variant ?? "";
-  const year = stock?.yearOfManufacture ?? "—";
+  const { modelName, category, color, variant, year } = resolveStockDisplay(
+    vehicle.stockConcept,
+  );
   const vasCount =
     vehicle.activeValueAddedServices?.filter((s) => s.isActive).length ?? 0;
 

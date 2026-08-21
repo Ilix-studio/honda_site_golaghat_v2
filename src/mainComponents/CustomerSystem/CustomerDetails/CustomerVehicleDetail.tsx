@@ -12,6 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useGetCustomerVehicleByIdQuery } from "@/redux-store/services/customer/customerVehicleApi";
+import { resolveStockDisplay } from "@/lib/stockDisplay";
 
 // ─── Info Row ─────────────────────────────────────────────────────────────────
 
@@ -151,7 +152,7 @@ export default function CustomerVehicleDetail() {
     );
   }
 
-  const modelName = stock?.modelName ?? "Unknown Model";
+  const { modelName } = resolveStockDisplay(stock);
   const activeVAS = vehicle.activeValueAddedServices?.filter((s) => s.isActive);
 
   return (
@@ -202,7 +203,10 @@ export default function CustomerVehicleDetail() {
         <Section title='Vehicle Information'>
           <InfoRow label='Model' value={modelName} icon={Bike} />
           <InfoRow label='Category' value={stock?.category} />
-          <InfoRow label='Variant' value={stock?.variant} />
+          <InfoRow
+            label='Variant'
+            value={stock?.variant ?? stock?.modelVariant}
+          />
           <InfoRow label='Color' value={stock?.color} />
           <InfoRow
             label='Year of Manufacture'
@@ -213,7 +217,10 @@ export default function CustomerVehicleDetail() {
             value={stock?.engineCC ? `${stock.engineCC} cc` : undefined}
           />
           <InfoRow label='Engine Number' value={stock?.engineNumber} />
-          <InfoRow label='Chassis Number' value={stock?.chassisNumber} />
+          <InfoRow
+            label='Chassis Number'
+            value={stock?.chassisNumber ?? stock?.frameNumber}
+          />
           <InfoRow label='Stock ID' value={stock?.stockId} />
         </Section>
 

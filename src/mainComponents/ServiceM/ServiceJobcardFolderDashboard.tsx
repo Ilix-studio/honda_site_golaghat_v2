@@ -178,6 +178,13 @@ const ServiceJobcardFolderDashboard = () => {
                 size='sm'
                 disabled={isRerunning || registrationStatus === "done"}
                 onClick={handleRerunRegistration}
+                className={
+                  registrationStatus === "done"
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50 disabled:opacity-100"
+                    : registrationStatus === "idle"
+                      ? "bg-green-900 text-white hover:bg-green-800"
+                      : undefined
+                }
               >
                 {isRerunning ? (
                   <>
@@ -187,7 +194,7 @@ const ServiceJobcardFolderDashboard = () => {
                 ) : registrationStatus === "done" ? (
                   <>
                     <CheckCircle2 className='h-4 w-4 mr-2' />
-                    Finish Registering
+                    All Customer Added
                   </>
                 ) : registrationStatus === "error" ? (
                   <>
@@ -197,7 +204,7 @@ const ServiceJobcardFolderDashboard = () => {
                 ) : (
                   <>
                     <UserPlus className='h-4 w-4 mr-2' />
-                    Create Customers & Vehicles
+                    Create Customers &amp; Vehicles
                   </>
                 )}
               </Button>
@@ -266,13 +273,13 @@ const ServiceJobcardFolderDashboard = () => {
           <Card>
             <CardContent className='p-4'>
               <p className='text-xs text-muted-foreground'>Total Revenue</p>
-            <p className='text-xl font-semibold text-emerald-700'>
-              {statusLoading
-                ? "—"
-                : `₹${Math.trunc(status?.totalRevenue ?? 0).toLocaleString("en-IN")}`}
-            </p>
-          </CardContent>
-        </Card>
+              <p className='text-xl font-semibold text-emerald-700'>
+                {statusLoading
+                  ? "—"
+                  : `₹${Math.trunc(status?.totalRevenue ?? 0).toLocaleString("en-IN")}`}
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         {(isLoading || dateBatchesLoading) && (

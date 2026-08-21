@@ -4,15 +4,18 @@ export interface NewCustomerDTO {
   _id: string;
   phoneNumber: string;
   isVerified: boolean;
-  creationSource: "otp" | "automatic_creation" | "branch_admin_manual";
+  creationSource:
+    | "otp"
+    | "automatic_creation"
+    | "branch_admin_manual"
+    | "new_csv_sales_report"
+    | undefined;
   createdAt: string;
   name: string | null;
   hasVehicle: boolean;
   vehicleSummary?: {
-    stockId: string | null;
+    engineNumber: string | null;
     stockType: "StockConcept" | "StockConceptCSV";
-    priceLabel: string;
-    priceValue: number | null;
   } | null;
 }
 
@@ -20,6 +23,8 @@ export interface NewCustomersFilters {
   page?: number;
   limit?: number;
   days?: number;
+  /** Matches phone number, profile name, or the name on an imported job card. */
+  search?: string;
 }
 
 export interface NewCustomersResponse {

@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import {
-  useGetPartsStatsQuery,
-  useGetPartsStockStatusQuery,
-} from "@/redux-store/services/partsApi";
+import { useGetPartsStatsQuery } from "@/redux-store/services/partsApi";
 
 import {
   StatCard,
@@ -19,6 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import RaiseMaintenanceRequest from "@/mainComponents/shared/RaiseMaintenanceRequest";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -32,13 +30,13 @@ import {
 } from "recharts";
 import {
   Package,
-  Boxes,
-  Wallet,
   Cog,
   TrendingUp,
   Users,
   ReceiptText,
   Webhook,
+  BotIcon,
+  LifeBuoy,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
@@ -47,9 +45,10 @@ import {
   setActiveTab,
 } from "@/redux-store/slices/dashboardTabsSlice";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
-import PartsKpiCharts from "./PartsKpiCharts";
+
 import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSaleApi";
 import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
+import PartsnSales from "./SalesTabs/PartsnSales";
 
 const YEARS = [2026, 2025, 2024];
 const PARTS_ADMIN_DASHBOARD_TAB_KEY = "partsAdminDashboard";
@@ -73,14 +72,6 @@ export default function PartsAdminDashboard() {
 
   const stats = statsData?.data;
 
-  // Current parts-stock snapshot (from the generic DataImport module) — sourced
-  // from the branch-wide current-state KPI endpoint rather than the latest
-  // batch's rows, since a batch now only contains that upload's added/changed
-  // rows (see partsStockDiff.service.ts), not a full snapshot.
-  const { data: stockStatusData, isLoading: stockStatusLoading } =
-    useGetPartsStockStatusQuery(undefined, { skip: !isAuthenticated });
-  const stockStatus = stockStatusData?.data;
-
   const { data: counterSaleBatches, isLoading: counterSaleBatchesLoading } =
     useGetCounterSaleBatchesQuery(undefined, {
       skip: !isAuthenticated,
@@ -93,6 +84,13 @@ export default function PartsAdminDashboard() {
 
   const { data: newCustomersData, isLoading: newCustomersLoading } =
     useGetNewCustomersQuery({ limit: 1 }, { skip: !isAuthenticated });
+
+  // Batch rows already carry their own record counts, so the total needs no
+  // extra request — see getCounterSaleBatches, which aggregates per batch.
+  const counterSaleRecordsTotal = (counterSaleBatches?.data ?? []).reduce(
+    (sum, batch) => sum + (batch.totalRecords ?? 0),
+    0,
+  );
 
   const kpis: Omit<StatCardProps, "index">[] = [
     {
@@ -120,36 +118,34 @@ export default function PartsAdminDashboard() {
       description: "Upload and browse channel-partner counter sale reports",
       action: { label: "Open", href: "/part-admin/counter-sale" },
     },
-  ];
-
-  const stockValueKpis: Omit<StatCardProps, "index">[] = [
     {
-      title: "CPOTC Order  Quantity",
-      value: stockStatusLoading ? "—" : (stockStatus?.totalItems ?? 0),
-      icon: Boxes,
-      loading: stockStatusLoading,
-      description: "Current parts in stock, across all uploads",
-
-      action: {
-        label: "Upload stock file",
-        href: "/part-admin/parts-stock/upload",
-      },
-    },
-    {
-      title: "CPOTC Order  Revenue",
-      value: stockStatusLoading
+      title: "Counter Sale Reports Records",
+      value: counterSaleBatchesLoading
         ? "—"
-        : `₹${(stockStatus?.totalRevenue ?? 0).toLocaleString("en-IN")}`,
-      icon: Wallet,
-      loading: stockStatusLoading,
-      description: "Current stock revenue ",
+        : counterSaleRecordsTotal.toLocaleString("en-IN"),
+      icon: ReceiptText,
+      loading: counterSaleBatchesLoading,
+      description: "Total rows across all counter sale reports",
 
       action: {
-        label: "Upload stock file",
-        href: "/part-admin/parts-stock/upload",
+        label: "Open",
+        href: "/part-admin/counter-sale",
+      },
+    },
+    {
+      title: "Apply Leave",
+      value: "",
+      icon: BotIcon,
+      loading: false,
+      description: "Total rows across all counter sale reports",
+
+      action: {
+        label: "Open",
+        href: "/part-admin/apply-leave",
       },
     },
   ];
+
   const greeting = (() => {
     const hour = currentTime.getHours();
     if (hour < 12) return "Good Morning";
@@ -254,6 +250,13 @@ export default function PartsAdminDashboard() {
                 <TrendingUp className='h-4 w-4' />
                 <span>Sales & Data</span>
               </TabsTrigger>
+              <TabsTrigger
+                value='maintenance'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-violet-700 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <LifeBuoy className='h-4 w-4' />
+                <span>Developer Support</span>
+              </TabsTrigger>
             </TabsList>
           </motion.div>
 
@@ -335,23 +338,17 @@ export default function PartsAdminDashboard() {
                   </ResponsiveContainer>
                 )}
               </CardContent>
-              {/* <RagAssistant
-                title='Parts AI Assistant'
-                subtitle='Ask questions about your branch parts data — answers are grounded in the uploaded reports.'
-                sourceTypes={["parts"]}
-                placeholder='e.g. Which month had the most parts imported?'
-              /> */}
             </Card>
           </TabsContent>
 
-          <TabsContent value='sales-data' className='mt-2'>
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols- gap-4 py-3'>
-              {stockValueKpis.map((kpi, i) => (
-                <StatCard key={kpi.title} {...kpi} index={i} />
-              ))}
+          <TabsContent value='maintenance' className='mt-2'>
+            <div className='px-2 py-2'>
+              <RaiseMaintenanceRequest />
             </div>
+          </TabsContent>
 
-            <PartsKpiCharts />
+          <TabsContent value='sales-data' className='mt-2'>
+            <PartsnSales />
           </TabsContent>
         </Tabs>
       </div>

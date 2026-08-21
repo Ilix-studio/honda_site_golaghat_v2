@@ -11,6 +11,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ChangesMarkdown from "@/mainComponents/shared/ChangesMarkdown";
+import UploadingAnimation, {
+  type UploadAnimationStatus,
+} from "@/mainComponents/shared/UploadingAnimation";
 import {
   useImportServiceJobcardReportMutation,
   type ServiceJobcardImportResponse,
@@ -56,6 +59,7 @@ export default function ServiceJobcardUploadForm({
     null,
   );
   const [apiError, setApiError] = useState<string | null>(null);
+  const [status, setStatus] = useState<UploadAnimationStatus>("idle");
 
   const handleFileSelect = (selected: File) => {
     const err = validateFile(selected);
@@ -73,13 +77,16 @@ export default function ServiceJobcardUploadForm({
   const handleUpload = async () => {
     if (!file) return;
     setApiError(null);
+    setStatus("uploading");
     try {
       const formData = new FormData();
       formData.append("file", file);
       const res = await importServiceJobcardReport(formData).unwrap();
       setResult(res.data);
+      setStatus("success");
     } catch (err: any) {
       setApiError(err?.data?.message || "Upload failed. Please try again.");
+      setStatus("error");
     }
   };
 
@@ -88,6 +95,7 @@ export default function ServiceJobcardUploadForm({
     setResult(null);
     setApiError(null);
     setValidationError(null);
+    setStatus("idle");
   };
 
   return (
@@ -174,6 +182,11 @@ export default function ServiceJobcardUploadForm({
               Back to Dashboard
             </Button>
           </div>
+
+          <UploadingAnimation
+            status={status}
+            onComplete={() => setStatus("idle")}
+          />
         </CardContent>
       </Card>
 

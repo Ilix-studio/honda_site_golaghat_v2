@@ -1,7 +1,11 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ReceiptText, Info, UploadCloud, Loader2 } from "lucide-react";
+import { ReceiptText, Download, UploadCloud, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  COUNTER_SALE_TEMPLATE_COLUMNS,
+  downloadCounterSaleTemplate,
+} from "@/lib/counterSaleTemplate";
 import { useAppSelector, useAppDispatch } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
 import {
@@ -10,10 +14,11 @@ import {
 } from "@/redux-store/services/counterSaleApi";
 import {
   uploadWithProgress,
-  type UploadProgress,
   type UploadWithProgressError,
 } from "@/lib/uploadWithProgress";
-import UploadProgressBar from "@/mainComponents/shared/UploadProgressBar";
+import UploadingAnimation, {
+  type UploadAnimationStatus,
+} from "@/mainComponents/shared/UploadingAnimation";
 
 export default function CounterSaleUploadForm() {
   const navigate = useNavigate();
@@ -21,22 +26,20 @@ export default function CounterSaleUploadForm() {
   const { token } = useAppSelector(selectAuth);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(
-    null,
-  );
+  const [status, setStatus] = useState<UploadAnimationStatus>("idle");
   const [result, setResult] = useState<CounterSaleImportResponse["data"] | null>(
     null,
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const isUploading = status === "uploading";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
     setErrorMsg(null);
     setResult(null);
-    setUploadProgress(null);
-    setIsUploading(true);
+    setStatus("uploading");
 
     const formData = new FormData();
     formData.append("file", file);
@@ -46,9 +49,10 @@ export default function CounterSaleUploadForm() {
         "/counter-sale/import",
         formData,
         token,
-        setUploadProgress,
+        () => {},
       );
       setResult(res.data);
+      setStatus("success");
       // uploadWithProgress bypasses RTK Query, so replicate
       // importCounterSaleReport's invalidatesTags manually.
       dispatch(
@@ -57,8 +61,7 @@ export default function CounterSaleUploadForm() {
     } catch (err) {
       const uploadErr = err as UploadWithProgressError;
       setErrorMsg(uploadErr?.data?.message || "Upload failed. Please try again.");
-    } finally {
-      setIsUploading(false);
+      setStatus("error");
     }
   };
 
@@ -79,14 +82,50 @@ export default function CounterSaleUploadForm() {
           </div>
         </div>
 
-        <div className='flex items-start gap-2 rounded-lg bg-blue-50 border border-blue-200 p-3 text-sm text-blue-800 mt-4'>
-          <Info className='w-4 h-4 mt-0.5 shrink-0' />
-          <span>
-            Extracts CPOTC Order #, Organization (From), Account Name (To),
-            Channel Partner Purchase Order Date (Date), and Total Invoice
-            (Revenue) from the file — every other source column is kept too.
-            Rows are de-duplicated by CPOTC Order # within your branch.
-          </span>
+        <div className='rounded-lg border border-gray-200 bg-white p-4 mt-4'>
+          <div className='flex items-start justify-between gap-4 flex-wrap'>
+            <div className='min-w-0'>
+              <p className='text-sm font-semibold text-gray-900'>
+                Not using a channel-partner export?
+              </p>
+              <p className='text-sm text-gray-500 mt-0.5'>
+                Download the template, fill it in, and upload it here.
+              </p>
+            </div>
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              onClick={downloadCounterSaleTemplate}
+              className='shrink-0'
+            >
+              <Download className='h-4 w-4 mr-2' />
+              Download template (CSV)
+            </Button>
+          </div>
+
+          <div className='mt-3 pt-3 border-t border-gray-100 space-y-1.5'>
+            {COUNTER_SALE_TEMPLATE_COLUMNS.map((column) => (
+              <div
+                key={column.header}
+                className='flex items-start gap-2 text-xs'
+              >
+                <span className='bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md font-mono shrink-0'>
+                  {column.header}
+                </span>
+                {column.required && (
+                  <span className='text-red-600 font-semibold shrink-0'>
+                    required
+                  </span>
+                )}
+                <span className='text-gray-400'>{column.hint}</span>
+              </div>
+            ))}
+            <p className='text-xs text-gray-400 pt-1'>
+              Extra columns are kept as-is on each stored row. Delete the
+              example row before uploading real data.
+            </p>
+          </div>
         </div>
 
         <form
@@ -112,11 +151,10 @@ export default function CounterSaleUploadForm() {
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
 
-          {isUploading && (
-            <div className='mt-4'>
-              <UploadProgressBar progress={uploadProgress} label='Uploading' />
-            </div>
-          )}
+          <UploadingAnimation
+            status={status}
+            onComplete={() => setStatus("idle")}
+          />
 
           <div className='flex justify-end mt-4'>
             <Button type='submit' disabled={!file || isUploading}>

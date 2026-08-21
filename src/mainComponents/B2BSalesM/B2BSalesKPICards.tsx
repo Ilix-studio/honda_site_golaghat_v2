@@ -10,7 +10,7 @@ interface B2BSalesKPICardsProps {
 
 const B2BSalesKPICards = ({ kpis, loading }: B2BSalesKPICardsProps) => {
   return (
-    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
       <MetricTile
         index={0}
         label='Total Challans'
@@ -34,14 +34,6 @@ const B2BSalesKPICards = ({ kpis, loading }: B2BSalesKPICardsProps) => {
         bg='bg-emerald-50'
         text='text-emerald-900'
         sub='text-emerald-600'
-      />
-      <MetricTile
-        index={3}
-        label='Average Challan Value'
-        value={loading ? "—" : inr(kpis?.averageChallanValue ?? 0)}
-        bg='bg-amber-50'
-        text='text-amber-900'
-        sub='text-amber-600'
       />
     </div>
   );

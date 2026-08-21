@@ -1156,7 +1156,7 @@ const QuotationManager: React.FC<QuotationManagerProps> = () => {
 
   return (
     <div className='min-h-screen bg-gray-50'>
-      <div className='mx-auto max-w-4xl px-4 py-8 space-y-4'>
+      <div className='max-w-6xl mx-auto px-4 sm:px-6 py-8'>
         <div className='flex items-center justify-between'>
           <h2 className='text-lg font-semibold text-gray-900'>Quotations</h2>
           <div className='flex items-center gap-2'>

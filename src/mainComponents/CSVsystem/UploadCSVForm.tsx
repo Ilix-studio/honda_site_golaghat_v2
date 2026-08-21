@@ -4,21 +4,22 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Upload,
+  Download,
   FileSpreadsheet,
   X,
   AlertCircle,
   CheckCircle2,
   Loader2,
-  FileCheck,
-  Database,
-  CheckCircle,
   AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  CSV_STOCK_TEMPLATE_COLUMNS,
+  downloadCsvStockTemplate,
+} from "@/lib/csvStockTemplate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Progress } from "@/components/ui/progress";
 import {
   Table,
   TableBody,
@@ -30,6 +31,9 @@ import {
 import toast from "react-hot-toast";
 
 import { useImportCSVStockMutation } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
+import UploadingAnimation, {
+  type UploadAnimationStatus,
+} from "@/mainComponents/shared/UploadingAnimation";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = [
@@ -39,13 +43,7 @@ const ALLOWED_TYPES = [
 ];
 const ALLOWED_EXTENSIONS = [".csv", ".xls", ".xlsx"];
 
-type UploadStage =
-  | "idle"
-  | "uploading"
-  | "validating"
-  | "checking"
-  | "success"
-  | "error";
+type UploadStage = UploadAnimationStatus;
 
 interface DuplicateError {
   row: number;
@@ -61,40 +59,13 @@ const UploadCSVForm = () => {
   const [dragActive, setDragActive] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [uploadStage, setUploadStage] = useState<UploadStage>("idle");
-  const [progress, setProgress] = useState(0);
   const [duplicates, setDuplicates] = useState<DuplicateError[]>([]);
   const [redirectCountdown, setRedirectCountdown] = useState<number | null>(
-    null
+    null,
   );
 
   const [importCSV, { isLoading: importing, data: importResult }] =
     useImportCSVStockMutation();
-
-  const uploadStages = {
-    uploading: { icon: Upload, text: "Uploading CSV file...", progress: 33 },
-    validating: {
-      icon: FileCheck,
-      text: "Validating data...",
-      progress: 66,
-    },
-    checking: {
-      icon: Database,
-      text: "Checking for duplicates...",
-      progress: 90,
-    },
-    success: {
-      icon: CheckCircle,
-      text: "Import completed successfully!",
-      progress: 100,
-    },
-    error: { icon: AlertCircle, text: "Upload failed", progress: 0 },
-  };
-
-  useEffect(() => {
-    if (uploadStage !== "idle") {
-      setProgress(uploadStages[uploadStage]?.progress || 0);
-    }
-  }, [uploadStage]);
 
   useEffect(() => {
     if (uploadStage !== "success" || !importResult?.data) return;
@@ -133,7 +104,7 @@ const UploadCSVForm = () => {
   useEffect(() => {
     if (importResult?.data?.errors) {
       const duplicateErrors = importResult.data.errors.filter((err) =>
-        err.error.toLowerCase().includes("duplicate")
+        err.error.toLowerCase().includes("duplicate"),
       );
       setDuplicates(duplicateErrors);
     }
@@ -142,7 +113,7 @@ const UploadCSVForm = () => {
   const validateFile = (selectedFile: File): string | null => {
     const name = selectedFile.name.toLowerCase();
     const hasAllowedExtension = ALLOWED_EXTENSIONS.some((ext) =>
-      name.endsWith(ext)
+      name.endsWith(ext),
     );
     if (!ALLOWED_TYPES.includes(selectedFile.type) && !hasAllowedExtension) {
       return "Invalid file type. Only CSV, XLS, and XLSX files are allowed.";
@@ -196,23 +167,11 @@ const UploadCSVForm = () => {
     setFile(null);
     setValidationError(null);
     setUploadStage("idle");
-    setProgress(0);
     setDuplicates([]);
     setRedirectCountdown(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  };
-
-  const simulateStages = async () => {
-    setUploadStage("uploading");
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    setUploadStage("validating");
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    setUploadStage("checking");
-    await new Promise((resolve) => setTimeout(resolve, 800));
   };
 
   const handleSubmit = async () => {
@@ -224,11 +183,9 @@ const UploadCSVForm = () => {
     const formData = new FormData();
     formData.append("file", file);
 
+    setUploadStage("uploading");
     try {
-      await simulateStages();
-
       const result = await importCSV(formData).unwrap();
-
       setUploadStage("success");
       toast.success(result.message);
     } catch (error: unknown) {
@@ -239,9 +196,6 @@ const UploadCSVForm = () => {
   };
 
   const isSubmitDisabled = !file || importing;
-
-  const currentStageInfo =
-    uploadStage !== "idle" ? uploadStages[uploadStage] : null;
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -255,6 +209,49 @@ const UploadCSVForm = () => {
           </CardHeader>
 
           <CardContent className='space-y-6'>
+            <div className='rounded-lg border border-gray-200 bg-white p-4'>
+              <div className='flex items-start justify-between gap-4 flex-wrap'>
+                <div className='min-w-0'>
+                  <p className='text-sm text-gray-500 mt-0.5'>
+                    Download the template, fill it in, and upload it here.
+                  </p>
+                </div>
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={downloadCsvStockTemplate}
+                  className='shrink-0'
+                >
+                  <Download className='h-4 w-4 mr-2' />
+                  Download template (CSV)
+                </Button>
+              </div>
+
+              <div className='mt-3 pt-3 border-t border-gray-100 space-y-1.5'>
+                {CSV_STOCK_TEMPLATE_COLUMNS.map((column) => (
+                  <div
+                    key={column.header}
+                    className='flex items-start gap-2 text-xs'
+                  >
+                    <span className='bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md font-mono shrink-0'>
+                      {column.header}
+                    </span>
+                    {column.required && (
+                      <span className='text-red-600 font-semibold shrink-0'>
+                        required
+                      </span>
+                    )}
+                    <span className='text-gray-400'>{column.hint}</span>
+                  </div>
+                ))}
+                <p className='text-xs text-gray-400 pt-1'>
+                  Extra columns are kept on each stored row. Delete the example
+                  row before uploading real data.
+                </p>
+              </div>
+            </div>
+
             {/* File Upload Zone */}
             {uploadStage !== "success" && (
               <div className='space-y-2'>
@@ -332,23 +329,7 @@ const UploadCSVForm = () => {
             )}
 
             {/* Upload Progress */}
-            {currentStageInfo && (
-              <div className='space-y-3'>
-                <div className='flex items-center gap-3'>
-                  <currentStageInfo.icon
-                    className={`h-5 w-5 ${
-                      uploadStage === "success"
-                        ? "text-green-600"
-                        : uploadStage === "error"
-                          ? "text-destructive"
-                          : "text-primary animate-pulse"
-                    }`}
-                  />
-                  <p className='text-sm font-medium'>{currentStageInfo.text}</p>
-                </div>
-                <Progress value={progress} className='h-2' />
-              </div>
-            )}
+            <UploadingAnimation status={uploadStage} onComplete={() => {}} />
 
             {/* Import Result Summary */}
             {importResult?.data && uploadStage === "success" && (
@@ -422,7 +403,7 @@ const UploadCSVForm = () => {
                                         </span>{" "}
                                         {String(value)}
                                       </div>
-                                    )
+                                    ),
                                   )}
                                 </div>
                               </TableCell>
