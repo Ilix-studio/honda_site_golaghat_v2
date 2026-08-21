@@ -51,6 +51,9 @@ const ServiceAdmins = lazy(
 
 const PartAdmins = lazy(() => import("@/mainComponents/PartsM/PartAdmins"));
 const Developers = lazy(() => import("@/mainComponents/DeveloperM/Developers"));
+const RaiseMaintenanceRequest = lazy(
+  () => import("@/mainComponents/shared/RaiseMaintenanceRequest"),
+);
 const ProfileView = lazy(() => import("@/mainComponents/shared/ProfileView"));
 
 const TabBased = lazy(
@@ -110,6 +113,12 @@ export const adminRoutes = [
   // Developer accounts are project-wide, so they sit under /admin/developers
   // rather than under /admin/branches/*.
   { path: "/admin/developers", component: Developers },
+  // Same shared form the branch roles use — Super-Admin raises work for a
+  // Developer here, and reads the resulting queue on the same page.
+  {
+    path: "/admin/raise-maintenance-request",
+    component: RaiseMaintenanceRequest,
+  },
   { path: "/admin/profile", component: ProfileView },
   { path: "/admin/notifications", component: ViewAllNotification },
   //

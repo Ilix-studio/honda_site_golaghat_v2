@@ -27,10 +27,6 @@ export default function StockInvestmentDashboard() {
     useAppSelector(selectActiveTab(ADMIN_DASHBOARD_STOCK_INFO_KEY)) ??
     "Invest_dashboards";
   return (
-    // <div className='space-y-6'>
-    //   <StockInvestmentKpiCharts />
-    // </div>
-
     <div className='container px-2 py-2'>
       <Tabs
         value={activeTab}

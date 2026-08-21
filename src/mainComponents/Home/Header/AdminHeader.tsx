@@ -146,6 +146,12 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/admin/dashboard",
   },
+  "/admin/raise-maintenance-request": {
+    title: "Create Developer Accounts",
+    subtitle: "",
+    showBack: true,
+    backTo: "/admin/dashboard",
+  },
 };
 
 const AdminHeader = () => {
