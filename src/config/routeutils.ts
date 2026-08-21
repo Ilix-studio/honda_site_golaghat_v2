@@ -75,6 +75,11 @@ export const ROUTES = {
     UPLOAD: "/part-admin/parts-stock/upload",
   },
 
+  DEVELOPER: {
+    LOGIN: "/developer/login",
+    DASHBOARD: "/developer/dashboard",
+  },
+
   STAFF: {
     LOGIN: "/staff-login",
     DASHBOARD: "/staff/dashboard",
@@ -104,6 +109,7 @@ export type UserRole =
   | "Branch-Admin"
   | "Service-Admin"
   | "Part-Admin"
+  | "Developer"
   | "Staff"
   | "Customer";
 
@@ -145,6 +151,9 @@ export const isServiceAdminRoute = (path: string): boolean =>
 export const isPartAdminRoute = (path: string): boolean =>
   path.startsWith("/part-admin");
 
+export const isDeveloperRoute = (path: string): boolean =>
+  path.startsWith("/developer");
+
 export const isStaffRoute = (path: string): boolean =>
   path.startsWith("/staff");
 
@@ -177,6 +186,7 @@ const ROLE_DASHBOARDS: Record<UserRole, string> = {
   "Branch-Admin": ROUTES.BRANCH_MANAGER.DASHBOARD,
   "Service-Admin": ROUTES.SERVICE_ADMIN.DASHBOARD,
   "Part-Admin": ROUTES.PART_ADMIN.DASHBOARD,
+  Developer: ROUTES.DEVELOPER.DASHBOARD,
   Staff: ROUTES.STAFF.DASHBOARD,
   Customer: ROUTES.CUSTOMER.DASHBOARD,
 };
@@ -264,6 +274,18 @@ export const canAccessRoute = (
       canAccess: false,
       redirectTo: dashboard,
       reason: "Part Admin access required",
+    };
+  }
+
+  // ── Developer routes (/developer/*) ────────────────────────────────
+  if (isDeveloperRoute(path)) {
+    if (user.role === "Developer" || user.role === "Super-Admin") {
+      return { canAccess: true };
+    }
+    return {
+      canAccess: false,
+      redirectTo: dashboard,
+      reason: "Developer access required",
     };
   }
 

@@ -13,6 +13,7 @@ type RequiredRole =
   | "branch-admin"
   | "service-admin"
   | "part-admin"
+  | "developer"
   | "staff"
   | "branch-admin-or-super-admin"
   | "service-admin-or-super-admin"
@@ -23,6 +24,7 @@ type AdminRole =
   | "Branch-Admin"
   | "Service-Admin"
   | "Part-Admin"
+  | "Developer"
   | "Staff"
   | null;
 
@@ -55,6 +57,7 @@ const ROLE_DASHBOARDS: Record<string, string> = {
   "Branch-Admin": "/manager/dashboard",
   "Service-Admin": "/service-admin/dashboard",
   "Part-Admin": "/part-admin/dashboard",
+  Developer: "/developer/dashboard",
   Staff: "/staff/dashboard",
   customer: "/customer/dashboard",
 };
@@ -68,6 +71,7 @@ const ROLE_LOGIN_PATHS: Record<string, string> = {
   "branch-admin": "/manager-login",
   "service-admin": "/service-admin/login",
   "part-admin": "/part-admin/login",
+  developer: "/developer/login",
   staff: "/staff-login",
   "branch-admin-or-super-admin": "/admin/login",
   "service-admin-or-super-admin": "/admin/login",
@@ -122,7 +126,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     userType === "admin" && adminRole !== null && roles.includes(adminRole);
 
   const hasAnyAdminRole = (): boolean =>
-    hasRole("Super-Admin", "Branch-Admin", "Service-Admin", "Part-Admin", "Staff");
+    hasRole(
+      "Super-Admin",
+      "Branch-Admin",
+      "Service-Admin",
+      "Part-Admin",
+      "Developer",
+      "Staff",
+    );
 
   const isBranchAdmin = (): boolean => hasRole("Branch-Admin");
 
@@ -181,6 +192,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
     case "part-admin-or-super-admin":
       if (!hasRole("Part-Admin", "Super-Admin")) {
+        return <Navigate to={getDashboard()} replace />;
+      }
+      break;
+
+    case "developer":
+      if (!hasRole("Developer")) {
         return <Navigate to={getDashboard()} replace />;
       }
       break;

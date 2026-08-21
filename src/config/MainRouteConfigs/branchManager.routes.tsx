@@ -2,6 +2,7 @@ import OtherStaff from "@/mainComponents/StaffM/OtherStaff";
 import { lazy } from "react";
 import ApplyLeave from "@/mainComponents/shared/ApplyLeave";
 import QuotationManager from "@/mainComponents/shared/Quotation/QuotationManager";
+import RaiseMaintenanceRequest from "@/mainComponents/shared/RaiseMaintenanceRequest";
 
 const LoginBranchManager = lazy(
   () => import("@/mainComponents/BranchM/LoginBranchManager"),
@@ -164,4 +165,8 @@ export const branchManagerRoutes = [
 
   // B2B Sales (Challans) — Branch-Admin submits/reads own branch
   { path: "/manager/b2b-sales", component: B2BSalesManager },
+  {
+    path: "/manager/raise-maintenance-request",
+    component: RaiseMaintenanceRequest,
+  },
 ];

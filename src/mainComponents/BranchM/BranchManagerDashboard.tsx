@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ScrollableTabs from "@/mainComponents/shared/ScrollableTabs";
+
 import {
   MessageSquare,
   Building2,
@@ -274,6 +275,7 @@ const BranchManagerDashboard = () => {
                   <MessageSquare className='h-4 w-4 shrink-0' />
                   <span>Add Vehicles & Reports</span>
                 </TabsTrigger>
+
                 <TabsTrigger
                   value='analytics'
                   className='flex shrink-0 whitespace-nowrap items-center gap-1.5 sm:gap-2 px-3 sm:px-5 rounded-lg text-xs sm:text-sm font-medium text-gray-500 transition-all duration-200 hover:text-orange-700 hover:bg-orange-50 data-[state=active]:bg-blue-800 data-[state=active]:text-white data-[state=active]:shadow-md'
@@ -329,7 +331,7 @@ const BranchManagerDashboard = () => {
                   </div>
                   <div>
                     <CardTitle className='text-lg font-semibold text-gray-900'>
-                      Branch Operations
+                      Branch Operations Type Two
                     </CardTitle>
                     <CardDescription className='text-gray-500 mt-0.5'>
                       Customers, staff, stock, and VAS overview

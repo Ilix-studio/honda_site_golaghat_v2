@@ -9,11 +9,13 @@ import {
   PersonStanding,
   Bike,
   Wrench,
+  LifeBuoy,
 } from "lucide-react";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 import {
   useGetAllBranchAdminsQuery,
   useGetAllPartAdminsQuery,
+  useGetAllDevelopersQuery,
   useGetAllServiceAdminsQuery,
   useGetAllStaffQuery,
 } from "@/redux-store/services/adminApi";
@@ -38,6 +40,8 @@ const BranchQueries = () => {
   const { data: visitorStatsData } = useGetVisitorStatsQuery();
   const { data: partsAdminData, isLoading: partsAdminLoading } =
     useGetAllPartAdminsQuery();
+  const { data: developersData, isLoading: developersLoading } =
+    useGetAllDevelopersQuery();
   const { data: allVehicleData, isLoading: bikesLoading } = useGetBikesQuery(
     {},
   );
@@ -83,6 +87,7 @@ const BranchQueries = () => {
         href: "/admin/branches/part-admins",
       },
     },
+
     {
       title: "View All Staff",
       value: staffData?.count ?? 0,
@@ -113,6 +118,17 @@ const BranchQueries = () => {
       loading: newCustomersLoading,
       description: "All Customer Detected by this project",
       action: { label: "Open", href: "/customers/new" },
+    },
+        {
+      title: "Developers",
+      value: developersData?.count ?? 0,
+      icon: LifeBuoy,
+      loading: developersLoading,
+      description: "Maintenance accounts",
+      action: {
+        label: "Manage Developers",
+        href: "/admin/developers",
+      },
     },
   ];
 

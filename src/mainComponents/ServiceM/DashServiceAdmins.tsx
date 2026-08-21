@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import RaiseMaintenanceRequest from "@/mainComponents/shared/RaiseMaintenanceRequest";
 import {
   Building2,
   Cog,
@@ -21,6 +22,7 @@ import {
   Users,
   Webhook,
   FolderOpen,
+  LifeBuoy,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -272,6 +274,13 @@ const DashServiceAdmins = () => {
                 <TrendingUp className='h-4 w-4' />
                 <span>Sales & Data</span>
               </TabsTrigger>
+              <TabsTrigger
+                value='maintenance'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-violet-700 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <LifeBuoy className='h-4 w-4' />
+                <span>Developer Support</span>
+              </TabsTrigger>
             </TabsList>
           </motion.div>
 
@@ -307,6 +316,12 @@ const DashServiceAdmins = () => {
                 <OpenJobCards />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value='maintenance' className='mt-2'>
+            <div className='px-2 py-2'>
+              <RaiseMaintenanceRequest />
+            </div>
           </TabsContent>
 
           <TabsContent value='sales-data' className='mt-2'>

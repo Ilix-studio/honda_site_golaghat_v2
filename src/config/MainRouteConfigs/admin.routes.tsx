@@ -50,6 +50,7 @@ const ServiceAdmins = lazy(
 );
 
 const PartAdmins = lazy(() => import("@/mainComponents/PartsM/PartAdmins"));
+const Developers = lazy(() => import("@/mainComponents/DeveloperM/Developers"));
 const ProfileView = lazy(() => import("@/mainComponents/shared/ProfileView"));
 
 const TabBased = lazy(
@@ -106,6 +107,9 @@ export const adminRoutes = [
   { path: "/admin/branches/managers", component: BranchManager },
   { path: "/admin/branches/service-admins", component: ServiceAdmins },
   { path: "/admin/branches/part-admins", component: PartAdmins },
+  // Developer accounts are project-wide, so they sit under /admin/developers
+  // rather than under /admin/branches/*.
+  { path: "/admin/developers", component: Developers },
   { path: "/admin/profile", component: ProfileView },
   { path: "/admin/notifications", component: ViewAllNotification },
   //

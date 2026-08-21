@@ -44,6 +44,7 @@ import {
   createAuthRoute,
   createServiceAdminRoute,
   createPartAdminRoute,
+  createDeveloperRoute,
   createStaffRoute,
 } from "./config/routeHelpers";
 
@@ -62,6 +63,10 @@ import {
   partAdminAuthRoutes,
   partAdminRoutes,
 } from "./config/MainRouteConfigs/partAdmin.routes";
+import {
+  developerAuthRoutes,
+  developerRoutes,
+} from "./config/MainRouteConfigs/developer.routes";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -204,6 +209,16 @@ const App: React.FC = () => {
         {/* PART ADMIN — protected, part admin header */}
         {partAdminRoutes.map(({ path, component }) =>
           createPartAdminRoute(path, component),
+        )}
+
+        {/* DEVELOPER AUTH — login page, no header */}
+        {developerAuthRoutes.map(({ path, component }) =>
+          createAuthRoute(path, component),
+        )}
+
+        {/* DEVELOPER — protected, developer header */}
+        {developerRoutes.map(({ path, component }) =>
+          createDeveloperRoute(path, component),
         )}
 
         {/* FALLBACK — 404 */}

@@ -9,6 +9,7 @@ import { Header } from "../mainComponents/Home/Header/Header";
 import ProtectedRoute from "./ProtectedRoute";
 import ServiceAdminsHeader from "@/mainComponents/Home/Header/ServiceAdminsHeader";
 import PartAdminHeader from "@/mainComponents/Home/Header/PartAdminHeader";
+import DeveloperHeader from "@/mainComponents/Home/Header/DeveloperHeader";
 import StaffHeader from "@/mainComponents/Home/Header/StaffHeader";
 
 // ─── Loading Fallback ────────────────────────────────────────────────────────
@@ -83,6 +84,7 @@ const ROLE_HEADER: Record<string, React.ComponentType> = {
   "Branch-Admin": ManagerHeader,
   "Service-Admin": ServiceAdminsHeader,
   "Part-Admin": PartAdminHeader,
+  Developer: DeveloperHeader,
   Staff: StaffHeader,
 };
 
@@ -114,6 +116,15 @@ const PartAdminRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
 }) => (
   <ProtectedRoute requiredRole='part-admin'>
     <PartAdminHeader />
+    {children}
+  </ProtectedRoute>
+);
+
+const DeveloperRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
+  <ProtectedRoute requiredRole='developer'>
+    <DeveloperHeader />
     {children}
   </ProtectedRoute>
 );
@@ -290,6 +301,23 @@ export const createPartAdminRoute = (
   />
 );
 
+export const createDeveloperRoute = (
+  path: string,
+  Component: React.ComponentType,
+) => (
+  <Route
+    key={path}
+    path={path}
+    element={
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <DeveloperRouteWrapper>
+          <Component />
+        </DeveloperRouteWrapper>
+      </Suspense>
+    }
+  />
+);
+
 export const createCustomerRoute = (
   path: string,
   Component: React.ComponentType,
@@ -397,11 +425,13 @@ type RouteType =
   | "shared-bike"
   | "service-admin"
   | "part-admin"
+  | "developer"
   | "staff";
 
 export const getRouteType = (path: string): RouteType => {
   if (path.includes("/login") || path.includes("/signup")) return "auth";
   if (path.startsWith("/part-admin/")) return "part-admin";
+  if (path.startsWith("/developer/")) return "developer";
   if (path.startsWith("/staff/")) return "staff";
   if (path.startsWith("/service/")) return "service-admin";
   if (path.startsWith("/manager/") || path === "/manager-login")
@@ -439,6 +469,7 @@ export const createSmartRoute = (
     "shared-bike": () => createSharedBikeRoute(path, Component),
     "service-admin": () => createServiceAdminRoute(path, Component),
     "part-admin": () => createPartAdminRoute(path, Component),
+    developer: () => createDeveloperRoute(path, Component),
     staff: () => createStaffRoute(path, Component),
     customer: () => createCustomerRoute(path, Component, options),
     auth: () => createAuthRoute(path, Component),
@@ -467,6 +498,7 @@ const ROUTE_CREATOR_MAP: Record<
   "shared-bike": (p, c) => createSharedBikeRoute(p, c),
   "service-admin": (p, c) => createServiceAdminRoute(p, c),
   "part-admin": (p, c) => createPartAdminRoute(p, c),
+  developer: (p, c) => createDeveloperRoute(p, c),
   staff: (p, c) => createStaffRoute(p, c),
   customer: (p, c, o) => createCustomerRoute(p, c, o),
   auth: (p, c) => createAuthRoute(p, c),

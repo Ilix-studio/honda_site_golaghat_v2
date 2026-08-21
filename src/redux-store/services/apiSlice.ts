@@ -22,6 +22,7 @@ export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: dynamicBaseQuery,
   tagTypes: [
+    "Maintenance",
     "Bike",
     "BikeList",
     "Quotation",
@@ -73,6 +74,7 @@ export const apiSlice = createApi({
     "JobCardCatalogItem",
     "JobCardInvoice",
     "PartAdmin",
+    "Developer",
     "Parts",
     "PartsBatch",
     "PartsStats",

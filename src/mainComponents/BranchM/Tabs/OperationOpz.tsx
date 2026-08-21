@@ -1,4 +1,4 @@
-import { Cog, Settings2, TrendingUp, Package, Regex } from "lucide-react";
+import { Cog, Settings2, TrendingUp, Package, Regex, Bot } from "lucide-react";
 
 import { StatCard, type StatCardProps } from "../../Admin/AdminDash/StatCard";
 
@@ -76,6 +76,15 @@ const OperationOpz = () => {
       loading: myLeaveLoading,
       description: "My Leave Application",
       action: { label: "Open", href: "/manager/apply-leave" },
+    },
+    {
+      title: "Raise Maintenance Request",
+      //Add Badge
+      value: "_",
+      icon: Bot,
+      loading: false,
+      description: "My Leave Application",
+      action: { label: "Open", href: "/manager/raise-maintenance-request" },
     },
   ];
 
