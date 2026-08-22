@@ -203,7 +203,7 @@ function StockAssignDashboard() {
       icon: Layers,
       loading: isLoading,
       description: "Sum of sale price",
-      action: { label: "Details", href: "/admin/dashboard" },
+      action: { label: "Details_kela", href: "/admin/dashboard" },
     },
   ];
 
