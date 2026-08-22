@@ -1,16 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  PolarAngleAxis,
-  PolarGrid,
-  Radar,
-  RadarChart,
-  XAxis,
-} from "recharts";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   Card,
@@ -35,10 +24,14 @@ import {
 
 import {
   useGetCSVStockAssignStatsQuery,
-  useGetStockBatchReportsQuery,
   useGetStockInvestmentTimeseriesQuery,
 } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
-import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
+import {
+  useGetStockAssignStatsQuery,
+  useGetStockStatusSummaryQuery,
+} from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
+import { useGetSalesReportKpisQuery } from "@/redux-store/services/salesReportApi";
+import { useGetB2BSalesKPIsQuery } from "@/redux-store/services/BikeSystemApi2/b2bSalesApi";
 import type { InvestmentGranularity } from "@/types/customer/stockcsv.types";
 
 const investmentTrendConfig: ChartConfig = {
@@ -49,16 +42,12 @@ const vehicleCountConfig: ChartConfig = {
   vehicleCount: { label: "Vehicles Added", color: "var(--chart-2)" },
 };
 
-const investmentVsRevenueConfig: ChartConfig = {
-  amount: { label: "Amount", color: "var(--chart-1)" },
-};
-
 /**
  * Daily (or weekly/monthly) Stock Investment KPI block: how much cost price
  * has gone into incoming CSV stock, and how it's tracking against sales +
  * VAS + parts revenue from the same batches. Mirrors PartsKpiCharts.tsx's
- * shadcn chart set (Area/Bar/Line/Pie/Radar/RadialBar) for visual consistency
- * across the Super-Admin dashboard.
+ * shadcn Area/Bar chart set for visual consistency across the Super-Admin
+ * dashboard.
  */
 export default function StockInvestmentKpiCharts() {
   const [granularity, setGranularity] = useState<InvestmentGranularity>("day");
@@ -69,43 +58,25 @@ export default function StockInvestmentKpiCharts() {
   const { data: csvStockAssignStats } = useGetCSVStockAssignStatsQuery({
     year: new Date().getFullYear(),
   });
-  const { data: batchData, isLoading: batchLoading } =
-    useGetStockBatchReportsQuery({ page: 1, limit: 10 });
+
+  const { data: salesReportKpis } = useGetSalesReportKpisQuery();
+  const { data: b2b } = useGetB2BSalesKPIsQuery();
+  const { data: statusSummary } = useGetStockStatusSummaryQuery();
 
   const timeseries = useMemo(() => data?.data.timeseries ?? [], [data]);
   const totals = data?.data.totals;
-  const manualStockAssignRevenue = stockAssignStats?.data.totals.totalRevenue ?? 0;
+  const manualStockAssignRevenue =
+    stockAssignStats?.data.totals.totalRevenue ?? 0;
   const csvStockAssignRevenue =
     csvStockAssignStats?.data.totals.totalRevenue ?? 0;
-  const batches = useMemo(() => batchData?.data ?? [], [batchData]);
+  const salesReportRevenue = salesReportKpis?.data.totals.totalPayment ?? 0;
+  const challanRevenue = b2b?.data.totalPayableValue ?? 0;
 
-  const batchTotals = useMemo(
-    () =>
-      batches.reduce(
-        (acc, b) => ({
-          investment: acc.investment + b.totalCostPrice,
-          salesRevenue: acc.salesRevenue + b.salesRevenue,
-          vasRevenue: acc.vasRevenue + b.vasRevenue,
-          partsRevenue: acc.partsRevenue + b.partsRevenue,
-          totalRevenue: acc.totalRevenue + b.totalRevenue,
-        }),
-        {
-          investment: 0,
-          salesRevenue: 0,
-          vasRevenue: 0,
-          partsRevenue: 0,
-          totalRevenue: 0,
-        },
-      ),
-    [batches],
-  );
-
-  const investmentVsRevenueData = [
-    { metric: "Investment", amount: batchTotals.investment },
-    { metric: "Sales Revenue", amount: batchTotals.salesRevenue },
-    { metric: "VAS Revenue", amount: batchTotals.vasRevenue },
-    { metric: "Parts Revenue", amount: batchTotals.partsRevenue },
-  ];
+  const totalRevenue =
+    manualStockAssignRevenue +
+    csvStockAssignRevenue +
+    salesReportRevenue +
+    challanRevenue;
 
   const granularityControl = (
     <div className='flex items-center justify-between flex-wrap gap-3'>
@@ -128,10 +99,10 @@ export default function StockInvestmentKpiCharts() {
     <div className='space-y-6'>
       {granularityControl}
 
-      <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
         <MetricTile
           index={0}
-          label='Total Investment'
+          label='Total Stock Investment'
           value={inr(totals?.totalCostPrice ?? 0)}
           bg='bg-red-50'
           text='text-red-700'
@@ -146,14 +117,60 @@ export default function StockInvestmentKpiCharts() {
           sub='text-blue-500'
         />
         <MetricTile
-          index={1}
+          index={2}
           label='Total Revenue'
-          value={inr(manualStockAssignRevenue + csvStockAssignRevenue)}
+          value={inr(totalRevenue)}
           bg='bg-green-50'
           text='text-green-700'
           sub='text-green-500'
         />
+        <MetricTile
+          index={3}
+          label='Total Sold'
+          value={(statusSummary?.data.combined.sold ?? 0).toLocaleString(
+            "en-IN",
+          )}
+          bg='bg-emerald-50'
+          text='text-emerald-700'
+          sub='text-emerald-500'
+        />
+        <MetricTile
+          index={4}
+          label='Not Sold'
+          value={(statusSummary?.data.combined.notSold ?? 0).toLocaleString(
+            "en-IN",
+          )}
+          bg='bg-amber-50'
+          text='text-amber-700'
+          sub='text-amber-500'
+        />
+        <MetricTile
+          index={5}
+          label='Vehicles via Challan'
+          value={(b2b?.data.totalVehicles ?? 0).toLocaleString("en-IN")}
+          bg='bg-purple-50'
+          text='text-purple-700'
+          sub='text-purple-500'
+        />
+        <MetricTile
+          index={6}
+          label='Sold from Sales Report'
+          value={(
+            salesReportKpis?.data.totals.totalRecords ?? 0
+          ).toLocaleString("en-IN")}
+          bg='bg-gray-100'
+          text='text-gray-800'
+          sub='text-gray-500'
+        />
       </div>
+
+      <p className='text-xs text-muted-foreground'>
+        Total Stock Investment and Vehicles Added cover the selected{" "}
+        {granularity} range (trailing 30 days by default); the other four tiles
+        are all-time. Total Revenue sums CSV-Assign, Manual-Assign, Sales Report
+        and Challans — CSV vehicles sold via a sales report are counted in both
+        the first and third of those terms.
+      </p>
 
       {timeseries.length === 0 ? (
         <EmptyChartState message='No CSV stock imported in this range yet.' />
@@ -226,41 +243,6 @@ export default function StockInvestmentKpiCharts() {
           </Card>
         </>
       )}
-
-      <div className='flex '>
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-base'>
-              Investment vs Revenue Streams
-            </CardTitle>
-            <CardDescription>
-              Cost price vs sales/VAS/parts revenue (this page)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {batchLoading ? (
-              <ChartSkeleton />
-            ) : (
-              <ChartContainer
-                config={investmentVsRevenueConfig}
-                className='mx-auto h-[260px] w-full max-w-[360px]'
-              >
-                <RadarChart data={investmentVsRevenueData}>
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey='metric' tick={{ fontSize: 11 }} />
-                  <Radar
-                    dataKey='amount'
-                    fill='var(--color-amount)'
-                    fillOpacity={0.4}
-                    stroke='var(--color-amount)'
-                  />
-                </RadarChart>
-              </ChartContainer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }

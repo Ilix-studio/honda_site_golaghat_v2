@@ -5,12 +5,8 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
-  PolarAngleAxis,
-  PolarGrid,
-  Radar,
-  RadarChart,
   XAxis,
+  YAxis,
 } from "recharts";
 
 import {
@@ -45,14 +41,6 @@ const importedTrendConfig: ChartConfig = {
   jobCardCount: { label: "Job Cards Imported", color: "var(--chart-1)" },
 };
 
-const revenueByDateConfig: ChartConfig = {
-  revenueAfter: { label: "Revenue", color: "var(--chart-1)" },
-};
-
-const revenueDeltaConfig: ChartConfig = {
-  revenueDelta: { label: "Revenue Change", color: "var(--chart-2)" },
-};
-
 const ServiceJobcardKpiCharts = () => {
   const [year, setYear] = useState(() => new Date().getFullYear());
 
@@ -63,8 +51,7 @@ const ServiceJobcardKpiCharts = () => {
   const { data: prevStatsData } = useGetServiceJobcardStatsQuery({
     year: year - 1,
   });
-  const { data: statusData, isLoading: statusLoading } =
-    useGetServiceJobcardStatusQuery();
+  const { data: statusData } = useGetServiceJobcardStatusQuery();
 
   const monthly = statsData?.data.monthly ?? [];
   const totals = statsData?.data.totals;
@@ -73,7 +60,7 @@ const ServiceJobcardKpiCharts = () => {
   const yoyConfig: ChartConfig = useMemo(
     () => ({
       current: { label: `${year}`, color: "var(--chart-1)" },
-      previous: { label: `${year - 1}`, color: "var(--chart-3)" },
+      previous: { label: `${year - 1}`, color: "var(--chart-2)" },
     }),
     [year],
   );
@@ -86,18 +73,6 @@ const ServiceJobcardKpiCharts = () => {
       previous: prevMonthly[i]?.jobCardCount ?? 0,
     }));
   }, [monthly, prevStatsData]);
-
-  const byDate = useMemo(
-    () =>
-      (status?.byDate ?? []).map((d) => ({
-        ...d,
-        label: new Date(d.date).toLocaleDateString("en-IN", {
-          day: "2-digit",
-          month: "short",
-        }),
-      })),
-    [status],
-  );
 
   const latestChange = status?.latestChange ?? null;
 
@@ -214,125 +189,44 @@ const ServiceJobcardKpiCharts = () => {
                 Import Volume, Year over Year
               </CardTitle>
               <CardDescription>
-                {year} vs {year - 1} — monthly import shape
+                {year} vs {year - 1} — job cards imported per month
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ChartContainer
-                config={yoyConfig}
-                className='mx-auto h-[300px] w-full max-w-[420px]'
-              >
-                <RadarChart data={yoyData}>
+              <ChartContainer config={yoyConfig} className='h-[280px] w-full'>
+                <BarChart data={yoyData} margin={{ left: 0, right: 12 }}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey='month'
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    width={32}
+                    allowDecimals={false}
+                  />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey='month' tick={{ fontSize: 11 }} />
-                  <Radar
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Bar
                     dataKey='current'
                     fill='var(--color-current)'
-                    fillOpacity={0.4}
-                    stroke='var(--color-current)'
+                    radius={4}
                   />
-                  <Radar
+                  <Bar
                     dataKey='previous'
                     fill='var(--color-previous)'
-                    fillOpacity={0.2}
-                    stroke='var(--color-previous)'
+                    radius={4}
                   />
-                  <ChartLegend content={<ChartLegendContent />} />
-                </RadarChart>
+                </BarChart>
               </ChartContainer>
             </CardContent>
           </Card>
         </>
       )}
-
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-base'>Job Card Created Date</CardTitle>
-            <CardDescription>
-              Current job-card revenue after each upload
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {statusLoading ? (
-              <ChartSkeleton />
-            ) : byDate.length === 0 ? (
-              <EmptyChartState message='No service job card uploads yet.' />
-            ) : (
-              <ChartContainer
-                config={revenueByDateConfig}
-                className='h-[240px] w-full'
-              >
-                <AreaChart data={byDate} margin={{ left: 0, right: 12 }}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey='label'
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Area
-                    dataKey='revenueAfter'
-                    type='monotone'
-                    fill='var(--color-revenueAfter)'
-                    fillOpacity={0.2}
-                    stroke='var(--color-revenueAfter)'
-                  />
-                </AreaChart>
-              </ChartContainer>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-base'>
-              Revenue Change per Upload
-            </CardTitle>
-            <CardDescription>
-              How much revenue moved with each upload — green = increase, red =
-              decrease
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {statusLoading ? (
-              <ChartSkeleton />
-            ) : byDate.length === 0 ? (
-              <EmptyChartState message='No service job card uploads yet.' />
-            ) : (
-              <ChartContainer
-                config={revenueDeltaConfig}
-                className='h-[240px] w-full'
-              >
-                <BarChart data={byDate} margin={{ left: 0, right: 12 }}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey='label'
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey='revenueDelta' radius={4}>
-                    {byDate.map((d) => (
-                      <Cell
-                        key={d.batchId}
-                        fill={
-                          d.revenueDelta >= 0
-                            ? "var(--chart-1)"
-                            : "var(--chart-4)"
-                        }
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ChartContainer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 };

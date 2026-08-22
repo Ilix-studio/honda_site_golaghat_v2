@@ -43,13 +43,7 @@ const SalesReport = () => {
                 <BookAudio className='h-4 w-4' />
                 <span>Assign Stock Excel</span>
               </TabsTrigger>
-              <TabsTrigger
-                value='bulk-order-requests'
-                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
-              >
-                <BookAudio className='h-4 w-4' />
-                <span>Bulk Order Requests</span>
-              </TabsTrigger>
+
               <TabsTrigger
                 value='sold-vehicles-import'
                 className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
@@ -71,15 +65,6 @@ const SalesReport = () => {
               <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
                 <CardContent className='p-2'>
                   <ViewAssignedStockCSV />
-                </CardContent>
-              </Card>
-            </TabsContent>
-            <TabsContent value='bulk-order-requests' className='mt-6'>
-              <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
-                <CardContent className='p-2'>
-                  <h2 className='text-center text-2xl font-bold text-gray-900'>
-                    Bulk Order Sales Report
-                  </h2>
                 </CardContent>
               </Card>
             </TabsContent>

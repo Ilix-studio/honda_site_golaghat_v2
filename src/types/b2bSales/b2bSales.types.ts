@@ -124,6 +124,12 @@ export interface B2BSalesBranchBreakdown {
 
 export interface B2BSalesKPIs {
   totalChallans: number;
+  /**
+   * Vehicles handed over across all active challans — SUM of
+   * stockItems.quantity. Not derivable from `topItems`, which the backend
+   * caps at the top 10 models.
+   */
+  totalVehicles: number;
   totalSalesValue: number;
   totalPayableValue: number;
   averageChallanValue: number;

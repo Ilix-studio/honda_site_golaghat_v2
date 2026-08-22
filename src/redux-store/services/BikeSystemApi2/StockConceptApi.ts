@@ -170,6 +170,23 @@ export interface StockAssignStats {
   };
 }
 
+export interface StockStatusBreakdown {
+  total: number;
+  sold: number;
+  /** Every status that is not "Sold" — see `byStatus` for the real split. */
+  notSold: number;
+  byStatus: Record<string, number>;
+}
+
+export interface StockStatusSummaryResponse {
+  success: boolean;
+  data: {
+    manual: StockStatusBreakdown;
+    csv: StockStatusBreakdown;
+    combined: { total: number; sold: number; notSold: number };
+  };
+}
+
 export interface StockAssignStatsResponse {
   success: boolean;
   data: StockAssignStats;
@@ -278,6 +295,21 @@ export const stockConceptApi = apiSlice.injectEndpoints({
       providesTags: ["StockConcept"],
       transformErrorResponse: (response) => handleApiError(response),
     }),
+
+    // Sold / not-sold counts across both stock collections (Dashboards tab)
+    getStockStatusSummary: builder.query<
+      StockStatusSummaryResponse,
+      { branchId?: string } | void
+    >({
+      query: (args) => {
+        const params = new URLSearchParams();
+        if (args?.branchId) params.append("branchId", args.branchId);
+        const qs = params.toString();
+        return `/stock-concept/status-summary${qs ? `?${qs}` : ""}`;
+      },
+      providesTags: ["StockConcept"],
+      transformErrorResponse: (response) => handleApiError(response),
+    }),
   }),
 });
 
@@ -292,4 +324,5 @@ export const {
   useGetAssignedStockQuery, // new
   useLazyGetAssignedStockQuery, // new
   useGetStockAssignStatsQuery,
+  useGetStockStatusSummaryQuery,
 } = stockConceptApi;

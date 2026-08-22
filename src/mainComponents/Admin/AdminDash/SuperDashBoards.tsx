@@ -1,14 +1,15 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
+  LayoutDashboard,
   Package,
   Wrench,
-  Handshake,
   CalendarDays,
   ReceiptText,
-  Vegan,
+  Bike,
 } from "lucide-react";
 
 import StockInvestmentDashboard from "./StockInvestmentDashboard";
+import SuperOverviewKpiCharts from "./SuperOverviewKpiCharts";
 
 import PartsKpiCharts from "@/mainComponents/PartsM/PartsKpiCharts";
 import ServiceJobcardKpiCharts from "@/mainComponents/ServiceM/ServiceJobcardKpiCharts";
@@ -19,8 +20,6 @@ import {
   selectActiveTab,
   setActiveTab,
 } from "@/redux-store/slices/dashboardTabsSlice";
-
-import B2BSalesData from "./B2B-Sales/B2BSalesData";
 
 const SUPER_DASHBOARDS_TAB_KEY = "superDashBoards";
 
@@ -79,14 +78,14 @@ const OWNER_ROLE_LABEL: Record<OwnerRole, string> = {
 
 const OWNER_ROLE_STYLE: Record<OwnerRole, string> = {
   BA: "bg-purple-100 text-purple-700",
-  PA: "bg-amber-100 text-red-700",
+  PA: "bg-amber-100 text-amber-800",
   SA: "bg-green-100 text-green-700",
 };
 
 function TabRoleTag({ role }: { role: OwnerRole }) {
   return (
     <span
-      className={`text-[13px] text-center w-18 flex-1 ... font-semibold px-1.5 py-0.5 rounded-2xl leading-none ${OWNER_ROLE_STYLE[role]}`}
+      className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold leading-none ${OWNER_ROLE_STYLE[role]}`}
     >
       {role}
     </span>
@@ -95,10 +94,10 @@ function TabRoleTag({ role }: { role: OwnerRole }) {
 
 function TabOwnershipLegend() {
   return (
-    <div className='flex items-center flex-wrap gap-x-4 gap-y-1 mb-2 text-xs text-gray-700'>
+    <div className='mb-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-gray-600'>
       <span className='font-medium text-gray-900'>Data owned by:</span>
       {(Object.keys(OWNER_ROLE_LABEL) as OwnerRole[]).map((role) => (
-        <span key={role} className='flex items-center gap-4'>
+        <span key={role} className='flex items-center gap-1.5'>
           <TabRoleTag role={role} />
           <span>{OWNER_ROLE_LABEL[role]}</span>
         </span>
@@ -107,18 +106,40 @@ function TabOwnershipLegend() {
   );
 }
 
+// ─── Tab definitions ─────────────────────────────────────────────────────────
+
+/**
+ * One source of truth for the tab strip, so every trigger stays on the same
+ * shape and the Overview tab can't drift from the five it summarises.
+ * `owner` is omitted on Overview — it reads across all three roles' uploads.
+ */
+const DASHBOARD_TABS: {
+  value: string;
+  label: string;
+  icon: React.ElementType;
+  owner?: OwnerRole;
+}[] = [
+  { value: "overview", label: "Overview", icon: LayoutDashboard },
+  { value: "stock-investment", label: "Vehicle", icon: Bike, owner: "BA" },
+  { value: "parts", label: "Parts", icon: Package, owner: "PA" },
+  { value: "counter-sale", label: "CTOS", icon: ReceiptText, owner: "PA" },
+  { value: "service", label: "Service", icon: Wrench, owner: "SA" },
+];
+
+const TRIGGER_CLASS =
+  "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-500 transition-all hover:text-gray-900 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm";
+
 // ─── Dashboards panel — static KPI dashboards, no AI ──────────────────────────
 
 /**
- * Static Super-Admin dashboards: Parts, Vehicle Stock, Service, Stock Assign,
- * VAS Assign, Stock Investment. Rendered as its own top-level tab in
- * AdminDashboard, separate from the AI Assistant.
+ * Static Super-Admin dashboards: a cross-domain Overview plus the per-domain
+ * tabs (Vehicle, B2B, Parts, Counter Sale, Service). Rendered as its own
+ * top-level tab in AdminDashboard, separate from the AI Assistant.
  */
 export function DashboardsPanel() {
   const dispatch = useAppDispatch();
   const activeTab =
-    useAppSelector(selectActiveTab(SUPER_DASHBOARDS_TAB_KEY)) ??
-    "stock-investment";
+    useAppSelector(selectActiveTab(SUPER_DASHBOARDS_TAB_KEY)) ?? "overview";
 
   return (
     <Tabs
@@ -129,65 +150,22 @@ export function DashboardsPanel() {
     >
       <TabOwnershipLegend />
 
-      <TabsList className='inline-flex h-auto w-full flex-wrap gap-1 bg-gray-200 border border-gray-400 rounded-xl p-1'>
-        <TabsTrigger
-          value='stock-investment'
-          className=' justify-start   px-4  py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
-        >
-          <div className='flex flex-row '>
-            <Vegan className='h-2.0 w-2.0  flex-none ...' />
-            <span className='w-18 flex-none ...'>Vehicle</span>
-            <TabRoleTag role='BA' />
-          </div>
-        </TabsTrigger>
-        <TabsTrigger
-          value='manual-assign'
-          className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
-        >
-          <div className='flex flex-row  gap-1.5 '>
-            <Handshake className='h-3.5 w-3.5 flex-none ...' />
-            <span className='w-18 flex-none ...'>B2B</span>
-            <TabRoleTag role='BA' />
-          </div>
-        </TabsTrigger>
-        <TabsTrigger
-          value='parts'
-          className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
-        >
-          <div className='flex flex-row '>
-            <Package className='h-3.5 w-3.5 flex-none ...' />
-            <span className='w-18 flex-none ...'>Parts</span>
-            <TabRoleTag role='PA' />
-          </div>
-        </TabsTrigger>
-
-        <TabsTrigger
-          value='counter-sale'
-          className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
-        >
-          <div className='flex flex-row '>
-            <ReceiptText className='h-3.5 w-3.5 flex-none ...' />
-            <span className='w-18 flex-none ...'>CTOS</span>
-            <TabRoleTag role='PA' />
-          </div>
-        </TabsTrigger>
-        <TabsTrigger
-          value='service'
-          className='flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm'
-        >
-          <div className='flex flex-row '>
-            <Wrench className='h-3.5 w-3.5 flex-none ...' />
-            <span className='w-18 flex-none ...'>Service</span>
-            <TabRoleTag role='SA' />
-          </div>
-        </TabsTrigger>
+      <TabsList className='inline-flex h-auto w-full flex-wrap justify-start gap-1 rounded-xl border border-gray-300 bg-gray-100 p-1'>
+        {DASHBOARD_TABS.map(({ value, label, icon: Icon, owner }) => (
+          <TabsTrigger key={value} value={value} className={TRIGGER_CLASS}>
+            <Icon className='h-3.5 w-3.5 shrink-0' />
+            <span>{label}</span>
+            {owner && <TabRoleTag role={owner} />}
+          </TabsTrigger>
+        ))}
       </TabsList>
+
+      <TabsContent value='overview' className='pt-4'>
+        <SuperOverviewKpiCharts />
+      </TabsContent>
 
       <TabsContent value='stock-investment' className='pt-4'>
         <StockInvestmentDashboard />
-      </TabsContent>
-      <TabsContent value='manual-assign' className='pt-4'>
-        <B2BSalesData />
       </TabsContent>
 
       <TabsContent value='parts' className='pt-4'>
@@ -197,6 +175,7 @@ export function DashboardsPanel() {
       <TabsContent value='counter-sale' className='pt-4'>
         <CounterSaleKpiCharts />
       </TabsContent>
+
       <TabsContent value='service' className='pt-4'>
         <ServiceDashboard />
       </TabsContent>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
   Check,
@@ -8,6 +9,7 @@ import {
   Plus,
   Search,
   Trash2,
+  Wrench,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -205,13 +207,21 @@ export default function Developers() {
               </p>
             </div>
           </div>
-          <Button
-            onClick={() => setIsCreateOpen(true)}
-            className='bg-violet-600 hover:bg-violet-700'
-          >
-            <Plus className='h-4 w-4 mr-2' />
-            Add Developer
-          </Button>
+          <div className='flex items-center gap-2 flex-wrap'>
+            <Button variant='outline' asChild>
+              <Link to='/admin/raise-maintenance-request'>
+                <Wrench className='h-4 w-4 mr-2' />
+                Raise Maintenance Request
+              </Link>
+            </Button>
+            <Button
+              onClick={() => setIsCreateOpen(true)}
+              className='bg-violet-600 hover:bg-violet-700'
+            >
+              <Plus className='h-4 w-4 mr-2' />
+              Add Developer
+            </Button>
+          </div>
         </div>
 
         <Card>
