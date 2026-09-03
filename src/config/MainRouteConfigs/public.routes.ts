@@ -1,5 +1,3 @@
-// import BillMemo from "@/mainComponents/ZBillMemo";
-// import ZBillMemo2 from "@/mainComponents/ZBillMemo2";
 import BillMemo from "@/mainComponents/ZBillMemo";
 import BillMemo2 from "@/mainComponents/ZBillMemo2";
 import { lazy } from "react";
@@ -60,14 +58,6 @@ export const publicRoutes = [
     path: "/download/safety-feature-stickers",
     component: DownloadSafetyfeature,
   },
-  {
-    path: "/bill-memo/preview/1",
-    component: BillMemo,
-  },
-  {
-    path: "/bill-memo/preview/2",
-    component: BillMemo2,
-  },
 ];
 
 // No site Header — a standalone shareable document, not a marketing page.
@@ -75,5 +65,13 @@ export const bareRoutes = [
   {
     path: "/quotation/:quotationNo/:token",
     component: PublicQuotationView,
+  },
+  {
+    path: "/bill-memo/preview/1",
+    component: BillMemo,
+  },
+  {
+    path: "/bill-memo/preview/2",
+    component: BillMemo2,
   },
 ];

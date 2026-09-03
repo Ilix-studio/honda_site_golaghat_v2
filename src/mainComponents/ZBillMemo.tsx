@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import BillStamp from "./ZBillStamp";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -49,7 +50,7 @@ const FRONTEND_ITEMS: LineItem[] = [
     scope:
       "Framer Motion animations, Honda branding, responsive layouts, glassmorphism effects",
     complexity: "Medium",
-    charge: 6300,
+    charge: 5250,
     tag: "fe",
   },
   {
@@ -59,7 +60,7 @@ const FRONTEND_ITEMS: LineItem[] = [
     scope:
       "RTK Query integration, filter/sort state, comparison slice, image carousel",
     complexity: "Complex",
-    charge: 7700,
+    charge: 6450,
     tag: "fe",
   },
   {
@@ -68,7 +69,7 @@ const FRONTEND_ITEMS: LineItem[] = [
       "CustomerLogin, CustomerSignUp, CustomerCreateProfile, CustomerMainDash, CustomerDashCompo, CustomerDashHeader, InitialDashboard, FirstDash",
     scope: "Firebase OTP flow, Redux persist, token refresh, protected routes",
     complexity: "Complex",
-    charge: 8400,
+    charge: 7000,
     tag: "fe",
   },
   {
@@ -78,7 +79,7 @@ const FRONTEND_ITEMS: LineItem[] = [
     scope:
       "Time slot validation, 20-min buffer logic, form schema validation, multi-step state",
     complexity: "Complex",
-    charge: 7000,
+    charge: 5850,
     tag: "fe",
   },
   {
@@ -87,7 +88,7 @@ const FRONTEND_ITEMS: LineItem[] = [
       "ActivateVAS, SelectVas, VASForm, CustomerVehicleInfo, CustomerBikeInfo, AssignStock, ChooseStock",
     scope: "VAS activation flow, stock assignment, vehicle ownership display",
     complexity: "Medium",
-    charge: 5600,
+    charge: 4650,
     tag: "fe",
   },
   {
@@ -96,7 +97,7 @@ const FRONTEND_ITEMS: LineItem[] = [
       "AdminBookingsManager, BranchDash, BranchDetailPage, SADashStats, ViewVAS, ViewStockConcept, StockConceptForm, AddBikes, EditBikes, AddBikeImage, EditBikeImage",
     scope: "Role-based views (Super-Admin / Branch-Admin), stats, CRUD forms",
     complexity: "Complex",
-    charge: 9100,
+    charge: 7600,
     tag: "admin",
   },
   {
@@ -105,7 +106,7 @@ const FRONTEND_ITEMS: LineItem[] = [
       "CSVFolder, GetAllStockFiles, GetCSVFiles, UploadCSVForm, SelectStockForm, CustomerCSVStock",
     scope: "File upload, schema detection preview, dynamic vehicle assignment",
     complexity: "Simple",
-    charge: 4200,
+    charge: 3500,
     tag: "fe",
   },
 ];
@@ -118,7 +119,7 @@ const BACKEND_ITEMS: LineItem[] = [
     scope:
       "Token expiry handling, refresh logic, role-based middleware pipeline",
     complexity: "Complex",
-    charge: 4900,
+    charge: 4100,
     tag: "be",
   },
   {
@@ -128,7 +129,7 @@ const BACKEND_ITEMS: LineItem[] = [
     scope:
       "Manual + CSV import, Cloudinary image upload, stock availability tracking",
     complexity: "Complex",
-    charge: 6300,
+    charge: 5250,
     tag: "be",
   },
   {
@@ -138,7 +139,7 @@ const BACKEND_ITEMS: LineItem[] = [
     scope:
       "Slot validation, 20-min buffer, package management, admin assignment logic",
     complexity: "Medium",
-    charge: 5600,
+    charge: 4700,
     tag: "be",
   },
   {
@@ -148,7 +149,7 @@ const BACKEND_ITEMS: LineItem[] = [
     scope:
       "Global template vs customer-specific records, activation status, discriminator patterns",
     complexity: "Medium",
-    charge: 5450,
+    charge: 4550,
     tag: "be",
   },
   {
@@ -158,7 +159,7 @@ const BACKEND_ITEMS: LineItem[] = [
     scope:
       "Vehicle ownership, profile management, phone-based identification, dashboard aggregation",
     complexity: "Medium",
-    charge: 4900,
+    charge: 4100,
     tag: "be",
   },
   {
@@ -168,7 +169,7 @@ const BACKEND_ITEMS: LineItem[] = [
     scope:
       "Multi-branch architecture, role hierarchy (Super-Admin → Branch-Admin), seeder scripts",
     complexity: "Complex",
-    charge: 6150,
+    charge: 5150,
     tag: "be",
   },
   {
@@ -178,16 +179,26 @@ const BACKEND_ITEMS: LineItem[] = [
     scope:
       "Production deployment, environment config, asyncHandler, centralized error handling",
     complexity: "Medium",
-    charge: 7000,
+    charge: 5850,
     tag: "infra",
   },
 ];
 
+const formatINR = (value: number) => `₹${value.toLocaleString("en-IN")}`;
+
+const sum = (items: LineItem[]) =>
+  items.reduce((total, item) => total + item.charge, 0);
+
+const FRONTEND_SUBTOTAL = sum(FRONTEND_ITEMS);
+const BACKEND_SUBTOTAL = sum(BACKEND_ITEMS);
+const GRAND_TOTAL = FRONTEND_SUBTOTAL + BACKEND_SUBTOTAL;
+const HALF_TOTAL = Math.round(GRAND_TOTAL / 2);
+
 const TOTALS: TotalRow[] = [
-  { label: "Frontend Subtotal", value: "₹48,300" },
-  { label: "Backend Subtotal", value: "₹40,300" },
-  { label: "Gross Total", value: "₹88,600" },
-  { label: "Grand Total", value: "₹88,600", variant: "grand" },
+  { label: "Frontend Subtotal", value: formatINR(FRONTEND_SUBTOTAL) },
+  { label: "Backend Subtotal", value: formatINR(BACKEND_SUBTOTAL) },
+  { label: "Gross Total", value: formatINR(GRAND_TOTAL) },
+  { label: "Grand Total", value: formatINR(GRAND_TOTAL), variant: "grand" },
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -210,22 +221,6 @@ const SectionTitle: React.FC<{ children: React.ReactNode }> = ({
   >
     <span className='w-1.5 h-1.5 rounded-full bg-red-600 flex-shrink-0' />
     {children}
-  </div>
-);
-
-const MetaItem: React.FC<{
-  label: string;
-  value: string;
-  valueClass?: string;
-}> = ({ label, value, valueClass = "text-white" }) => (
-  <div>
-    <span
-      className='block text-gray-500 uppercase tracking-widest mb-1'
-      style={{ fontSize: 10 }}
-    >
-      {label}
-    </span>
-    <span className={`text-sm ${valueClass}`}>{value}</span>
   </div>
 );
 
@@ -313,6 +308,10 @@ const TableSection: React.FC<{ title: string; items: LineItem[] }> = ({
   </div>
 );
 
+// ─── Paid Stamp ───────────────────────────────────────────────────────────────
+
+const AMOUNT_PAID = 37000;
+
 // ─── Copy Function ──────────────────────────────────────────────────────────────
 
 const formatBillForCopy = () => {
@@ -362,9 +361,9 @@ const NOTE_BOXES: NoteBox[] = [
     highlight: true,
     content: (
       <p className='text-sm text-gray-600 leading-relaxed'>
-        50% advance (₹44,300) before development start.
+        50% advance ({formatINR(HALF_TOTAL)}) before development start.
         <br />
-        50% balance (₹44,300) on final delivery.
+        50% balance ({formatINR(GRAND_TOTAL - HALF_TOTAL)}) on final delivery.
         <br />
         Payment via NEFT/UPI.
       </p>
@@ -426,78 +425,6 @@ const BillMemo: React.FC = () => {
   return (
     <div className='min-h-screen bg-gray-200 flex justify-center items-start py-6 sm:py-8 lg:py-10 px-3 sm:px-5 lg:px-5'>
       <div className='w-full max-w-4xl bg-white shadow-2xl rounded-lg sm:rounded-xl'>
-        {/* ── Header ── */}
-        <div className='bg-gray-900 text-white px-6 sm:px-8 lg:px-12 pt-6 sm:pt-8 lg:pt-9 pb-4 sm:pb-6 lg:pb-7 relative overflow-hidden'>
-          <div
-            className='absolute rounded-full pointer-events-none'
-            style={{
-              right: -40,
-              top: -40,
-              width: 240,
-              height: 240,
-              border: "60px solid rgba(227,27,35,0.15)",
-            }}
-          />
-
-          <div className='flex flex-col sm:flex-row sm:justify-between sm:items-start relative z-10 gap-4 sm:gap-0'>
-            {/* Brand */}
-            <div className='flex items-center gap-2 sm:gap-3'>
-              <div
-                className='w-8 h-8 sm:w-11 sm:h-11 bg-red-600 flex items-center justify-center text-white text-lg sm:text-xl font-bold flex-shrink-0'
-                style={{ fontFamily: "Georgia, serif" }}
-              >
-                T
-              </div>
-              <div>
-                <h1
-                  className='text-lg sm:text-xl font-semibold tracking-wide text-white'
-                  style={{ fontFamily: "Georgia, serif" }}
-                >
-                  Tsangpool Honda
-                </h1>
-
-                <span
-                  className='text-gray-400 font-bold uppercase tracking-widest'
-                  style={{ fontSize: "9px" }}
-                >
-                  Authorized Honda Dealer · Golaghat, Assam
-                </span>
-              </div>
-            </div>
-
-            {/* Invoice label */}
-            <div className='text-right sm:text-left'>
-              <div
-                className='text-white font-light'
-                style={{
-                  fontFamily: "Georgia, serif",
-                  fontSize: "clamp(24px, 5vw, 38px)",
-                  letterSpacing: "-0.01em",
-                  lineHeight: 1,
-                }}
-              >
-                Bill Memo
-              </div>
-            </div>
-          </div>
-
-          {/* Meta row */}
-          <div
-            className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6 lg:gap-10 mt-6 sm:mt-7 pt-4 sm:pt-6 relative z-10'
-            style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
-          >
-            <MetaItem label='Issue Date' value='23 March 2026' />
-            <MetaItem label='Due Date' value='12 April 2026' />
-            <MetaItem label='Project' value='TsangPool Honda DMS' />
-            <MetaItem label='Currency' value='INR (₹)' />
-            <MetaItem
-              label='Status'
-              value='PENDING'
-              valueClass='text-red-500'
-            />
-          </div>
-        </div>
-
         {/* ── Parties ── */}
         <div
           className='grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-0 px-6 sm:px-8 lg:px-12 py-6 sm:py-8 border-b border-gray-200'
@@ -563,7 +490,13 @@ const BillMemo: React.FC = () => {
         </div>
 
         {/* ── Totals ── */}
-        <div className='flex justify-end px-12 pb-8'>
+        <div className='flex flex-col-reverse sm:flex-row sm:justify-between sm:items-end gap-6 px-12 pb-8'>
+          <BillStamp
+            label='PAID'
+            amount={AMOUNT_PAID}
+            caption='50% ADVANCE RECEIVED'
+            color='#15803d'
+          />
           <div className='w-80 mt-2'>
             {TOTALS.map((row) =>
               row.variant === "grand" ? (

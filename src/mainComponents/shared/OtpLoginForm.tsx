@@ -157,6 +157,11 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
     ? "bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-red-500 pl-10"
     : "pl-10 focus:border-red-500 focus:ring-red-200";
   const mutedTextClass = isDark ? "text-gray-400" : "text-gray-600";
+  // The slot only renders the char as inherited text — without this it is
+  // white-on-white on the light (Super-Admin / role portal) card.
+  const otpSlotClass = isDark
+    ? "h-11 w-11 text-base font-semibold text-white border-gray-700"
+    : "h-11 w-11 text-base font-semibold text-gray-900 border-gray-300";
   const buttonClass =
     "w-full bg-red-600 hover:bg-red-700 text-white font-medium";
 
@@ -184,7 +189,11 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
               />
               <div className='absolute right-3 top-1/2 -translate-y-1/2'>
                 {validationState.isChecking && (
-                  <Loader2 className='h-4 w-4 animate-spin text-white' />
+                  <Loader2
+                    className={`h-4 w-4 animate-spin ${
+                      isDark ? "text-white" : "text-gray-500"
+                    }`}
+                  />
                 )}
                 {!validationState.isChecking && validationState.exists && (
                   <CheckCircle className='h-4 w-4 text-green-900' />
@@ -238,7 +247,7 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
         </>
       ) : (
         <>
-          <p className={`text-sm text-center text-white ${mutedTextClass}`}>
+          <p className={`text-sm text-center ${mutedTextClass}`}>
             Enter the 6-digit code sent to +91 {phoneNumber}
           </p>
 
@@ -249,9 +258,13 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
               onChange={setOtp}
               disabled={isVerifying}
             >
-              <InputOTPGroup className='text-sm text-white'>
+              <InputOTPGroup>
                 {[0, 1, 2, 3, 4, 5].map((index) => (
-                  <InputOTPSlot key={index} index={index} />
+                  <InputOTPSlot
+                    key={index}
+                    index={index}
+                    className={otpSlotClass}
+                  />
                 ))}
               </InputOTPGroup>
             </InputOTP>
