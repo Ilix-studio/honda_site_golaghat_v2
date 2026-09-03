@@ -16,6 +16,61 @@ import {
   StockInvestmentTimeseriesFilters,
 } from "@/types/customer/stockcsv.types";
 import { UpdateStatusRequest } from "@/types/getApproved.types";
+import type { AssignedCustomerProfile } from "../BikeSystemApi2/StockConceptApi";
+
+export interface AssignedCSVStockFilters {
+  page?: number;
+  limit?: number;
+  branchId?: string;
+  search?: string;
+}
+
+/**
+ * A StockConceptCSV row that has been sold. Field names differ from the manual
+ * StockConcept model (`modelVariant`/`frameNumber` rather than
+ * `modelName`/`chassisNumber`), so the shared table normalizes before render.
+ */
+export interface AssignedCSVStockItem {
+  _id: string;
+  stockId: string;
+  modelVariant: string;
+  engineNumber?: string;
+  frameNumber?: string;
+  color?: string;
+  costPrice?: number;
+  csvFileName?: string;
+  customerProfile: AssignedCustomerProfile | null;
+  stockStatus?: {
+    status: string;
+    location?: string;
+    branchId?: { _id: string; branchName: string; address?: string } | string;
+  };
+  salesInfo?: {
+    soldTo?: { _id: string; phoneNumber: string };
+    soldDate?: string;
+    salePrice?: number;
+    invoiceNumber?: string;
+    paymentStatus?: "Paid" | "Partial" | "Pending";
+    customerVehicleId?: {
+      _id: string;
+      numberPlate?: string;
+      registeredOwnerName?: string;
+      registrationDate?: string;
+      isPaid: boolean;
+      isFinance: boolean;
+      insurance: boolean;
+    };
+  };
+}
+
+export interface AssignedCSVStockListResponse {
+  success: boolean;
+  count: number;
+  total: number;
+  pages: number;
+  currentPage: number;
+  data: AssignedCSVStockItem[];
+}
 
 export const csvStockApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -27,6 +82,26 @@ export const csvStockApi = apiSlice.injectEndpoints({
         body: formData,
       }),
       invalidatesTags: ["CSVStockList", "CSVBatch"],
+      transformErrorResponse: (response) => handleApiError(response),
+    }),
+
+    // GET /api/csv-stock/assigned — CSV stock already assigned to a customer,
+    // with the buyer's profile joined on. Powers the Sales Report "CSV Assign"
+    // tab; peer of getAssignedStock (manual assignments).
+    getAssignedCSVStock: builder.query<
+      AssignedCSVStockListResponse,
+      AssignedCSVStockFilters
+    >({
+      query: (filters = {}) => {
+        const params = new URLSearchParams();
+        if (filters.page) params.append("page", filters.page.toString());
+        if (filters.limit) params.append("limit", filters.limit.toString());
+        if (filters.branchId) params.append("branchId", filters.branchId);
+        if (filters.search) params.append("search", filters.search);
+        const qs = params.toString();
+        return `/csv-stock/assigned${qs ? `?${qs}` : ""}`;
+      },
+      providesTags: ["CSVStockList"],
       transformErrorResponse: (response) => handleApiError(response),
     }),
 
@@ -261,6 +336,7 @@ export const csvStockApi = apiSlice.injectEndpoints({
 
 export const {
   useImportCSVStockMutation,
+  useGetAssignedCSVStockQuery,
   useGetCSVStocksQuery,
   useGetCSVStockByIdQuery,
   useGetCSVBatchesQuery,

@@ -7,9 +7,10 @@ import {
   useLazyGetVisitorCountQuery,
 } from "@/redux-store/services/visitorApi";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function Footer() {
+  const navigate = useNavigate();
   const [visitorTracked, setVisitorTracked] = useState(false);
   const [showVisitorAnimation, setShowVisitorAnimation] = useState(false);
 
@@ -250,6 +251,24 @@ export function Footer() {
             </div>
           </div>
         </div>
+
+        <div className='mt-10 flex flex-col sm:flex-row justify-center items-center gap-3'>
+          <button
+            type='button'
+            onClick={() => navigate("/bill-memo/preview/1")}
+            className='w-full sm:w-auto px-4 py-2 rounded-md border border-border text-sm font-medium text-muted-foreground hover:text-primary hover:border-primary transition-colors'
+          >
+            View Bills 1
+          </button>
+          <button
+            type='button'
+            onClick={() => navigate("/bill-memo/preview/2")}
+            className='w-full sm:w-auto px-4 py-2 rounded-md border border-border text-sm font-medium text-muted-foreground hover:text-primary hover:border-primary transition-colors'
+          >
+            View Bills 2
+          </button>
+        </div>
+
         <div className='border-t border-border mt-12 pt-8 text-center text-muted-foreground'>
           <p>
             &copy; {new Date().getFullYear()} Tsangpool Honda || Precision on

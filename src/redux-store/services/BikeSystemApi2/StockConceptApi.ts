@@ -131,7 +131,31 @@ export interface AssignedStockFilters {
   search?: string;
 }
 
+/**
+ * Buyer's CustomerProfile, joined server-side onto each assigned stock row.
+ * Null when the customer completed phone-OTP (BaseCustomer) but never filled
+ * in a profile — always render defensively.
+ */
+export interface AssignedCustomerProfile {
+  _id: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  fullName: string;
+  email?: string;
+  village?: string;
+  postOffice?: string;
+  policeStation?: string;
+  district?: string;
+  state?: string;
+  bloodGroup?: string;
+  familyNumber1?: number;
+  familyNumber2?: number;
+  profileCompleted: boolean;
+}
+
 export interface AssignedStockItem extends Omit<IStockConcept, "salesInfo"> {
+  customerProfile: AssignedCustomerProfile | null;
   salesInfo: {
     soldTo: { _id: string; phoneNumber: string };
     soldDate: Date;

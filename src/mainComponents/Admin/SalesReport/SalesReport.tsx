@@ -34,14 +34,14 @@ const SalesReport = () => {
                 className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
               >
                 <Cog className='h-4 w-4' />
-                <span>Assigned Stock</span>
+                <span>Manual Assign</span>
               </TabsTrigger>
               <TabsTrigger
                 value='assign-stock-excel'
                 className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
               >
                 <BookAudio className='h-4 w-4' />
-                <span>Assign Stock Excel</span>
+                <span>CSV Assign</span>
               </TabsTrigger>
 
               <TabsTrigger
@@ -55,7 +55,7 @@ const SalesReport = () => {
 
             <TabsContent value='assigned-stock' className='mt-6'>
               <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
-                <CardContent className='p-2'>
+                <CardContent className='p-0'>
                   <ViewAssignedStock />
                 </CardContent>
               </Card>
@@ -63,7 +63,7 @@ const SalesReport = () => {
 
             <TabsContent value='assign-stock-excel' className='mt-6'>
               <Card className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'>
-                <CardContent className='p-2'>
+                <CardContent className='p-0'>
                   <ViewAssignedStockCSV />
                 </CardContent>
               </Card>
