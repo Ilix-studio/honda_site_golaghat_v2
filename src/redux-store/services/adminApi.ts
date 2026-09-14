@@ -463,7 +463,7 @@ export const adminAuthApi = apiSlice.injectEndpoints({
         } catch (error) {
           console.error("Super-Admin logout failed:", error);
         } finally {
-          clearAuthState(dispatch);
+          await clearAuthState(dispatch);
         }
       },
     }),
@@ -479,7 +479,7 @@ export const adminAuthApi = apiSlice.injectEndpoints({
         } catch (error) {
           console.error("Logout failed:", error);
         } finally {
-          clearAuthState(dispatch);
+          await clearAuthState(dispatch);
         }
       },
     }),

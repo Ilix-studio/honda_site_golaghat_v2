@@ -78,6 +78,26 @@ export default function StockInvestmentKpiCharts() {
     salesReportRevenue +
     challanRevenue;
 
+  // Vehicles whose stock row is flagged "Sold". Challan sales are already in
+  // here — creating a challan flips the stock row — so the challan tile below
+  // is a breakdown of this number, never something to add to it.
+  const soldInStock = statusSummary?.data.combined.sold ?? 0;
+
+  // Sales-report rows whose vehicle exists in no stock collection. Nothing was
+  // flipped to "Sold" because there was no row to flip, so these are real
+  // sales that the stock counts alone can never show. Disjoint from
+  // `soldInStock` by construction (they matched no stock row), which is what
+  // makes adding them safe: a row that DID match is reflected in soldInStock
+  // instead and is excluded here.
+  const soldWithoutStock = salesReportKpis?.data.totals.salesWithoutStock ?? 0;
+
+  const totalSold = soldInStock + soldWithoutStock;
+
+  // Sold vehicles whose stock row was found but never flipped — still counted
+  // as available stock, so "Not Sold" is overstated by this much.
+  const staleStockRows =
+    salesReportKpis?.data.totals.matchedStockNotFlipped ?? 0;
+
   const granularityControl = (
     <div className='flex items-center justify-between flex-wrap gap-3'>
       <span className='text-xs font-medium text-muted-foreground'>View by</span>
@@ -127,9 +147,8 @@ export default function StockInvestmentKpiCharts() {
         <MetricTile
           index={3}
           label='Total Sold'
-          value={(statusSummary?.data.combined.sold ?? 0).toLocaleString(
-            "en-IN",
-          )}
+          value={totalSold.toLocaleString("en-IN")}
+          note={`${soldInStock.toLocaleString("en-IN")} from stock + ${soldWithoutStock.toLocaleString("en-IN")} sold without a stock record`}
           bg='bg-emerald-50'
           text='text-emerald-700'
           sub='text-emerald-500'
@@ -140,6 +159,11 @@ export default function StockInvestmentKpiCharts() {
           value={(statusSummary?.data.combined.notSold ?? 0).toLocaleString(
             "en-IN",
           )}
+          note={
+            staleStockRows > 0
+              ? `Includes ${staleStockRows.toLocaleString("en-IN")} sold vehicle(s) whose stock row was never flipped — needs review`
+              : "Stock still on hand"
+          }
           bg='bg-amber-50'
           text='text-amber-700'
           sub='text-amber-500'
@@ -148,16 +172,20 @@ export default function StockInvestmentKpiCharts() {
           index={5}
           label='Vehicles via Challan'
           value={(b2b?.data.totalVehicles ?? 0).toLocaleString("en-IN")}
+          note='Part of Total Sold, not additional to it'
           bg='bg-purple-50'
           text='text-purple-700'
           sub='text-purple-500'
         />
         <MetricTile
           index={6}
-          label='Sold from Sales Report'
+          label='Sales Report Rows'
           value={(
             salesReportKpis?.data.totals.totalRecords ?? 0
           ).toLocaleString("en-IN")}
+          note={`${soldWithoutStock.toLocaleString("en-IN")} not in stock, ${(
+            (salesReportKpis?.data.totals.totalRecords ?? 0) - soldWithoutStock
+          ).toLocaleString("en-IN")} matched a stock vehicle`}
           bg='bg-gray-100'
           text='text-gray-800'
           sub='text-gray-500'
@@ -166,10 +194,15 @@ export default function StockInvestmentKpiCharts() {
 
       <p className='text-xs text-muted-foreground'>
         Total Stock Investment and Vehicles Added cover the selected{" "}
-        {granularity} range (trailing 30 days by default); the other four tiles
-        are all-time. Total Revenue sums CSV-Assign, Manual-Assign, Sales Report
-        and Challans — CSV vehicles sold via a sales report are counted in both
-        the first and third of those terms.
+        {granularity} range (trailing 30 days by default) and count purchased
+        stock only — auto-registered service vehicles are excluded. Vehicles
+        Added therefore splits exactly into Not Sold plus the "from stock" half
+        of Total Sold. The remaining half of Total Sold — sales-report rows
+        matching no stock vehicle — sits outside the stock collection
+        altogether, so it is deliberately not part of Vehicles Added. Vehicles
+        via Challan is already inside Total Sold. The all-time tiles ignore the
+        date range. Total Revenue sums CSV-Assign, Manual-Assign, Sales Report
+        and Challans.
       </p>
 
       {timeseries.length === 0 ? (

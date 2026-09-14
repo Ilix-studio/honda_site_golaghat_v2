@@ -40,8 +40,9 @@ const BRANCH_KPI_CHARTS_Stock_TAB = "branchKpiCharts-StockTab";
 
 export const StockTab = () => {
   const dispatch = useAppDispatch();
+  // 'Auto' (CSV Assignment) is the landing tab; Manual sits behind it.
   const activeTab =
-    useAppSelector(selectActiveTab(BRANCH_KPI_CHARTS_Stock_TAB)) ?? "Manual";
+    useAppSelector(selectActiveTab(BRANCH_KPI_CHARTS_Stock_TAB)) ?? "Auto";
   const [year, setYear] = useState(() => new Date().getFullYear());
 
   const { data: assignData, isLoading: assignLoading } =
@@ -93,11 +94,11 @@ export const StockTab = () => {
         }
       >
         <TabsList className='w-full bg-gray-300 rounded-xl p-1 gap-1'>
-          <TabsTrigger value='Manual' className='w-full'>
-            Manual Assignment
-          </TabsTrigger>
           <TabsTrigger value='Auto' className='w-full'>
             CSV Assignment
+          </TabsTrigger>
+          <TabsTrigger value='Manual' className='w-full'>
+            Manual Assignment
           </TabsTrigger>
         </TabsList>
         <TabsContent value='Manual' className='space-y-4'>

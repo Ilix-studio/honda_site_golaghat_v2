@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 
-import { logout, selectAuth } from "@/redux-store/slices/authSlice";
+import { selectAuth } from "@/redux-store/slices/authSlice";
+import { clearAuthState } from "@/redux-store/authHelpers";
 import { addNotification } from "@/redux-store/slices/uiSlice";
 import { useLogoutUserMutation } from "@/redux-store/services/adminApi";
 import NotificationBell from "@/mainComponents/shared/NotificationBell";
@@ -41,6 +42,30 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/staff/dashboard",
   },
+  "/staff/finanace-query": {
+    title: "Finance Enquiry",
+    subtitle: "Finance applications for your branch",
+    showBack: true,
+    backTo: "/staff/dashboard",
+  },
+  "/staff/any-messages": {
+    title: "Messages by Users",
+    subtitle: "",
+    showBack: true,
+    backTo: "/staff/dashboard",
+  },
+  "/staff/accident-reports": {
+    title: "Accident Reports",
+    subtitle: "Reports filed at your branch",
+    showBack: true,
+    backTo: "/staff/dashboard",
+  },
+  "/staff/counter-sale": {
+    title: "Counter Sales Reports",
+    subtitle: "",
+    showBack: true,
+    backTo: "/staff/dashboard",
+  },
 };
 
 const StaffHeader = () => {
@@ -65,8 +90,6 @@ const StaffHeader = () => {
     setIsMenuOpen(false);
     try {
       const result = await logoutBranchManager().unwrap();
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
       dispatch(
         addNotification({
           type: "success",
@@ -74,9 +97,6 @@ const StaffHeader = () => {
         }),
       );
     } catch (error: any) {
-      dispatch(logout());
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
       dispatch(
         addNotification({
           type: "error",
@@ -84,6 +104,10 @@ const StaffHeader = () => {
         }),
       );
     } finally {
+      // Awaited before navigating: the session lives in IndexedDB, and leaving
+      // before the purge resolves is what let a stale token bleed into the next
+      // role's login.
+      await clearAuthState(dispatch);
       navigate("/manager-login", { replace: true });
     }
   };

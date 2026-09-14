@@ -1,9 +1,22 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Cog, User, Activity, FileText, Webhook } from "lucide-react";
+import {
+  Cog,
+  User,
+  Activity,
+  FileText,
+  Webhook,
+  MessageSquare,
+} from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
 import {
@@ -17,6 +30,7 @@ import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/Se
 
 import { useGetQuotationsQuery } from "@/redux-store/services/NewFeatures/quotationApi";
 import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
+import CustomerQueries from "@/mainComponents/BranchM/Tabs/CustomerQuery";
 
 const STAFF_DASHBOARD_TAB_KEY = "staffDashboard";
 
@@ -170,6 +184,13 @@ const DashStaff = () => {
               <Cog className='h-4 w-4' />
               <span>Basic Stuff</span>
             </TabsTrigger>
+            <TabsTrigger
+              value='customer-reports'
+              className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
+            >
+              <MessageSquare className='h-4 w-4' />
+              <span>Add Vehicles &amp; Reports</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value='operations' className='mt-6'>
@@ -184,6 +205,30 @@ const DashStaff = () => {
                   ))}
                 </div>
               </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value='customer-reports' className='mt-6'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
+              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
+                <div className='flex items-center gap-3'>
+                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-600 text-white shadow-sm'>
+                    <MessageSquare className='h-5 w-5' />
+                  </div>
+                  <div>
+                    <CardTitle className='text-lg font-semibold text-gray-900'>
+                      Add Vehicles &amp; Reports
+                    </CardTitle>
+                    <CardDescription className='text-gray-500 mt-0.5'>
+                      Enquiries, applications, finance, and accident reports
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CustomerQueries />
             </Card>
           </TabsContent>
         </Tabs>

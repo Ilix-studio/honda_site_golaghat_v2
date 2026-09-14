@@ -20,9 +20,11 @@ export const API_CONFIG = {
   BASE_URL: resolveBaseUrl(),
 };
 
+// No `credentials: "include"`: authentication is the Bearer token below and
+// nothing else. The app sets no cookies now that the refresh-token cookie is
+// gone, so there is nothing for the browser to send.
 export const baseQuery = fetchBaseQuery({
   baseUrl: API_CONFIG.BASE_URL,
-  credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as any).auth.token;
 

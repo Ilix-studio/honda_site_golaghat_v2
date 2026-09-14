@@ -100,7 +100,14 @@ export interface SalesReportKpiResponse {
   success: boolean;
   data: {
     year: number;
-    totals: { totalRecords: number; totalPayment: number };
+    totals: {
+      totalRecords: number;
+      totalPayment: number;
+      /** Rows whose vehicle exists in no stock collection — real sales the stock tiles can't show. */
+      salesWithoutStock: number;
+      /** Rows that matched a stock vehicle but never flipped it to Sold — sold stock still counted as available. */
+      matchedStockNotFlipped: number;
+    };
     monthly: { month: string; count: number; totalPayment: number }[];
     byPurchaseType: { purchaseType: string; count: number; totalPayment: number }[];
     byOutcome: { outcome: SalesReportMatchOutcome; count: number }[];

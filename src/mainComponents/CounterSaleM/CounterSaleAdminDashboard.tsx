@@ -70,8 +70,14 @@ export default function CounterSaleAdminDashboard() {
   const totalRevenue = batches.reduce((sum, b) => sum + b.totalInvoice, 0);
   const totalRecords = batches.reduce((sum, b) => sum + b.totalRecords, 0);
 
+  // Mirrors the server guard on DELETE /counter-sale/batches/:batchId —
+  // Super-Admin anywhere, Branch-Admin / Part-Admin in their own branch. Staff
+  // reads this page but cannot delete, and a branch match alone used to be
+  // enough to show them a button the API would reject.
   const canDelete = (branchId: string) =>
-    user?.role === "Super-Admin" || user?.branch?._id === branchId;
+    user?.role === "Super-Admin" ||
+    ((user?.role === "Branch-Admin" || user?.role === "Part-Admin") &&
+      user?.branch?._id === branchId);
 
   if (selectedBatchId) {
     return (

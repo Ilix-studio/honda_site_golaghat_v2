@@ -5,7 +5,7 @@ import { User, LogOut, Home, Wrench, Phone, ArrowLeft } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch } from "@/hooks/redux";
 import { useAuthForCustomer } from "@/hooks/useAuthforCustomer";
-import { logout } from "@/redux-store/slices/customer/customerAuthSlice";
+import { clearAuthState } from "@/redux-store/authHelpers";
 import { addNotification } from "@/redux-store/slices/uiSlice";
 import NotificationBell from "@/mainComponents/shared/NotificationBell";
 
@@ -79,7 +79,10 @@ export function CustomerDashHeader() {
 
   const handleLogout = async () => {
     try {
-      dispatch(logout());
+      // The full teardown, not just the customerAuth slice: this also signs out
+      // of Firebase, whose own session would otherwise re-mint an ID token on
+      // the next request, and purges the persisted IndexedDB blob.
+      await clearAuthState(dispatch);
       dispatch(
         addNotification({
           type: "success",

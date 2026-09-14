@@ -10,7 +10,7 @@ import CSVFolder from "./CSVFolder";
 import { motion } from "framer-motion";
 
 const GetAllStockFiles = () => {
-  const [activeTab, setActiveTab] = useState<"manual" | "csv">("manual");
+  const [activeTab, setActiveTab] = useState<"manual" | "csv">("csv");
 
   return (
     <div className='min-h-screen bg-gray-50'>

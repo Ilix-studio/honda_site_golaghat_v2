@@ -78,7 +78,12 @@ export interface CreateQuotationRequest {
   exShowroomPrice?: number;
   onRoadTax?: number;
   variation?: QuotationVariation;
-  insurance?: QuotationInsurance;
+  /**
+   * `null` explicitly clears a previously saved insurance block — needed
+   * because UpdateQuotationRequest is a Partial, where an absent key means
+   * "leave it alone". On create, null and absent are equivalent.
+   */
+  insurance?: QuotationInsurance | null;
   vasSelections?: { vasId: string }[];
   accessories?: QuotationAccessory[];
   to: QuotationTo;

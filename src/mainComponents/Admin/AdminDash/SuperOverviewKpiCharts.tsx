@@ -50,6 +50,7 @@ import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSal
 import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetCSVStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 import { useGetB2BSalesKPIsQuery } from "@/redux-store/services/BikeSystemApi2/b2bSalesApi";
+import WhatYouUpload from "@/mainComponents/WhatYouUpload";
 
 /**
  * The five domains roll up into three parts of the business, and that grouping
@@ -103,12 +104,29 @@ const monthlyActivityConfig: ChartConfig = {
  * it is a different kind of node, and it stays neutral. The accent it used to
  * carry (--chart-1) sits at dE 0.5 deutan from the Part-Admin yellow — the two
  * would be indistinguishable to a red-green colourblind reader.
+ *
+ * Staff shares Branch-Admin's vehicle hue rather than taking a fourth one, and
+ * that repeat is the point: the colour encodes the revenue family, not the
+ * role, and both of them feed vehicle sales. A fourth hue would also have to be
+ * re-validated for CVD against the other three — the note above records that
+ * even a passing *trio* could not be assembled from the --chart-N tokens. The
+ * two are told apart by their labels and scope lines, which sit directly on
+ * each card.
  */
-const UPLOAD_OWNERSHIP: {
+export const UPLOAD_OWNERSHIP: {
   role: string;
-  scope: string;
+  /** Where in the business the role sits. Omitted when the role name says it. */
+  scope?: string;
   color: string;
+  /** Artifacts the role creates. These are what the numbers above trace back to. */
   owns: string[];
+  /**
+   * Reports the role can open but does not produce — someone else's upload, or
+   * a public form. Kept separate from `owns` on purpose: this card's claim is
+   * that every number above traces back to an upload *and the role that owns
+   * it*, and folding read access into that list would quietly break it.
+   */
+  reads?: string[];
 }[] = [
   {
     role: "Branch-Admin",
@@ -128,10 +146,30 @@ const UPLOAD_OWNERSHIP: {
     color: REVENUE_FAMILIES.parts.color,
     owns: ["Parts Upload", "Part Delivery (CPTOS)"],
   },
+  {
+    role: "Staff",
+    color: REVENUE_FAMILIES.vehicle.color,
+    owns: ["Quotation"],
+    // Branch-scoped reads, all of them someone else's artifact: Counter Sale is
+    // a Part-Admin upload, Accident Reports are filed by customers, and the
+    // finance and message forms are filled in on the public site.
+    reads: [
+      "Finance Enquiry",
+      "Messages by Users",
+      "Accident Reports",
+      "Counter Sales",
+    ],
+  },
 ];
 
-/** Centres of the three grid columns, used to place the connector drops. */
-const BRANCH_COLUMN_CENTERS = ["16.666%", "50%", "83.333%"];
+/**
+ * Centres of the grid columns, used to place the connector drops in
+ * WhatYouUpload. Derived from the row itself rather than written out, because
+ * the hand-written trio silently went stale the moment a fourth role was added.
+ */
+export const BRANCH_COLUMN_CENTERS = UPLOAD_OWNERSHIP.map(
+  (_, i) => `${((i + 0.5) / UPLOAD_OWNERSHIP.length) * 100}%`,
+);
 
 export default function SuperOverviewKpiCharts() {
   const [year, setYear] = useState(() => new Date().getFullYear());
@@ -381,82 +419,7 @@ export default function SuperOverviewKpiCharts() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className='text-base'>Who Uploads What</CardTitle>
-          <CardDescription>
-            Every number above traces back to one of these uploads, and to the
-            role that owns it
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className='flex flex-col items-center'>
-            <div className='rounded-lg border-2 border-gray-900 px-4 py-2 text-center'>
-              <p className='text-sm font-semibold text-gray-900'>Super-Admin</p>
-              <p className='text-xs text-muted-foreground'>
-                Reads all branches
-              </p>
-            </div>
-
-            {/*
-              Stacked on mobile the trunk is a single line; from sm up the three
-              columns sit at 1/6, 1/2 and 5/6 of the width, so the crossbar and
-              its drops are placed at those fractions.
-            */}
-            <div className='h-6 w-px bg-border sm:hidden' aria-hidden='true' />
-            <div
-              className='relative hidden h-6 w-full sm:block'
-              aria-hidden='true'
-            >
-              {/* Trunk and crossbar are shared, so they stay neutral; only the
-                  drop into each column takes that branch's colour. */}
-              <div className='absolute left-1/2 top-0 h-3 w-px -translate-x-1/2 bg-border' />
-              <div className='absolute left-[16.666%] right-[16.666%] top-3 h-px bg-border' />
-              {UPLOAD_OWNERSHIP.map((branch, i) => (
-                <div
-                  key={branch.role}
-                  className='absolute top-3 h-3 w-0.5 -translate-x-1/2'
-                  style={{
-                    left: BRANCH_COLUMN_CENTERS[i],
-                    backgroundColor: branch.color,
-                  }}
-                />
-              ))}
-            </div>
-
-            <div className='grid w-full gap-4 sm:grid-cols-3'>
-              {UPLOAD_OWNERSHIP.map((branch) => (
-                <div
-                  key={branch.role}
-                  className='rounded-lg border border-l-4 bg-muted/30 p-3'
-                  style={{ borderLeftColor: branch.color }}
-                >
-                  <p className='text-sm font-semibold text-gray-900'>
-                    {branch.role}
-                  </p>
-                  <p className='text-xs text-muted-foreground'>
-                    {branch.scope}
-                  </p>
-                  <ul className='mt-2 space-y-1.5'>
-                    {branch.owns.map((item) => (
-                      <li key={item} className='flex items-center gap-2'>
-                        <span
-                          className='h-0.5 w-3 shrink-0 rounded-full'
-                          style={{ backgroundColor: branch.color }}
-                          aria-hidden='true'
-                        />
-                        <span className='rounded-md border bg-background px-2 py-1 text-xs font-medium text-gray-900'>
-                          {item}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <WhatYouUpload />
     </div>
   );
 }
