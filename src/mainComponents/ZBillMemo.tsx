@@ -115,7 +115,7 @@ const BACKEND_ITEMS: LineItem[] = [
   {
     name: "Auth System (Dual)",
     components:
-      "Firebase OTP (customers) + JWT (admins), authmiddleware, customerMiddleware, tokenCleanup, firebaseTokenRefresh",
+      "Firebase OTP (customers) + 200-day JWT (admins, no refresh token), authmiddleware, customerMiddleware",
     scope:
       "Token expiry handling, refresh logic, role-based middleware pipeline",
     complexity: "Complex",

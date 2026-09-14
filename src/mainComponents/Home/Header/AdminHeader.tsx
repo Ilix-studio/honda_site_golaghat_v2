@@ -2,7 +2,8 @@ import { useEffect, useRef } from "react";
 import { LogOut, ArrowLeft, Menu } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
-import { logout, selectAuth } from "@/redux-store/slices/authSlice";
+import { selectAuth } from "@/redux-store/slices/authSlice";
+import { clearAuthState } from "@/redux-store/authHelpers";
 import { addNotification } from "@/redux-store/slices/uiSlice";
 import { useLogoutSuperAdminMutation } from "@/redux-store/services/adminApi";
 import NotificationBell from "@/mainComponents/shared/NotificationBell";
@@ -194,8 +195,6 @@ const AdminHeader = () => {
     closeMenu();
     try {
       const result = await logoutAdmin().unwrap();
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
       dispatch(
         addNotification({
           type: "success",
@@ -203,9 +202,6 @@ const AdminHeader = () => {
         }),
       );
     } catch (error: any) {
-      dispatch(logout());
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
       dispatch(
         addNotification({
           type: "error",
@@ -213,6 +209,10 @@ const AdminHeader = () => {
         }),
       );
     } finally {
+      // Awaited before navigating: the session lives in IndexedDB, and leaving
+      // before the purge resolves is what let a stale token bleed into the next
+      // role's login.
+      await clearAuthState(dispatch);
       navigate("/", { replace: true });
     }
   };

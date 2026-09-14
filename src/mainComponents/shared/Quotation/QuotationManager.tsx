@@ -416,13 +416,17 @@ const QuotationForm: React.FC<{
             },
           };
 
+    // null, not undefined, when the section is collapsed: JSON.stringify drops
+    // undefined keys, so an omitted `insurance` reads on the server as "not
+    // part of this edit" and a previously saved block would survive. null is
+    // the explicit "clear it" signal.
     const insurancePayload = showInsurance
       ? {
           provider: insuranceProvider || undefined,
           premium: insurancePremium ? Number(insurancePremium) : undefined,
           notes: insuranceNotes || undefined,
         }
-      : undefined;
+      : null;
 
     try {
       if (isEdit && existingQuotation) {

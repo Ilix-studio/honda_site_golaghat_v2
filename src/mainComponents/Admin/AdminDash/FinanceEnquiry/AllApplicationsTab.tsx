@@ -26,6 +26,26 @@ import { STATUS_COLORS } from "./WithBikesTab";
 import { Badge } from "@/components/ui/badge";
 
 const PAGE_SIZE = 10;
+
+/**
+ * What the "Credit Score" column actually means. The applicant picks one of
+ * these four bands on the public finance form — it is self-reported, not a
+ * bureau score we pulled, so the column shows a band and never a number.
+ *
+ * The bands must stay in step with the options offered on the two customer
+ * forms (`GetApproved/GetApprovedForm.tsx` and `NavMenu/Finance.tsx`), which
+ * are the source of truth for the ranges.
+ */
+export const CREDIT_SCORE_BANDS: {
+  value: GetApprovedApplication["creditScoreRange"];
+  label: string;
+  range: string;
+}[] = [
+  { value: "excellent", label: "Excellent", range: "750+" },
+  { value: "good", label: "Good", range: "700–749" },
+  { value: "fair", label: "Fair", range: "650–699" },
+  { value: "poor", label: "Poor", range: "below 650" },
+];
 export const AllApplicationsTab = () => {
   const [filters, setFilters] = useState<GetApplicationsFilters>({
     page: 1,
@@ -87,6 +107,30 @@ export const AllApplicationsTab = () => {
             className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
           />
         </Button>
+      </div>
+
+      {/* Legend — the Credit Score column shows a band label with no number
+          attached, so without this the reader cannot tell whether "Fair" is
+          good or bad, or that the applicant chose it themselves. */}
+      <div className='rounded-md border bg-muted/30 px-3 py-2.5'>
+        <div className='flex flex-wrap items-center gap-x-4 gap-y-1.5'>
+          <span className='text-xs font-medium text-gray-900'>
+            Credit Score
+          </span>
+          {CREDIT_SCORE_BANDS.map((band) => (
+            <span
+              key={band.value}
+              className='text-xs text-muted-foreground'
+            >
+              <span className='font-medium text-gray-900'>{band.label}</span>{" "}
+              {band.range}
+            </span>
+          ))}
+        </div>
+        <p className='mt-1.5 text-xs text-muted-foreground'>
+          Self-reported by the applicant on the finance form — not a verified
+          bureau score.
+        </p>
       </div>
 
       <div className='rounded-md border'>

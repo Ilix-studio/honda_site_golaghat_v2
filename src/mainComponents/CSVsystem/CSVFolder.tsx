@@ -48,9 +48,7 @@ const CSVFolder = () => {
   const navigate = useNavigate();
   const [selectedBatch, setSelectedBatch] = useState<CSVBatch | null>(null);
   const [batchToDelete, setBatchToDelete] = useState<CSVBatch | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    undefined,
-  );
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   const { data, isLoading, error, refetch } = useGetCSVBatchesQuery({
     page: 1,
@@ -195,18 +193,18 @@ const CSVFolder = () => {
                 Clear
               </Button>
             )}
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => navigate("/manager/forms/stock-concept-csv")}
-            >
-              <UploadCloud className='h-4 w-4 mr-2' />
-              Add New CSV
-            </Button>
+
             <Button variant='outline' size='sm' onClick={() => refetch()}>
               <RefreshCw className='h-4 w-4 mr-2' />
               Refresh
             </Button>
+            <button
+              className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-700 text-white text-sm font-medium hover:bg-blue-700 transition-colors'
+              onClick={() => navigate("/manager/forms/stock-concept-csv")}
+            >
+              <UploadCloud className='h-4 w-4 mr-2' />
+              Add New CSV
+            </button>
           </div>
         </div>
 

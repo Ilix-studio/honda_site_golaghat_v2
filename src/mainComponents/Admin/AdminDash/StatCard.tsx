@@ -31,6 +31,8 @@ export interface MetricTileProps {
   text: string;
   sub: string;
   index: number;
+  /** Optional caption under the value — used to say what a number does and doesn't include. */
+  note?: string;
 }
 
 export const StatCard = ({
@@ -107,6 +109,7 @@ export const MetricTile = ({
   text,
   sub,
   index,
+  note,
 }: MetricTileProps) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.95 }}
@@ -118,5 +121,8 @@ export const MetricTile = ({
       {label}
     </p>
     <p className={`text-3xl font-black tabular-nums ${text}`}>{value}</p>
+    {note && (
+      <p className={`mt-1 text-[11px] font-medium leading-snug ${sub}`}>{note}</p>
+    )}
   </motion.div>
 );

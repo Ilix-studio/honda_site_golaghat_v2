@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 
-import { logout, selectAuth } from "@/redux-store/slices/authSlice";
+import { selectAuth } from "@/redux-store/slices/authSlice";
+import { clearAuthState } from "@/redux-store/authHelpers";
 import { addNotification } from "@/redux-store/slices/uiSlice";
 import { useLogoutUserMutation } from "@/redux-store/services/adminApi";
 import NotificationBell from "@/mainComponents/shared/NotificationBell";
@@ -90,8 +91,6 @@ const ServiceAdminsHeader = () => {
     setIsMenuOpen(false);
     try {
       const result = await logoutBranchManager().unwrap();
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
       dispatch(
         addNotification({
           type: "success",
@@ -99,9 +98,6 @@ const ServiceAdminsHeader = () => {
         }),
       );
     } catch (error: any) {
-      dispatch(logout());
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
       dispatch(
         addNotification({
           type: "error",
@@ -109,6 +105,10 @@ const ServiceAdminsHeader = () => {
         }),
       );
     } finally {
+      // Awaited before navigating: the session lives in IndexedDB, and leaving
+      // before the purge resolves is what let a stale token bleed into the next
+      // role's login.
+      await clearAuthState(dispatch);
       navigate("/service-admin/login", { replace: true });
     }
   };

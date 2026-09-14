@@ -53,10 +53,6 @@ const authSlice = createSlice({
       state.token = null;
       state.error = null;
     },
-    tokenRefreshed: (state, action: PayloadAction<string>) => {
-      state.token = action.payload;
-      state.isAuthenticated = true;
-    },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
@@ -67,7 +63,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { loginSuccess, logout, setLoading, setError, tokenRefreshed } =
+export const { loginSuccess, logout, setLoading, setError } =
   authSlice.actions;
 
 // Selectors

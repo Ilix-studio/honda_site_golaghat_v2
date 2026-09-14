@@ -4,7 +4,7 @@ import {
   FetchArgs,
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
-import { baseQueryWithReauth } from "../../lib/baseQueryWithReauth";
+import { baseQueryWithAuthGuard } from "../../lib/baseQueryWithAuthGuard";
 import { customerBaseQuery } from "../../lib/customerApiConfigs";
 
 const dynamicBaseQuery: BaseQueryFn<
@@ -15,7 +15,7 @@ const dynamicBaseQuery: BaseQueryFn<
   if ((extraOptions as any)?.isCustomer) {
     return customerBaseQuery(args, api, extraOptions);
   }
-  return baseQueryWithReauth(args, api, extraOptions);
+  return baseQueryWithAuthGuard(args, api, extraOptions);
 };
 
 export const apiSlice = createApi({

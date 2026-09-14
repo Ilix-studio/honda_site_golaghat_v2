@@ -3,7 +3,8 @@ import { LogOut, ArrowLeft } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 
-import { logout, selectAuth } from "@/redux-store/slices/authSlice";
+import { selectAuth } from "@/redux-store/slices/authSlice";
+import { clearAuthState } from "@/redux-store/authHelpers";
 import { addNotification } from "@/redux-store/slices/uiSlice";
 import { useLogoutUserMutation } from "@/redux-store/services/adminApi";
 import NotificationBell from "@/mainComponents/shared/NotificationBell";
@@ -37,8 +38,6 @@ const DeveloperHeader = () => {
   const handleLogout = async () => {
     try {
       const result = await logoutUser().unwrap();
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
       dispatch(
         addNotification({
           type: "success",
@@ -46,9 +45,6 @@ const DeveloperHeader = () => {
         }),
       );
     } catch (error: any) {
-      dispatch(logout());
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
       dispatch(
         addNotification({
           type: "error",
@@ -56,6 +52,10 @@ const DeveloperHeader = () => {
         }),
       );
     } finally {
+      // Awaited before navigating: the session lives in IndexedDB, and leaving
+      // before the purge resolves is what let a stale token bleed into the next
+      // role's login.
+      await clearAuthState(dispatch);
       navigate("/developer/login", { replace: true });
     }
   };

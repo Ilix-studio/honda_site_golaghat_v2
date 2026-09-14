@@ -16,7 +16,6 @@ import {
   MessageSquare,
   Building2,
   Cog,
-  User,
   TrendingUp,
   Users,
   FileText,
@@ -32,10 +31,9 @@ import {
 } from "../../redux-store/slices/dashboardTabsSlice";
 
 import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
-import { useGetAllCustomersQuery } from "@/redux-store/services/customer/customerApi";
 
 import CustomerQueries from "./Tabs/CustomerQuery";
-import JobCardCatalogManager from "../CustomerSystem/JobCard/JobCardCatalogManager";
+// import JobCardCatalogManager from "../CustomerSystem/JobCard/JobCardCatalogManager";
 
 import RecentMotorcycles from "../Admin/AdminDash/RecentMotocycles";
 // import RagAssistant from "@/mainComponents/RAG/RagAssistant";
@@ -48,6 +46,7 @@ import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
 import OperationOpz from "./Tabs/OperationOpz";
 import { useGetAllStockItemsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetCSVStocksQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
+import WhatYouUpload from "../WhatYouUpload";
 
 const BRANCH_DASHBOARD_TAB_KEY = "branchManagerDashboard";
 
@@ -58,10 +57,6 @@ const BranchManagerDashboard = () => {
   const activeTab =
     useAppSelector(selectActiveTab(BRANCH_DASHBOARD_TAB_KEY)) ?? "operations";
   const [currentTime, setCurrentTime] = useState(new Date());
-
-  // RTK Query hooks — skip until authenticated to avoid 401s
-  const { data: customersData, isLoading: customersLoading } =
-    useGetAllCustomersQuery({ page: 1, limit: 1 }, { skip: !isAuthenticated });
 
   const { data: stockData, isLoading: stockLoading } = useGetAllStockItemsQuery(
     { page: 1, limit: 1 },
@@ -118,14 +113,7 @@ const BranchManagerDashboard = () => {
       description: "Upload sold-vehicle CSV/XLSX reports",
       action: { label: "Upload Sales Info", href: "/manager/sales-report" },
     },
-    {
-      title: "Add Customers (Manual way)",
-      value: customersData?.pagination?.total ?? 0,
-      icon: User,
-      loading: customersLoading,
-      description: "Total Customers",
-      action: { label: "Open Sign-up form", href: "/manager/customers/signup" },
-    },
+
     {
       title: "Create B2B Info",
       value: b2bSalesData?.pagination?.total ?? 0,
@@ -268,13 +256,9 @@ const BranchManagerDashboard = () => {
                   <Cog className='h-4 w-4 shrink-0' />
                   <span>Operations Type 2</span>
                 </TabsTrigger>
-                <TabsTrigger
-                  value='customer-reports'
-                  className='flex shrink-0 whitespace-nowrap items-center gap-1.5 sm:gap-2 px-3 sm:px-5 rounded-lg text-xs sm:text-sm font-medium text-gray-500 transition-all duration-200 hover:text-orange-700 hover:bg-orange-50 data-[state=active]:bg-gray-600 data-[state=active]:text-white data-[state=active]:shadow-md'
-                >
-                  <MessageSquare className='h-4 w-4 shrink-0' />
-                  <span>Add Vehicles & Reports</span>
-                </TabsTrigger>
+                {/* "Add Vehicles & Reports" trigger removed for now. The
+                    TabsContent for 'customer-reports' below is left intact, so
+                    restoring it is just a matter of putting this trigger back. */}
 
                 <TabsTrigger
                   value='analytics'
@@ -315,9 +299,10 @@ const BranchManagerDashboard = () => {
                 </div>
               </CardContent>
             </Card>
-            <div className='mt-10 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm p-5'>
+            {/* <div className='mt-10 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm p-5'>
               <JobCardCatalogManager />
-            </div>
+            </div> */}
+            <WhatYouUpload />
           </TabsContent>
           <TabsContent value='operations_type_two' className='mt-0.5'>
             <Card

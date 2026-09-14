@@ -28,6 +28,8 @@ import {
   useGetAllAccidentReportsQuery,
 } from "@/redux-store/services/accidentReportApi";
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
+import { useAppSelector } from "@/hooks/redux";
+import { selectIsStaff } from "@/redux-store/slices/authSlice";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -75,8 +77,20 @@ const TableSkeleton = () => (
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-const GetAllAccidentReports = () => {
+export interface GetAllAccidentReportsProps {
+  /**
+   * Prefix the row's "View report" link is built from. Defaults to the shared
+   * Super-Admin/Branch-Admin path; Staff renders the same page under
+   * "/staff/accident-reports", where the API branch-clamps the results.
+   */
+  basePath?: string;
+}
+
+const GetAllAccidentReports = ({
+  basePath = "/accident-reports",
+}: GetAllAccidentReportsProps = {}) => {
   const navigate = useNavigate();
+  const isStaff = useAppSelector(selectIsStaff);
 
   const [filters, setFilters] = useState<AccidentReportFilters>({
     page: 1,
@@ -181,24 +195,27 @@ const GetAllAccidentReports = () => {
                 <option value='closed'>Closed</option>
               </select>
 
-              {/* Branch */}
-              <select
-                value={filters.branchId ?? "all"}
-                onChange={(e) =>
-                  setFilter(
-                    "branchId",
-                    e.target.value === "all" ? undefined : e.target.value,
-                  )
-                }
-                className={SELECT_CLS}
-              >
-                <option value='all'>All Branches</option>
-                {branches.map((b) => (
-                  <option key={b._id} value={b._id}>
-                    {b.branchName}
-                  </option>
-                ))}
-              </select>
+              {/* Branch — hidden for Staff, whose results the API pins to their
+                  own branch regardless of what this would send. */}
+              {!isStaff && (
+                <select
+                  value={filters.branchId ?? "all"}
+                  onChange={(e) =>
+                    setFilter(
+                      "branchId",
+                      e.target.value === "all" ? undefined : e.target.value,
+                    )
+                  }
+                  className={SELECT_CLS}
+                >
+                  <option value='all'>All Branches</option>
+                  {branches.map((b) => (
+                    <option key={b._id} value={b._id}>
+                      {b.branchName}
+                    </option>
+                  ))}
+                </select>
+              )}
 
               {/* Insurance */}
               <select
@@ -332,7 +349,7 @@ const GetAllAccidentReports = () => {
                               size='icon'
                               aria-label='View report'
                               onClick={() =>
-                                navigate(`/accident-reports/${report._id}`)
+                                navigate(`${basePath}/${report._id}`)
                               }
                               className='h-8 w-8 p-0 hover:bg-red-50'
                             >
