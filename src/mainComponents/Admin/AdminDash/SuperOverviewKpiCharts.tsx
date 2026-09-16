@@ -124,29 +124,49 @@ export const UPLOAD_OWNERSHIP: {
    * it*, and folding read access into that list would quietly break it.
    */
   reads?: string[];
+  /**
+   * Outbound messages the role sends to the customer. Separate from both lists
+   * above for the same reason `reads` is separate from `owns`: this produces no
+   * report and contributes no number, it leaves the building. `pending` marks a
+   * channel that is documented but not wired up yet, so the card never claims a
+   * capability the system does not have.
+   */
+  sends?: { label: string; pending?: boolean }[];
 }[] = [
   {
     role: "Branch-Admin",
     scope: "Sales floor",
     color: REVENUE_FAMILIES.vehicle.color,
-    owns: ["Stock Upload", "Challan", "Sales Report", "Quotation"],
+    owns: [
+      "Stock Inventory Upload",
+      "Challan",
+      "Sales Report Upload",
+      "Create Quotation",
+    ],
   },
   {
     role: "Service-Admin",
     scope: "Workshop",
     color: REVENUE_FAMILIES.service.color,
-    owns: ["Job-Card Upload"],
+    owns: ["Job-Card Upload Invoice"],
+    // Customers raise these from the customer app; the Service-Admin works the
+    // queue (branch-scoped) and moves them through their status, but never
+    // creates one — hence a read, not an upload.
+    reads: ["Service Booking Requests"],
+    // See server3/docs/service-booking-sms.md. Still `pending` because no SMS
+    // provider is wired up yet — drop the flag in the guide's final step.
+    sends: [{ label: "Service SMS", pending: true }],
   },
   {
     role: "Part-Admin",
     scope: "Parts counter",
     color: REVENUE_FAMILIES.parts.color,
-    owns: ["Parts Upload", "Part Delivery (CPTOS)"],
+    owns: ["Parts Stock Upload", "Part Delivery (CPTOS)"],
   },
   {
     role: "Staff",
     color: REVENUE_FAMILIES.vehicle.color,
-    owns: ["Quotation"],
+    owns: ["Create Quotation"],
     // Branch-scoped reads, all of them someone else's artifact: Counter Sale is
     // a Part-Admin upload, Accident Reports are filed by customers, and the
     // finance and message forms are filled in on the public site.

@@ -52,6 +52,8 @@ import { describeCustomerSources } from "@/mainComponents/shared/customerSources
 import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSaleApi";
 import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
 import PartsnSales from "./SalesTabs/PartsnSales";
+import WhatYouUpload from "../WhatYouUpload";
+import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
 
 const YEARS = [2026, 2025, 2024];
 const PARTS_ADMIN_DASHBOARD_TAB_KEY = "partsAdminDashboard";
@@ -99,6 +101,10 @@ export default function PartsAdminDashboard() {
     (sum, batch) => sum + (batch.totalRecords ?? 0),
     0,
   );
+  const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
+    {},
+    { skip: !isAuthenticated },
+  );
 
   const kpis: Omit<StatCardProps, "index">[] = [
     {
@@ -114,7 +120,7 @@ export default function PartsAdminDashboard() {
       value: stats?.totals.totalParts ?? "—",
       icon: Package,
       loading: statsLoading,
-      description: "View Upload Records",
+      description: "Upload Records",
       action: { label: "View parts", href: "/part-admin/folder" },
     },
 
@@ -130,21 +136,22 @@ export default function PartsAdminDashboard() {
       action: { label: "Open", href: "/customers/new" },
     },
     {
-      title: "Counter Sale Reports",
+      title: "CPOTC Orders Sales",
       value: counterSaleBatches?.data?.length ?? 0,
       loading: counterSaleBatchesLoading,
       icon: ReceiptText,
-      description: "Upload and browse channel-partner counter sale reports",
+      description:
+        "Upload and browse channel-partner CPOTC Orders sale reports",
       action: { label: "Open", href: "/part-admin/counter-sale" },
     },
     {
-      title: "Counter Sale Reports Records",
+      title: "CPOTC Orders Records",
       value: counterSaleBatchesLoading
         ? "—"
         : counterSaleRecordsTotal.toLocaleString("en-IN"),
       icon: ReceiptText,
       loading: counterSaleBatchesLoading,
-      description: "Total rows across all counter sale reports",
+      description: "Total rows across all CPOTC Orders sale reports",
 
       action: {
         label: "Open",
@@ -153,11 +160,10 @@ export default function PartsAdminDashboard() {
     },
     {
       title: "Apply Leave",
-      value: "",
+      value: myLeaveData?.data?.length ?? 0,
       icon: BotIcon,
-      loading: false,
-      description: "Total rows across all counter sale reports",
-
+      loading: myLeaveLoading,
+      description: "My Leave Application",
       action: {
         label: "Open",
         href: "/part-admin/apply-leave",
@@ -358,6 +364,7 @@ export default function PartsAdminDashboard() {
                 )}
               </CardContent>
             </Card>
+            <WhatYouUpload />
           </TabsContent>
 
           <TabsContent value='maintenance' className='mt-2'>

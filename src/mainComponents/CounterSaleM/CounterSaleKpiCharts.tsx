@@ -1,12 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-
-  Bar,
-  BarChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { IndianRupee, Layers, Package } from "lucide-react";
 
 import {
@@ -177,7 +170,7 @@ export default function CounterSaleKpiCharts({
         </div>
       ) : batches.length === 0 ? (
         <EmptyChartState
-          message={`No counter sale reports uploaded in ${year} yet.`}
+          message={`No CPOTC Orders sale reports uploaded in ${year} yet.`}
         />
       ) : (
         <div className='grid grid-cols-1 md:grid-cols-1 gap-4'>

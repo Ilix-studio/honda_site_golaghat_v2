@@ -79,11 +79,21 @@ export default function PartsStockUploadForm({
     }
   };
 
+  /**
+   * The upload landed and its report is on screen (a `duplicate` result counts
+   * — nothing was imported, but the run is still finished). Gates the Upload
+   * button so a completed batch can't be fired at the server a second time.
+   */
+  const isUploaded = result !== null;
+
   const resetAll = () => {
     setFile(null);
     setResult(null);
     setApiError(null);
     setValidationError(null);
+    // React never controls a file input, so without clearing its value,
+    // re-picking the SAME file fires no change event and the old File sticks.
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   return (
@@ -97,46 +107,60 @@ export default function PartsStockUploadForm({
           </p>
         </CardHeader>
         <CardContent className='space-y-4'>
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragOver(true);
-            }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragOver(false);
-              if (e.dataTransfer.files[0]) handleFileSelect(e.dataTransfer.files[0]);
-            }}
-            onClick={() => inputRef.current?.click()}
-            className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-10 cursor-pointer transition-colors ${
-              dragOver
-                ? "border-blue-500 bg-blue-50"
-                : "border-gray-300 hover:border-gray-400"
-            }`}
-          >
-            <UploadCloud className='w-10 h-10 text-blue-500' />
-            {file ? (
+          {/* Once the batch is in, this stops being a file picker — the report
+              below owns the next step, and re-running the same file would only
+              produce a "nothing changed" duplicate result. */}
+          {isUploaded ? (
+            <div className='flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50/50 p-10'>
+              <CheckCircle2 className='w-10 h-10 text-emerald-600' />
               <div className='flex items-center gap-2 text-sm font-medium text-gray-800'>
-                <FileSpreadsheet className='w-4 h-4 text-blue-600' />
-                {file.name}
+                <FileSpreadsheet className='w-4 h-4 text-emerald-600' />
+                {file?.name ?? "Report uploaded"}
               </div>
-            ) : (
-              <p className='text-sm text-gray-500'>
-                Drag & drop a file here, or click to browse (XLSX / XLS / CSV /
-                PDF, ≤10MB)
-              </p>
-            )}
-            <input
-              ref={inputRef}
-              type='file'
-              accept='.xlsx,.xls,.csv,.pdf'
-              className='hidden'
-              onChange={(e) => {
-                if (e.target.files?.[0]) handleFileSelect(e.target.files[0]);
+              <p className='text-xs text-emerald-700'>Uploaded</p>
+            </div>
+          ) : (
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragOver(true);
               }}
-            />
-          </div>
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragOver(false);
+                if (e.dataTransfer.files[0]) handleFileSelect(e.dataTransfer.files[0]);
+              }}
+              onClick={() => inputRef.current?.click()}
+              className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-10 cursor-pointer transition-colors ${
+                dragOver
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-300 hover:border-gray-400"
+              }`}
+            >
+              <UploadCloud className='w-10 h-10 text-blue-500' />
+              {file ? (
+                <div className='flex items-center gap-2 text-sm font-medium text-gray-800'>
+                  <FileSpreadsheet className='w-4 h-4 text-blue-600' />
+                  {file.name}
+                </div>
+              ) : (
+                <p className='text-sm text-gray-500'>
+                  Drag & drop a file here, or click to browse (XLSX / XLS / CSV /
+                  PDF, ≤10MB)
+                </p>
+              )}
+              <input
+                ref={inputRef}
+                type='file'
+                accept='.xlsx,.xls,.csv,.pdf'
+                className='hidden'
+                onChange={(e) => {
+                  if (e.target.files?.[0]) handleFileSelect(e.target.files[0]);
+                }}
+              />
+            </div>
+          )}
 
           {validationError && (
             <div className='flex items-center gap-2 text-red-600 text-sm'>
@@ -152,20 +176,26 @@ export default function PartsStockUploadForm({
           )}
 
           <div className='flex gap-3'>
-            <Button
-              onClick={handleUpload}
-              disabled={!file || isLoading}
-              className='bg-emerald-600 hover:bg-emerald-700'
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className='w-4 h-4 mr-2 animate-spin' />
-                  Uploading...
-                </>
-              ) : (
-                "Upload"
-              )}
-            </Button>
+            {/* Hidden once the upload lands — the result card below carries
+                "Upload another". An error leaves it in place to retry. */}
+            {!isUploaded && (
+              <Button
+                onClick={handleUpload}
+                disabled={!file || isLoading}
+                className='bg-emerald-600 hover:bg-emerald-700'
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className='w-4 h-4 mr-2 animate-spin' />
+                    Uploading...
+                  </>
+                ) : apiError ? (
+                  "Try again"
+                ) : (
+                  "Upload"
+                )}
+              </Button>
+            )}
             <Button variant='ghost' onClick={() => navigate(dashboardPath)}>
               Back to Dashboard
             </Button>
