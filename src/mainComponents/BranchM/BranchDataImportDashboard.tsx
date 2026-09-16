@@ -4,7 +4,7 @@ import {
   useGetDatasetsQuery,
   useGetDatasetRowsQuery,
 } from "@/redux-store/services/dataImportApi";
-import { useGetServiceJobcardSalesTimeseriesQuery } from "@/redux-store/services/serviceJobcardApi";
+import { useGetServiceInvoiceTimeseriesQuery } from "@/redux-store/services/serviceInvoiceApi";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
 import SalesTrendChart from "@/mainComponents/DataImport/SalesTrendChart";
 import {
@@ -19,7 +19,7 @@ export default function BranchDataImportDashboard() {
   const [granularity, setGranularity] = useState<Granularity>("day");
 
   const { data: salesData, isLoading: salesLoading } =
-    useGetServiceJobcardSalesTimeseriesQuery({
+    useGetServiceInvoiceTimeseriesQuery({
       granularity,
     });
 

@@ -197,12 +197,7 @@ export default function StockInvestmentKpiCharts() {
         {granularity} range (trailing 30 days by default) and count purchased
         stock only — auto-registered service vehicles are excluded. Vehicles
         Added therefore splits exactly into Not Sold plus the "from stock" half
-        of Total Sold. The remaining half of Total Sold — sales-report rows
-        matching no stock vehicle — sits outside the stock collection
-        altogether, so it is deliberately not part of Vehicles Added. Vehicles
-        via Challan is already inside Total Sold. The all-time tiles ignore the
-        date range. Total Revenue sums CSV-Assign, Manual-Assign, Sales Report
-        and Challans.
+        of Total Sold.
       </p>
 
       {timeseries.length === 0 ? (

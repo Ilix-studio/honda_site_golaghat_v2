@@ -48,17 +48,17 @@ const routeConfig: Record<
     showBack: true,
     backTo: "/service-admin/dashboard",
   },
-  "/service-admin/service-records": {
-    title: "Service Records",
-    subtitle: "Manage service records",
+  "/service-admin/service-invoice": {
+    title: "Service Invoices",
+    subtitle: "Imported service invoices and their parts",
     showBack: true,
     backTo: "/service-admin/dashboard",
   },
-  "/service-admin/view-records": {
-    title: "View Records",
-    subtitle: "Manage View Records",
+  "/service-admin/service-invoice/upload": {
+    title: "Import Service Invoice",
+    subtitle: "Upload a service invoice PDF",
     showBack: true,
-    backTo: "/service-admin/dashboard",
+    backTo: "/service-admin/service-invoice",
   },
   "/service-admin/job-card": {
     title: "Job Card",

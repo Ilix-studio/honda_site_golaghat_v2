@@ -42,10 +42,7 @@ import {
   useGetPartsStatsQuery,
   useGetPartsStockStatusQuery,
 } from "@/redux-store/services/partsApi";
-import {
-  useGetServiceJobcardStatsQuery,
-  useGetServiceJobcardStatusQuery,
-} from "@/redux-store/services/serviceJobcardApi";
+import { useGetServiceInvoiceStatsQuery } from "@/redux-store/services/serviceInvoiceApi";
 import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSaleApi";
 import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetCSVStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
@@ -180,11 +177,7 @@ export default function SuperOverviewKpiCharts() {
     useGetPartsStatsQuery({ year }, skip);
   const { data: partsStatus } = useGetPartsStockStatusQuery(undefined, skip);
   const { data: serviceStats, isLoading: serviceStatsLoading } =
-    useGetServiceJobcardStatsQuery({ year }, skip);
-  const { data: serviceStatus } = useGetServiceJobcardStatusQuery(
-    undefined,
-    skip,
-  );
+    useGetServiceInvoiceStatsQuery({ year }, skip);
   const { data: counterSale } = useGetCounterSaleBatchesQuery(undefined, skip);
   const { data: stockAssign } = useGetStockAssignStatsQuery({ year }, skip);
   const { data: csvStockAssign } = useGetCSVStockAssignStatsQuery(
@@ -224,14 +217,14 @@ export default function SuperOverviewKpiCharts() {
         revenue: Math.round(partsStatus?.data.totalRevenue ?? 0),
       },
       {
-        domain: "CTOS",
+        domain: "CPTOS",
         family: "parts",
         revenue: Math.round(counterSaleRevenue),
       },
       {
         domain: "Service",
         family: "service",
-        revenue: Math.round(serviceStatus?.data.totalRevenue ?? 0),
+        revenue: Math.round(serviceStats?.data.totals.totalRevenue ?? 0),
       },
     ];
 
@@ -239,7 +232,7 @@ export default function SuperOverviewKpiCharts() {
       ...row,
       fill: REVENUE_FAMILIES[row.family].color,
     }));
-  }, [vehicleRevenue, b2b, partsStatus, counterSaleRevenue, serviceStatus]);
+  }, [vehicleRevenue, b2b, partsStatus, counterSaleRevenue, serviceStats]);
 
   /**
    * Both stats endpoints return a filled 12-month array, but joining on the
@@ -256,7 +249,7 @@ export default function SuperOverviewKpiCharts() {
 
     return months.map((month) => ({
       month,
-      jobCards: service.find((m) => m.month === month)?.jobCardCount ?? 0,
+      jobCards: service.find((m) => m.month === month)?.invoiceCount ?? 0,
       partsRows: parts.get(month) ?? 0,
     }));
   }, [partsStats, serviceStats]);

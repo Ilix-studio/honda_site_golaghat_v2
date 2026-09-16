@@ -18,7 +18,12 @@ import {
   X,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
+import {
+  CUSTOMER_SOURCE_TAGS,
+  useGetNewCustomersQuery,
+  type CustomerSourceTag,
+} from "@/redux-store/services/customer/customerAdminApi";
+import { CUSTOMER_SOURCE_META } from "./customerSources";
 import { useNavigate } from "react-router-dom";
 
 const SOURCE_LABEL: Record<string, string> = {
@@ -40,6 +45,7 @@ export default function NewCustomerList() {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
+  const [source, setSource] = useState<CustomerSourceTag | null>(null);
   const navigate = useNavigate();
   const limit = 20;
 
@@ -58,14 +64,22 @@ export default function NewCustomerList() {
     page,
     limit,
     search: search || undefined,
+    source: source ?? undefined,
   });
 
   const customers = data?.data ?? [];
   const pagination = data?.pagination;
+  const sourceCounts = data?.sourceCounts;
+
+  // Same reset rationale as search: a narrower tab has fewer pages.
+  const selectSource = (next: CustomerSourceTag | null) => {
+    setSource(next);
+    setPage(1);
+  };
 
   return (
     <div className='min-h-screen bg-gray-50 p-4 md:p-8'>
-      <div className='max-w-5xl mx-auto space-y-4'>
+      <div className='max-w-6xl mx-auto space-y-4'>
         <div className='flex items-center gap-3'>
           <div className='flex items-start gap-4'>
             <button
@@ -80,11 +94,10 @@ export default function NewCustomerList() {
             <Users className='h-5 w-5' />
           </div>
           <div>
-            <h1 className='text-xl font-bold text-gray-900'>
-              New Customer List
-            </h1>
+            <h1 className='text-xl font-bold text-gray-900'>Customer List</h1>
             <p className='text-sm text-gray-500'>
-              Every customer on record, newest first
+              Sales reports, manual &amp; CSV stock assignments and service
+              uploads, combined — newest first
             </p>
           </div>
         </div>
@@ -93,11 +106,64 @@ export default function NewCustomerList() {
           <CardHeader className='space-y-3'>
             <CardTitle className='text-base'>
               {pagination
-                ? search
+                ? search || source
                   ? `${pagination.total} matching customer(s)`
                   : `${pagination.total} customers`
                 : "Customers"}
             </CardTitle>
+
+            {/* Source filter — counts come from the server and ignore the
+                selected tab, so switching tabs never changes the labels. */}
+            <div className='flex flex-wrap gap-2'>
+              <button
+                type='button'
+                onClick={() => selectSource(null)}
+                aria-pressed={source === null}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  source === null
+                    ? "border-gray-900 bg-gray-900 text-white"
+                    : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                <Users className='h-3.5 w-3.5' />
+                All
+              </button>
+              {CUSTOMER_SOURCE_TAGS.map((tag) => {
+                const meta = CUSTOMER_SOURCE_META[tag];
+                const Icon = meta.icon;
+                const active = source === tag;
+                return (
+                  <Tooltip key={tag}>
+                    <TooltipTrigger asChild>
+                      <button
+                        type='button'
+                        onClick={() => selectSource(active ? null : tag)}
+                        aria-pressed={active}
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                          active
+                            ? "border-gray-900 bg-gray-900 text-white"
+                            : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                        }`}
+                      >
+                        <Icon className='h-3.5 w-3.5' />
+                        {meta.label}
+                        <span
+                          className={`tabular-nums ${
+                            active ? "text-gray-300" : "text-gray-400"
+                          }`}
+                        >
+                          {sourceCounts?.[tag] ?? "—"}
+                        </span>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className='w-56'>
+                      {meta.hint}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </div>
+
             <div className='relative max-w-md'>
               <Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400' />
               <Input
@@ -131,8 +197,12 @@ export default function NewCustomerList() {
             ) : customers.length === 0 ? (
               <p className='text-sm text-gray-400 py-8 text-center'>
                 {search
-                  ? `No customers match "${search}".`
-                  : "No customers yet."}
+                  ? `No customers match "${search}"${
+                      source ? ` in ${CUSTOMER_SOURCE_META[source].label}` : ""
+                    }.`
+                  : source
+                    ? `No customers from ${CUSTOMER_SOURCE_META[source].label} yet.`
+                    : "No customers yet."}
               </p>
             ) : (
               <div className='overflow-x-auto'>
@@ -141,7 +211,8 @@ export default function NewCustomerList() {
                     <tr>
                       <th className='py-2 pr-4'>Name</th>
                       <th className='py-2 pr-4'>Phone</th>
-                      <th className='py-2 pr-4'>Source</th>
+                      <th className='py-2 pr-4'>Detected in</th>
+                      <th className='py-2 pr-4'>Created via</th>
                       <th className='py-2 pr-4'>Vehicle</th>
                       <th className='py-2 pr-4'>Joined</th>
                     </tr>
@@ -154,6 +225,39 @@ export default function NewCustomerList() {
                         </td>
                         <td className='py-2 pr-4 tabular-nums text-gray-700'>
                           {c.phoneNumber}
+                        </td>
+                        <td className='py-2 pr-4'>
+                          {c.sources.length === 0 ? (
+                            <span className='text-gray-400'>—</span>
+                          ) : (
+                            <div className='flex flex-wrap gap-1'>
+                              {c.sources.map((tag) => {
+                                const meta = CUSTOMER_SOURCE_META[tag];
+                                const Icon = meta.icon;
+                                return (
+                                  <Tooltip key={tag}>
+                                    <TooltipTrigger asChild>
+                                      <Badge
+                                        variant='outline'
+                                        className={`${meta.className} cursor-help gap-1`}
+                                      >
+                                        <Icon className='h-3 w-3' />
+                                        {meta.short}
+                                      </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent className='w-56'>
+                                      <div className='font-medium text-gray-900'>
+                                        {meta.label}
+                                      </div>
+                                      <div className='mt-1 text-gray-500'>
+                                        {meta.hint}
+                                      </div>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                );
+                              })}
+                            </div>
+                          )}
                         </td>
                         <td className='py-2 pr-4'>
                           <Tooltip>
@@ -176,6 +280,10 @@ export default function NewCustomerList() {
                                   <span className='font-mono font-semibold'>
                                     {c.creationSource ?? "not stored"}
                                   </span>
+                                </div>
+                                <div className='text-gray-500'>
+                                  How this customer first entered the system —
+                                  written once, unlike the tags on the left.
                                 </div>
                                 <div className='text-gray-500'>
                                   Joined:{" "}

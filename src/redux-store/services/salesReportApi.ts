@@ -13,6 +13,12 @@ export interface SalesReportImportResponse {
     matchedCount: number;
     unmatchedCount: number;
     conflictCount: number;
+    /**
+     * New BaseCustomer docs this import created. Independent of matchedCount:
+     * every row with a usable mobile number creates (or re-uses) a customer,
+     * whether or not its vehicle was found in stock.
+     */
+    customersCreated: number;
     batchId: string;
     sourceFormat: "xlsx" | "csv";
     detectedColumns: string[];

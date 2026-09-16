@@ -34,19 +34,21 @@ import {
 import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 
 import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/ServiceBookAdminApi";
-import OpenJobCards from "./OpenJobCards";
+// import OpenJobCards from "./OpenJobCards";
 
 import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
 import {
-  useGetServiceJobcardSalesTimeseriesQuery,
-  useGetServiceJobcardBatchesQuery,
-} from "@/redux-store/services/serviceJobcardApi";
+  useGetServiceInvoiceTimeseriesQuery,
+  useGetServiceInvoicesQuery,
+} from "@/redux-store/services/serviceInvoiceApi";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
+import { describeCustomerSources } from "@/mainComponents/shared/customerSources";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
 import SalesKpiCharts, {
   RevenueByBarChart,
 } from "@/mainComponents/DataImport/SalesKpiCharts";
 import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
+import WhatYouUpload from "../WhatYouUpload";
 
 const SERVICE_ADMIN_DASHBOARD_TAB_KEY = "serviceAdminDashboard";
 
@@ -61,7 +63,7 @@ const DashServiceAdmins = () => {
   const [granularity, setGranularity] = useState<Granularity>("day");
 
   const { data: salesData, isLoading: salesLoading } =
-    useGetServiceJobcardSalesTimeseriesQuery(
+    useGetServiceInvoiceTimeseriesQuery(
       { granularity },
       { skip: !isAuthenticated },
     );
@@ -79,8 +81,8 @@ const DashServiceAdmins = () => {
   );
   const { data: newCustomersData, isLoading: newCustomersLoading } =
     useGetNewCustomersQuery({ limit: 1 }, { skip: !isAuthenticated });
-  const { data: jobcardBatchesData, isLoading: jobcardBatchesLoading } =
-    useGetServiceJobcardBatchesQuery(undefined, { skip: !isAuthenticated });
+  const { data: invoicesData, isLoading: invoicesLoading } =
+    useGetServiceInvoicesQuery({ limit: 1 }, { skip: !isAuthenticated });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
@@ -103,13 +105,12 @@ const DashServiceAdmins = () => {
   // Stat cards built from live query data
   const operationsStats: Omit<StatCardProps, "index">[] = [
     {
-      title: "Upload Service Records",
-      //Add Badge
-      value: jobcardBatchesData?.data.length ?? 0,
+      title: "Service Invoices",
+      value: invoicesData?.data.total ?? 0,
       icon: Activity,
-      loading: myLeaveLoading,
-      description: "Upload Service Jobcard Records",
-      action: { label: "Open", href: "/service-admin/service-records" },
+      loading: invoicesLoading,
+      description: "Import a service invoice PDF",
+      action: { label: "Open", href: "/service-admin/service-invoice/upload" },
     },
 
     {
@@ -117,16 +118,19 @@ const DashServiceAdmins = () => {
       value: newCustomersData?.pagination.total ?? 0,
       icon: Users,
       loading: newCustomersLoading,
-      description: "All Customer Detected by this project",
+      // Live per-pipeline breakdown rather than a static sentence — the list
+      // combines sales reports, manual/CSV stock assignment and service
+      // uploads, and the counts overlap, so they won't sum to the total above.
+      description: describeCustomerSources(newCustomersData?.sourceCounts),
       action: { label: "Open", href: "/customers/new" },
     },
     {
-      title: "View Uploaded Folders",
-      value: jobcardBatchesData?.data.length ?? 0,
+      title: "View Invoices",
+      value: invoicesData?.data.total ?? 0,
       icon: FolderOpen,
-      loading: jobcardBatchesLoading,
-      description: "Uploaded Job Card Report Folders",
-      action: { label: "View Folders", href: "/service-admin/view-records" },
+      loading: invoicesLoading,
+      description: "Imported service invoices and their parts",
+      action: { label: "View", href: "/service-admin/service-invoice" },
     },
     {
       title: "Service Booking Requests",
@@ -313,7 +317,8 @@ const DashServiceAdmins = () => {
               </CardContent>
 
               <CardContent className='p-2 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm'>
-                <OpenJobCards />
+                {/* <OpenJobCards /> */}
+                <WhatYouUpload />
               </CardContent>
             </Card>
           </TabsContent>
@@ -326,7 +331,7 @@ const DashServiceAdmins = () => {
 
           <TabsContent value='sales-data' className='mt-2'>
             <div className='flex justify-end mb-3'>
-              <Link to='/service-admin/service-records'>
+              <Link to='/service-admin/service-invoice/upload'>
                 <Button className='bg-green-700 text-white hover:bg-blue-700'>
                   <UploadCloud className='w-4 h-4 mr-2 ' />
                   Upload Data
@@ -340,7 +345,7 @@ const DashServiceAdmins = () => {
               timeseries={salesData?.data?.timeseries ?? []}
               byModel={salesData?.data?.byModel ?? []}
               loading={salesLoading}
-              emptyMessage='No sales data yet — upload a service-jobcard report to see revenue trends.'
+              emptyMessage='No sales data yet — import a service invoice to see revenue trends.'
             />
 
             {salesData?.data && (

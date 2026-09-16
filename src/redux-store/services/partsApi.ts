@@ -26,6 +26,23 @@ export interface PartsImportResponse {
     revenueAfter?: number;
     revenueDelta?: number;
     changesMarkdown?: string;
+    /**
+     * Service-invoice lines that were waiting on this stock. Uploading the
+     * part retroactively marks them sold — see
+     * server3/src/service/serviceInvoice/reconcilePendingStock.service.ts.
+     */
+    pendingResolved?: {
+      resolved: number;
+      stillPending: number;
+      invoicesTouched: number;
+      lines: {
+        invoiceNumber: string;
+        partNo: string;
+        qty: number;
+        taxableAmount: number;
+        soldAt: string;
+      }[];
+    };
   };
 }
 

@@ -139,6 +139,9 @@ const B2BSalesForm = ({ existingSale, onDone }: B2BSalesFormProps) => {
       stockItems: stockItems.map((item) => ({
         stockConceptCSVId: item.stockConceptCSVId,
         quantity: item.quantity,
+        // Sent explicitly: the price may have been edited on this challan, and
+        // the server would otherwise re-snapshot the stock's book cost.
+        costPrice: item.costPrice,
       })),
       extraItems: extraItems.map((item) => ({
         name: item.name.trim(),
@@ -224,6 +227,13 @@ const B2BSalesForm = ({ existingSale, onDone }: B2BSalesFormProps) => {
             items={stockItems}
             onRemove={(id) =>
               setStockItems((prev) => prev.filter((i) => i.stockConceptCSVId !== id))
+            }
+            onCostPriceChange={(id, costPrice) =>
+              setStockItems((prev) =>
+                prev.map((i) =>
+                  i.stockConceptCSVId === id ? { ...i, costPrice } : i,
+                ),
+              )
             }
           />
         </div>

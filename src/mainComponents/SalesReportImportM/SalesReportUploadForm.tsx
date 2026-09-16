@@ -38,6 +38,21 @@ export default function SalesReportUploadForm({
 
   const isUploading = status === "uploading";
 
+  /**
+   * Back to a clean upload form after a finished import.
+   *
+   * The file input's own `value` has to be cleared too — re-picking the *same*
+   * file fires no change event otherwise, so the form would look empty while
+   * `file` stayed null and the submit button stayed disabled.
+   */
+  const resetForm = () => {
+    setFile(null);
+    setResult(null);
+    setErrorMsg(null);
+    setStatus("idle");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
@@ -88,6 +103,14 @@ export default function SalesReportUploadForm({
           </div>
         </div>
 
+        {/*
+          Both the template guide and the dropzone are hidden once an import
+          has landed: at that point the result is what matters, and leaving a
+          live upload form under it invites a duplicate submit of the same
+          file. "Upload another" brings them back.
+        */}
+        {!result && (
+        <>
         <div className='rounded-lg border border-gray-200 bg-white p-4 mt-4'>
           <div className='flex items-start justify-between gap-4 flex-wrap'>
             <div className='min-w-0'>
@@ -169,6 +192,8 @@ export default function SalesReportUploadForm({
             </Button>
           </div>
         </form>
+        </>
+        )}
 
         {errorMsg && (
           <div className='mt-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700'>
@@ -190,6 +215,11 @@ export default function SalesReportUploadForm({
               Matched &amp; sold: {result.matchedCount} · Unmatched:{" "}
               {result.unmatchedCount} · Conflicts: {result.conflictCount}
             </p>
+            <p className='text-sm text-gray-500'>
+              New customers created: {result.customersCreated} — every row with
+              a valid mobile number is added to the customer list, matched or
+              not.
+            </p>
 
             {result.errors.length > 0 && (
               <div className='rounded-lg bg-amber-50 border border-amber-200 p-3'>
@@ -207,7 +237,7 @@ export default function SalesReportUploadForm({
             )}
 
             <div className='flex justify-end gap-2 pt-2'>
-              <Button variant='outline' onClick={() => setFile(null)}>
+              <Button variant='outline' onClick={resetForm}>
                 Upload another
               </Button>
               {onDone && <Button onClick={onDone}>Done</Button>}

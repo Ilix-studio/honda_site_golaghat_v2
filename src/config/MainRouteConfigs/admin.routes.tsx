@@ -87,6 +87,10 @@ const AdminUploadDataImport = () => (
 const NewCustomerList = lazy(
   () => import("@/mainComponents/shared/NewCustomerList"),
 );
+const AdminServiceInvoiceDashboard = lazy(
+  () => import("@/mainComponents/ServiceInvoiceM/ServiceInvoiceDashboard"),
+);
+
 const CounterSaleAdminDashboard = lazy(
   () => import("@/mainComponents/CounterSaleM/CounterSaleAdminDashboard"),
 );
@@ -144,6 +148,7 @@ export const adminRoutes = [
 
   // Counter Sale Reports — Part-Admin uploads, Super-Admin reads/deletes all branches
   { path: "/admin/counter-sale", component: CounterSaleAdminDashboard },
+  { path: "/admin/service-invoice", component: AdminServiceInvoiceDashboard },
   { path: "/admin/counter-sale/deleted", component: CounterSaleDeletedBatches },
 
   // B2B Sales (Challans) — Branch-Admin submits, Super-Admin reads/reports all branches

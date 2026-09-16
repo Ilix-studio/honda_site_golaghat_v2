@@ -207,6 +207,51 @@ export default function PartsStockUploadForm({
             </p>
           </CardHeader>
           <CardContent className='space-y-4'>
+            {/*
+              Service invoices often bill a part before it has been uploaded
+              here. Those lines sit as "awaiting stock"; this upload settles
+              them, so show the Part-Admin exactly what their file just closed
+              out.
+            */}
+            {!!result.pendingResolved?.resolved && (
+              <div className='rounded-lg border border-emerald-200 bg-emerald-50 p-4'>
+                <p className='mb-2 text-sm font-semibold text-emerald-900'>
+                  Marked {result.pendingResolved.resolved} pending service part
+                  {result.pendingResolved.resolved === 1 ? "" : "s"} as sold
+                  <span className='font-normal'>
+                    {" "}
+                    across {result.pendingResolved.invoicesTouched} invoice
+                    {result.pendingResolved.invoicesTouched === 1 ? "" : "s"}
+                  </span>
+                </p>
+                <ul className='space-y-1 text-xs text-emerald-900'>
+                  {result.pendingResolved.lines.slice(0, 12).map((l, i) => (
+                    <li key={i} className='flex flex-wrap gap-x-2'>
+                      <span className='font-mono'>{l.partNo}</span>
+                      <span>× {l.qty}</span>
+                      <span className='text-emerald-700'>
+                        invoice {l.invoiceNumber}
+                      </span>
+                      <span className='text-emerald-700'>
+                        {new Date(l.soldAt).toLocaleDateString("en-IN")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {result.pendingResolved.lines.length > 12 && (
+                  <p className='mt-1 text-xs text-emerald-700'>
+                    + {result.pendingResolved.lines.length - 12} more
+                  </p>
+                )}
+                {result.pendingResolved.stillPending > 0 && (
+                  <p className='mt-2 text-xs text-emerald-800'>
+                    {result.pendingResolved.stillPending} line(s) are still
+                    awaiting a part that this file didn't contain.
+                  </p>
+                )}
+              </div>
+            )}
+
             {result.changesMarkdown && (
               <div className='rounded-lg border border-gray-200 p-4'>
                 <p className='text-sm font-semibold text-gray-700 mb-3'>

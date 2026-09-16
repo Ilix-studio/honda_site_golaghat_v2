@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useGetPartsStatsQuery } from "@/redux-store/services/partsApi";
+import { useGetServiceInvoiceStatsQuery } from "@/redux-store/services/serviceInvoiceApi";
 
 import {
   StatCard,
@@ -34,6 +35,7 @@ import {
   TrendingUp,
   Users,
   ReceiptText,
+  FileText,
   Webhook,
   BotIcon,
   LifeBuoy,
@@ -45,6 +47,7 @@ import {
   setActiveTab,
 } from "@/redux-store/slices/dashboardTabsSlice";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
+import { describeCustomerSources } from "@/mainComponents/shared/customerSources";
 
 import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSaleApi";
 import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
@@ -72,6 +75,11 @@ export default function PartsAdminDashboard() {
 
   const stats = statsData?.data;
 
+  // Service invoices are the other half of Part-Admin's world now: they are
+  // what consumes the parts stock this dashboard reports on.
+  const { data: invoiceStats, isLoading: invoiceStatsLoading } =
+    useGetServiceInvoiceStatsQuery({ year }, { skip: !isAuthenticated });
+
   const { data: counterSaleBatches, isLoading: counterSaleBatchesLoading } =
     useGetCounterSaleBatchesQuery(undefined, {
       skip: !isAuthenticated,
@@ -94,6 +102,14 @@ export default function PartsAdminDashboard() {
 
   const kpis: Omit<StatCardProps, "index">[] = [
     {
+      title: "Service Invoices",
+      value: invoiceStats?.data.totals.totalInvoices ?? "—",
+      icon: FileText,
+      loading: invoiceStatsLoading,
+      description: "Parts sold & accessories fitted",
+      action: { label: "Open", href: "/part-admin/service-invoice" },
+    },
+    {
       title: "Total Parts",
       value: stats?.totals.totalParts ?? "—",
       icon: Package,
@@ -107,7 +123,10 @@ export default function PartsAdminDashboard() {
       value: newCustomersData?.pagination.total ?? 0,
       icon: Users,
       loading: newCustomersLoading,
-      description: "All Customer Detected by this project",
+      // Live per-pipeline breakdown rather than a static sentence — the list
+      // combines sales reports, manual/CSV stock assignment and service
+      // uploads, and the counts overlap, so they won't sum to the total above.
+      description: describeCustomerSources(newCustomersData?.sourceCounts),
       action: { label: "Open", href: "/customers/new" },
     },
     {

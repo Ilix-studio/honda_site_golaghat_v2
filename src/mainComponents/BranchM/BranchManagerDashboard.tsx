@@ -38,6 +38,7 @@ import CustomerQueries from "./Tabs/CustomerQuery";
 import RecentMotorcycles from "../Admin/AdminDash/RecentMotocycles";
 // import RagAssistant from "@/mainComponents/RAG/RagAssistant";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
+import { describeCustomerSources } from "@/mainComponents/shared/customerSources";
 import { useGetQuotationsQuery } from "@/redux-store/services/NewFeatures/quotationApi";
 import { useGetB2BSalesQuery } from "@/redux-store/services/BikeSystemApi2/b2bSalesApi";
 import { useGetSalesReportBatchesQuery } from "@/redux-store/services/salesReportApi";
@@ -128,7 +129,10 @@ const BranchManagerDashboard = () => {
       value: newCustomersData?.pagination.total ?? 0,
       icon: Users,
       loading: newCustomersLoading,
-      description: "All Customer Detected by this project",
+      // Live per-pipeline breakdown rather than a static sentence — the list
+      // combines sales reports, manual/CSV stock assignment and service
+      // uploads, and the counts overlap, so they won't sum to the total above.
+      description: describeCustomerSources(newCustomersData?.sourceCounts),
       action: { label: "Open", href: "/customers/new" },
     },
     {

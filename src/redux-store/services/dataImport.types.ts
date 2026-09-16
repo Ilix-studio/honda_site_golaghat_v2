@@ -157,8 +157,8 @@ export interface DatasetRowsFilters {
 // Generic revenue-timeseries shapes, consumed by several presentational
 // components (SalesKpiCharts.tsx, SalesTrendChart.tsx) regardless of which
 // backend module actually produces the data — currently
-// serviceJobcardApi.ts#getServiceJobcardSalesTimeseries (moved off the
-// generic DataImport module, since service-jobcard is the sales fact table).
+// serviceInvoiceApi.ts#getServiceInvoiceTimeseries (moved off the generic
+// DataImport module, since the service invoice is the sales fact table).
 
 export type Granularity = "day" | "week" | "month" | "year";
 

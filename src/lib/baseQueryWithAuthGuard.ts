@@ -19,7 +19,18 @@ import type { RootState } from "@/redux-store/store";
  * It deliberately does *not* log out on every 401. A 401 from an endpoint
  * whose own authorization rules rejected the request (for example the
  * admin-or-customer routes) must not destroy a session whose token is still
- * valid, so the JWT's own `exp` claim is the only thing that triggers logout.
+ * valid.
+ *
+ * Two things therefore trigger logout, and nothing else:
+ *   1. the JWT's own `exp` claim has passed, or
+ *   2. the server replied with `code: "SESSION_INVALID"` — the token is
+ *      unusable or the account behind it no longer exists (deleted user, or a
+ *      token that predates a database reset). Those requests will 401 forever,
+ *      so staying "logged in" just leaves the user on a dashboard where
+ *      everything silently fails.
+ *
+ * The code is matched instead of the message so the server can reword its
+ * errors freely. See server3/src/utils/errorResponse.ts.
  */
 
 const debugLog = (...args: unknown[]) => {
@@ -51,6 +62,16 @@ const sessionExpiredError: FetchBaseQueryError = {
   data: { success: false, message: "Session expired, please log in again" },
 };
 
+/**
+ * True when the server explicitly marked this session unusable, rather than
+ * merely refusing this particular request.
+ */
+function isSessionInvalid(error: FetchBaseQueryError | undefined): boolean {
+  if (!error || error.status !== 401) return false;
+  const data = error.data as { code?: string } | undefined;
+  return data?.code === "SESSION_INVALID";
+}
+
 export const baseQueryWithAuthGuard: BaseQueryFn<
   string | FetchArgs,
   unknown,
@@ -62,19 +83,29 @@ export const baseQueryWithAuthGuard: BaseQueryFn<
   // that is guaranteed to fail.
   if (authState?.isAuthenticated && isTokenExpired(authState.token)) {
     debugLog(`access token expired — logging out before ${requestLabel(args)}`);
-    clearAuthState(api.dispatch);
+    void clearAuthState(api.dispatch).catch(() => {
+      /* teardown is best-effort; the in-memory logout already dispatched */
+    });
     return { error: sessionExpiredError };
   }
 
   const result = await baseQuery(args, api, extraOptions);
 
-  // Post-flight: covers the token expiring mid-request, and any token the
-  // server rejects that our own clock already considers expired.
+  // Post-flight: covers the token expiring mid-request, a token the server
+  // rejects that our own clock already considers expired, and an account that
+  // no longer exists behind a still-valid token.
   if (result.error?.status === 401) {
     const currentAuth = (api.getState() as RootState).auth;
-    if (currentAuth?.isAuthenticated && isTokenExpired(currentAuth.token)) {
+    if (!currentAuth?.isAuthenticated) {
+      // Already logged out — nothing to tear down.
+    } else if (isSessionInvalid(result.error)) {
+      debugLog(
+        `401 SESSION_INVALID on ${requestLabel(args)} — account gone or token unusable, logging out`,
+      );
+      void clearAuthState(api.dispatch).catch(() => {});
+    } else if (isTokenExpired(currentAuth.token)) {
       debugLog(`401 on ${requestLabel(args)} with an expired token — logging out`);
-      clearAuthState(api.dispatch);
+      void clearAuthState(api.dispatch).catch(() => {});
     } else {
       debugLog(`401 on ${requestLabel(args)} — token still valid, session kept`);
     }
