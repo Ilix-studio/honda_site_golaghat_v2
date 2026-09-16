@@ -37,6 +37,12 @@ export interface B2BSale {
 export interface StockItemInput {
   stockConceptCSVId: string;
   quantity: number;
+  /**
+   * Per-challan price override. B2B prices are negotiated, so a challan's
+   * line price often differs from the stock's book cost. Omitted, the server
+   * falls back to StockConceptCSV.costPrice. Never writes back to stock.
+   */
+  costPrice?: number;
 }
 
 export interface ExtraItemInput {

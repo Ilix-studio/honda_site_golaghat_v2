@@ -64,34 +64,34 @@ export default function NewUI() {
           } ${isVisible ? "opacity-100" : "opacity-0"}`}
         >
           <div className='container mx-auto px-4 lg:px-6'>
-            <div className='flex items-center justify-between h-16 lg:h-20'>
+            <div className='flex items-center justify-between h-14 sm:h-16 lg:h-[4.5rem]'>
               {/* Logo - responsive sizing */}
-              <div className='flex items-center space-x-3 lg:space-x-4 group'>
+              <div className='flex items-center gap-2 sm:gap-2.5 lg:gap-3 group min-w-0'>
                 <div className='relative flex-shrink-0'>
                   <img
                     src='https://res.cloudinary.com/dk9pul4wv/image/upload/v1784889521/WhatsApp_Image_2026-05-23_at_5.20.48_PM_copy_bobsqv.jpg'
                     alt='Honda Motors Logo'
-                    className='w-10 h-10 lg:w-12 lg:h-12 object-contain rounded-lg'
+                    className='w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 object-contain rounded-lg'
                   />
                 </div>
                 <div className='flex flex-col'>
-                  <span className='text-lg lg:text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent leading-tight'>
+                  <span className='text-sm sm:text-base lg:text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent leading-tight truncate'>
                     Tsangpool Honda
                   </span>
                 </div>
               </div>
 
               {/* Desktop Navigation with Overflow Menu */}
-              <div className='hidden md:flex items-center space-x-4 lg:space-x-6'>
+              <div className='hidden md:flex items-center gap-2 lg:gap-4'>
                 {/* Always visible links */}
-                <div className='hidden lg:flex items-center space-x-6'>
+                <div className='flex items-center gap-4 lg:gap-6'>
                   {["Home", "Models"].map((item) => (
                     <a
                       key={item}
                       href={`#${item.toLowerCase()}`}
                       className='relative group text-gray-300 hover:text-white transition-colors duration-300'
                     >
-                      <span className='relative z-10 font-medium text-sm'>
+                      <span className='relative z-10 font-medium text-xs lg:text-sm'>
                         {item}
                       </span>
                       <div className='absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-red-500 to-red-700 scale-x-0 group-hover:scale-x-100 transition-transform duration-300'></div>
@@ -116,20 +116,6 @@ export default function NewUI() {
                   >
                     <div className='rounded-lg shadow-2xl shadow-red-500/20'>
                       <div className='flex flex-col py-2'>
-                        {/* Mobile/tablet visible items */}
-                        <div className='lg:hidden'>
-                          {["Home", "Models"].map((item) => (
-                            <a
-                              key={item}
-                              href={`#${item.toLowerCase()}`}
-                              className='px-4 py-3 text-sm hover:bg-red-500/10 transition-colors text-gray-300 hover:text-white'
-                            >
-                              {item}
-                            </a>
-                          ))}
-                          <div className='border-t border-red-500/20 my-1'></div>
-                        </div>
-
                         {/* Always in overflow menu */}
                         {["Services", "Finance", "Contact"].map((item) => (
                           <a
@@ -183,23 +169,23 @@ export default function NewUI() {
               </div>
 
               {/* CTA Buttons - responsive display */}
-              <div className='hidden lg:flex items-center space-x-4'>
+              <div className='hidden md:flex items-center gap-2 lg:gap-3'>
                 <a href='tel:9394277123'>
                   <Button
                     variant='outline'
                     size='sm'
-                    className='border-red-500/50 text-red-400 hover:bg-red-500/10 hover:border-red-400 transition-all duration-300 px-4 py-2'
+                    className='h-8 lg:h-9 border-red-500/50 text-red-400 hover:bg-red-500/10 hover:border-red-400 transition-all duration-300 px-2.5 lg:px-3.5 text-xs lg:text-sm'
                   >
-                    <Phone className='h-4 w-4 mr-2' />
+                    <Phone className='h-3.5 w-3.5 lg:h-4 lg:w-4 xl:mr-1.5' />
                     <span className='hidden xl:inline'>Call Now</span>
                   </Button>
                 </a>
                 <Link to='/customer/book-service'>
                   <Button
                     size='sm'
-                    className='bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 px-4 py-2'
+                    className='h-8 lg:h-9 bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 px-2.5 lg:px-3.5 text-xs lg:text-sm'
                   >
-                    <ServerCogIcon className='h-4 w-4 mr-2' />
+                    <ServerCogIcon className='h-3.5 w-3.5 lg:h-4 lg:w-4 xl:mr-1.5' />
                     <span className='hidden xl:inline'>Book Service</span>
                   </Button>
                 </Link>
@@ -209,13 +195,13 @@ export default function NewUI() {
               <Button
                 variant='ghost'
                 size='icon'
-                className='lg:hidden md:hidden text-white hover:bg-red-500/20'
+                className='md:hidden h-8 w-8 text-white hover:bg-red-500/20'
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
                 {isMenuOpen ? (
-                  <X className='h-5 w-5 lg:h-6 lg:w-6' />
+                  <X className='h-5 w-5' />
                 ) : (
-                  <Menu className='h-5 w-5 lg:h-6 lg:w-6' />
+                  <Menu className='h-5 w-5' />
                 )}
               </Button>
             </div>
@@ -223,14 +209,14 @@ export default function NewUI() {
 
           {/* Mobile/Tablet Menu */}
           {isMenuOpen && (
-            <div className='xl:hidden bg-black/95 backdrop-blur-xl border-t border-red-500/20'>
-              <div className='container mx-auto px-4 lg:px-6 py-4 lg:py-6 space-y-3 lg:space-y-4'>
+            <div className='md:hidden bg-black/95 backdrop-blur-xl border-t border-red-500/20'>
+              <div className='container mx-auto px-4 py-3 space-y-2'>
                 {["Home", "Models", "Services", "Finance", "Contact"].map(
                   (item) => (
                     <a
                       key={item}
                       href={`#${item.toLowerCase()}`}
-                      className='block text-gray-300 hover:text-white transition-colors duration-300 font-medium py-2 text-base lg:text-lg'
+                      className='block text-gray-300 hover:text-white transition-colors duration-300 font-medium py-1.5 text-sm'
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {item}

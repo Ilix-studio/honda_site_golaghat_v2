@@ -28,7 +28,7 @@ import SalesKpiCharts, {
   YearSelect,
 } from "@/mainComponents/DataImport/SalesKpiCharts";
 
-import { useGetServiceJobcardSalesTimeseriesQuery } from "@/redux-store/services/serviceJobcardApi";
+import { useGetServiceInvoiceTimeseriesQuery } from "@/redux-store/services/serviceInvoiceApi";
 
 import { useGetCombinedVasAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
@@ -40,7 +40,7 @@ import ScrollableTabs from "@/mainComponents/shared/ScrollableTabs";
 
 export const SalesTab = () => {
   const [granularity, setGranularity] = useState<Granularity>("month");
-  const { data, isLoading } = useGetServiceJobcardSalesTimeseriesQuery({
+  const { data, isLoading } = useGetServiceInvoiceTimeseriesQuery({
     granularity,
   });
 
@@ -153,7 +153,7 @@ const BRANCH_KPI_CHARTS_TAB_KEY = "branchKpiCharts";
 const BranchKpiCharts = () => {
   const dispatch = useAppDispatch();
   const activeTab =
-    useAppSelector(selectActiveTab(BRANCH_KPI_CHARTS_TAB_KEY)) ?? "stock";
+    useAppSelector(selectActiveTab(BRANCH_KPI_CHARTS_TAB_KEY)) ?? "sales";
 
   return (
     <Tabs
@@ -171,7 +171,7 @@ const BranchKpiCharts = () => {
             className='flex shrink-0 whitespace-nowrap items-center gap-1.5 sm:gap-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm'
           >
             <Package className='h-3.5 w-3.5 shrink-0' />
-            Stock Vehicles
+            Assign Vehicles
           </TabsTrigger>
           <TabsTrigger
             value='vas'

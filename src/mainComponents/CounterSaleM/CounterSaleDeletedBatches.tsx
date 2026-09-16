@@ -30,7 +30,7 @@ export default function CounterSaleDeletedBatches() {
           to='/admin/counter-sale'
           className='flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 mb-4 w-fit'
         >
-          <ArrowLeft className='h-4 w-4' /> Back to counter sale reports
+          <ArrowLeft className='h-4 w-4' /> Back to CPOTC Orders sale reports
         </Link>
 
         <div className='flex items-center gap-3 mb-6'>
@@ -38,8 +38,12 @@ export default function CounterSaleDeletedBatches() {
             <Archive className='h-5 w-5' />
           </div>
           <div>
-            <h1 className='text-xl font-bold text-gray-900'>Deleted Counter Sale Batches</h1>
-            <p className='text-sm text-gray-500'>Audit trail — who deleted what and when</p>
+            <h1 className='text-xl font-bold text-gray-900'>
+              Deleted Counter Sale Batches
+            </h1>
+            <p className='text-sm text-gray-500'>
+              Audit trail — who deleted what and when
+            </p>
           </div>
         </div>
 
@@ -65,7 +69,9 @@ export default function CounterSaleDeletedBatches() {
               <TableBody>
                 {batches.map((b) => (
                   <TableRow key={b.batchId}>
-                    <TableCell className='font-mono text-xs'>{b.batchId}</TableCell>
+                    <TableCell className='font-mono text-xs'>
+                      {b.batchId}
+                    </TableCell>
                     <TableCell>{formatDateTime(b.importDate)}</TableCell>
                     <TableCell>{b.totalRecords}</TableCell>
                     <TableCell>{inr(b.totalInvoice)}</TableCell>

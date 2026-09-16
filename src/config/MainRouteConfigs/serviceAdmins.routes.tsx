@@ -24,18 +24,25 @@ const JobCardCatalogManager = lazy(
 );
 const ProfileView = lazy(() => import("@/mainComponents/shared/ProfileView"));
 
-const ServiceRecordsImport = lazy(
-  () => import("@/mainComponents/ServiceM/ServiceRecordsImport"),
-);
-const ServiceJobcardFolderDashboard = lazy(
-  () => import("@/mainComponents/ServiceM/ServiceJobcardFolderDashboard"),
-);
-
 const ManualJobOpening = lazy(
   () => import("@/mainComponents/ServiceM/ManualJobOpening"),
 );
 const ViewAllNotification = lazy(
   () => import("@/mainComponents/shared/ViewAllNotification"),
+);
+
+const ServiceInvoiceDashboard = lazy(
+  () => import("@/mainComponents/ServiceInvoiceM/ServiceInvoiceDashboard"),
+);
+const ServiceInvoiceImport = lazy(
+  () => import("@/mainComponents/ServiceInvoiceM/ServiceInvoiceImport"),
+);
+
+const ServiceAdminServiceInvoices = () => (
+  <ServiceInvoiceDashboard uploadPath='/service-admin/service-invoice/upload' />
+);
+const ServiceAdminServiceInvoiceImport = () => (
+  <ServiceInvoiceImport dashboardPath='/service-admin/dashboard' />
 );
 
 export const serviceAdminAuthRoutes = [
@@ -56,16 +63,12 @@ export const serviceAdminRoutes = [
   { path: "/service-admin/notifications", component: ViewAllNotification },
 
   {
-    path: "/service-admin/service-records",
-    component: ServiceRecordsImport,
+    path: "/service-admin/service-invoice",
+    component: ServiceAdminServiceInvoices,
   },
   {
-    path: "/service-admin/view-records",
-    component: ServiceJobcardFolderDashboard,
-  },
-  {
-    path: "/service-admin/folder",
-    component: ServiceJobcardFolderDashboard,
+    path: "/service-admin/service-invoice/upload",
+    component: ServiceAdminServiceInvoiceImport,
   },
   {
     path: "/service-admin/manual-job-opening",

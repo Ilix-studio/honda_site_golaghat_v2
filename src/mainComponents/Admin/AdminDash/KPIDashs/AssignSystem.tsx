@@ -344,7 +344,7 @@ const KPI_DASHBOARD_TAB_KEY = "KPIDashboardSecond";
 export function ManualAssignDashboard() {
   const dispatch = useAppDispatch();
   const activeTab =
-    useAppSelector(selectActiveTab(KPI_DASHBOARD_TAB_KEY)) ?? "ManualAssign";
+    useAppSelector(selectActiveTab(KPI_DASHBOARD_TAB_KEY)) ?? "SalesReport";
 
   return (
     <div className='space-y-8'>

@@ -46,9 +46,7 @@ const formatDate = (value: string) =>
 export default function CounterSaleAdminDashboard() {
   const { user, isAuthenticated } = useAppSelector(selectAuth);
   const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    undefined,
-  );
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   const { data, isLoading, refetch } = useGetCounterSaleBatchesQuery(
     undefined,
@@ -108,7 +106,7 @@ export default function CounterSaleAdminDashboard() {
             </div>
             <div>
               <h1 className='text-xl font-bold text-gray-900'>
-                Counter Sale Reports
+                CPOTC Orders Reports
               </h1>
               <p className='text-sm text-gray-500'>
                 Channel-partner counter sale uploads and revenue by batch
@@ -194,7 +192,9 @@ export default function CounterSaleAdminDashboard() {
         ) : batches.length === 0 ? (
           <div className='text-center py-16 border rounded-lg bg-white'>
             <ReceiptText className='h-12 w-12 mx-auto mb-3 text-muted-foreground' />
-            <h3 className='font-semibold mb-1'>No counter sale reports yet</h3>
+            <h3 className='font-semibold mb-1'>
+              No CPOTC Orders sale reports yet
+            </h3>
             <p className='text-sm text-muted-foreground'>
               {showDateMode
                 ? "No batches found for the selected date."
@@ -233,11 +233,10 @@ export default function CounterSaleAdminDashboard() {
                             Delete this batch?
                           </AlertDialogTitle>
                           <AlertDialogDescription>
-                            This removes {b.totalRecords} record(s) from
-                            batch{" "}
+                            This removes {b.totalRecords} record(s) from batch{" "}
                             <span className='font-mono'>{b.batchId}</span>. It
-                            can be re-imported later; the deletion is logged
-                            for Super-Admin review.
+                            can be re-imported later; the deletion is logged for
+                            Super-Admin review.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

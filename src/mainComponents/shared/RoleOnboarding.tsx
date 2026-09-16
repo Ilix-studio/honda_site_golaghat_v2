@@ -17,8 +17,8 @@ const roleSteps: Record<string, OnboardingStep[]> = {
     { title: "Your account", description: "Open your profile to review the branch assigned to you and keep your account details current.", selector: "[data-onboarding='dashboard-profile']" },
   ],
   "Service-Admin": [
-    { title: "Service operations", description: "This dashboard is your starting point for bookings, job cards, service records, and customer follow-up.", selector: "[data-onboarding='dashboard-navigation']" },
-    { title: "Daily service work", description: "Use these actions to process booking requests, create job cards, upload service records, and review customer activity.", selector: "[data-onboarding='dashboard-features']" },
+    { title: "Service operations", description: "This dashboard is your starting point for bookings, job cards, service invoices, and customer follow-up.", selector: "[data-onboarding='dashboard-navigation']" },
+    { title: "Daily service work", description: "Use these actions to process booking requests, create job cards, import service invoices, and review customer activity.", selector: "[data-onboarding='dashboard-features']" },
     { title: "Your service profile", description: "Your profile shows the dealership branch and account details attached to your service-admin access.", selector: "[data-onboarding='dashboard-profile']" },
   ],
   "Part-Admin": [

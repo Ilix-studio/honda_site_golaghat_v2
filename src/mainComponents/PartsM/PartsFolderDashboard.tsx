@@ -1,7 +1,9 @@
 import { useState } from "react";
 import {
+  AlertCircle,
   ArrowLeft,
   Calendar as CalendarIcon,
+  Loader2,
   Package,
   RefreshCw,
   UploadCloud,
@@ -20,8 +22,18 @@ import {
   useGetPartsBatchesQuery,
   useGetPartsBatchesByDateQuery,
   useGetPartsStockStatusQuery,
+  useDeletePartsBatchMutation,
   type PartsBatchDTO,
 } from "@/redux-store/services/partsApi";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import FolderCard, {
   type FolderCardTone,
 } from "@/mainComponents/shared/FolderCard";
@@ -62,6 +74,11 @@ const PartsFolderDashboard = () => {
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
+  const [pendingDelete, setPendingDelete] = useState<PartsBatchDTO | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deletePartsBatch, { isLoading: isDeleting }] =
+    useDeletePartsBatchMutation();
+
   const { data, isLoading, refetch } = useGetPartsBatchesQuery();
   const { data: stockStatusData, isLoading: stockStatusLoading } =
     useGetPartsStockStatusQuery();
@@ -84,6 +101,34 @@ const PartsFolderDashboard = () => {
   const sortedBatches = [...batches].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
+
+  /**
+   * Only the newest upload can be reversed — every later one was diffed
+   * against the snapshot it produced, so undoing a middle link would leave
+   * those silently wrong. The server enforces this too; disabling the control
+   * here just explains why before the click.
+   *
+   * Computed from the full batch list, never the date-filtered one: picking a
+   * date shows an older batch at the top of the grid, and that must not make
+   * it look deletable.
+   */
+  const newestBatchId = [...(data?.data ?? [])].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  )[0]?.batchId;
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    setDeleteError(null);
+    try {
+      await deletePartsBatch({ batchId: pendingDelete.batchId }).unwrap();
+      setPendingDelete(null);
+    } catch (err) {
+      // The 409s carry a specific explanation (not the newest batch; predates
+      // delete support) that is more useful than anything generic.
+      const message = (err as { data?: { message?: string } })?.data?.message;
+      setDeleteError(message || "Could not delete this batch. Please try again.");
+    }
+  };
 
   if (selectedBatch) {
     return (
@@ -206,8 +251,12 @@ const PartsFolderDashboard = () => {
         </div>
       )}
 
+      {/* Same bordered folder panel as CounterSaleAdminDashboard. Columns are
+          auto-filled rather than a fixed 2/3/4 because these folders carry a
+          delete control (.pa-folder-card, 15.25em) and so are wider than
+          CounterSale's bare 12em ones — a fixed 3-up track would clip them. */}
       {!listLoading && sortedBatches.length > 0 && (
-        <div className='flex flex-wrap gap-x-10 gap-y-12'>
+        <div className='grid grid-cols-[repeat(auto-fill,minmax(15.5rem,1fr))] gap-6 border-2 rounded-2xl p-6 bg-white'>
           {sortedBatches.map((batch) => (
             <FolderCard
               key={batch.batchId}
@@ -216,10 +265,89 @@ const PartsFolderDashboard = () => {
               subLabel={diffSubLabel(batch)}
               tone={toneForStatus(batch.status)}
               onOpen={() => setSelectedBatch(batch)}
+              onDelete={() => {
+                setDeleteError(null);
+                setPendingDelete(batch);
+              }}
+              deleteLabel='Delete import'
+              deleteDisabled={batch.batchId !== newestBatchId}
+              deleteDisabledReason='Only the most recent import can be deleted — later uploads were compared against this one.'
             />
           ))}
         </div>
       )}
+
+      {/* Destructive and multi-effect — reversing a parts batch also pushes any
+          service-invoice line it settled back to "awaiting stock". Spell that
+          out rather than asking a generic "are you sure?". */}
+      <AlertDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) {
+            setPendingDelete(null);
+            setDeleteError(null);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this parts import?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className='space-y-2'>
+                <p>
+                  <span className='font-medium text-foreground'>
+                    {pendingDelete?.fileName}
+                  </span>{" "}
+                  — {pendingDelete?.importedRows.toLocaleString("en-IN")} row(s)
+                  imported.
+                </p>
+                <p>This will:</p>
+                <ul className='list-disc pl-5 space-y-1'>
+                  <li>Remove the parts this upload added or changed</li>
+                  <li>
+                    Restore the stock values it replaced, so the branch returns
+                    to its previous snapshot
+                  </li>
+                  <li>
+                    Send any service-invoice part it marked sold back to
+                    &ldquo;awaiting stock&rdquo;, reversing that revenue
+                  </li>
+                </ul>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          {deleteError && (
+            <div
+              role='alert'
+              className='flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700'
+            >
+              <AlertCircle className='h-4 w-4 mt-0.5 shrink-0' />
+              <span>{deleteError}</span>
+            </div>
+          )}
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Keep it</AlertDialogCancel>
+            {/* Not AlertDialogAction: that closes the dialog on click, which
+                would hide a failure before it could be read. */}
+            <Button
+              variant='destructive'
+              disabled={isDeleting}
+              onClick={confirmDelete}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                  Deleting...
+                </>
+              ) : (
+                "Delete import"
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {!listLoading && sortedBatches.length === 0 && (
         <div className='text-center py-12 border rounded-lg'>

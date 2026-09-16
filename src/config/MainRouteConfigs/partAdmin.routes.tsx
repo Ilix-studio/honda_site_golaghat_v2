@@ -27,6 +27,20 @@ const CounterSaleAdminDashboard = lazy(
 const CounterSaleUploadForm = lazy(
   () => import("@/mainComponents/CounterSaleM/CounterSaleUploadForm"),
 );
+const ServiceInvoiceDashboard = lazy(
+  () => import("@/mainComponents/ServiceInvoiceM/ServiceInvoiceDashboard"),
+);
+const ServiceInvoiceImport = lazy(
+  () => import("@/mainComponents/ServiceInvoiceM/ServiceInvoiceImport"),
+);
+
+const PartAdminServiceInvoices = () => (
+  <ServiceInvoiceDashboard uploadPath='/part-admin/service-invoice/upload' />
+);
+const PartAdminServiceInvoiceImport = () => (
+  <ServiceInvoiceImport dashboardPath='/part-admin/dashboard' />
+);
+
 const ViewAllNotification = lazy(
   () => import("@/mainComponents/shared/ViewAllNotification"),
 );
@@ -44,6 +58,14 @@ export const partAdminRoutes = [
   {
     path: "/part-admin/parts-stock/upload",
     component: PartsStockImport,
+  },
+  {
+    path: "/part-admin/service-invoice",
+    component: PartAdminServiceInvoices,
+  },
+  {
+    path: "/part-admin/service-invoice/upload",
+    component: PartAdminServiceInvoiceImport,
   },
   {
     path: "/part-admin/folder",

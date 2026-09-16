@@ -30,23 +30,11 @@ const WhatYouUpload = () => {
               </p>
             </div>
 
-            {/*
-              The connector only makes sense over a single row of columns, so it
-              is drawn from lg up, where all four sit side by side. Below that
-              the cards wrap (one column, then two) and the trunk degrades to a
-              plain vertical line rather than pointing at the wrong cards.
-
-              Positions come from BRANCH_COLUMN_CENTERS, which is derived from
-              UPLOAD_OWNERSHIP — the crossbar's inset is the first centre, which
-              by symmetry is also its distance from the right edge.
-            */}
             <div className='h-6 w-px bg-border lg:hidden' aria-hidden='true' />
             <div
               className='relative hidden h-6 w-full lg:block'
               aria-hidden='true'
             >
-              {/* Trunk and crossbar are shared, so they stay neutral; only the
-                  drop into each column takes that branch's colour. */}
               <div className='absolute left-1/2 top-0 h-3 w-px -translate-x-1/2 bg-border' />
               <div
                 className='absolute top-3 h-px bg-border'
@@ -96,6 +84,41 @@ const WhatYouUpload = () => {
                       </li>
                     ))}
                   </ul>
+
+                  {/* Outbound messages — the only group here that leaves the
+                      building, so it gets an arrow rather than a bullet or a
+                      dashed outline. A `pending` channel is documented but not
+                      wired up yet, and says so instead of reading as live. */}
+                  {branch.sends?.length ? (
+                    <div className='mt-3 border-t border-dashed pt-2'>
+                      <p className='text-[11px] font-medium uppercase tracking-wide text-muted-foreground'>
+                        Sends SMS to customer
+                      </p>
+                      <ul className='mt-1.5 space-y-1'>
+                        {branch.sends.map((item) => (
+                          <li
+                            key={item.label}
+                            className='flex items-center gap-1.5'
+                          >
+                            <span
+                              className='text-[11px] leading-none text-muted-foreground'
+                              aria-hidden='true'
+                            >
+                              &rarr;
+                            </span>
+                            <span className='rounded-md border px-2 py-1 text-[11px] font-medium text-gray-900'>
+                              {item.label}
+                            </span>
+                            {item.pending ? (
+                              <span className='text-[10px] uppercase tracking-wide text-muted-foreground'>
+                                Not wired yet
+                              </span>
+                            ) : null}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
 
                   {/* Read-only access, deliberately styled apart from the solid
                       chips above: no colour bullet and a dashed outline, so the

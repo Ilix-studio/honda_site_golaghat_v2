@@ -12,7 +12,7 @@ import StockInvestmentDashboard from "./StockInvestmentDashboard";
 import SuperOverviewKpiCharts from "./SuperOverviewKpiCharts";
 
 import PartsKpiCharts from "@/mainComponents/PartsM/PartsKpiCharts";
-import ServiceJobcardKpiCharts from "@/mainComponents/ServiceM/ServiceJobcardKpiCharts";
+import ServiceInvoiceKpiCharts from "@/mainComponents/ServiceInvoiceM/ServiceInvoiceKpiCharts";
 import CounterSaleKpiCharts from "@/mainComponents/CounterSaleM/CounterSaleKpiCharts";
 
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
@@ -61,12 +61,15 @@ function PartsDashboard() {
 function ServiceDashboard() {
   return (
     <div className='space-y-6'>
-      <ServiceJobcardKpiCharts />
+      <ServiceInvoiceKpiCharts />
     </div>
   );
 }
 
-// ─── Tab ownership tags — which admin role's uploads feed each tab ───────────
+// ─── Tab ownership tags — which admin role owns the data behind each tab ────
+// Note this is about domain ownership, not upload permission: service
+// invoices may be uploaded by Part-Admin, Service-Admin or Super-Admin, but
+// the service data they produce is Service-Admin's.
 
 type OwnerRole = "BA" | "PA" | "SA";
 
@@ -122,7 +125,7 @@ const DASHBOARD_TABS: {
   { value: "overview", label: "Overview", icon: LayoutDashboard },
   { value: "stock-investment", label: "Vehicle", icon: Bike, owner: "BA" },
   { value: "parts", label: "Parts", icon: Package, owner: "PA" },
-  { value: "counter-sale", label: "CTOS", icon: ReceiptText, owner: "PA" },
+  { value: "counter-sale", label: "CPTOS", icon: ReceiptText, owner: "PA" },
   { value: "service", label: "Service", icon: Wrench, owner: "SA" },
 ];
 

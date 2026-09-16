@@ -213,3 +213,84 @@
     transition: none;
   }
 }
+
+/* ── Optional delete control ───────────────────────────────────────────────
+   Lives in a reserved gutter to the RIGHT of the folder, and — critically —
+   OUTSIDE the .pa-folder label. The label is the folder's click target and
+   its hover target; a button nested inside it shared both, so hovering the
+   artwork lit the trash icon and the open target contained the delete target.
+   As a sibling positioned against this wrapper it keeps the same gutter
+   placement with none of that coupling.
+
+   Held at partial opacity so a grid of folders doesn't read as a row of
+   delete buttons, but never fully hidden: a hover-only reveal is unreachable
+   on touch, and this is the recovery control for a bad import. */
+.pa-folder-card {
+  /* Re-declared here, not inherited: the button is a sibling of .pa-folder,
+     so the tokens that element defines are out of scope for it. */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ring: #1d6cf5;
+  --ink-soft: #7c736a;
+
+  position: relative;
+  display: inline-block;
+  padding-right: 3.25em;
+}
+
+.pa-folder__delete {
+  position: absolute;
+  top: 0.75em;
+  right: 0;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9em;
+  height: 1.9em;
+  padding: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375em;
+  background: rgba(255, 255, 255, 0.9);
+  color: #dc2626;
+  cursor: pointer;
+  opacity: 0.6;
+  transition:
+    opacity 0.18s var(--ease),
+    background-color 0.18s var(--ease),
+    border-color 0.18s var(--ease);
+}
+
+.pa-folder__delete svg {
+  width: 0.875em;
+  height: 0.875em;
+}
+
+/* Deliberately NOT keyed off .pa-folder:hover — brightening the delete control
+   whenever the pointer touches the folder made every attempt to open a batch
+   look like an attempt to delete it. It responds to its own hover only. */
+.pa-folder__delete:hover:not(:disabled),
+.pa-folder__delete:focus-visible {
+  opacity: 1;
+}
+
+.pa-folder__delete:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.pa-folder__delete:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.pa-folder__delete:disabled {
+  cursor: not-allowed;
+  opacity: 0.28;
+  color: var(--ink-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pa-folder__delete {
+    transition: none;
+  }
+}

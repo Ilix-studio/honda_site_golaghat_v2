@@ -98,11 +98,8 @@ export default function StockInvestmentDashboard() {
                 </div>
                 <div>
                   <CardTitle className='text-lg font-semibold text-gray-900'>
-                    Branch Management & Analytics
+                    Branch Analytics
                   </CardTitle>
-                  <CardDescription className='text-gray-500 mt-0.5'>
-                    Monitor branch performance, managers, and operations
-                  </CardDescription>
                 </div>
               </div>
             </CardHeader>

@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { Trash2 } from "lucide-react";
 import "./FolderCard.css";
 
 export type FolderCardTone = "default" | "warning" | "danger";
@@ -28,6 +29,16 @@ export interface FolderCardProps {
   subLabel?: string;
   onOpen: () => void;
   tone?: FolderCardTone;
+  /**
+   * Optional destructive action. Omitted by default, so the folder grids that
+   * have no delete endpoint behind them are unchanged.
+   */
+  onDelete?: () => void;
+  /** Tooltip + aria-label for the delete control. */
+  deleteLabel?: string;
+  /** Renders the control greyed and inert, with `deleteDisabledReason` as its title. */
+  deleteDisabled?: boolean;
+  deleteDisabledReason?: string;
 }
 
 const FolderCard = ({
@@ -36,8 +47,12 @@ const FolderCard = ({
   subLabel,
   onOpen,
   tone = "default",
+  onDelete,
+  deleteLabel = "Delete",
+  deleteDisabled = false,
+  deleteDisabledReason,
 }: FolderCardProps) => {
-  return (
+  const folder = (
     <label className='pa-folder' style={TONE_VARS[tone]}>
       <input
         type='checkbox'
@@ -60,6 +75,39 @@ const FolderCard = ({
         {subLabel && <span className='pa-folder__sub'>{subLabel}</span>}
       </span>
     </label>
+  );
+
+  if (!onDelete) return folder;
+
+  /**
+   * The delete control is a SIBLING of the folder, never a child of it. The
+   * folder is a <label> wrapping a checkbox, so anything inside it shares the
+   * folder's click target and its :hover — which previously meant hovering
+   * anywhere on the card lit the trash icon, and the control you press to open
+   * the folder was the same element that held the control to destroy it.
+   * Outside the label it has its own hover, and opening can't land on it.
+   */
+  return (
+    <div className='pa-folder-card'>
+      {folder}
+      <button
+        type='button'
+        className='pa-folder__delete'
+        aria-label={`${deleteLabel} ${title}`}
+        title={
+          deleteDisabled
+            ? (deleteDisabledReason ?? deleteLabel)
+            : `${deleteLabel} ${title}`
+        }
+        disabled={deleteDisabled}
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
+      >
+        <Trash2 aria-hidden='true' />
+      </button>
+    </div>
   );
 };
 

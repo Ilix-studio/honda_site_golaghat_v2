@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,13 +23,69 @@ export interface SelectedStockItem {
 interface SelectedStockItemsTableProps {
   items: SelectedStockItem[];
   onRemove: (stockConceptCSVId: string) => void;
+  /**
+   * Edit a line's price. B2B deals are negotiated, so the challan price is
+   * often not the stock's book cost — the edit applies to this challan only
+   * and never writes back to the stock record.
+   */
+  onCostPriceChange?: (stockConceptCSVId: string, costPrice: number) => void;
 }
 
 const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
+/**
+ * Editable price cell.
+ *
+ * Keeps its own draft string while focused so the field can be cleared and
+ * retyped — binding a number straight to the input makes deleting the last
+ * digit snap back to "0" mid-edit. The committed value is pushed up on every
+ * valid keystroke (so Line Total and the totals below follow along live), and
+ * the draft is reconciled back to the real value on blur.
+ */
+function CostPriceInput({
+  value,
+  onChange,
+  label,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  label: string;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+
+  return (
+    <Input
+      type='number'
+      min={0}
+      step='0.01'
+      inputMode='decimal'
+      aria-label={label}
+      value={draft ?? String(value)}
+      onChange={(e) => {
+        const next = e.target.value;
+        setDraft(next);
+        const parsed = Number(next);
+        // Ignore transient states ("" while clearing, "-", "1e") — the draft
+        // still shows them, but nothing invalid reaches the totals.
+        if (next !== "" && Number.isFinite(parsed) && parsed >= 0) {
+          onChange(parsed);
+        }
+      }}
+      onFocus={(e) => e.currentTarget.select()}
+      onBlur={() => {
+        // An empty or invalid field falls back to the last good value rather
+        // than silently becoming 0.
+        setDraft(null);
+      }}
+      className='h-8 w-32 ml-auto text-right'
+    />
+  );
+}
+
 const SelectedStockItemsTable = ({
   items,
   onRemove,
+  onCostPriceChange,
 }: SelectedStockItemsTableProps) => {
   if (items.length === 0) {
     return (
@@ -58,7 +115,19 @@ const SelectedStockItemsTable = ({
               <TableCell className='text-xs text-muted-foreground'>
                 {item.engineNumber} / {item.chassisNumber}
               </TableCell>
-              <TableCell className='text-right'>{inr(item.costPrice)}</TableCell>
+              <TableCell className='text-right'>
+                {onCostPriceChange ? (
+                  <CostPriceInput
+                    value={item.costPrice}
+                    onChange={(next) =>
+                      onCostPriceChange(item.stockConceptCSVId, next)
+                    }
+                    label={`Cost price for ${item.modelName} ${item.engineNumber}`}
+                  />
+                ) : (
+                  inr(item.costPrice)
+                )}
+              </TableCell>
               <TableCell>
                 <Input
                   type='number'

@@ -42,10 +42,7 @@ import {
   useGetPartsStatsQuery,
   useGetPartsStockStatusQuery,
 } from "@/redux-store/services/partsApi";
-import {
-  useGetServiceJobcardStatsQuery,
-  useGetServiceJobcardStatusQuery,
-} from "@/redux-store/services/serviceJobcardApi";
+import { useGetServiceInvoiceStatsQuery } from "@/redux-store/services/serviceInvoiceApi";
 import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSaleApi";
 import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetCSVStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
@@ -127,29 +124,49 @@ export const UPLOAD_OWNERSHIP: {
    * it*, and folding read access into that list would quietly break it.
    */
   reads?: string[];
+  /**
+   * Outbound messages the role sends to the customer. Separate from both lists
+   * above for the same reason `reads` is separate from `owns`: this produces no
+   * report and contributes no number, it leaves the building. `pending` marks a
+   * channel that is documented but not wired up yet, so the card never claims a
+   * capability the system does not have.
+   */
+  sends?: { label: string; pending?: boolean }[];
 }[] = [
   {
     role: "Branch-Admin",
     scope: "Sales floor",
     color: REVENUE_FAMILIES.vehicle.color,
-    owns: ["Stock Upload", "Challan", "Sales Report", "Quotation"],
+    owns: [
+      "Stock Inventory Upload",
+      "Challan",
+      "Sales Report Upload",
+      "Create Quotation",
+    ],
   },
   {
     role: "Service-Admin",
     scope: "Workshop",
     color: REVENUE_FAMILIES.service.color,
-    owns: ["Job-Card Upload"],
+    owns: ["Job-Card Upload Invoice"],
+    // Customers raise these from the customer app; the Service-Admin works the
+    // queue (branch-scoped) and moves them through their status, but never
+    // creates one — hence a read, not an upload.
+    reads: ["Service Booking Requests"],
+    // See server3/docs/service-booking-sms.md. Still `pending` because no SMS
+    // provider is wired up yet — drop the flag in the guide's final step.
+    sends: [{ label: "Service SMS", pending: true }],
   },
   {
     role: "Part-Admin",
     scope: "Parts counter",
     color: REVENUE_FAMILIES.parts.color,
-    owns: ["Parts Upload", "Part Delivery (CPTOS)"],
+    owns: ["Parts Stock Upload", "Part Delivery (CPTOS)"],
   },
   {
     role: "Staff",
     color: REVENUE_FAMILIES.vehicle.color,
-    owns: ["Quotation"],
+    owns: ["Create Quotation"],
     // Branch-scoped reads, all of them someone else's artifact: Counter Sale is
     // a Part-Admin upload, Accident Reports are filed by customers, and the
     // finance and message forms are filled in on the public site.
@@ -180,11 +197,7 @@ export default function SuperOverviewKpiCharts() {
     useGetPartsStatsQuery({ year }, skip);
   const { data: partsStatus } = useGetPartsStockStatusQuery(undefined, skip);
   const { data: serviceStats, isLoading: serviceStatsLoading } =
-    useGetServiceJobcardStatsQuery({ year }, skip);
-  const { data: serviceStatus } = useGetServiceJobcardStatusQuery(
-    undefined,
-    skip,
-  );
+    useGetServiceInvoiceStatsQuery({ year }, skip);
   const { data: counterSale } = useGetCounterSaleBatchesQuery(undefined, skip);
   const { data: stockAssign } = useGetStockAssignStatsQuery({ year }, skip);
   const { data: csvStockAssign } = useGetCSVStockAssignStatsQuery(
@@ -224,14 +237,14 @@ export default function SuperOverviewKpiCharts() {
         revenue: Math.round(partsStatus?.data.totalRevenue ?? 0),
       },
       {
-        domain: "CTOS",
+        domain: "CPTOS",
         family: "parts",
         revenue: Math.round(counterSaleRevenue),
       },
       {
         domain: "Service",
         family: "service",
-        revenue: Math.round(serviceStatus?.data.totalRevenue ?? 0),
+        revenue: Math.round(serviceStats?.data.totals.totalRevenue ?? 0),
       },
     ];
 
@@ -239,7 +252,7 @@ export default function SuperOverviewKpiCharts() {
       ...row,
       fill: REVENUE_FAMILIES[row.family].color,
     }));
-  }, [vehicleRevenue, b2b, partsStatus, counterSaleRevenue, serviceStatus]);
+  }, [vehicleRevenue, b2b, partsStatus, counterSaleRevenue, serviceStats]);
 
   /**
    * Both stats endpoints return a filled 12-month array, but joining on the
@@ -256,7 +269,7 @@ export default function SuperOverviewKpiCharts() {
 
     return months.map((month) => ({
       month,
-      jobCards: service.find((m) => m.month === month)?.jobCardCount ?? 0,
+      jobCards: service.find((m) => m.month === month)?.invoiceCount ?? 0,
       partsRows: parts.get(month) ?? 0,
     }));
   }, [partsStats, serviceStats]);

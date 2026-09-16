@@ -26,6 +26,23 @@ export interface PartsImportResponse {
     revenueAfter?: number;
     revenueDelta?: number;
     changesMarkdown?: string;
+    /**
+     * Service-invoice lines that were waiting on this stock. Uploading the
+     * part retroactively marks them sold — see
+     * server3/src/service/serviceInvoice/reconcilePendingStock.service.ts.
+     */
+    pendingResolved?: {
+      resolved: number;
+      stillPending: number;
+      invoicesTouched: number;
+      lines: {
+        invoiceNumber: string;
+        partNo: string;
+        qty: number;
+        taxableAmount: number;
+        soldAt: string;
+      }[];
+    };
   };
 }
 
@@ -66,6 +83,18 @@ export interface PartsListResponse {
   success: boolean;
   data: PartsRowDTO[];
   pagination: { page: number; limit: number; total: number; pages: number };
+}
+
+export interface PartsBatchDeleteResult {
+  batchId: string;
+  /** Rows the deleted batch had inserted, now retired. */
+  rowsRemoved: number;
+  /** Rows it had superseded, now current again. */
+  rowsRestored: number;
+  /** Service-invoice lines pushed back to PENDING_STOCK. */
+  linesUnreconciled: number;
+  ledgerRowsRemoved: number;
+  invoicesTouched: number;
 }
 
 export interface PartsBatchDTO {
@@ -219,6 +248,32 @@ export const partsApi = apiSlice.injectEndpoints({
       providesTags: ["PartsBatch"],
     }),
 
+    /**
+     * Reverse a bad parts upload. The server only permits the newest batch for
+     * the branch (later uploads were diffed against it), and refuses uploads
+     * that predate delete support — both come back as a 409 with a message
+     * meant to be shown verbatim.
+     *
+     * Invalidates the same tags as the import it undoes, plus ServiceInvoice:
+     * reversing a batch can push settled invoice lines back to PENDING_STOCK.
+     */
+    deletePartsBatch: builder.mutation<
+      { success: boolean; message: string; data: PartsBatchDeleteResult },
+      { batchId: string }
+    >({
+      query: ({ batchId }) => ({
+        url: `/parts/batches/${batchId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [
+        "Parts",
+        "PartsBatch",
+        "PartsStats",
+        "PartsStockStatus",
+        "ServiceInvoice",
+      ],
+    }),
+
     getPartsStockStatus: builder.query<
       PartsStockStatusResponse,
       { branchId?: string } | void
@@ -251,6 +306,7 @@ export const {
   useGetAllPartsQuery,
   useGetPartsBatchesQuery,
   useGetPartsBatchesByDateQuery,
+  useDeletePartsBatchMutation,
   useGetPartsStockStatusQuery,
   useAskPartsAiMutation,
 } = partsApi;

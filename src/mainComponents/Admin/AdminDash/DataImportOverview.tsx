@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useGetDatasetsQuery } from "@/redux-store/services/dataImportApi";
-import { useGetServiceJobcardSalesTimeseriesQuery } from "@/redux-store/services/serviceJobcardApi";
+import { useGetServiceInvoiceTimeseriesQuery } from "@/redux-store/services/serviceInvoiceApi";
 import type { Granularity } from "@/redux-store/services/dataImport.types";
 import SalesTrendChart from "@/mainComponents/DataImport/SalesTrendChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +12,7 @@ export default function DataImportOverview() {
   const [granularity, setGranularity] = useState<Granularity>("day");
 
   const { data: salesData, isLoading: salesLoading } =
-    useGetServiceJobcardSalesTimeseriesQuery({
+    useGetServiceInvoiceTimeseriesQuery({
       granularity,
     });
   const { data: datasetsData } = useGetDatasetsQuery({ page: 1, limit: 20 });

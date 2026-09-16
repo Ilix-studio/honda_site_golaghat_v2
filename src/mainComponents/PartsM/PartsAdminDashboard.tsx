@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useGetPartsStatsQuery } from "@/redux-store/services/partsApi";
+import { useGetServiceInvoiceStatsQuery } from "@/redux-store/services/serviceInvoiceApi";
 
 import {
   StatCard,
@@ -34,6 +35,7 @@ import {
   TrendingUp,
   Users,
   ReceiptText,
+  FileText,
   Webhook,
   BotIcon,
   LifeBuoy,
@@ -45,10 +47,13 @@ import {
   setActiveTab,
 } from "@/redux-store/slices/dashboardTabsSlice";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
+import { describeCustomerSources } from "@/mainComponents/shared/customerSources";
 
 import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSaleApi";
 import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
 import PartsnSales from "./SalesTabs/PartsnSales";
+import WhatYouUpload from "../WhatYouUpload";
+import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
 
 const YEARS = [2026, 2025, 2024];
 const PARTS_ADMIN_DASHBOARD_TAB_KEY = "partsAdminDashboard";
@@ -72,6 +77,11 @@ export default function PartsAdminDashboard() {
 
   const stats = statsData?.data;
 
+  // Service invoices are the other half of Part-Admin's world now: they are
+  // what consumes the parts stock this dashboard reports on.
+  const { data: invoiceStats, isLoading: invoiceStatsLoading } =
+    useGetServiceInvoiceStatsQuery({ year }, { skip: !isAuthenticated });
+
   const { data: counterSaleBatches, isLoading: counterSaleBatchesLoading } =
     useGetCounterSaleBatchesQuery(undefined, {
       skip: !isAuthenticated,
@@ -91,14 +101,26 @@ export default function PartsAdminDashboard() {
     (sum, batch) => sum + (batch.totalRecords ?? 0),
     0,
   );
+  const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
+    {},
+    { skip: !isAuthenticated },
+  );
 
   const kpis: Omit<StatCardProps, "index">[] = [
+    {
+      title: "Service Invoices",
+      value: invoiceStats?.data.totals.totalInvoices ?? "—",
+      icon: FileText,
+      loading: invoiceStatsLoading,
+      description: "Parts sold & accessories fitted",
+      action: { label: "Open", href: "/part-admin/service-invoice" },
+    },
     {
       title: "Total Parts",
       value: stats?.totals.totalParts ?? "—",
       icon: Package,
       loading: statsLoading,
-      description: "View Upload Records",
+      description: "Upload Records",
       action: { label: "View parts", href: "/part-admin/folder" },
     },
 
@@ -107,25 +129,29 @@ export default function PartsAdminDashboard() {
       value: newCustomersData?.pagination.total ?? 0,
       icon: Users,
       loading: newCustomersLoading,
-      description: "All Customer Detected by this project",
+      // Live per-pipeline breakdown rather than a static sentence — the list
+      // combines sales reports, manual/CSV stock assignment and service
+      // uploads, and the counts overlap, so they won't sum to the total above.
+      description: describeCustomerSources(newCustomersData?.sourceCounts),
       action: { label: "Open", href: "/customers/new" },
     },
     {
-      title: "Counter Sale Reports",
+      title: "CPOTC Orders Sales",
       value: counterSaleBatches?.data?.length ?? 0,
       loading: counterSaleBatchesLoading,
       icon: ReceiptText,
-      description: "Upload and browse channel-partner counter sale reports",
+      description:
+        "Upload and browse channel-partner CPOTC Orders sale reports",
       action: { label: "Open", href: "/part-admin/counter-sale" },
     },
     {
-      title: "Counter Sale Reports Records",
+      title: "CPOTC Orders Records",
       value: counterSaleBatchesLoading
         ? "—"
         : counterSaleRecordsTotal.toLocaleString("en-IN"),
       icon: ReceiptText,
       loading: counterSaleBatchesLoading,
-      description: "Total rows across all counter sale reports",
+      description: "Total rows across all CPOTC Orders sale reports",
 
       action: {
         label: "Open",
@@ -134,11 +160,10 @@ export default function PartsAdminDashboard() {
     },
     {
       title: "Apply Leave",
-      value: "",
+      value: myLeaveData?.data?.length ?? 0,
       icon: BotIcon,
-      loading: false,
-      description: "Total rows across all counter sale reports",
-
+      loading: myLeaveLoading,
+      description: "My Leave Application",
       action: {
         label: "Open",
         href: "/part-admin/apply-leave",
@@ -339,6 +364,7 @@ export default function PartsAdminDashboard() {
                 )}
               </CardContent>
             </Card>
+            <WhatYouUpload />
           </TabsContent>
 
           <TabsContent value='maintenance' className='mt-2'>

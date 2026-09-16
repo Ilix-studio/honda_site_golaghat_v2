@@ -1,6 +1,13 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ReceiptText, Download, UploadCloud, Loader2 } from "lucide-react";
+import {
+  ReceiptText,
+  Download,
+  UploadCloud,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   COUNTER_SALE_TEMPLATE_COLUMNS,
@@ -27,12 +34,32 @@ export default function CounterSaleUploadForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadAnimationStatus>("idle");
-  const [result, setResult] = useState<CounterSaleImportResponse["data"] | null>(
-    null,
-  );
+  const [result, setResult] = useState<
+    CounterSaleImportResponse["data"] | null
+  >(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const isUploading = status === "uploading";
+  /**
+   * The upload succeeded and its report is on screen. `status` can't answer
+   * this — UploadingAnimation calls onComplete after the "Done" stage, which
+   * puts status back to "idle" a couple of seconds after a successful upload.
+   * `result` is the durable signal, so it's what gates the submit button.
+   */
+  const isUploaded = result !== null;
+
+  /**
+   * Back to a clean form. Clearing the input's own value matters: React never
+   * controls a file input, so without this, re-picking the SAME file fires no
+   * change event and the form silently keeps the old File object.
+   */
+  const resetForm = () => {
+    setFile(null);
+    setResult(null);
+    setErrorMsg(null);
+    setStatus("idle");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +87,9 @@ export default function CounterSaleUploadForm() {
       );
     } catch (err) {
       const uploadErr = err as UploadWithProgressError;
-      setErrorMsg(uploadErr?.data?.message || "Upload failed. Please try again.");
+      setErrorMsg(
+        uploadErr?.data?.message || "Upload failed. Please try again.",
+      );
       setStatus("error");
     }
   };
@@ -74,7 +103,7 @@ export default function CounterSaleUploadForm() {
           </div>
           <div>
             <h1 className='text-xl font-bold text-gray-900'>
-              Counter Sale Report Import
+              CPOTC Order Upload
             </h1>
             <p className='text-sm text-gray-500'>
               Upload the channel-partner counter sale export (CSV/XLSX)
@@ -132,16 +161,29 @@ export default function CounterSaleUploadForm() {
           onSubmit={handleSubmit}
           className='mt-6 rounded-xl border border-gray-200 bg-white p-6'
         >
-          <label
-            htmlFor='counter-sale-file'
-            className='flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 py-10 cursor-pointer hover:border-gray-400 transition-colors'
-          >
-            <UploadCloud className='h-8 w-8 text-gray-400' />
-            <span className='text-sm font-medium text-gray-700'>
-              {file ? file.name : "Click to choose a CSV or XLSX file"}
-            </span>
-            <span className='text-xs text-gray-400'>Max 10MB</span>
-          </label>
+          {/* Once the report is in, the dropzone stops being a file picker —
+              re-submitting the same batch is rejected as a duplicate, so
+              offering the control again would only invite that error. */}
+          {isUploaded ? (
+            <div className='flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-green-300 bg-green-50/50 py-10'>
+              <CheckCircle2 className='h-8 w-8 text-green-600' />
+              <span className='text-sm font-medium text-gray-700'>
+                {file?.name ?? "Report uploaded"}
+              </span>
+              <span className='text-xs text-green-700'>Uploaded</span>
+            </div>
+          ) : (
+            <label
+              htmlFor='counter-sale-file'
+              className='flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 py-10 cursor-pointer hover:border-gray-400 transition-colors'
+            >
+              <UploadCloud className='h-8 w-8 text-gray-400' />
+              <span className='text-sm font-medium text-gray-700'>
+                {file ? file.name : "Click to choose a CSV or XLSX file"}
+              </span>
+              <span className='text-xs text-gray-400'>Max 10MB</span>
+            </label>
+          )}
           <input
             id='counter-sale-file'
             ref={fileInputRef}
@@ -156,24 +198,38 @@ export default function CounterSaleUploadForm() {
             onComplete={() => setStatus("idle")}
           />
 
-          <div className='flex justify-end mt-4'>
-            <Button type='submit' disabled={!file || isUploading}>
-              {isUploading ? (
-                <>
-                  <Loader2 className='h-4 w-4 mr-2 animate-spin' /> Uploading...
-                </>
-              ) : (
-                "Upload report"
-              )}
-            </Button>
-          </div>
-        </form>
+          {/* Sits inside the form, directly above the button that retries it —
+              the failure and the way to act on it belong together. */}
+          {errorMsg && (
+            <div
+              role='alert'
+              className='mt-4 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700'
+            >
+              <AlertCircle className='h-4 w-4 mt-0.5 shrink-0' />
+              <span>{errorMsg}</span>
+            </div>
+          )}
 
-        {errorMsg && (
-          <div className='mt-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700'>
-            {errorMsg}
-          </div>
-        )}
+          {/* Hidden once the upload lands: the result panel below owns the next
+              step from here ("Upload another" / "Done"). An error leaves the
+              button in place so the same file can simply be retried. */}
+          {!isUploaded && (
+            <div className='flex justify-end mt-4'>
+              <Button type='submit' disabled={!file || isUploading}>
+                {isUploading ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    Uploading...
+                  </>
+                ) : errorMsg ? (
+                  "Try again"
+                ) : (
+                  "Upload report"
+                )}
+              </Button>
+            </div>
+          )}
+        </form>
 
         {result && (
           <div className='mt-6 rounded-xl border border-gray-200 bg-white p-6 space-y-3'>
@@ -202,7 +258,7 @@ export default function CounterSaleUploadForm() {
             )}
 
             <div className='flex justify-end gap-2 pt-2'>
-              <Button variant='outline' onClick={() => setFile(null)}>
+              <Button variant='outline' onClick={resetForm}>
                 Upload another
               </Button>
               <Button onClick={() => navigate(-1)}>Done</Button>

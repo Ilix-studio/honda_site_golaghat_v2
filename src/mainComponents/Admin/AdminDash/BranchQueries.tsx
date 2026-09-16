@@ -27,6 +27,7 @@ import { formatTimeAgo, MetricTile, StatCard, StatCardProps } from "./StatCard";
 import SeparateStats from "./StatsUI/SeparateStats";
 import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
 import { useGetNewCustomersQuery } from "@/redux-store/services/customer/customerAdminApi";
+import { describeCustomerSources } from "@/mainComponents/shared/customerSources";
 
 // ─── main ────────────────────────────────────────────────────────────────────
 const BranchQueries = () => {
@@ -116,7 +117,10 @@ const BranchQueries = () => {
       value: newCustomersData?.pagination.total ?? 0,
       icon: Users,
       loading: newCustomersLoading,
-      description: "All Customer Detected by this project",
+      // Live per-pipeline breakdown rather than a static sentence — the list
+      // combines sales reports, manual/CSV stock assignment and service
+      // uploads, and the counts overlap, so they won't sum to the total above.
+      description: describeCustomerSources(newCustomersData?.sourceCounts),
       action: { label: "Open", href: "/customers/new" },
     },
         {

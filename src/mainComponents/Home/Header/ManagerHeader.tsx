@@ -173,8 +173,8 @@ const routeConfig: Record<
     backTo: "/manager/dashboard",
   },
   "/manager/counter-sale": {
-    title: "Counter Sale Reports",
-    subtitle: "View and manage counter sale reports",
+    title: "CPOTC Orders Reports",
+    subtitle: "View and manage CPOTC Orders sale reports",
     showBack: true,
     backTo: "/manager/dashboard",
   },
