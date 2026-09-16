@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import BillStamp from "./ZBillStamp";
+import { useNavigate } from "react-router-dom";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -403,6 +404,7 @@ const NOTE_BOXES: NoteBox[] = [
 
 const BillMemo2: React.FC = () => {
   const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
 
   const handleCopyBill = async () => {
     const billText = formatBillForCopy();
@@ -535,7 +537,7 @@ const BillMemo2: React.FC = () => {
             )}
           </div>
         </div>
-        <div className='bg-gray-100 px-3 sm:px-4 py-3 flex justify-center border-b'>
+        <div className='bg-gray-100 px-3 sm:px-4 py-3 flex justify-center border-b gap-4'>
           <button
             onClick={handleCopyBill}
             className='flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200'
@@ -575,6 +577,12 @@ const BillMemo2: React.FC = () => {
                 Copy Bill for ChatGPT Review
               </>
             )}
+          </button>
+          <button
+            onClick={() => navigate("/bill-memo/preview/1")}
+            className='bg-blue-800 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200'
+          >
+            See Bill One
           </button>
         </div>
 
