@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -58,14 +57,6 @@ export const WithBikesTab = () => {
     }));
   };
 
-  const handleUrgencyFilter = (val: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      urgency: val === "all" ? undefined : val,
-      page: 1,
-    }));
-  };
-
   const handlePage = (dir: 1 | -1) => {
     setFilters((prev) => ({ ...prev, page: (prev.page ?? 1) + dir }));
   };
@@ -91,40 +82,12 @@ export const WithBikesTab = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value='all'>All Categories</SelectItem>
-            <SelectItem value='sport'>Sport</SelectItem>
-            <SelectItem value='adventure'>Adventure</SelectItem>
-            <SelectItem value='cruiser'>Cruiser</SelectItem>
-            <SelectItem value='touring'>Touring</SelectItem>
+            {/* Only the categories the catalogue stocks — see CategoryTabs.tsx */}
+            <SelectItem value='commuter'>Commuter</SelectItem>
             <SelectItem value='naked'>Naked</SelectItem>
-            <SelectItem value='electric'>Electric</SelectItem>
+            <SelectItem value='automatic'>Automatic</SelectItem>
           </SelectContent>
         </Select>
-        <Select onValueChange={handleUrgencyFilter} defaultValue='all'>
-          <SelectTrigger className='w-44'>
-            <SelectValue placeholder='Urgency' />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value='all'>All Urgencies</SelectItem>
-            <SelectItem value='immediate'>Immediate</SelectItem>
-            <SelectItem value='within-month'>Within Month</SelectItem>
-            <SelectItem value='within-3months'>Within 3 Months</SelectItem>
-            <SelectItem value='exploring'>Exploring</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button
-          variant='outline'
-          size='sm'
-          onClick={() =>
-            setFilters((prev) => ({
-              ...prev,
-              hasTradeIn: prev.hasTradeIn ? undefined : true,
-              page: 1,
-            }))
-          }
-          className={filters.hasTradeIn ? "border-red-500 text-red-600" : ""}
-        >
-          Trade-In {filters.hasTradeIn ? "✓" : ""}
-        </Button>
         <Button variant='outline' size='icon' onClick={refetch}>
           <RefreshCw
             className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
@@ -141,16 +104,13 @@ export const WithBikesTab = () => {
               <TableHead>Enquiry Type</TableHead>
               <TableHead>Bike Interest</TableHead>
               <TableHead>Category</TableHead>
-              <TableHead>Urgency</TableHead>
-              <TableHead>Trade-In</TableHead>
-              <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={5}
                   className='text-center py-8 text-muted-foreground'
                 >
                   Loading...
@@ -159,7 +119,7 @@ export const WithBikesTab = () => {
             ) : !data?.data?.length ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={5}
                   className='text-center py-8 text-muted-foreground'
                 >
                   No bike enquiry applications found.
@@ -190,25 +150,6 @@ export const WithBikesTab = () => {
                     </TableCell>
                     <TableCell className='capitalize'>
                       {bike?.category ?? "—"}
-                    </TableCell>
-                    <TableCell className='capitalize text-sm'>
-                      {bike?.urgency?.replace(/-/g, " ") ?? "—"}
-                    </TableCell>
-                    <TableCell>
-                      {bike?.tradeInBike?.hasTradeIn ? (
-                        <Badge className='bg-orange-100 text-orange-800'>
-                          Yes
-                        </Badge>
-                      ) : (
-                        <span className='text-muted-foreground text-sm'>
-                          No
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={STATUS_COLORS[app.status] ?? ""}>
-                        {app.status}
-                      </Badge>
                     </TableCell>
                   </TableRow>
                 );

@@ -92,12 +92,18 @@ const EditBikeImage = () => {
     if (!file) return;
 
     // Validate file
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+      "image/avif",
+    ];
     if (!allowedTypes.includes(file.type)) {
       dispatch(
         addNotification({
           type: "error",
-          message: "Invalid file type. Only JPEG, PNG, and WebP are allowed.",
+          message: "Invalid file type. Only JPEG, PNG, WebP, and AVIF are allowed.",
         }),
       );
       return;

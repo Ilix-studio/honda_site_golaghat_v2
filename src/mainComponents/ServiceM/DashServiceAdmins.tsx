@@ -105,12 +105,15 @@ const DashServiceAdmins = () => {
   // Stat cards built from live query data
   const operationsStats: Omit<StatCardProps, "index">[] = [
     {
-      title: "Service Invoices",
+      title: "Upload Service Invoices",
       value: invoicesData?.data.total ?? 0,
       icon: Activity,
       loading: invoicesLoading,
       description: "Import a service invoice PDF",
-      action: { label: "Open", href: "/service-admin/service-invoice/upload" },
+      action: {
+        label: "Upload",
+        href: "/service-admin/service-invoice/upload",
+      },
     },
 
     {

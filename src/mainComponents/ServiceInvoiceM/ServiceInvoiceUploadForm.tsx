@@ -57,7 +57,7 @@ function ClassificationBadge({ item }: { item: InvoiceLineItem }) {
   const label =
     item.classification === "SOLD" && item.matchQuality === "loose"
       ? "Sold ~"
-      : CLASSIFICATION_LABEL[item.classification] ?? item.classification;
+      : (CLASSIFICATION_LABEL[item.classification] ?? item.classification);
   return (
     <span
       className={`inline-flex items-center whitespace-nowrap rounded border px-2 py-0.5 text-xs font-medium ${CLASSIFICATION_STYLE[item.classification]}`}
@@ -215,9 +215,12 @@ export default function ServiceInvoiceUploadForm({
             <Button onClick={reset} variant='outline'>
               Upload another
             </Button>
-            <Button onClick={() => navigate(dashboardPath)}>
-              Back to dashboard
-            </Button>
+            <button
+              className='mx-auto mt-4 w-full bg-blue-900 text-white hover:bg-blue-700'
+              onClick={() => navigate(dashboardPath)}
+            >
+              Back to Dashboard
+            </button>
           </div>
         </CardContent>
       </Card>
@@ -246,7 +249,8 @@ export default function ServiceInvoiceUploadForm({
           {!p.reconciliation.ok && (
             <Banner tone='red' icon={<AlertCircle className='h-4 w-4' />}>
               <div className='font-medium'>
-                The line items don't add up to the totals printed on this invoice.
+                The line items don't add up to the totals printed on this
+                invoice.
               </div>
               <ul className='mt-1 list-inside list-disc text-xs'>
                 {p.reconciliation.notes.map((n, i) => (
@@ -305,7 +309,9 @@ export default function ServiceInvoiceUploadForm({
               <tbody>
                 {p.lineItems.map((li) => (
                   <tr key={li.srNo} className='border-t'>
-                    <td className='px-3 py-2 text-muted-foreground'>{li.srNo}</td>
+                    <td className='px-3 py-2 text-muted-foreground'>
+                      {li.srNo}
+                    </td>
                     <td className='px-3 py-2 font-mono text-xs'>{li.partNo}</td>
                     <td className='px-3 py-2'>
                       {li.description}
@@ -329,10 +335,10 @@ export default function ServiceInvoiceUploadForm({
           {p.summary.pending > 0 && (
             <p className='text-xs text-muted-foreground'>
               {p.summary.pending} billed part(s) are not in this branch's parts
-              stock yet. They're recorded against this invoice and left
-              pending — the next parts-stock upload that includes them will mark
-              them sold, dated and linked back here. They don't reduce stock or
-              count as parts revenue until then.
+              stock yet. They're recorded against this invoice and left pending
+              — the next parts-stock upload that includes them will mark them
+              sold, dated and linked back here. They don't reduce stock or count
+              as parts revenue until then.
             </p>
           )}
 
@@ -348,7 +354,9 @@ export default function ServiceInvoiceUploadForm({
               disabled={isCommitting}
               className='bg-emerald-600 hover:bg-emerald-700'
             >
-              {isCommitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+              {isCommitting && (
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              )}
               Confirm &amp; import
             </Button>
             <Button variant='outline' onClick={reset} disabled={isCommitting}>
@@ -389,7 +397,9 @@ export default function ServiceInvoiceUploadForm({
             if (dropped) handleFileSelect(dropped);
           }}
           className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
-            dragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25"
+            dragOver
+              ? "border-primary bg-primary/5"
+              : "border-muted-foreground/25"
           }`}
         >
           <FileText className='mb-2 h-8 w-8 text-muted-foreground' />
@@ -424,7 +434,7 @@ export default function ServiceInvoiceUploadForm({
 
         <Button onClick={runPreview} disabled={!file || isPreviewing}>
           {isPreviewing && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-          Read invoice
+          Upload invoice
         </Button>
       </CardContent>
     </Card>
