@@ -108,20 +108,29 @@ export default function PartsAdminDashboard() {
 
   const kpis: Omit<StatCardProps, "index">[] = [
     {
-      title: "Service Invoices",
-      value: invoiceStats?.data.totals.totalInvoices ?? "—",
-      icon: FileText,
-      loading: invoiceStatsLoading,
-      description: "Parts sold & accessories fitted",
-      action: { label: "Open", href: "/part-admin/service-invoice" },
-    },
-    {
       title: "Total Parts",
       value: stats?.totals.totalParts ?? "—",
       icon: Package,
       loading: statsLoading,
       description: "Upload Records",
       action: { label: "View parts", href: "/part-admin/folder" },
+    },
+    {
+      title: "CPOTC Orders Upload",
+      value: counterSaleBatches?.data?.length ?? 0,
+      loading: counterSaleBatchesLoading,
+      icon: ReceiptText,
+      description:
+        "Upload and browse channel-partner CPOTC Orders sale reports",
+      action: { label: "Open", href: "/part-admin/counter-sale/upload" },
+    },
+    {
+      title: "Service Invoices",
+      value: invoiceStats?.data.totals.totalInvoices ?? "—",
+      icon: FileText,
+      loading: invoiceStatsLoading,
+      description: "Parts sold & accessories fitted",
+      action: { label: "Open", href: "/part-admin/service-invoice" },
     },
 
     {
@@ -135,15 +144,7 @@ export default function PartsAdminDashboard() {
       description: describeCustomerSources(newCustomersData?.sourceCounts),
       action: { label: "Open", href: "/customers/new" },
     },
-    {
-      title: "CPOTC Orders Sales",
-      value: counterSaleBatches?.data?.length ?? 0,
-      loading: counterSaleBatchesLoading,
-      icon: ReceiptText,
-      description:
-        "Upload and browse channel-partner CPOTC Orders sale reports",
-      action: { label: "Open", href: "/part-admin/counter-sale" },
-    },
+
     {
       title: "CPOTC Orders Records",
       value: counterSaleBatchesLoading

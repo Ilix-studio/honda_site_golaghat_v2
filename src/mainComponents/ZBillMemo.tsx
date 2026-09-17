@@ -27,6 +27,14 @@ interface NoteBox {
   content: React.ReactNode;
 }
 
+interface ProcessPhase {
+  step: string;
+  title: string;
+  window: string;
+  summary: string;
+  points: string[];
+}
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const TAG_STYLES: Record<TagVariant, string> = {
@@ -408,6 +416,131 @@ const NOTE_BOXES: NoteBox[] = [
   },
 ];
 
+const PROCESS_PHASES: ProcessPhase[] = [
+  {
+    step: "01",
+    title: "Thinking",
+    window: "Apr - May 2025",
+    summary:
+      "Sat with the dealership and mapped how the branch actually runs before writing a line of code.",
+    points: [
+      "Walked the real workflow: enquiry to booking to job card to invoice",
+      "Found the core constraint - staff and customers need two different logins",
+      "Locked the role hierarchy: Super-Admin, Branch-Admin, Service/Part-Admin, Staff",
+      "Agreed on what ships first and what is a later phase",
+    ],
+  },
+  {
+    step: "02",
+    title: "Designing",
+    window: "May - Jun 2025",
+    summary:
+      "Turned that map into a data model, a route plan and a Honda-branded interface language.",
+    points: [
+      "MongoDB schemas for bikes, stock, customers, job cards and reports",
+      "Dual auth design: JWT for staff, Firebase phone OTP for customers",
+      "Per-role route guards and dashboard layouts, branch-scoped throughout",
+      "Responsive UI system in Tailwind - one visual language across every screen",
+    ],
+  },
+  {
+    step: "03",
+    title: "Developing",
+    window: "Jun 2025 - Jan 2026",
+    summary:
+      "Built the frontend and backend in parallel, module by module, keeping each one shippable.",
+    points: [
+      "React 19 + TypeScript + Vite frontend with Redux Toolkit Query",
+      "Express 5 + TypeScript API, role middleware and branch scoping on every route",
+      "Dealer report import: stock, parts, counter sale and DMS invoice PDF parsing",
+      "Integrations wired in: Firebase, Cloudinary, ScanFleet, push notifications",
+    ],
+  },
+  {
+    step: "04",
+    title: "Testing",
+    window: "Ongoing - Feb 2026",
+    summary:
+      "Checked every flow against real dealership data, not sample data.",
+    points: [
+      "Verification scripts that replay real invoice PDFs end to end",
+      "Role-by-role walkthroughs to confirm nobody sees another branch's data",
+      "Duplicate-upload, reconciliation and revenue-split correctness checks",
+      "Mobile, tablet and desktop passes on every customer-facing page",
+    ],
+  },
+  {
+    step: "05",
+    title: "Deploying",
+    window: "Feb - Mar 2026",
+    summary:
+      "Put the system live on managed infrastructure that scales without a server admin.",
+    points: [
+      "Frontend on Vercel with automatic builds on every push",
+      "Backend on Google Cloud Run, containerised and auto-scaling",
+      "MongoDB Atlas for the database, Cloudinary for all media",
+      "Environment secrets and production configuration handled separately from code",
+    ],
+  },
+  {
+    step: "06",
+    title: "Maintaining",
+    window: "Post-delivery",
+    summary:
+      "Handover plus a support window so the team is never stuck on day one.",
+    points: [
+      "30-day post-delivery bug support included",
+      "Full TypeScript source handed over, frontend and backend",
+      "Written project documentation for future developers",
+      "Clear path for new modules and feature additions on request",
+    ],
+  },
+];
+
+const ProcessSection: React.FC = () => (
+  <div className='px-4 sm:px-6 lg:px-12 pb-6 sm:pb-8'>
+    <SectionTitle>How This Project Was Built — Process Breakdown</SectionTitle>
+    <p className='text-sm text-gray-600 leading-relaxed pt-4 pb-1'>
+      The charges above cover more than code. Each phase below is work that was
+      actually done between Apr 2025 and Mar 2026.
+    </p>
+    <div className='grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 pt-4'>
+      {PROCESS_PHASES.map((phase) => (
+        <div
+          key={phase.step}
+          className='bg-gray-100 p-4 sm:p-5 border-l-4 border-gray-300 hover:border-red-600 transition-colors duration-200'
+        >
+          <div className='flex items-baseline gap-2.5 mb-1.5'>
+            <span
+              className='font-bold text-red-600'
+              style={{ fontFamily: "monospace", fontSize: 13 }}
+            >
+              {phase.step}
+            </span>
+            <h4 className='text-sm font-black text-gray-900 uppercase tracking-widest'>
+              {phase.title}
+            </h4>
+            <span
+              className='ml-auto text-gray-400 uppercase tracking-widest whitespace-nowrap'
+              style={{ fontSize: 9 }}
+            >
+              {phase.window}
+            </span>
+          </div>
+          <p className='text-xs text-gray-500 leading-relaxed mb-2.5'>
+            {phase.summary}
+          </p>
+          <ul className='text-sm text-gray-600 list-disc pl-4 leading-loose'>
+            {phase.points.map((point) => (
+              <li key={point}>{point}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 const BillMemo: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
@@ -478,7 +611,6 @@ const BillMemo: React.FC = () => {
             </p>
           </div>
         </div>
-
         {/* ── Line Item Tables ── */}
         <TableSection
           title='Frontend Development — React · TypeScript · Vite'
@@ -490,7 +622,6 @@ const BillMemo: React.FC = () => {
             items={BACKEND_ITEMS}
           />
         </div>
-
         {/* ── Totals ── */}
         <div className='flex flex-col-reverse sm:flex-row sm:justify-between sm:items-end gap-6 px-12 pb-8'>
           <BillStamp
@@ -588,7 +719,6 @@ const BillMemo: React.FC = () => {
             See Bill two
           </button>
         </div>
-
         {/* ── Notes ── */}
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 px-4 sm:px-6 lg:px-12 pb-6 sm:pb-8'>
           {NOTE_BOXES.map((box: NoteBox) => (
@@ -606,7 +736,8 @@ const BillMemo: React.FC = () => {
             </div>
           ))}
         </div>
-
+        {/* ── Build Process ── */}
+        <ProcessSection />
         {/* ── Footer ── */}
         <div className='bg-gray-900 text-gray-500 px-4 sm:px-6 lg:px-12 py-4 sm:py-5 flex flex-col sm:flex-row justify-between items-center text-xs gap-2 sm:gap-0'>
           <div className='text-center sm:text-left text-white'>

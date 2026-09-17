@@ -421,15 +421,14 @@ const UploadCSVForm = () => {
             {uploadStage === "success" &&
               importResult?.data &&
               importResult.data.failureCount > 0 && (
-                <Button
-                  variant='outline'
-                  className='w-full'
+                <button
+                  className='w-full bg-blue-800 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200'
                   onClick={() =>
                     navigate("/manager/forms/stock-concept-csv/view-uploads")
                   }
                 >
                   Review complete — View Uploads
-                </Button>
+                </button>
               )}
 
             {/* Error Message */}

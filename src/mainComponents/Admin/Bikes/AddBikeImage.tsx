@@ -83,9 +83,15 @@ const AddBikeImage = () => {
 
   // Validate image file
   const validateImageFile = (file: File): string | null => {
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+      "image/avif",
+    ];
     if (!allowedTypes.includes(file.type)) {
-      return "Invalid file type. Only JPEG, PNG, and WebP are allowed.";
+      return "Invalid file type. Only JPEG, PNG, WebP, and AVIF are allowed.";
     }
 
     if (file.size > 10 * 1024 * 1024) {

@@ -785,12 +785,6 @@ export default function BikeImageManager() {
             </div>
           )}
         </DialogContent>
-        <Button
-          className='mx-auto mt-4 w-full bg-white text-black hover:bg-gray-100'
-          onClick={() => navigate("/admin/dashboard")}
-        >
-          <ArrowLeft className='ml-2 h-4 w-4' /> Back to Dashboard
-        </Button>
       </Dialog>
     </div>
   );

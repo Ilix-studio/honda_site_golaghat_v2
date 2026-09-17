@@ -183,6 +183,14 @@ const routeConfig: Record<
     subtitle: "",
     showBack: true,
     backTo: "/manager/dashboard",
+    menuItems: [{ label: "View Catalogue", href: "/viewAll" }],
+  },
+  "/viewAll": {
+    title: "Bike Catalogue",
+    subtitle: "Manage models and their photos",
+    showBack: true,
+    backTo: "/manager/dashboard",
+    menuItems: [{ label: "Add New Bike", href: "/bikes/add" }],
   },
   "/manager/service-admins": {
     title: "Service Admins",

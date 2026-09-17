@@ -132,7 +132,9 @@ export default function UploadDataImportForm({
       setStage("validation");
     } catch (err) {
       const uploadErr = err as UploadWithProgressError;
-      setApiError(uploadErr?.data?.message || "Preview failed. Please try again.");
+      setApiError(
+        uploadErr?.data?.message || "Preview failed. Please try again.",
+      );
       setStage("error");
     }
   };
@@ -159,11 +161,16 @@ export default function UploadDataImportForm({
       // uploadWithProgress bypasses RTK Query, so replicate commitImport's
       // invalidatesTags manually to keep batch lists / sales charts fresh.
       dispatch(
-        dataImportApi.util.invalidateTags(["DataImportDataset", "SalesTimeseries"]),
+        dataImportApi.util.invalidateTags([
+          "DataImportDataset",
+          "SalesTimeseries",
+        ]),
       );
     } catch (err) {
       const uploadErr = err as UploadWithProgressError;
-      setApiError(uploadErr?.data?.message || "Commit failed. Please try again.");
+      setApiError(
+        uploadErr?.data?.message || "Commit failed. Please try again.",
+      );
       setStage("error");
     }
   };
@@ -251,7 +258,8 @@ export default function UploadDataImportForm({
             onDrop={(e) => {
               e.preventDefault();
               setDragOver(false);
-              if (e.dataTransfer.files[0]) handleFileSelect(e.dataTransfer.files[0]);
+              if (e.dataTransfer.files[0])
+                handleFileSelect(e.dataTransfer.files[0]);
             }}
             onClick={() => inputRef.current?.click()}
             className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-10 cursor-pointer transition-colors ${
@@ -304,10 +312,7 @@ export default function UploadDataImportForm({
             <Button
               onClick={() => runPreview()}
               disabled={
-                !file ||
-                !datasetType ||
-                (isSuperAdmin && !branchId) ||
-                isBusy
+                !file || !datasetType || (isSuperAdmin && !branchId) || isBusy
               }
               className='bg-blue-600 hover:bg-blue-700'
             >
@@ -320,9 +325,12 @@ export default function UploadDataImportForm({
                 "Preview"
               )}
             </Button>
-            <Button variant='ghost' onClick={() => navigate(dashboardPath)}>
+            <button
+              className='mx-auto mt-4 w-full bg-blue-900 text-white hover:bg-blue-700'
+              onClick={() => navigate(dashboardPath)}
+            >
               Back to Dashboard
-            </Button>
+            </button>
           </div>
         </CardContent>
       </Card>
@@ -373,7 +381,10 @@ export default function UploadDataImportForm({
                     <thead className='bg-gray-50 text-gray-600'>
                       <tr>
                         {preview.columns.map((c) => (
-                          <th key={c} className='text-left px-3 py-2 whitespace-nowrap'>
+                          <th
+                            key={c}
+                            className='text-left px-3 py-2 whitespace-nowrap'
+                          >
                             {c}
                           </th>
                         ))}
@@ -383,7 +394,10 @@ export default function UploadDataImportForm({
                       {preview.sampleRows.slice(0, 10).map((row, i) => (
                         <tr key={i} className='border-t border-gray-100'>
                           {preview.columns.map((c) => (
-                            <td key={c} className='px-3 py-2 whitespace-nowrap text-gray-600'>
+                            <td
+                              key={c}
+                              className='px-3 py-2 whitespace-nowrap text-gray-600'
+                            >
                               {String(row[c] ?? "")}
                             </td>
                           ))}
@@ -432,8 +446,8 @@ export default function UploadDataImportForm({
             </CardTitle>
             <p className='text-sm text-gray-500'>
               Batch {result.batchId} · {result.sourceFormat.toUpperCase()} ·{" "}
-              {result.duplicateRows} duplicate · {result.reviewRows} flagged
-              for review
+              {result.duplicateRows} duplicate · {result.reviewRows} flagged for
+              review
             </p>
           </CardHeader>
           <CardContent className='space-y-4'>
@@ -444,25 +458,33 @@ export default function UploadDataImportForm({
                 </p>
                 <div className='grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm'>
                   <div>
-                    <p className='text-xs text-gray-500'>New customers + vehicles</p>
+                    <p className='text-xs text-gray-500'>
+                      New customers + vehicles
+                    </p>
                     <p className='font-semibold text-gray-900'>
                       {result.autoRegistration.customerCreatedVehicleCreated}
                     </p>
                   </div>
                   <div>
-                    <p className='text-xs text-gray-500'>Vehicles created for existing customers</p>
+                    <p className='text-xs text-gray-500'>
+                      Vehicles created for existing customers
+                    </p>
                     <p className='font-semibold text-gray-900'>
                       {result.autoRegistration.customerMatchedVehicleCreated}
                     </p>
                   </div>
                   <div>
-                    <p className='text-xs text-gray-500'>Existing vehicles updated</p>
+                    <p className='text-xs text-gray-500'>
+                      Existing vehicles updated
+                    </p>
                     <p className='font-semibold text-gray-900'>
                       {result.autoRegistration.vehicleMatchedServiceUpdated}
                     </p>
                   </div>
                   <div>
-                    <p className='text-xs text-gray-500'>Free services disabled</p>
+                    <p className='text-xs text-gray-500'>
+                      Free services disabled
+                    </p>
                     <p className='font-semibold text-gray-900'>
                       {result.autoRegistration.freeServicesDisabled}
                     </p>
@@ -487,8 +509,8 @@ export default function UploadDataImportForm({
               <div className='flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800'>
                 <AlertTriangle className='w-4 h-4 mt-0.5 shrink-0' />
                 <span>
-                  {result.reviewRows} row(s) need manual review — verify them
-                  in the dataset list.
+                  {result.reviewRows} row(s) need manual review — verify them in
+                  the dataset list.
                 </span>
               </div>
             )}

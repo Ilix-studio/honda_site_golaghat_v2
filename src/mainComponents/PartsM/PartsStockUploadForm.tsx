@@ -50,7 +50,9 @@ export default function PartsStockUploadForm({
   const [file, setFile] = useState<File | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  const [result, setResult] = useState<PartsImportResponse["data"] | null>(null);
+  const [result, setResult] = useState<PartsImportResponse["data"] | null>(
+    null,
+  );
   const [apiError, setApiError] = useState<string | null>(null);
 
   const handleFileSelect = (selected: File) => {
@@ -129,7 +131,8 @@ export default function PartsStockUploadForm({
               onDrop={(e) => {
                 e.preventDefault();
                 setDragOver(false);
-                if (e.dataTransfer.files[0]) handleFileSelect(e.dataTransfer.files[0]);
+                if (e.dataTransfer.files[0])
+                  handleFileSelect(e.dataTransfer.files[0]);
               }}
               onClick={() => inputRef.current?.click()}
               className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-10 cursor-pointer transition-colors ${
@@ -146,8 +149,8 @@ export default function PartsStockUploadForm({
                 </div>
               ) : (
                 <p className='text-sm text-gray-500'>
-                  Drag & drop a file here, or click to browse (XLSX / XLS / CSV /
-                  PDF, ≤10MB)
+                  Drag & drop a file here, or click to browse (XLSX / XLS / CSV
+                  / PDF, ≤10MB)
                 </p>
               )}
               <input
@@ -196,9 +199,12 @@ export default function PartsStockUploadForm({
                 )}
               </Button>
             )}
-            <Button variant='ghost' onClick={() => navigate(dashboardPath)}>
+            <button
+              className='mx-auto mt-4 w-full bg-blue-900 text-white hover:bg-blue-700'
+              onClick={() => navigate(dashboardPath)}
+            >
               Back to Dashboard
-            </Button>
+            </button>
           </div>
         </CardContent>
       </Card>
@@ -212,8 +218,11 @@ export default function PartsStockUploadForm({
             </CardTitle>
             <p className='text-sm text-blue-800'>
               This file matches your last upload
-              {result.previousBatchId ? ` (batch ${result.previousBatchId})` : ""} — nothing
-              was imported. {result.totalRows} row(s) checked, all unchanged.
+              {result.previousBatchId
+                ? ` (batch ${result.previousBatchId})`
+                : ""}{" "}
+              — nothing was imported. {result.totalRows} row(s) checked, all
+              unchanged.
             </p>
           </CardHeader>
           <CardContent>
@@ -316,7 +325,9 @@ export default function PartsStockUploadForm({
                       }`}
                     >
                       {(result.revenueDelta ?? 0) >= 0 ? "+" : "-"}₹
-                      {Math.abs(result.revenueDelta ?? 0).toLocaleString("en-IN")}
+                      {Math.abs(result.revenueDelta ?? 0).toLocaleString(
+                        "en-IN",
+                      )}
                     </p>
                   </div>
                 </div>

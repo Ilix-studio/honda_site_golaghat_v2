@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ScrollableTabs from "@/mainComponents/shared/ScrollableTabs";
 
 import {
-  MessageSquare,
+  // MessageSquare,
   Building2,
   Cog,
   TrendingUp,
@@ -22,6 +22,7 @@ import {
   Webhook,
   Activity,
   ReceiptText,
+  Bike,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
@@ -32,7 +33,7 @@ import {
 
 import { StatCard, type StatCardProps } from "../Admin/AdminDash/StatCard";
 
-import CustomerQueries from "./Tabs/CustomerQuery";
+// import CustomerQueries from "./Tabs/CustomerQuery";
 // import JobCardCatalogManager from "../CustomerSystem/JobCard/JobCardCatalogManager";
 
 import RecentMotorcycles from "../Admin/AdminDash/RecentMotocycles";
@@ -46,6 +47,7 @@ import BranchKpiCharts from "./BranchKpiCharts";
 import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
 import OperationOpz from "./Tabs/OperationOpz";
 import { useGetAllStockItemsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
+import { useGetBikesQuery } from "@/redux-store/services/BikeSystemApi/bikeApi";
 import { useGetCSVStocksQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 import WhatYouUpload from "../WhatYouUpload";
 
@@ -92,6 +94,8 @@ const BranchManagerDashboard = () => {
     if (hour < 17) return "Good Afternoon";
     return "Good Evening";
   })();
+  const { data: bikesData, isLoading: bikesLoading } = useGetBikesQuery({});
+
   const totalStockVehicles =
     (stockData?.total ?? 0) + (stockCSVData?.pagination?.total ?? 0);
   const stockVehiclesLoading = stockLoading || stockCSVLoading;
@@ -134,6 +138,14 @@ const BranchManagerDashboard = () => {
       // uploads, and the counts overlap, so they won't sum to the total above.
       description: describeCustomerSources(newCustomersData?.sourceCounts),
       action: { label: "Open", href: "/customers/new" },
+    },
+    {
+      title: "Bike Catalogue",
+      value: bikesData?.data?.pagination?.total ?? 0,
+      icon: Bike,
+      loading: bikesLoading,
+      description: "Add models and manage catalogue photos",
+      action: { label: "Add Bike", href: "/bikes/add" },
     },
     {
       title: "Create Quotation",
@@ -332,31 +344,6 @@ const BranchManagerDashboard = () => {
                 <OperationOpz />
               </CardContent>
             </Card>
-          </TabsContent>
-
-          <TabsContent value='customer-reports' className='mt-0.5'>
-            <Card
-              size='sm'
-              className=' gap-0.1 border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
-            >
-              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-6 py-5'>
-                <div className='flex items-center gap-3'>
-                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-gray-600 text-white shadow-sm'>
-                    <MessageSquare className='h-5 w-5' />
-                  </div>
-                  <div>
-                    <CardTitle className='text-lg font-semibold text-gray-900'>
-                      Add Vehicles & Reports
-                    </CardTitle>
-                    <CardDescription className='text-gray-500 mt-0.5'>
-                      Enquiries, applications, finance, and accident reports
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CustomerQueries />
-            </Card>
-
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}

@@ -152,9 +152,7 @@ const ViewCSVUploads = () => {
   const [selectedBatch, setSelectedBatch] = useState<string | null>(
     searchParams.get("batchId"),
   );
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    undefined,
-  );
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   const {
     data: batchesData,
@@ -195,7 +193,8 @@ const ViewCSVUploads = () => {
     ? (dateBatchesData?.data ?? [])
     : (batchesData?.data ?? []);
   const sortedBatches = [...batches].sort(
-    (a, b) => new Date(b.importDate).getTime() - new Date(a.importDate).getTime(),
+    (a, b) =>
+      new Date(b.importDate).getTime() - new Date(a.importDate).getTime(),
   );
   const stocks = stocksData?.data || [];
 
@@ -246,8 +245,8 @@ const ViewCSVUploads = () => {
             {selectedBatch}
           </h1>
           <p className='text-xs text-muted-foreground mb-4'>
-            Click a row to see the exact fields extracted from the file for
-            that vehicle.
+            Click a row to see the exact fields extracted from the file for that
+            vehicle.
           </p>
 
           {stocksLoading && (
@@ -336,16 +335,18 @@ const ViewCSVUploads = () => {
                 Clear
               </Button>
             )}
-            <Button
-              variant='outline'
-              size='sm'
+            <button
+              className='flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md px-3 py-2'
               onClick={() => navigate("/manager/forms/stock-concept-csv")}
             >
               <UploadCloud className='h-4 w-4 mr-2' /> New Upload
-            </Button>
-            <Button variant='outline' size='sm' onClick={() => refetchBatches()}>
+            </button>
+            <button
+              className='flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md px-3 py-2'
+              onClick={() => refetchBatches()}
+            >
               <RefreshCw className='h-4 w-4 mr-2' /> Refresh
-            </Button>
+            </button>
           </div>
         </div>
 
@@ -391,17 +392,19 @@ const ViewCSVUploads = () => {
           </div>
         )}
 
-        {!batchesLoading && !dateBatchesLoading && sortedBatches.length === 0 && (
-          <div className='text-center py-16 border rounded-lg bg-white'>
-            <FileSpreadsheet className='h-12 w-12 mx-auto mb-3 text-muted-foreground' />
-            <h3 className='font-semibold mb-1'>No uploads yet</h3>
-            <p className='text-sm text-muted-foreground'>
-              {showDateMode
-                ? "No batches found for the selected date."
-                : "Upload a CSV or Excel file to see it here."}
-            </p>
-          </div>
-        )}
+        {!batchesLoading &&
+          !dateBatchesLoading &&
+          sortedBatches.length === 0 && (
+            <div className='text-center py-16 border rounded-lg bg-white'>
+              <FileSpreadsheet className='h-12 w-12 mx-auto mb-3 text-muted-foreground' />
+              <h3 className='font-semibold mb-1'>No uploads yet</h3>
+              <p className='text-sm text-muted-foreground'>
+                {showDateMode
+                  ? "No batches found for the selected date."
+                  : "Upload a CSV or Excel file to see it here."}
+              </p>
+            </div>
+          )}
 
         {!batchesLoading && !dateBatchesLoading && sortedBatches.length > 0 && (
           <div className='space-y-4'>
