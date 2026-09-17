@@ -264,13 +264,6 @@ const LoginSuperAdmin = () => {
                       Remember email
                     </Label>
                   </div>
-
-                  <Link
-                    to='/admin/forgot-password'
-                    className='text-sm text-red-600 hover:text-red-500 transition-colors'
-                  >
-                    Forgot password?
-                  </Link>
                 </div>
 
                 <Button

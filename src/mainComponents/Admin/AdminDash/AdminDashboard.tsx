@@ -10,7 +10,15 @@ import {
 } from "@/components/ui/card";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Clock, Home, Package, Bot, Sparkles } from "lucide-react";
+import {
+  Building2,
+  Clock,
+  Home,
+  Package,
+  Bot,
+  Sparkles,
+  UserCog,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // Redux
@@ -122,6 +130,7 @@ const AdminDashboard = () => {
                 Manage your TsangPool Honda dealership operations, track branch
                 performance, and monitor customer engagement.
               </p>
+              <button>.</button>
             </div>
 
             {/* Right: Date + Status */}
@@ -130,6 +139,13 @@ const AdminDashboard = () => {
                 <Clock className='h-3.5 w-3.5' />
                 <span>{formattedDate}</span>
               </div>
+              <Button
+                data-onboarding='dashboard-profile'
+                className='text-white text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full border-2 bg-white/5 border-red-700 hover:bg-red-700/10 hover:text-gray-200 transition-all duration-200'
+                onClick={() => navigate("/admin/profile")}
+              >
+                <UserCog className='h-3 w-3 text-white' /> See Profile
+              </Button>
               <Button
                 className='text-gray-400 text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full bg-white/5 border border-white/10'
                 onClick={() => navigate("/")}

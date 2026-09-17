@@ -43,6 +43,11 @@ export default function ProfileUpdate({
   const [updateMe, { isLoading }] = useUpdateMeMutation();
   const me = data?.data;
 
+  // Super-Admin is a project-wide account, not branch payroll, so the employee
+  // welfare fields are hidden on ProfileView for it — offer them here too and
+  // it could save values that never render anywhere.
+  const isSuperAdmin = me?.role === "Super-Admin";
+
   const [form, setForm] = useState<UpdateMyProfileRequest>(EMPTY);
 
   // Prefill once the profile is available.
@@ -80,24 +85,26 @@ export default function ProfileUpdate({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-1.5">
-        <Label htmlFor="bloodGroup">Blood Group</Label>
-        <Select
-          value={form.bloodGroup || undefined}
-          onValueChange={(v) => set("bloodGroup", v)}
-        >
-          <SelectTrigger id="bloodGroup">
-            <SelectValue placeholder="Select blood group" />
-          </SelectTrigger>
-          <SelectContent>
-            {BLOOD_GROUPS.map((g) => (
-              <SelectItem key={g} value={g}>
-                {g}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {!isSuperAdmin && (
+        <div className="space-y-1.5">
+          <Label htmlFor="bloodGroup">Blood Group</Label>
+          <Select
+            value={form.bloodGroup || undefined}
+            onValueChange={(v) => set("bloodGroup", v)}
+          >
+            <SelectTrigger id="bloodGroup">
+              <SelectValue placeholder="Select blood group" />
+            </SelectTrigger>
+            <SelectContent>
+              {BLOOD_GROUPS.map((g) => (
+                <SelectItem key={g} value={g}>
+                  {g}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className="space-y-1.5">
         <Label htmlFor="phoneNumber">Phone Number (used for OTP login)</Label>
@@ -113,25 +120,29 @@ export default function ProfileUpdate({
         />
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="lifeInsurance">Life Insurance</Label>
-        <Input
-          id="lifeInsurance"
-          placeholder="e.g. LIC policy no. / provider"
-          value={form.lifeInsurance}
-          onChange={(e) => set("lifeInsurance", e.target.value)}
-        />
-      </div>
+      {!isSuperAdmin && (
+        <>
+          <div className="space-y-1.5">
+            <Label htmlFor="lifeInsurance">Life Insurance</Label>
+            <Input
+              id="lifeInsurance"
+              placeholder="e.g. LIC policy no. / provider"
+              value={form.lifeInsurance}
+              onChange={(e) => set("lifeInsurance", e.target.value)}
+            />
+          </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="scanfleetStickerId">Scanfleet Safety Sticker</Label>
-        <Input
-          id="scanfleetStickerId"
-          placeholder="Sticker / token ID"
-          value={form.scanfleetStickerId}
-          onChange={(e) => set("scanfleetStickerId", e.target.value)}
-        />
-      </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="scanfleetStickerId">Scanfleet Safety Sticker</Label>
+            <Input
+              id="scanfleetStickerId"
+              placeholder="Sticker / token ID"
+              value={form.scanfleetStickerId}
+              onChange={(e) => set("scanfleetStickerId", e.target.value)}
+            />
+          </div>
+        </>
+      )}
 
       <div className="space-y-1.5">
         <Label htmlFor="address">Address</Label>

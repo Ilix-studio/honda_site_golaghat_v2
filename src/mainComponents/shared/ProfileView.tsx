@@ -1,5 +1,4 @@
 import { useState } from "react";
-import toast from "react-hot-toast";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +19,7 @@ import {
   Info,
 } from "lucide-react";
 import ProfileUpdate from "./ProfileUpdate";
+import ChangePassword from "./ChangePassword";
 
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/redux-store/slices/authSlice";
@@ -124,6 +124,7 @@ const initials = (name?: string) =>
 
 export default function ProfileView() {
   const [editOpen, setEditOpen] = useState(false);
+  const [passwordOpen, setPasswordOpen] = useState(false);
 
   // Identity + extras from the merged profile endpoint; Redux user is a
   // fallback for name/role while /me is loading.
@@ -131,9 +132,14 @@ export default function ProfileView() {
   const { data: meData } = useGetMeQuery();
   const user = meData?.data ?? reduxUser;
 
-  // Leave balance (staff / branch / service / part admins). Super-Admins have
-  // no balance — the query simply returns nothing and we fall back to "—".
-  const { data: leaveData } = useGetLeaveBalanceQuery();
+  const isSuperAdmin = user?.role === "Super-Admin";
+
+  // Leave balance (staff / branch / service / part admins). Skipped for
+  // Super-Admin: it accrues none, and the only thing that rendered the result
+  // is the Benefits & Safety block now hidden for that role.
+  const { data: leaveData } = useGetLeaveBalanceQuery(undefined, {
+    skip: isSuperAdmin,
+  });
   const balance = leaveData?.data?.balance;
   const totalLeaveRemaining = balance
     ? balance.Sick.remaining + balance.Casual.remaining
@@ -141,9 +147,13 @@ export default function ProfileView() {
 
   const me = meData?.data;
 
+  // Drives the "set up OTP login" prompt below — OTP login resolves an account
+  // by phone number, so an account without one has no OTP path.
+  const hasPhone = Boolean(user?.phoneNumber);
+
   return (
-    <div className='min-h-screen'>
-      <div className='max-w-4xl mx-auto py-8 px-4'>
+    <div className="min-h-screen">
+      <div className="max-w-4xl mx-auto py-8 px-4">
         <div
           style={{
             minHeight: "100%",
@@ -292,9 +302,7 @@ export default function ProfileView() {
                   Edit Profile
                 </button>
                 <button
-                  onClick={() =>
-                    toast("Password reset is coming soon.", { icon: "🔒" })
-                  }
+                  onClick={() => setPasswordOpen(true)}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -311,7 +319,7 @@ export default function ProfileView() {
                   }}
                 >
                   <KeyRound size={14} strokeWidth={2} />
-                  Reset Password
+                  Change Password
                 </button>
               </div>
             </div>
@@ -319,65 +327,147 @@ export default function ProfileView() {
             {/* Body */}
             <div style={{ padding: "36px 36px 28px" }}>
               <SectionLabel>Contact Information</SectionLabel>
-              <div style={{ ...fieldGridStyle, marginBottom: "32px" }}>
-                <Field icon={UserIcon} label='Name' value={user?.name} />
-                <Field icon={Mail} label='Email' value={user?.email} />
-                <Field
-                  icon={Phone}
-                  label='Phone Number'
-                  value={user?.phoneNumber}
-                />
-                <Field icon={MapPin} label='Address' value={me?.address} />
-              </div>
-
               <div
                 style={{
-                  height: "1px",
-                  background: "oklch(0.93 0.004 258)",
-                  margin: "0 0 28px",
+                  ...fieldGridStyle,
+                  marginBottom: hasPhone ? "32px" : "14px",
                 }}
-              />
-
-              <SectionLabel>Benefits &amp; Safety</SectionLabel>
-              <div style={{ ...fieldGridStyle, marginBottom: "28px" }}>
+              >
+                <Field icon={UserIcon} label="Name" value={user?.name} />
+                <Field icon={Mail} label="Email" value={user?.email} />
                 <Field
-                  icon={Droplet}
-                  label='Blood Group'
-                  value={me?.bloodGroup}
+                  icon={Phone}
+                  label="Phone Number"
+                  value={user?.phoneNumber}
                 />
-                <Field
-                  icon={Shield}
-                  label='Life Insurance'
-                  value={me?.lifeInsurance}
-                />
-                <Field
-                  icon={Grid3x3}
-                  label='Scanfleet Safety Sticker'
-                  value={me?.scanfleetStickerId}
-                />
-                <Field
-                  icon={CalendarDays}
-                  label='Total Leave Available'
-                  value={
-                    totalLeaveRemaining === undefined ? (
-                      "—"
-                    ) : (
-                      <>
-                        {totalLeaveRemaining} days{" "}
-                        <span
-                          style={{
-                            color: "oklch(0.55 0.008 258)",
-                            fontWeight: 400,
-                          }}
-                        >
-                          (Sick {balance?.Sick.remaining} · Casual{" "}
-                          {balance?.Casual.remaining})
-                        </span>
-                      </>
-                    )
-                  }
-                />
+                <Field icon={MapPin} label="Address" value={me?.address} />
               </div>
+
+              {/* OTP login is keyed off the phone number stored on the role
+                  record, so an account without one can only ever log in with
+                  its password. Super-Admins sign up by email and so routinely
+                  have no phone number set — this is where they add it. */}
+              {!hasPhone && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "10px",
+                    padding: "13px 15px",
+                    marginBottom: "32px",
+                    borderRadius: "12px",
+                    background: "oklch(0.97 0.02 250)",
+                    border: "1px solid oklch(0.88 0.04 250)",
+                  }}
+                >
+                  <Phone
+                    size={15}
+                    strokeWidth={2}
+                    style={{
+                      flexShrink: 0,
+                      marginTop: "2px",
+                      color: "oklch(0.5 0.12 250)",
+                    }}
+                  />
+                  <div style={{ minWidth: 0 }}>
+                    <div
+                      style={{
+                        fontSize: "13.5px",
+                        fontWeight: 600,
+                        color: "oklch(0.32 0.04 250)",
+                        marginBottom: "2px",
+                      }}
+                    >
+                      Set up OTP login
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "12.5px",
+                        lineHeight: 1.5,
+                        color: "oklch(0.45 0.02 250)",
+                      }}
+                    >
+                      Add a phone number to sign in with a one-time code instead
+                      of your password.{" "}
+                      <button
+                        onClick={() => setEditOpen(true)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          padding: 0,
+                          font: "inherit",
+                          fontWeight: 600,
+                          color: "oklch(0.5 0.14 250)",
+                          textDecoration: "underline",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Add phone number
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Employee welfare fields — deliberately hidden for Super-Admin.
+                  It is a project-wide account rather than a person on a branch
+                  payroll: it accrues no leave (useGetLeaveBalanceQuery returns
+                  nothing for it), and blood group / insurance / safety sticker
+                  are dealership-staff records. Every one of them rendered as
+                  "Not set" / "—", which read as missing data rather than as
+                  not applicable. */}
+              {!isSuperAdmin && (
+                <>
+                  <div
+                    style={{
+                      height: "1px",
+                      background: "oklch(0.93 0.004 258)",
+                      margin: "0 0 28px",
+                    }}
+                  />
+
+                  <SectionLabel>Benefits &amp; Safety</SectionLabel>
+                  <div style={{ ...fieldGridStyle, marginBottom: "28px" }}>
+                    <Field
+                      icon={Droplet}
+                      label="Blood Group"
+                      value={me?.bloodGroup}
+                    />
+                    <Field
+                      icon={Shield}
+                      label="Life Insurance"
+                      value={me?.lifeInsurance}
+                    />
+                    <Field
+                      icon={Grid3x3}
+                      label="Scanfleet Safety Sticker"
+                      value={me?.scanfleetStickerId}
+                    />
+                    <Field
+                      icon={CalendarDays}
+                      label="Total Leave Available"
+                      value={
+                        totalLeaveRemaining === undefined ? (
+                          "—"
+                        ) : (
+                          <>
+                            {totalLeaveRemaining} days{" "}
+                            <span
+                              style={{
+                                color: "oklch(0.55 0.008 258)",
+                                fontWeight: 400,
+                              }}
+                            >
+                              (Sick {balance?.Sick.remaining} · Casual{" "}
+                              {balance?.Casual.remaining})
+                            </span>
+                          </>
+                        )
+                      }
+                    />
+                  </div>
+                </>
+              )}
 
               <div
                 style={{
@@ -407,9 +497,22 @@ export default function ProfileView() {
           </div>
         </div>
 
+        {/* Change password dialog */}
+        <Dialog open={passwordOpen} onOpenChange={setPasswordOpen}>
+          <DialogContent className="sm:max-w-[440px]">
+            <DialogHeader>
+              <DialogTitle>Change Password</DialogTitle>
+            </DialogHeader>
+            <ChangePassword
+              onChanged={() => setPasswordOpen(false)}
+              onCancel={() => setPasswordOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+
         {/* Edit profile dialog */}
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
-          <DialogContent className='sm:max-w-[480px]'>
+          <DialogContent className="sm:max-w-[480px]">
             <DialogHeader>
               <DialogTitle>Edit Profile</DialogTitle>
             </DialogHeader>

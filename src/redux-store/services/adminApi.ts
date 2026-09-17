@@ -240,6 +240,17 @@ export interface UpdateMyProfileRequest {
   phoneNumber?: string;
 }
 
+/**
+ * Own-password change. `securityCode` is the shared code the backend checks
+ * in addition to the current password — knowing a logged-in session alone is
+ * not enough to change someone's password.
+ */
+export interface ChangeMyPasswordRequest {
+  currentPassword: string;
+  securityCode: string;
+  newPassword: string;
+}
+
 // ─── API Slice ───────────────────────────────────────────────────────────────
 
 export const adminAuthApi = apiSlice.injectEndpoints({
@@ -502,6 +513,17 @@ export const adminAuthApi = apiSlice.injectEndpoints({
       invalidatesTags: ["Me"],
     }),
 
+    // No tag invalidation: the password is never part of any cached payload,
+    // and the current JWT stays valid (it is stateless with no revocation
+    // list), so nothing in the store goes stale.
+    changeMyPassword: builder.mutation<BaseResponse, ChangeMyPasswordRequest>({
+      query: (body) => ({
+        url: "/users/me/password",
+        method: "PATCH",
+        body,
+      }),
+    }),
+
     // ═════════════════════════════════════════════════════════════════════
     // USER MANAGEMENT — BRANCH-ADMIN — /api/users/*
     // ═════════════════════════════════════════════════════════════════════
@@ -669,6 +691,7 @@ export const {
   // Current-user profile
   useGetMeQuery,
   useUpdateMeMutation,
+  useChangeMyPasswordMutation,
   // Branch-Admin management
   useCreateBranchAdminMutation,
   useGetAllBranchAdminsQuery,
