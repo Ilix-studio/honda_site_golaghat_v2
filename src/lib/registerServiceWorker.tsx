@@ -13,10 +13,10 @@ export function registerServiceWorker(): void {
     onNeedRefresh() {
       toast(
         (t) => (
-          <span className="flex items-center gap-3">
+          <span className='flex items-center gap-3 border-amber-800 bg-amber-100 px-4 py-2 text-sm text-amber-800'>
             <span>A new version is available.</span>
             <button
-              className="rounded-md bg-[#e40521] px-3 py-1 text-sm font-medium text-white"
+              className='rounded-md bg-[#e40521] px-3 py-1 text-sm font-medium text-white'
               onClick={() => {
                 toast.dismiss(t.id);
                 updateSW(true); // skipWaiting + reload

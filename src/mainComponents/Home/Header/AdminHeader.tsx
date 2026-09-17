@@ -19,6 +19,15 @@ const routeConfig: Record<
   }
 > = {
   "/admin/dashboard": { title: "Admin Dashboard", subtitle: "" },
+  // Without an entry here the page falls through to the generic "Admin Panel"
+  // default, which renders no back button — matches the /manager/profile and
+  // /staff/profile entries in the other role headers.
+  "/admin/profile": {
+    title: "Profile",
+    subtitle: "",
+    showBack: true,
+    backTo: "/admin/dashboard",
+  },
   "/admin/branches": {
     title: "Branch Management",
     subtitle: "View and manage dealership branches",

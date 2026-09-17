@@ -148,7 +148,7 @@ export default function StockInvestmentKpiCharts() {
           index={3}
           label='Total Sold'
           value={totalSold.toLocaleString("en-IN")}
-          note={`${soldInStock.toLocaleString("en-IN")} from stock + ${soldWithoutStock.toLocaleString("en-IN")} sold without a stock record`}
+          note={`${soldInStock.toLocaleString("en-IN")} from stock + ${soldWithoutStock.toLocaleString("en-IN")} sold from sales record`}
           bg='bg-emerald-50'
           text='text-emerald-700'
           sub='text-emerald-500'
@@ -179,7 +179,7 @@ export default function StockInvestmentKpiCharts() {
         />
         <MetricTile
           index={6}
-          label='Sales Report Rows'
+          label='Sales Report Vehicles'
           value={(
             salesReportKpis?.data.totals.totalRecords ?? 0
           ).toLocaleString("en-IN")}

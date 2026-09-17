@@ -47,6 +47,7 @@ import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSal
 import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetCSVStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 import { useGetB2BSalesKPIsQuery } from "@/redux-store/services/BikeSystemApi2/b2bSalesApi";
+import { useGetSalesReportKpisQuery } from "@/redux-store/services/salesReportApi";
 import WhatYouUpload from "@/mainComponents/WhatYouUpload";
 
 /**
@@ -205,15 +206,24 @@ export default function SuperOverviewKpiCharts() {
     skip,
   );
   const { data: b2b } = useGetB2BSalesKPIsQuery(undefined, skip);
+  const { data: salesReport } = useGetSalesReportKpisQuery({ year }, skip);
 
   const counterSaleRevenue = useMemo(
     () => (counterSale?.data ?? []).reduce((sum, b) => sum + b.totalInvoice, 0),
     [counterSale],
   );
 
+  /**
+   * A vehicle reaches the books down one of three paths, and no single endpoint
+   * sees all three: manual stock assignment, CSV stock assignment, and the
+   * Branch-Admin's Sales Report upload. The last one is the only record of a
+   * sale whose vehicle was never in either stock collection
+   * (`totals.salesWithoutStock`), so leaving it out under-reports the domain.
+   */
   const vehicleRevenue =
     (stockAssign?.data.totals.totalRevenue ?? 0) +
-    (csvStockAssign?.data.totals.totalRevenue ?? 0);
+    (csvStockAssign?.data.totals.totalRevenue ?? 0) +
+    (salesReport?.data.totals.totalPayment ?? 0);
 
   /**
    * `fill` rides on the datum rather than on <Bar>, so the tooltip swatch picks
