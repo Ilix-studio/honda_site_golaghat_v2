@@ -31,6 +31,7 @@ import { useGetAllBookingsQuery } from "@/redux-store/services/BikeSystemApi2/Se
 import { useGetQuotationsQuery } from "@/redux-store/services/NewFeatures/quotationApi";
 import RoleOnboarding from "@/mainComponents/shared/RoleOnboarding";
 import CustomerQueries from "@/mainComponents/BranchM/Tabs/CustomerQuery";
+import WhatYouUpload from "../WhatYouUpload";
 
 const STAFF_DASHBOARD_TAB_KEY = "staffDashboard";
 
@@ -146,7 +147,8 @@ const DashStaff = () => {
             </div>
 
             <div className='flex flex-col items-start md:items-end gap-3'>
-              <Button data-onboarding='dashboard-profile'
+              <Button
+                data-onboarding='dashboard-profile'
                 className='text-black text-xs gap-1.5 font-medium px-3 py-1.5 rounded-full border-2 bg-white border-black hover:bg-blue-700/10 hover:text-orange-700 transition-all duration-200'
                 onClick={() => navigate("/staff/profile")}
               >
@@ -176,7 +178,10 @@ const DashStaff = () => {
           }
           className='w-full'
         >
-          <TabsList data-onboarding='dashboard-navigation' className='inline-flex h-12 w-full md:w-auto bg-white border border-gray-200 shadow-sm rounded-xl p-1 gap-1'>
+          <TabsList
+            data-onboarding='dashboard-navigation'
+            className='inline-flex h-12 w-full md:w-auto bg-white border border-gray-200 shadow-sm rounded-xl p-1 gap-1'
+          >
             <TabsTrigger
               value='operations'
               className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-gray-900 data-[state=active]:text-white data-[state=active]:shadow-md'
@@ -206,6 +211,7 @@ const DashStaff = () => {
                 </div>
               </CardContent>
             </Card>
+            <WhatYouUpload />
           </TabsContent>
 
           <TabsContent value='customer-reports' className='mt-6'>
