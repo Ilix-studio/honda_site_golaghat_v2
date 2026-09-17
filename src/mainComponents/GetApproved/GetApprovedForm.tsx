@@ -66,6 +66,48 @@ interface FormData {
   privacyPolicyAccepted: boolean;
 }
 
+// ── Field constraints ───────────────────────────────────────────────────────
+// Indian mobile numbers are exactly 10 digits and never start below 6.
+const PHONE_DIGITS = 10;
+const PHONE_RE = /^[6-9]\d{9}$/;
+
+// Monthly income is capped at 7 figures (max 99,99,999). Anything longer is a
+// typo or a mashed keypad, not an income — the form previously accepted 16
+// digits and posted it straight through.
+const INCOME_MAX_DIGITS = 7;
+const INCOME_MAX = 10 ** INCOME_MAX_DIGITS - 1;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Keep only digits, and never let the field grow past `max` characters. */
+const digitsOnly = (value: string, max: number) =>
+  value.replace(/\D/g, "").slice(0, max);
+
+/**
+ * Normalise a pasted phone number before capping it at 10 digits.
+ *
+ * Pasting "+91 91010 35038" would otherwise strip to "919101035038" and then
+ * truncate to "9191010350" — a plausible-looking but WRONG number that passes
+ * validation. Drop a country/trunk prefix first, and only when the number is
+ * too long to be a bare mobile (a valid number can itself begin "91", as
+ * 9101035038 does, so length is what disambiguates).
+ */
+const normalizePhone = (value: string) => {
+  let digits = value.replace(/\D/g, "");
+  if (digits.length > PHONE_DIGITS && digits.startsWith("91")) {
+    digits = digits.slice(2);
+  }
+  while (digits.length > PHONE_DIGITS && digits.startsWith("0")) {
+    digits = digits.slice(1);
+  }
+  return digits.slice(0, PHONE_DIGITS);
+};
+
+const formatINR = (value: string) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n.toLocaleString("en-IN") : "";
+};
+
 const initialFormData: FormData = {
   firstName: "",
   lastName: "",
@@ -283,12 +325,35 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
           newErrors.firstName = "First name is required";
         if (!formData.lastName.trim())
           newErrors.lastName = "Last name is required";
-        if (!formData.email.trim()) newErrors.email = "Email is required";
-        if (!formData.phone.trim()) newErrors.phone = "Phone is required";
+        if (!formData.email.trim()) {
+          newErrors.email = "Email is required";
+        } else if (!EMAIL_RE.test(formData.email.trim())) {
+          newErrors.email = "Enter a valid email address";
+        }
+
+        if (!formData.phone.trim()) {
+          newErrors.phone = "Phone is required";
+        } else if (formData.phone.length !== PHONE_DIGITS) {
+          newErrors.phone = `Phone number must be exactly ${PHONE_DIGITS} digits`;
+        } else if (!PHONE_RE.test(formData.phone)) {
+          newErrors.phone = "Enter a valid mobile number starting with 6-9";
+        }
+
         if (!formData.employmentType)
           newErrors.employmentType = "Employment type is required";
-        if (!formData.monthlyIncome)
+
+        if (!formData.monthlyIncome) {
           newErrors.monthlyIncome = "Monthly income is required";
+        } else {
+          const income = Number(formData.monthlyIncome);
+          if (!Number.isFinite(income) || income <= 0) {
+            newErrors.monthlyIncome = "Enter a valid monthly income";
+          } else if (income > INCOME_MAX) {
+            newErrors.monthlyIncome = `Monthly income cannot exceed ${INCOME_MAX_DIGITS} digits (₹${INCOME_MAX.toLocaleString(
+              "en-IN",
+            )})`;
+          }
+        }
         if (!formData.creditScoreRange)
           newErrors.creditScoreRange = "Credit score range is required";
       }
@@ -520,12 +585,23 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
                 <Label htmlFor='phone'>Phone Number</Label>
                 <Input
                   id='phone'
+                  type='tel'
+                  inputMode='numeric'
+                  autoComplete='tel'
+                  maxLength={PHONE_DIGITS}
+                  placeholder='10-digit mobile number'
                   value={formData.phone}
-                  onChange={(e) => updateField("phone", e.target.value)}
+                  onChange={(e) =>
+                    updateField("phone", normalizePhone(e.target.value))
+                  }
                   className={errors.phone ? "border-red-500" : ""}
                 />
-                {errors.phone && (
+                {errors.phone ? (
                   <p className='text-red-500 text-sm'>{errors.phone}</p>
+                ) : (
+                  <p className='text-muted-foreground text-xs mt-1'>
+                    {formData.phone.length}/{PHONE_DIGITS} digits
+                  </p>
                 )}
               </div>
 
@@ -561,13 +637,29 @@ export const GetApprovedForm: React.FC<GetApprovedFormProps> = ({
                 <Label htmlFor='monthlyIncome'>Monthly Income</Label>
                 <Input
                   id='monthlyIncome'
-                  type='number'
+                  // Not type='number': it allows "e", "+" and unbounded length,
+                  // which is how a 16-digit income got submitted.
+                  type='text'
+                  inputMode='numeric'
+                  maxLength={INCOME_MAX_DIGITS}
+                  placeholder='e.g. 45000'
                   value={formData.monthlyIncome}
-                  onChange={(e) => updateField("monthlyIncome", e.target.value)}
+                  onChange={(e) =>
+                    updateField(
+                      "monthlyIncome",
+                      digitsOnly(e.target.value, INCOME_MAX_DIGITS),
+                    )
+                  }
                   className={errors.monthlyIncome ? "border-red-500" : ""}
                 />
-                {errors.monthlyIncome && (
+                {errors.monthlyIncome ? (
                   <p className='text-red-500 text-sm'>{errors.monthlyIncome}</p>
+                ) : (
+                  formData.monthlyIncome && (
+                    <p className='text-muted-foreground text-xs mt-1'>
+                      ₹{formatINR(formData.monthlyIncome)} per month
+                    </p>
+                  )
                 )}
               </div>
 
