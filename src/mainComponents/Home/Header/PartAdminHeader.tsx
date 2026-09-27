@@ -8,6 +8,8 @@ import { clearAuthState } from "@/redux-store/authHelpers";
 import { addNotification } from "@/redux-store/slices/uiSlice";
 import { useLogoutUserMutation } from "@/redux-store/services/adminApi";
 import NotificationBell from "@/mainComponents/shared/NotificationBell";
+import LanguageToggle from "@/mainComponents/shared/LanguageToggle";
+import { useLanguage } from "@/lib/language";
 
 const routeConfig: Record<
   string,
@@ -18,7 +20,7 @@ const routeConfig: Record<
     subtitle: "Parts Inventory Management",
   },
   "/part-admin/parts-stock/upload": {
-    title: "Parts Stock Import",
+    title: "Parts Stock Upload",
     subtitle: "Import XLSX / CSV",
     showBack: true,
     backTo: "/part-admin/dashboard",
@@ -38,6 +40,7 @@ const routeConfig: Record<
 };
 
 const PartAdminHeader = () => {
+  const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -112,17 +115,18 @@ const PartAdminHeader = () => {
 
             <div className='leading-none'>
               <p className='text-sm font-bold text-white'>
-                {currentRoute.title}
+                {t(currentRoute.title)}
               </p>
               {currentRoute.subtitle && (
                 <p className='text-[11px] text-gray-500 mt-0.5'>
-                  {currentRoute.subtitle}
+                  {t(currentRoute.subtitle)}
                 </p>
               )}
             </div>
           </div>
 
           <div className='flex items-center gap-2'>
+            <LanguageToggle />
             <NotificationBell />
             <button
               onClick={handleLogout}
@@ -131,7 +135,7 @@ const PartAdminHeader = () => {
             >
               <LogOut className='w-3.5 h-3.5' />
               <span className='hidden sm:inline'>
-                {isLoggingOut ? "Logging out..." : "Logout"}
+                {t(isLoggingOut ? "Logging out..." : "Logout")}
               </span>
             </button>
           </div>

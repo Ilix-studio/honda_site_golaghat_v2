@@ -200,7 +200,7 @@ export default function PartsStockUploadForm({
               </Button>
             )}
             <button
-              className='mx-auto mt-4 w-full bg-blue-900 text-white hover:bg-blue-700'
+              className='mx-auto mt-4 w-full bg-blue-900 text-white hover:bg-blue-700 rounded-2xl py-2 px-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
               onClick={() => navigate(dashboardPath)}
             >
               Back to Dashboard

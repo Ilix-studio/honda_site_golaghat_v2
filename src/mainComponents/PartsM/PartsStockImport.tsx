@@ -16,7 +16,7 @@ export default function PartsStockImport() {
           </div>
           <div>
             <h1 className='text-xl font-bold text-gray-900'>
-              Parts Stock Import
+              Parts Stock Upload
             </h1>
             <p className='text-sm text-gray-500'>
               Upload the parts inventory export (CSV/XLSX)

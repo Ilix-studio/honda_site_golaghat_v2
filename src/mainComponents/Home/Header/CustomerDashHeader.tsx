@@ -11,6 +11,8 @@ import NotificationBell from "@/mainComponents/shared/NotificationBell";
 
 import { useGetCustomerProfileQuery } from "@/redux-store/services/customer/customerApi";
 import { ApiResponse } from "@/mainComponents/CustomerSystem/CustomerProfileInto";
+import LanguageToggle from "@/mainComponents/shared/LanguageToggle";
+import { useLanguage } from "@/lib/language";
 
 // Route configuration object for CustomerDashHeader
 export const routeConfig: Record<
@@ -61,6 +63,7 @@ const MOBILE_NAV = [
 ];
 
 export function CustomerDashHeader() {
+  const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -139,11 +142,11 @@ export function CustomerDashHeader() {
                 <div className='hidden md:block w-px h-5 bg-gray-200' />
                 <div className='hidden md:block'>
                   <p className='text-sm font-semibold text-gray-900 leading-none'>
-                    {currentRoute.title}
+                    {t(currentRoute.title)}
                   </p>
                   {currentRoute.subtitle && (
                     <p className='text-[11px] text-gray-400 mt-0.5'>
-                      {currentRoute.subtitle}
+                      {t(currentRoute.subtitle)}
                     </p>
                   )}
                 </div>
@@ -165,7 +168,7 @@ export function CustomerDashHeader() {
                       : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
                   }`}
                 >
-                  {label}
+                  {t(label)}
                   {active && (
                     <span className='absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-red-500' />
                   )}
@@ -176,6 +179,7 @@ export function CustomerDashHeader() {
 
           {/* ── Right ── */}
           <div className='flex items-center gap-2'>
+            <LanguageToggle />
             {/* Book Service CTA */}
             <Link to='/customer/book-service' className='hidden sm:block'>
               <Button
@@ -183,7 +187,7 @@ export function CustomerDashHeader() {
                 className='rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold h-9 px-3.5 border-0'
               >
                 <Wrench className='w-3.5 h-3.5 mr-1.5' />
-                Book Service
+                {t("Book Service")}
               </Button>
             </Link>
 
@@ -206,7 +210,7 @@ export function CustomerDashHeader() {
                 className='flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors'
               >
                 <LogOut className='w-3.5 h-3.5' />
-                <span className='hidden sm:block'>Logout</span>
+                <span className='hidden sm:block'>{t("Logout")}</span>
               </button>
             </div>
           </div>
@@ -227,7 +231,7 @@ export function CustomerDashHeader() {
                 }`}
               >
                 <Icon className='w-5 h-5' />
-                <span className='text-[10px] font-semibold'>{label}</span>
+                <span className='text-[10px] font-semibold'>{t(label)}</span>
                 {active && <span className='w-1 h-1 rounded-full bg-red-500' />}
               </Link>
             );

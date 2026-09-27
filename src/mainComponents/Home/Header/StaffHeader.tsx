@@ -15,6 +15,8 @@ import { clearAuthState } from "@/redux-store/authHelpers";
 import { addNotification } from "@/redux-store/slices/uiSlice";
 import { useLogoutUserMutation } from "@/redux-store/services/adminApi";
 import NotificationBell from "@/mainComponents/shared/NotificationBell";
+import LanguageToggle from "@/mainComponents/shared/LanguageToggle";
+import { useLanguage } from "@/lib/language";
 
 const routeConfig: Record<
   string,
@@ -69,6 +71,7 @@ const routeConfig: Record<
 };
 
 const StaffHeader = () => {
+  const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -150,11 +153,11 @@ const StaffHeader = () => {
             {/* Page title */}
             <div className='leading-none'>
               <p className='text-sm font-bold text-black tracking-tight'>
-                {currentRoute.title}
+                {t(currentRoute.title)}
               </p>
               {currentRoute.subtitle && (
                 <p className='text-[11px] text-gray-500 mt-0.5'>
-                  {currentRoute.subtitle}
+                  {t(currentRoute.subtitle)}
                 </p>
               )}
             </div>
@@ -162,6 +165,7 @@ const StaffHeader = () => {
 
           {/* ── Right ── */}
           <div className='flex items-center gap-2'>
+            <LanguageToggle />
             <NotificationBell />
             {/* Quick Actions */}
             {currentRoute.menuItems && (
@@ -173,7 +177,7 @@ const StaffHeader = () => {
                     className='h-8 px-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border-0 text-xs font-medium gap-1.5'
                   >
                     <Menu className='w-3.5 h-3.5' />
-                    Quick Actions
+                    {t("Quick Actions")}
                     <ChevronDown className='w-3 h-3 opacity-60' />
                   </Button>
                 </DropdownMenuTrigger>
@@ -194,7 +198,7 @@ const StaffHeader = () => {
                         className='flex items-center gap-2 px-3 py-2 text-sm font-medium'
                       >
                         <div className='w-1.5 h-1.5 rounded-full bg-red-500 shrink-0' />
-                        {item.label}
+                        {t(item.label)}
                       </Link>
                     </DropdownMenuItem>
                   ))}
@@ -210,7 +214,7 @@ const StaffHeader = () => {
             >
               <LogOut className='w-3.5 h-3.5' />
               <span className='hidden sm:inline'>
-                {isLoggingOut ? "Logging out..." : "Logout"}
+                {t(isLoggingOut ? "Logging out..." : "Logout")}
               </span>
             </button>
           </div>

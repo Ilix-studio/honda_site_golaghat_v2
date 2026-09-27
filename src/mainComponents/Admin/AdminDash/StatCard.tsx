@@ -90,7 +90,7 @@ export const StatCard = ({
         <Button
           variant='ghost'
           size='sm'
-          className='w-auto justify-between px-3 h-9 rounded-2xl bg-gray-200 hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-all group/btn cursor-pointer'
+          className='w-auto justify-between px-3 h-9 rounded-2xl bg-blue-900 hover:bg-blue-100 text-white hover:text-gray-900 transition-all group/btn cursor-pointer'
         >
           <span className='flex items-center gap-1.5 text-xs font-medium'>
             <Plus className='w-3 h-3' />
@@ -122,7 +122,9 @@ export const MetricTile = ({
     </p>
     <p className={`text-3xl font-black tabular-nums ${text}`}>{value}</p>
     {note && (
-      <p className={`mt-1 text-[11px] font-medium leading-snug ${sub}`}>{note}</p>
+      <p className={`mt-1 text-[11px] font-medium leading-snug ${sub}`}>
+        {note}
+      </p>
     )}
   </motion.div>
 );
