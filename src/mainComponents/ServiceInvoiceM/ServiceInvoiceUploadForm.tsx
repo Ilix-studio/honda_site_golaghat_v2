@@ -212,11 +212,14 @@ export default function ServiceInvoiceUploadForm({
           )}
 
           <div className='flex gap-2'>
-            <Button onClick={reset} variant='outline'>
-              Upload another
-            </Button>
             <button
-              className='mx-auto mt-4 w-full bg-blue-900 text-white hover:bg-blue-700'
+              onClick={reset}
+              className='mx-auto mt-4 w-full bg-white text-black hover:bg-green-200 border rounded-md py-2 px-4 text-sm font-medium transition-colors sm:mx-0 sm:w-auto  border-green-600'
+            >
+              Upload another
+            </button>
+            <button
+              className='mx-auto mt-4 w-full bg-blue-900 text-white hover:bg-blue-700 border rounded-md py-2 px-4 text-sm font-medium transition-colors sm:mx-0 sm:w-auto '
               onClick={() => navigate(dashboardPath)}
             >
               Back to Dashboard

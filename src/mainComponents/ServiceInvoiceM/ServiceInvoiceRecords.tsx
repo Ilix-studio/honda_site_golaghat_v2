@@ -8,7 +8,9 @@ import {
   UploadCloud,
   ChevronLeft,
   ChevronRight,
+  Calendar as CalendarIcon,
 } from "lucide-react";
+import { format } from "date-fns";
 import {
   Card,
   CardContent,
@@ -18,6 +20,8 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   useGetServiceInvoicesQuery,
   useGetServiceInvoiceByIdQuery,
@@ -52,6 +56,8 @@ export default function ServiceInvoiceRecords({
   const [q, setQ] = useState("");
   const [onlyReview, setOnlyReview] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const dateKey = selectedDate ? format(selectedDate, "yyyy-MM-dd") : undefined;
 
   const { data, isLoading, isFetching } = useGetServiceInvoicesQuery({
     page,
@@ -59,6 +65,7 @@ export default function ServiceInvoiceRecords({
     q: q || undefined,
     needsReview: onlyReview || undefined,
     branchId,
+    date: dateKey,
   });
 
   const [deleteInvoice, { isLoading: isDeleting }] =
@@ -114,6 +121,22 @@ export default function ServiceInvoiceRecords({
             }}
             className='max-w-sm'
           />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant='outline' size='sm'>
+                <CalendarIcon className='mr-2 h-4 w-4' />
+                {selectedDate ? format(selectedDate, "dd MMM yyyy") : "Pick date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='w-auto p-0' align='start'>
+              <Calendar mode='single' selected={selectedDate} onSelect={(date) => { setSelectedDate(date); setPage(1); }} />
+            </PopoverContent>
+          </Popover>
+          {selectedDate && (
+            <Button variant='ghost' size='sm' onClick={() => { setSelectedDate(undefined); setPage(1); }}>
+              Clear date
+            </Button>
+          )}
           <Button
             variant={onlyReview ? "default" : "outline"}
             size='sm'
@@ -204,7 +227,17 @@ export default function ServiceInvoiceRecords({
                     {openId === r._id && (
                       <tr key={`${r._id}-detail`} className='border-t bg-muted/20'>
                         <td colSpan={7} className='px-3 py-3'>
-                          <InvoiceLines id={r._id} branchId={branchId} />
+                          <div className='space-y-4'>
+                            <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6'>
+                              <Amount label='Total Labour/Service Amount' value={r.totalLabourAmount} />
+                              <Amount label='Total Parts Amount' value={r.totalPartsAmount} />
+                              <Amount label='Miscellaneous Amount (Consumables)' value={r.miscellaneousAmount} />
+                              <Amount label='Total Discount Amount' value={r.totalDiscountAmount} />
+                              <Amount label='Total Tax Amount' value={r.totalTaxAmount} />
+                              <Amount label='Total Invoice Amount' value={r.totalInvoiceAmount} />
+                            </div>
+                            <InvoiceLines id={r._id} branchId={branchId} />
+                          </div>
                         </td>
                       </tr>
                     )}
@@ -245,6 +278,15 @@ export default function ServiceInvoiceRecords({
   );
 }
 
+function Amount({ label, value }: { label: string; value?: number }) {
+  return (
+    <div className='rounded-md border bg-background px-3 py-2'>
+      <div className='text-[11px] leading-snug text-muted-foreground'>{label}</div>
+      <div className='mt-1 font-medium'>{inr(value)}</div>
+    </div>
+  );
+}
+
 /** Line items for one invoice, showing how each part was classified. */
 const TONE: Record<string, string> = {
   SOLD: "bg-emerald-100 text-emerald-800",
@@ -277,9 +319,48 @@ function InvoiceLines({ id, branchId }: { id: string; branchId?: string }) {
   if (lineItems.length === 0) {
     return <p className='text-sm text-muted-foreground'>No line items.</p>;
   }
+  const lubeItems = lineItems.filter((line) => line.isLube);
+  const lubeTotal = lubeItems.reduce((sum, line) => sum + line.taxableAmount, 0);
 
   return (
-    <table className='w-full text-xs'>
+    <div className='space-y-4'>
+      {lubeItems.length > 0 && (
+        <section className='overflow-x-auto rounded-md border bg-background p-3'>
+          <div className='mb-2 flex flex-wrap items-center justify-between gap-2'>
+            <div>
+              <h3 className='text-sm font-semibold'>Lubes</h3>
+              <p className='text-xs text-muted-foreground'>Extracted from invoice lines with HSN chapter 2710</p>
+            </div>
+            <div className='text-sm font-medium'>Subtotal: {inr(lubeTotal)}</div>
+          </div>
+          <table className='w-full min-w-[620px] text-xs'>
+            <thead className='text-left text-muted-foreground'>
+              <tr>
+                <th className='py-1'>#</th>
+                <th className='py-1'>Part number</th>
+                <th className='py-1'>Description</th>
+                <th className='py-1'>HSN</th>
+                <th className='py-1 text-right'>Qty</th>
+                <th className='py-1 text-right'>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {lubeItems.map((line) => (
+                <tr key={`lube-${line._id || line.srNo}`} className='border-t'>
+                  <td className='py-1 text-muted-foreground'>{line.srNo}</td>
+                  <td className='py-1 font-mono'>{line.partNo}</td>
+                  <td className='py-1'>{line.description}</td>
+                  <td className='py-1 font-mono'>{line.hsn || "—"}</td>
+                  <td className='py-1 text-right'>{line.qty}</td>
+                  <td className='py-1 text-right'>{inr(line.taxableAmount)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
+
+      <table className='w-full text-xs'>
       <thead className='text-left text-muted-foreground'>
         <tr>
           <th className='py-1'>#</th>
@@ -331,6 +412,7 @@ function InvoiceLines({ id, branchId }: { id: string; branchId?: string }) {
           </tr>
         ))}
       </tbody>
-    </table>
+      </table>
+    </div>
   );
 }

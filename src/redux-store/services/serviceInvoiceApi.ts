@@ -169,7 +169,10 @@ export interface ServiceInvoiceRow {
   customerMobile?: string;
   totalPartsAmount: number;
   totalLabourAmount: number;
+  totalDiscountAmount: number;
+  totalTaxAmount: number;
   totalInvoiceAmount: number;
+  miscellaneousAmount: number;
   derivedRevenue: InvoiceRevenue;
   needsReview: boolean;
   reconciled: boolean;
@@ -255,6 +258,7 @@ export interface ServiceInvoiceFilters {
   needsReview?: boolean;
   q?: string;
   branchId?: string;
+  date?: string;
 }
 
 /** Shape of the error body these endpoints return on a 4xx/5xx. */
@@ -330,6 +334,7 @@ export const serviceInvoiceApi = apiSlice.injectEndpoints({
           needsReview: filters?.needsReview,
           q: filters?.q,
           branchId: filters?.branchId,
+          date: filters?.date,
         }),
       providesTags: ["ServiceInvoice"],
     }),
