@@ -193,6 +193,15 @@ const BACKEND_ITEMS: LineItem[] = [
   },
 ];
 
+const PAYMENT_QR_URL =
+  "https://res.cloudinary.com/dk9pul4wv/image/upload/v1790827848/WhatsApp_Image_2026-10-01_at_9.37.37_AM_rsr0er.jpg";
+
+const BANK_DETAILS: { label: string; value: string }[] = [
+  { label: "Account Name", value: "Mr. ILISH JYOTISHKA HAZARIKA (STUDENT)" },
+  { label: "Account Number", value: "34182000395" },
+  { label: "CIF Number", value: "87665401193" },
+];
+
 const formatINR = (value: number) => `₹${value.toLocaleString("en-IN")}`;
 
 const sum = (items: LineItem[]) =>
@@ -541,6 +550,72 @@ const ProcessSection: React.FC = () => (
   </div>
 );
 
+const PaymentDetailsSection: React.FC = () => (
+  <div className='px-4 sm:px-6 lg:px-12 pb-8 sm:pb-10'>
+    <div className='flex items-center justify-center gap-3 pb-5'>
+      <span className='h-px flex-1 bg-gray-200' />
+      <h4
+        className='text-gray-400 font-bold uppercase tracking-widest text-center'
+        style={{ fontSize: 10 }}
+      >
+        Payment Details
+      </h4>
+      <span className='h-px flex-1 bg-gray-200' />
+    </div>
+
+    <div className='flex flex-col sm:flex-row justify-center items-stretch gap-4 sm:gap-6'>
+      {/* Scan to Pay */}
+      <div className='bg-gray-100 border border-gray-200 rounded-lg p-4 sm:p-5 flex flex-col items-center w-full sm:w-64'>
+        <h5
+          className='text-gray-400 font-bold uppercase tracking-widest mb-3'
+          style={{ fontSize: 10 }}
+        >
+          Scan to Pay
+        </h5>
+        <div className='bg-white p-2 border border-gray-200 rounded'>
+          <img
+            src={PAYMENT_QR_URL}
+            alt='UPI payment QR code for Ilish Jyotishka Hazarika'
+            className='w-40 h-40 object-contain'
+            loading='lazy'
+          />
+        </div>
+        <p className='text-xs text-gray-500 mt-3 text-center leading-relaxed'>
+          Scan with any UPI app
+        </p>
+      </div>
+
+      {/* Bank Details */}
+      <div className='bg-gray-100 border-l-4 border-red-600 rounded-r-lg p-4 sm:p-5 w-full sm:w-80 flex flex-col justify-center'>
+        <h5
+          className='text-gray-400 font-bold uppercase tracking-widest mb-3'
+          style={{ fontSize: 10 }}
+        >
+          Bank Details
+        </h5>
+        <dl className='space-y-2.5'>
+          {BANK_DETAILS.map((row) => (
+            <div key={row.label}>
+              <dt
+                className='text-gray-400 uppercase tracking-widest'
+                style={{ fontSize: 9 }}
+              >
+                {row.label}
+              </dt>
+              <dd
+                className='text-sm font-semibold text-gray-900 break-words'
+                style={{ fontFamily: "monospace" }}
+              >
+                {row.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  </div>
+);
+
 const BillMemo: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
@@ -738,6 +813,8 @@ const BillMemo: React.FC = () => {
         </div>
         {/* ── Build Process ── */}
         <ProcessSection />
+        {/* ── Payment Details ── */}
+        <PaymentDetailsSection />
         {/* ── Footer ── */}
         <div className='bg-gray-900 text-gray-500 px-4 sm:px-6 lg:px-12 py-4 sm:py-5 flex flex-col sm:flex-row justify-between items-center text-xs gap-2 sm:gap-0'>
           <div className='text-center sm:text-left text-white'>

@@ -16,6 +16,7 @@ import {
   Home,
   Package,
   Bot,
+  LayoutDashboard,
   Sparkles,
   UserCog,
 } from "lucide-react";
@@ -38,6 +39,7 @@ import BranchQueries from "./BranchQueries";
 import { Button } from "@/components/ui/button";
 import { DashboardsPanel } from "./SuperDashBoards";
 import AiAssistantPanel from "./AiAssistantPanel";
+import KpiDashboardPanel from "@/mainComponents/RAG/KpiDashboardPanel";
 
 const ADMIN_DASHBOARD_TAB_KEY = "adminDashboard";
 
@@ -198,6 +200,14 @@ const AdminDashboard = () => {
                 <Sparkles className='h-4 w-4' />
                 <span>AI</span>
               </TabsTrigger>
+
+              <TabsTrigger
+                value='kpi-builder'
+                className='flex items-center gap-2 px-5 rounded-lg text-sm font-medium text-gray-500 transition-all duration-200 hover:text-emerald-700 hover:bg-emerald-50 data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-md'
+              >
+                <LayoutDashboard className='h-4 w-4' />
+                <span>KPI Builder</span>
+              </TabsTrigger>
             </TabsList>
           </motion.div>
 
@@ -275,6 +285,33 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent className='p-2'>
                 <AiAssistantPanel />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value='kpi-builder' className='mt-2'>
+            <Card
+              size='sm'
+              className='border border-gray-200 shadow-sm rounded-2xl overflow-hidden'
+            >
+              <CardHeader className='bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 px-4 py-3'>
+                <div className='flex items-center gap-3'>
+                  <div className='flex items-center justify-center h-10 w-10 rounded-xl bg-emerald-600 text-white shadow-sm'>
+                    <LayoutDashboard className='h-5 w-5' />
+                  </div>
+                  <div>
+                    <CardTitle className='text-lg font-semibold text-gray-900'>
+                      KPI Builder
+                    </CardTitle>
+                    <CardDescription className='text-gray-500 mt-0.5'>
+                      Describe the KPIs you want — figures are computed live
+                      from the database
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className='p-2'>
+                <KpiDashboardPanel />
               </CardContent>
             </Card>
           </TabsContent>

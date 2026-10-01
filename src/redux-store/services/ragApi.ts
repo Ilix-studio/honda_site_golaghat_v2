@@ -5,6 +5,9 @@ import type {
   RagSourcesResponse,
   RagReindexResponse,
   RagReindexArgs,
+  KpiResponse,
+  KpiArgs,
+  KpiMetricsResponse,
 } from "./ragApi.types";
 
 export const ragApi = apiSlice.injectEndpoints({
@@ -19,6 +22,19 @@ export const ragApi = apiSlice.injectEndpoints({
 
     getRagSources: builder.query<RagSourcesResponse, void>({
       query: () => "/rag/sources",
+      providesTags: ["RagChat"],
+    }),
+
+    generateKpi: builder.mutation<KpiResponse, KpiArgs>({
+      query: (body) => ({
+        url: "/rag/kpi",
+        method: "POST",
+        body,
+      }),
+    }),
+
+    getKpiMetrics: builder.query<KpiMetricsResponse, void>({
+      query: () => "/rag/kpi/metrics",
       providesTags: ["RagChat"],
     }),
 
@@ -37,4 +53,6 @@ export const {
   useQueryRagMutation,
   useGetRagSourcesQuery,
   useReindexRagMutation,
+  useGenerateKpiMutation,
+  useGetKpiMetricsQuery,
 } = ragApi;

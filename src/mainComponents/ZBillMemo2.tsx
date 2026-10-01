@@ -165,6 +165,15 @@ const BACKEND_ITEMS: LineItem[] = [
   },
 ];
 
+const PAYMENT_QR_URL =
+  "https://res.cloudinary.com/dk9pul4wv/image/upload/v1790827848/WhatsApp_Image_2026-10-01_at_9.37.37_AM_rsr0er.jpg";
+
+const BANK_DETAILS: { label: string; value: string }[] = [
+  { label: "Account Name", value: "Mr. ILISH JYOTISHKA HAZARIKA (STUDENT)" },
+  { label: "Account Number", value: "34182000395" },
+  { label: "CIF Number", value: "87665401193" },
+];
+
 const formatINR = (value: number) => `₹${value.toLocaleString("en-IN")}`;
 
 const sum = (items: LineItem[]) =>
@@ -366,40 +375,6 @@ const NOTE_BOXES: NoteBox[] = [
       </p>
     ),
   },
-  {
-    title: "What's Included",
-    content: (
-      <ul className='text-sm text-gray-600 list-disc pl-4 leading-loose'>
-        <li>Full TypeScript codebase updates (FE + BE)</li>
-        <li>Claude-backed AI assistant for the Parts module</li>
-        <li>Branch-Admin sales report CSV/XLSX import + KPIs</li>
-        <li>Counter Sale and Service-Jobcard import pipelines</li>
-        <li>Generic data-import framework</li>
-        <li>30-day post-delivery bug support</li>
-      </ul>
-    ),
-  },
-  {
-    title: "Not Included",
-    content: (
-      <ul className='text-sm text-gray-600 list-disc pl-4 leading-loose'>
-        <li>Domain / hosting subscription fees</li>
-        <li>Firebase / Cloudinary / Anthropic API plan costs</li>
-        <li>Future feature additions post-delivery</li>
-        <li>Content creation / data entry</li>
-      </ul>
-    ),
-  },
-  {
-    title: "Additional Services you may apply",
-    content: (
-      <ul className='text-sm text-gray-600 list-disc pl-4 leading-loose'>
-        <li>Ecommerce system for Bike Parts</li>
-        <li>Payment Integration and Delivery Integration</li>
-        <li>Cibil Score checker for loan applications</li>
-      </ul>
-    ),
-  },
 ];
 
 const BillMemo2: React.FC = () => {
@@ -434,7 +409,7 @@ const BillMemo2: React.FC = () => {
               Billed By
             </p>
             <h3 className='text-base font-black mb-1.5 text-gray-900'>
-              Himanku Borah and Ilish Hazarika
+              Ilish Hazarika
             </h3>
             <p className='text-sm text-gray-600 leading-7'>
               Full-Stack Developers
@@ -602,6 +577,71 @@ const BillMemo2: React.FC = () => {
               {box.content}
             </div>
           ))}
+        </div>
+
+        {/* ── Payment Details ── */}
+        <div className='px-4 sm:px-6 lg:px-12 pb-8 sm:pb-10'>
+          <div className='flex items-center justify-center gap-3 pb-5'>
+            <span className='h-px flex-1 bg-gray-200' />
+            <h4
+              className='text-gray-400 font-bold uppercase tracking-widest text-center'
+              style={{ fontSize: 10 }}
+            >
+              Payment Details
+            </h4>
+            <span className='h-px flex-1 bg-gray-200' />
+          </div>
+
+          <div className='flex flex-col sm:flex-row justify-center items-stretch gap-4 sm:gap-6'>
+            {/* Scan to Pay */}
+            <div className='bg-gray-100 border border-gray-200 rounded-lg p-4 sm:p-5 flex flex-col items-center w-full sm:w-64'>
+              <h5
+                className='text-gray-400 font-bold uppercase tracking-widest mb-3'
+                style={{ fontSize: 10 }}
+              >
+                Scan to Pay
+              </h5>
+              <div className='bg-white p-2 border border-gray-200 rounded'>
+                <img
+                  src={PAYMENT_QR_URL}
+                  alt='UPI payment QR code for Ilish Jyotishka Hazarika'
+                  className='w-40 h-40 object-contain'
+                  loading='lazy'
+                />
+              </div>
+              <p className='text-xs text-gray-500 mt-3 text-center leading-relaxed'>
+                Scan with any UPI app
+              </p>
+            </div>
+
+            {/* Bank Details */}
+            <div className='bg-gray-100 border-l-4 border-red-600 rounded-r-lg p-4 sm:p-5 w-full sm:w-80 flex flex-col justify-center'>
+              <h5
+                className='text-gray-400 font-bold uppercase tracking-widest mb-3'
+                style={{ fontSize: 10 }}
+              >
+                Bank Details
+              </h5>
+              <dl className='space-y-2.5'>
+                {BANK_DETAILS.map((row) => (
+                  <div key={row.label}>
+                    <dt
+                      className='text-gray-400 uppercase tracking-widest'
+                      style={{ fontSize: 9 }}
+                    >
+                      {row.label}
+                    </dt>
+                    <dd
+                      className='text-sm font-semibold text-gray-900 break-words'
+                      style={{ fontFamily: "monospace" }}
+                    >
+                      {row.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
         </div>
 
         {/* ── Footer ── */}

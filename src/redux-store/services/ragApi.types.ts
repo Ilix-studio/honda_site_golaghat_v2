@@ -47,3 +47,51 @@ export interface RagReindexArgs {
   branchId?: string;
   since?: string;
 }
+
+// ─── Prompt-driven KPI dashboards (Super-Admin) ──────────────────────────────
+
+export type KpiUnit = "count" | "currency";
+export type KpiDimension = "month" | "branch" | "status";
+
+export interface KpiTile {
+  metricId: string;
+  label: string;
+  unit: KpiUnit;
+  value: number;
+  previousValue?: number;
+  /** null when the previous period was zero (no meaningful percentage). */
+  changePct?: number | null;
+}
+
+export interface KpiDashboard {
+  title: string;
+  period: { from: string; to: string; label: string };
+  tiles: KpiTile[];
+  /** Same shape as RAG chat charts, so both render through DashboardChartPreview. */
+  charts: DashboardSpec[];
+  model: string;
+  warnings: string[];
+}
+
+export interface KpiResponse {
+  success: boolean;
+  data: KpiDashboard;
+}
+
+export interface KpiArgs {
+  prompt: string;
+  branchId?: string;
+}
+
+export interface KpiMetric {
+  id: string;
+  label: string;
+  description: string;
+  unit: KpiUnit;
+  dimensions: KpiDimension[];
+}
+
+export interface KpiMetricsResponse {
+  success: boolean;
+  data: KpiMetric[];
+}

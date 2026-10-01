@@ -19,6 +19,18 @@ import UploadingAnimation, {
   type UploadAnimationStatus,
 } from "@/mainComponents/shared/UploadingAnimation";
 
+/**
+ * Mirror of salesReportConfig's fileSize limit in
+ * server3/src/config/multerConfig.ts. Checked client-side purely so an
+ * oversized file is rejected instantly instead of after a long upload the
+ * server was always going to refuse — the server limit is the real one.
+ */
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+const MAX_UPLOAD_LABEL = "25MB";
+
+const formatFileSize = (bytes: number) =>
+  `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+
 interface SalesReportUploadFormProps {
   onDone?: () => void;
 }
@@ -51,6 +63,29 @@ export default function SalesReportUploadForm({
     setErrorMsg(null);
     setStatus("idle");
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  /**
+   * Oversized files are rejected here rather than at submit so the user finds
+   * out immediately instead of waiting out an upload the server will refuse.
+   * Clearing the input's `value` matters for the same reason resetForm does
+   * it — otherwise re-picking the *same* file after shrinking it fires no
+   * change event.
+   */
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const picked = e.target.files?.[0] ?? null;
+    if (picked && picked.size > MAX_UPLOAD_BYTES) {
+      setErrorMsg(
+        `"${picked.name}" is ${formatFileSize(picked.size)} — the maximum is ` +
+          `${MAX_UPLOAD_LABEL}. Re-saving an old .xls/.xlt export as .xlsx in ` +
+          `Excel usually shrinks it well below the limit.`,
+      );
+      setFile(null);
+      e.target.value = "";
+      return;
+    }
+    setErrorMsg(null);
+    setFile(picked);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,7 +133,7 @@ export default function SalesReportUploadForm({
               Sold Vehicles Import
             </h2>
             <p className='text-sm text-gray-500'>
-              Upload a CSV/XLSX of already-sold vehicles (CSV upload)
+              Upload a CSV/XLSX/XLT of already-sold vehicles
             </p>
           </div>
         </div>
@@ -162,17 +197,25 @@ export default function SalesReportUploadForm({
           >
             <UploadCloud className='h-8 w-8 text-gray-400' />
             <span className='text-sm font-medium text-gray-700'>
-              {file ? file.name : "Click to choose a CSV or XLSX file"}
+              {file ? file.name : "Click to choose a CSV, XLSX or XLT file"}
             </span>
-            <span className='text-xs text-gray-400'>Max 10MB</span>
+            <span className='text-xs text-gray-400'>
+              Max {MAX_UPLOAD_LABEL}
+            </span>
           </label>
+          {/*
+            .xlt/.xltx/.xltm are accepted for older dealer exports that come out
+            as Excel *templates* — they're ordinary workbooks the backend parses
+            exactly like an .xls, and leaving them out of `accept` greys them out
+            in the OS file picker.
+          */}
           <input
             id='sales-report-file'
             ref={fileInputRef}
             type='file'
-            accept='.csv,.xlsx,.xls'
+            accept='.csv,.xlsx,.xls,.xlt,.xltx,.xltm'
             className='hidden'
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            onChange={handleFileChange}
           />
 
           <UploadingAnimation

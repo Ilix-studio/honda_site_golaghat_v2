@@ -10,7 +10,10 @@ import {
 } from "./config/MainRouteConfigs/immediate.routes";
 
 // Public
-import { publicRoutes, bareRoutes } from "./config/MainRouteConfigs/public.routes";
+import {
+  publicRoutes,
+  bareRoutes,
+} from "./config/MainRouteConfigs/public.routes";
 
 // Admin
 import {
