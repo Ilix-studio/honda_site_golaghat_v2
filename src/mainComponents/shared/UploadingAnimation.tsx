@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import Confetti from "react-confetti";
+import { celebrate } from "@/lib/celebrate";
 import {
   Dialog,
   DialogContent,
@@ -24,21 +24,6 @@ const PHASE_COPY: Record<Exclude<Phase, "hidden">, string> = {
   done: "Done!",
 };
 
-/** Resize-tracked viewport size, just enough for react-confetti's required width/height props. */
-function useWindowSize() {
-  const [size, setSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
-  useEffect(() => {
-    const onResize = () =>
-      setSize({ width: window.innerWidth, height: window.innerHeight });
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-  return size;
-}
-
 export interface UploadingAnimationProps {
   status: UploadAnimationStatus;
   /** Fires once the Done stage's 2s window elapses — reset your own status to "idle" here. */
@@ -59,7 +44,6 @@ export default function UploadingAnimation({
   const resolvedRef = useRef(false);
   const uploadingTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const doneTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const { width, height } = useWindowSize();
 
   useEffect(() => {
     if (status === "uploading") {
@@ -89,6 +73,9 @@ export default function UploadingAnimation({
 
   useEffect(() => {
     if (phase !== "done") return;
+    // Full-viewport confetti lives in the app-level ConfettiHost so it
+    // outlasts this overlay's 2s Done window.
+    celebrate();
     doneTimerRef.current = setTimeout(() => {
       setPhase("hidden");
       onComplete();
@@ -125,15 +112,6 @@ export default function UploadingAnimation({
         <DialogDescription className="sr-only">
           Upload in progress
         </DialogDescription>
-        {phase === "done" && (
-          <Confetti
-            width={width}
-            height={height}
-            numberOfPieces={250}
-            recycle={false}
-            className="!fixed !inset-0 !z-[60]"
-          />
-        )}
         <video
           key={videoSrc}
           src={videoSrc}

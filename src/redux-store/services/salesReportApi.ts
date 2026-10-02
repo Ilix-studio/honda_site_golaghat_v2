@@ -44,6 +44,7 @@ export interface SalesReportRow {
   customerFirstName: string;
   customerLastName: string;
   customerMobile: string;
+  location?: string;
   frameNo: string;
   engineNo: string;
   status: string;

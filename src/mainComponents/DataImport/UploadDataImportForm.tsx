@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { celebrate } from "@/lib/celebrate";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
@@ -158,6 +159,7 @@ export default function UploadDataImportForm({
       );
       setResult(res.data);
       setStage("result");
+      celebrate();
       // uploadWithProgress bypasses RTK Query, so replicate commitImport's
       // invalidatesTags manually to keep batch lists / sales charts fresh.
       dispatch(

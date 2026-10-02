@@ -3,7 +3,7 @@
  *
  * Header strings must stay in sync with SALES_REPORT_FIELDS in
  * server3/src/utils/salesReportColumnMatcher.ts. Unlike the other import
- * templates, *every* column here is required — that matcher rejects the upload
+ * templates, the columns marked required here are required — that matcher rejects the upload
  * up front, naming the exact missing labels, if any one is absent.
  *
  * Matching normalizes case, collapses whitespace and treats
@@ -22,11 +22,6 @@ export const SALES_REPORT_TEMPLATE_COLUMNS: TemplateColumn[] = [
     header: "Model Name",
     required: true,
     example: "ACTIVA 125",
-  },
-  {
-    header: "Model Variant",
-    required: true,
-    example: "ACTIVA 125 DISC OBD2B",
   },
   {
     header: "Customer First Name",
@@ -57,15 +52,10 @@ export const SALES_REPORT_TEMPLATE_COLUMNS: TemplateColumn[] = [
     hint: "Fallback stock match when Frame No does not hit.",
   },
   {
-    header: "Purchase Type",
-    required: true,
-    example: "Finance",
-  },
-  {
     header: "Total Payment",
-    required: true,
+    required: false,
     example: "122206.18",
-    hint: "Numbers only — ₹ and thousands separators are stripped.",
+    hint: "Optional. Numbers only. If blank, the ex-showroom price of the CSV stock matched by Frame/Engine No is used.",
   },
 ];
 

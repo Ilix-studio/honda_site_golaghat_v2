@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { celebrate } from "@/lib/celebrate";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -118,6 +119,7 @@ const UploadZone = ({ bikeId, onSuccess }: UploadZoneProps) => {
     try {
       const formData = createImageUploadFormData(files, altTexts);
       await uploadImages({ bikeId, formData }).unwrap();
+      celebrate();
       toast.success(
         `${files.length} image${files.length > 1 ? "s" : ""} uploaded`,
       );

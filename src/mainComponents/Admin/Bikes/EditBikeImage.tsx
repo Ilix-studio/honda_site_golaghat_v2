@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { celebrate } from "@/lib/celebrate";
 import { useParams, Link } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -150,6 +151,7 @@ const EditBikeImage = () => {
         bikeId,
         formData,
       }).unwrap();
+      celebrate();
 
       dispatch(
         addNotification({

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { celebrate } from "@/lib/celebrate";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -226,6 +227,7 @@ const AddBikeImage = () => {
         bikeId,
         formData,
       }).unwrap();
+      celebrate();
 
       setUploadStatuses((prev) =>
         prev.map((status) =>
@@ -282,6 +284,7 @@ const AddBikeImage = () => {
         bikeId,
         formData,
       }).unwrap();
+      celebrate();
 
       // Update all statuses to completed
       setUploadStatuses((prev) =>

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { celebrate } from "@/lib/celebrate";
 import { useNavigate } from "react-router-dom";
 import {
   UploadCloud,
@@ -76,6 +77,7 @@ export default function PartsStockUploadForm({
       formData.append("file", file);
       const res = await importPartsReport(formData).unwrap();
       setResult(res.data);
+      if (!res.data.duplicate) celebrate();
     } catch (err: any) {
       setApiError(err?.data?.message || "Upload failed. Please try again.");
     }

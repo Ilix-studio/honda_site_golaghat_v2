@@ -31,13 +31,17 @@ const SalesReportRecordsTable = ({ batchId }: SalesReportRecordsTableProps) => {
     { skip: !isAuthenticated },
   );
 
-  const rows = data?.data ?? [];
+  // Only Golaghat rows are listed (e.g. SARUPATHAR rows are hidden).
+  const rows = useMemo(
+    () => (data?.data ?? []).filter((r) => /golaghat/i.test(r.location ?? "")),
+    [data],
+  );
 
   const filteredRows = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return rows;
     return rows.filter((r) =>
-      [r.customerFirstName, r.customerLastName, r.frameNo, r.engineNo, r.modelName]
+      [r.customerFirstName, r.customerLastName, r.customerMobile, r.location, r.frameNo, r.engineNo, r.modelName]
         .filter(Boolean)
         .some((field) => String(field).toLowerCase().includes(q)),
     );
@@ -58,7 +62,7 @@ const SalesReportRecordsTable = ({ batchId }: SalesReportRecordsTableProps) => {
       <div className='relative max-w-md'>
         <Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
         <Input
-          placeholder='Search by customer name, frame no, engine no, or model'
+          placeholder='Search by customer, phone, location, frame no, engine no, or model'
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className='pl-10'
@@ -82,11 +86,11 @@ const SalesReportRecordsTable = ({ batchId }: SalesReportRecordsTableProps) => {
               <TableHeader>
                 <TableRow>
                   <TableHead className='min-w-[140px]'>Model Name</TableHead>
-                  <TableHead className='min-w-[120px]'>Model Variant</TableHead>
                   <TableHead className='min-w-[160px]'>Customer</TableHead>
+                  <TableHead className='min-w-[130px]'>Phone</TableHead>
+                  <TableHead className='min-w-[140px]'>Location</TableHead>
                   <TableHead className='min-w-[140px]'>Frame No</TableHead>
                   <TableHead className='min-w-[140px]'>Engine No</TableHead>
-                  <TableHead className='min-w-[120px]'>Purchase Type</TableHead>
                   <TableHead className='min-w-[120px]'>Total Payment</TableHead>
                 </TableRow>
               </TableHeader>
@@ -94,13 +98,13 @@ const SalesReportRecordsTable = ({ batchId }: SalesReportRecordsTableProps) => {
                 {paginatedRows.map((r) => (
                   <TableRow key={r._id}>
                     <TableCell className='font-medium'>{r.modelName || "—"}</TableCell>
-                    <TableCell>{r.modelVariant || "—"}</TableCell>
                     <TableCell>
                       {[r.customerFirstName, r.customerLastName].filter(Boolean).join(" ") || "—"}
                     </TableCell>
+                    <TableCell className='font-mono text-xs'>{r.customerMobile || "—"}</TableCell>
+                    <TableCell>{r.location || "—"}</TableCell>
                     <TableCell className='font-mono text-xs'>{r.frameNo}</TableCell>
                     <TableCell className='font-mono text-xs'>{r.engineNo || "—"}</TableCell>
-                    <TableCell>{r.purchaseType || "—"}</TableCell>
                     <TableCell>{inr(r.totalPayment)}</TableCell>
                   </TableRow>
                 ))}

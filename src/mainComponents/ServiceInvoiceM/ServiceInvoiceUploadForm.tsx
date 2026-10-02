@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { celebrate } from "@/lib/celebrate";
 import { useNavigate } from "react-router-dom";
 import {
   UploadCloud,
@@ -145,6 +146,7 @@ export default function ServiceInvoiceUploadForm({
     try {
       const res = await commit(fd).unwrap();
       setResult(res.data);
+      if (!res.data.duplicate) celebrate();
     } catch (err) {
       setApiError((err as ApiErrorBody)?.data?.message || "Import failed.");
     }

@@ -297,3 +297,5 @@ export default function SalesReportAdminDashboard() {
     </div>
   );
 }
+
+// Sl No	DATE  	CUSTOMER NAME	PHONE NO.	LOCATION	FRAME NO	ENGIN NO	MODEL NAME	COLOUR		Rto 	Insurance	HSRP

@@ -8,6 +8,7 @@ import { persistor, store } from "./redux-store/store.ts";
 import { PersistGate } from "redux-persist/integration/react";
 import { registerServiceWorker } from "./lib/registerServiceWorker.tsx";
 import { LanguageProvider } from "./lib/language.tsx";
+import ConfettiHost from "./mainComponents/shared/ConfettiHost.tsx";
 import PageLanguageTranslator from "./mainComponents/shared/PageLanguageTranslator.tsx";
 
 createRoot(document.getElementById("root")!).render(
@@ -18,6 +19,7 @@ createRoot(document.getElementById("root")!).render(
           <LanguageProvider>
             <App />
             <PageLanguageTranslator />
+            <ConfettiHost />
           </LanguageProvider>
         </BrowserRouter>
       </PersistGate>
