@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, ReceiptText, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, ReceiptText, Search, Trash2 } from "lucide-react";
+import { format } from "date-fns";
+import toast from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +12,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGetAllSalesReportsQuery } from "@/redux-store/services/salesReportApi";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  useGetAllSalesReportsQuery,
+  useDeleteSalesReportRowMutation,
+  type SalesReportRow,
+} from "@/redux-store/services/salesReportApi";
+import SalesReportRowEditDialog from "./SalesReportRowEditDialog";
 import { inr } from "@/mainComponents/DataImport/SalesKpiCharts";
 import { useAppSelector } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
@@ -24,7 +41,29 @@ export interface SalesReportRecordsTableProps {
 const SalesReportRecordsTable = ({ batchId }: SalesReportRecordsTableProps) => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const { isAuthenticated } = useAppSelector(selectAuth);
+  const { isAuthenticated, user } = useAppSelector(selectAuth);
+  const [editing, setEditing] = useState<SalesReportRow | null>(null);
+  const [deleting, setDeleting] = useState<SalesReportRow | null>(null);
+  const [deleteRow, { isLoading: isDeleting }] = useDeleteSalesReportRowMutation();
+
+  // Mirrors the server's scoping: Super-Admin any row, Branch-Admin own branch only.
+  const canModify = (r: SalesReportRow) => {
+    if (user?.role === "Super-Admin") return true;
+    const rowBranch = typeof r.branchId === "string" ? r.branchId : r.branchId?._id;
+    return user?.role === "Branch-Admin" && user?.branch?._id === rowBranch;
+  };
+
+  const handleDelete = async () => {
+    if (!deleting) return;
+    try {
+      await deleteRow({ id: deleting._id }).unwrap();
+      toast.success("Record deleted");
+    } catch (err) {
+      toast.error((err as { data?: { message?: string } })?.data?.message || "Failed to delete record");
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   const { data, isLoading } = useGetAllSalesReportsQuery(
     { batchId, page: 1, limit: 1000 },
@@ -85,6 +124,7 @@ const SalesReportRecordsTable = ({ batchId }: SalesReportRecordsTableProps) => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className='min-w-[110px]'>Date</TableHead>
                   <TableHead className='min-w-[140px]'>Model Name</TableHead>
                   <TableHead className='min-w-[160px]'>Customer</TableHead>
                   <TableHead className='min-w-[130px]'>Phone</TableHead>
@@ -92,11 +132,15 @@ const SalesReportRecordsTable = ({ batchId }: SalesReportRecordsTableProps) => {
                   <TableHead className='min-w-[140px]'>Frame No</TableHead>
                   <TableHead className='min-w-[140px]'>Engine No</TableHead>
                   <TableHead className='min-w-[120px]'>Total Payment</TableHead>
+                  <TableHead className='min-w-[100px] text-right'>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedRows.map((r) => (
                   <TableRow key={r._id}>
+                    <TableCell className='whitespace-nowrap'>
+                      {r.saleDate ? format(new Date(r.saleDate), "dd MMM yyyy") : "—"}
+                    </TableCell>
                     <TableCell className='font-medium'>{r.modelName || "—"}</TableCell>
                     <TableCell>
                       {[r.customerFirstName, r.customerLastName].filter(Boolean).join(" ") || "—"}
@@ -106,6 +150,18 @@ const SalesReportRecordsTable = ({ batchId }: SalesReportRecordsTableProps) => {
                     <TableCell className='font-mono text-xs'>{r.frameNo}</TableCell>
                     <TableCell className='font-mono text-xs'>{r.engineNo || "—"}</TableCell>
                     <TableCell>{inr(r.totalPayment)}</TableCell>
+                    <TableCell className='text-right'>
+                      {canModify(r) && (
+                        <div className='flex justify-end gap-1'>
+                          <Button variant='ghost' size='icon' className='h-8 w-8' aria-label='Edit record' onClick={() => setEditing(r)}>
+                            <Pencil className='h-4 w-4' />
+                          </Button>
+                          <Button variant='ghost' size='icon' className='h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50' aria-label='Delete record' onClick={() => setDeleting(r)}>
+                            <Trash2 className='h-4 w-4' />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -144,6 +200,27 @@ const SalesReportRecordsTable = ({ batchId }: SalesReportRecordsTableProps) => {
           </div>
         </>
       )}
+
+      <SalesReportRowEditDialog row={editing} onClose={() => setEditing(null)} />
+
+      <AlertDialog open={!!deleting} onOpenChange={(open) => !open && setDeleting(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this record?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This removes Frame No <span className='font-mono'>{deleting?.frameNo}</span> from
+              reports. It does not revert any stock/customer record it already matched — the
+              Frame No can be re-imported later, and the deletion is logged for Super-Admin review.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction disabled={isDeleting} onClick={handleDelete}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

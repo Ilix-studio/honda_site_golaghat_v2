@@ -167,8 +167,8 @@ export default function SalesReportUploadForm({
 
           <div className='mt-3 pt-3 border-t border-gray-100 space-y-1.5'>
             <p className='text-xs font-medium text-gray-500'>
-              All {SALES_REPORT_TEMPLATE_COLUMNS.length} columns are required —
-              an upload missing any of them is rejected:
+              {SALES_REPORT_TEMPLATE_COLUMNS.filter((c) => c.required).length} columns
+              are required — an upload missing any of them is rejected:
             </p>
             {SALES_REPORT_TEMPLATE_COLUMNS.map((column) => (
               <div

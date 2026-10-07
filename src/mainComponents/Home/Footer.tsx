@@ -7,10 +7,10 @@ import {
   useLazyGetVisitorCountQuery,
 } from "@/redux-store/services/visitorApi";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export function Footer() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [visitorTracked, setVisitorTracked] = useState(false);
   const [showVisitorAnimation, setShowVisitorAnimation] = useState(false);
 
@@ -252,7 +252,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className='mt-10 flex flex-col sm:flex-row justify-center items-center gap-3'>
+        {/* <div className='mt-10 flex flex-col sm:flex-row justify-center items-center gap-3'>
           <button
             type='button'
             onClick={() => navigate("/bill-memo/preview/1")}
@@ -267,7 +267,7 @@ export function Footer() {
           >
             View Bills 2
           </button>
-        </div>
+        </div> */}
 
         <div className='border-t border-border mt-12 pt-8 text-center text-muted-foreground'>
           <p>

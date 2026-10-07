@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Menu,
@@ -12,7 +12,8 @@ import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Link } from "react-router-dom";
 import { branches } from "@/mainComponents/NavMenu/Branches/TwoBranch";
-import HeroSection from "./HeroSection";
+// three.js is heavy — keep it out of the main bundle (and the PWA precache limit)
+const JourneyStory = lazy(() => import("@/new-components/JourneyStory"));
 
 export default function NewUI() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -43,7 +44,7 @@ export default function NewUI() {
   }, []);
 
   return (
-    <div className='min-h-screen bg-black overflow-hidden'>
+    <div className='min-h-screen bg-black'>
       <div
         className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-500 ${
           isVisible ? "translate-y-0" : "-translate-y-full pointer-events-none"
@@ -60,7 +61,7 @@ export default function NewUI() {
               ? "bg-black/95 backdrop-blur-xl border-b border-red-500/20 shadow-2xl shadow-red-500/10"
               : isScrolled
                 ? "bg-black border-b border-red-500/20"
-                : "bg-transparent"
+                : "bg-black/90 backdrop-blur-md"
           } ${isVisible ? "opacity-100" : "opacity-0"}`}
         >
           <div className='container mx-auto px-4 lg:px-6'>
@@ -275,7 +276,9 @@ export default function NewUI() {
           )}
         </nav>
       </div>
-      <HeroSection />
+      <Suspense fallback={<div className='h-screen bg-black' />}>
+        <JourneyStory />
+      </Suspense>
     </div>
   );
 }

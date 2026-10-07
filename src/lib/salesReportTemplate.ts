@@ -19,6 +19,12 @@ import {
 
 export const SALES_REPORT_TEMPLATE_COLUMNS: TemplateColumn[] = [
   {
+    header: "Date",
+    required: true,
+    example: "15/10/2026",
+    hint: "Sale date, dd/mm/yyyy. Rows with a blank or unreadable date are rejected.",
+  },
+  {
     header: "Model Name",
     required: true,
     example: "ACTIVA 125",

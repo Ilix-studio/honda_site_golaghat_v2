@@ -45,6 +45,8 @@ export interface SalesReportRow {
   customerLastName: string;
   customerMobile: string;
   location?: string;
+  /** Sale date (ISO). Mandatory on import; may be absent on rows imported before it was. */
+  saleDate?: string;
   frameNo: string;
   engineNo: string;
   status: string;
@@ -131,6 +133,20 @@ export interface SalesReportFilters {
   purchaseType?: string;
 }
 
+/** Editable fields of one row. Frame No is the dedup/stock-match key and is not editable. */
+export interface SalesReportRowUpdate {
+  /** Required — ISO date or yyyy-mm-dd. */
+  saleDate: string;
+  modelName?: string;
+  customerFirstName?: string;
+  customerLastName?: string;
+  customerMobile?: string;
+  location?: string;
+  engineNo?: string;
+  purchaseType?: string;
+  totalPayment?: number;
+}
+
 export interface SalesReportBatchesByDateFilters {
   date: string;
   branchId?: string;
@@ -209,6 +225,29 @@ export const salesReportApi = apiSlice.injectEndpoints({
       providesTags: ["SalesReportDeletedBatch"],
     }),
 
+    updateSalesReportRow: builder.mutation<
+      { success: boolean; message: string; data: SalesReportRow },
+      { id: string; body: SalesReportRowUpdate }
+    >({
+      query: ({ id, body }) => ({
+        url: `/sales-report/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["SalesReport", "SalesReportBatch"],
+    }),
+
+    deleteSalesReportRow: builder.mutation<
+      { success: boolean; message: string },
+      { id: string }
+    >({
+      query: ({ id }) => ({
+        url: `/sales-report/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["SalesReport", "SalesReportBatch"],
+    }),
+
     deleteSalesReportBatch: builder.mutation<
       { success: boolean; message: string },
       { batchId: string }
@@ -230,4 +269,6 @@ export const {
   useGetSalesReportKpisQuery,
   useGetDeletedSalesReportBatchesQuery,
   useDeleteSalesReportBatchMutation,
+  useUpdateSalesReportRowMutation,
+  useDeleteSalesReportRowMutation,
 } = salesReportApi;
