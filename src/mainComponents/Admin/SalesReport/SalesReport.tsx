@@ -15,7 +15,8 @@ const SALES_REPORT_TAB_KEY = "salesReport";
 const SalesReport = () => {
   const dispatch = useAppDispatch();
   const activeTab =
-    useAppSelector(selectActiveTab(SALES_REPORT_TAB_KEY)) ?? "assigned-stock";
+    useAppSelector(selectActiveTab(SALES_REPORT_TAB_KEY)) ??
+    "sold-vehicles-import";
 
   return (
     <>

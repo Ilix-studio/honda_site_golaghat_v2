@@ -158,9 +158,9 @@ const HeroSection = () => {
           indicator and dealership tag below.
         */}
         <div className='relative z-10 flex w-full container mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 sm:pt-28 sm:pb-24 lg:pt-32 lg:pb-28'>
-          <div className='w-full max-w-3xl'>
+          <div className='w-full max-w-3xl mx-auto text-center'>
             {/* Eyebrow label */}
-            <div className='flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 lg:mb-5 animate-fadeInUp'>
+            <div className='flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4 lg:mb-5 animate-fadeInUp'>
               <div className='w-5 sm:w-6 lg:w-8 h-0.5 bg-red-600 flex-shrink-0' />
               <span className='text-red-500 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em]'>
                 Authorised Honda Dealership
@@ -178,7 +178,7 @@ const HeroSection = () => {
             </h1>
 
             {/* Subtitle */}
-            <p className='text-sm sm:text-base lg:text-lg xl:text-xl mb-5 sm:mb-6 lg:mb-8 text-gray-300 leading-relaxed max-w-md sm:max-w-lg lg:max-w-xl animate-fadeInUp animation-delay-300'>
+            <p className='text-sm sm:text-base lg:text-lg xl:text-xl mb-5 sm:mb-6 lg:mb-8 text-gray-300 leading-relaxed max-w-md sm:max-w-lg lg:max-w-xl mx-auto animate-fadeInUp animation-delay-300'>
               Experience the next generation of Honda motorcycles and scooters.
               Where cutting-edge innovation meets legendary performance.
             </p>
@@ -190,7 +190,7 @@ const HeroSection = () => {
               full-width parent to fill on mobile. `h-auto` lets the explicit
               py- control the height instead of size='lg''s fixed height.
             */}
-            <div className='flex flex-col sm:flex-row gap-2.5 sm:gap-3 lg:gap-4 animate-fadeInUp animation-delay-600'>
+            <div className='flex flex-col sm:flex-row sm:justify-center gap-2.5 sm:gap-3 lg:gap-4 animate-fadeInUp animation-delay-600'>
               <Link to='/view-all' className='w-full sm:w-auto'>
                 <Button
                   size='lg'
@@ -212,14 +212,14 @@ const HeroSection = () => {
             </div>
 
             {/* Stats Row */}
-            <div className='flex flex-wrap justify-start gap-x-6 gap-y-4 sm:gap-x-8 lg:gap-x-10 mt-8 sm:mt-10 lg:mt-12 animate-fadeInUp animation-delay-900'>
+            <div className='flex flex-wrap justify-center gap-x-6 gap-y-4 sm:gap-x-8 lg:gap-x-10 mt-8 sm:mt-10 lg:mt-12 animate-fadeInUp animation-delay-900'>
               {[
                 { number: "75+", label: "Years Legacy" },
                 { number: "200M+", label: "Happy Riders" },
                 { number: "120+", label: "Countries" },
               ].map((stat, index) => (
-                <div key={index} className='text-left'>
-                  <div className='w-4 sm:w-5 lg:w-6 h-0.5 bg-red-600 mb-1.5' />
+                <div key={index} className='text-center'>
+                  <div className='w-4 sm:w-5 lg:w-6 h-0.5 bg-red-600 mb-1.5 mx-auto' />
                   <div className='text-lg sm:text-xl lg:text-2xl font-bold text-white mb-0.5 leading-none'>
                     {stat.number}
                   </div>

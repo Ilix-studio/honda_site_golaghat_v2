@@ -28,6 +28,7 @@ import {
   useGetPartsStatsQuery,
   useGetPartsStockStatusQuery,
 } from "@/redux-store/services/partsApi";
+import { useGetServiceInvoiceStatsQuery } from "@/redux-store/services/serviceInvoiceApi";
 
 const importedTrendConfig: ChartConfig = {
   partCount: { label: "Parts Imported", color: "var(--chart-1)" },
@@ -57,10 +58,15 @@ const PartsKpiCharts = () => {
     year,
   });
   const { data: stockStatusData } = useGetPartsStockStatusQuery();
+  const { data: invoiceStatsData } = useGetServiceInvoiceStatsQuery();
 
   const monthly = statsData?.data.monthly ?? [];
   const totals = statsData?.data.totals;
   const stockStatus = stockStatusData?.data;
+  // Parts sold through service invoices (parts + lubes; pending-stock lines excluded).
+  const invoiceTotals = invoiceStatsData?.data.totals;
+  const soldPartsRevenue =
+    (invoiceTotals?.partsRevenue ?? 0) + (invoiceTotals?.lubesRevenue ?? 0);
 
   const yearControl = (
     <div className='flex items-center justify-between flex-wrap gap-3'>
@@ -106,11 +112,19 @@ const PartsKpiCharts = () => {
         />
         <MetricTile
           index={3}
-          label='Total Revenue '
+          label='Total Investment'
           value={inr(Math.round(stockStatus?.totalRevenue ?? 0))}
           bg='bg-emerald-50'
           text='text-emerald-700'
           sub='text-emerald-500'
+        />
+        <MetricTile
+          index={4}
+          label='Total Revenue'
+          value={inr(Math.round(soldPartsRevenue))}
+          bg='bg-amber-50'
+          text='text-amber-700'
+          sub='text-amber-500'
         />
       </div>
 

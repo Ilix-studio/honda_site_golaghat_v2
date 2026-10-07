@@ -232,7 +232,7 @@ export default function SuperOverviewKpiCharts() {
   const revenueByDomain = useMemo(() => {
     const rows: { domain: string; family: RevenueFamily; revenue: number }[] = [
       {
-        domain: "Vehicle",
+        domain: "Vehicle Sold",
         family: "vehicle",
         revenue: Math.round(vehicleRevenue),
       },
@@ -242,7 +242,7 @@ export default function SuperOverviewKpiCharts() {
         revenue: Math.round(b2b?.data.totalPayableValue ?? 0),
       },
       {
-        domain: "Parts",
+        domain: "Parts Added to Stock",
         family: "parts",
         revenue: Math.round(partsStatus?.data.totalRevenue ?? 0),
       },
@@ -252,7 +252,7 @@ export default function SuperOverviewKpiCharts() {
         revenue: Math.round(counterSaleRevenue),
       },
       {
-        domain: "Service",
+        domain: "Service Invoices",
         family: "service",
         revenue: Math.round(serviceStats?.data.totals.totalRevenue ?? 0),
       },
@@ -313,9 +313,9 @@ export default function SuperOverviewKpiCharts() {
     <div className='space-y-6'>
       <Card>
         <CardHeader>
-          <CardTitle className='text-base'>Revenue by Domain</CardTitle>
+          <CardTitle className='text-base'>Overview by Domain</CardTitle>
           <CardDescription>
-            Current revenue position across all five dashboards, all branches
+            Current activity position across all three dashboards, all branches
           </CardDescription>
         </CardHeader>
         <CardContent>
