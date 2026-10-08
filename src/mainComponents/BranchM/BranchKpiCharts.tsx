@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { Package, Sparkles } from "lucide-react";
 
 import {
@@ -124,7 +124,7 @@ const VasTab = () => {
             </p>
           )}
           <ChartContainer config={vasConfig} className='h-[260px] w-full'>
-            <BarChart data={monthly} margin={{ left: 0, right: 12 }}>
+            <AreaChart data={monthly} margin={{ left: 0, right: 12 }}>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey='month'
@@ -133,12 +133,15 @@ const VasTab = () => {
                 tickMargin={8}
               />
               <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar
+              <Area
+                type='monotone'
+                fillOpacity={0.25}
+                strokeWidth={2}
                 dataKey='activationCount'
                 fill='var(--color-activationCount)'
-                radius={4}
+                stroke='var(--color-activationCount)'
               />
-            </BarChart>
+            </AreaChart>
           </ChartContainer>
         </CardContent>
       </Card>

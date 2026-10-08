@@ -1,13 +1,5 @@
 import { useState } from "react";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { FileSpreadsheet, IndianRupee } from "lucide-react";
 
 import {
@@ -32,6 +24,7 @@ import {
   ChartSkeleton,
   EmptyChartState,
   compactInr,
+  formatDay,
   inr,
 } from "@/mainComponents/DataImport/SalesKpiCharts";
 
@@ -53,9 +46,9 @@ const SalesReportKPIs = () => {
   const { data, isLoading } = useGetSalesReportKpisQuery({ year });
   const stats = data?.data;
 
-  const monthly = stats?.monthly ?? [];
-  const hasCount = monthly.some((m) => m.count > 0);
-  const hasPayment = monthly.some((m) => m.totalPayment > 0);
+  const daily = stats?.daily ?? [];
+  const hasCount = daily.some((d) => d.count > 0);
+  const hasPayment = daily.some((d) => d.totalPayment > 0);
 
   const kpis: Omit<StatCardProps, "index">[] = [
     {
@@ -101,20 +94,22 @@ const SalesReportKPIs = () => {
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <Card>
             <CardHeader>
-              <CardTitle className='text-base'>Monthly Records</CardTitle>
+              <CardTitle className='text-base'>Daily Records</CardTitle>
               <CardDescription>
-                Sales report rows accepted per month in {year}
+                Sales report rows accepted per sale date in {year}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={countConfig} className='h-[240px] w-full'>
-                <BarChart data={monthly} margin={{ left: 0, right: 12 }}>
+                <AreaChart data={daily} margin={{ left: 0, right: 12 }}>
                   <CartesianGrid vertical={false} />
                   <XAxis
-                    dataKey='month'
+                    dataKey='date'
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
+                    minTickGap={32}
+                    tickFormatter={formatDay}
                   />
                   <YAxis
                     tickLine={false}
@@ -123,18 +118,27 @@ const SalesReportKPIs = () => {
                     width={32}
                     allowDecimals={false}
                   />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey='count' fill='var(--color-count)' radius={4} />
-                </BarChart>
+                  <ChartTooltip
+                    content={<ChartTooltipContent labelFormatter={formatDay} />}
+                  />
+                  <Area
+                    dataKey='count'
+                    type='monotone'
+                    fill='var(--color-count)'
+                    fillOpacity={0.2}
+                    stroke='var(--color-count)'
+                    strokeWidth={2}
+                  />
+                </AreaChart>
               </ChartContainer>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className='text-base'>Monthly Payment</CardTitle>
+              <CardTitle className='text-base'>Daily Payment</CardTitle>
               <CardDescription>
-                Payment value on imported rows per month in {year}
+                Payment value on imported rows per sale date in {year}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -142,13 +146,15 @@ const SalesReportKPIs = () => {
                 config={paymentConfig}
                 className='h-[240px] w-full'
               >
-                <AreaChart data={monthly} margin={{ left: 0, right: 12 }}>
+                <AreaChart data={daily} margin={{ left: 0, right: 12 }}>
                   <CartesianGrid vertical={false} />
                   <XAxis
-                    dataKey='month'
+                    dataKey='date'
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
+                    minTickGap={32}
+                    tickFormatter={formatDay}
                   />
                   <YAxis
                     tickLine={false}
@@ -160,6 +166,7 @@ const SalesReportKPIs = () => {
                   <ChartTooltip
                     content={
                       <ChartTooltipContent
+                        labelFormatter={formatDay}
                         formatter={(value) => inr(Number(value))}
                       />
                     }

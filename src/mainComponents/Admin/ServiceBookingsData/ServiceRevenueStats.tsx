@@ -3,13 +3,13 @@ import { useGetRevenueStatsQuery } from "@/redux-store/services/ServiceM/jobCard
 import { useGetBranchesQuery } from "@/redux-store/services/branchApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  BarChart,
-  Bar,
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from "recharts";
 import { TrendingUp, Receipt, IndianRupee, FileCheck } from "lucide-react";
 
@@ -140,7 +140,7 @@ export default function ServiceRevenueStats() {
             </div>
           ) : (
             <ResponsiveContainer width='100%' height={220}>
-              <BarChart
+              <AreaChart
                 data={stats?.monthly}
                 margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
               >
@@ -169,8 +169,15 @@ export default function ServiceRevenueStats() {
                     border: "1px solid #e5e7eb",
                   }}
                 />
-                <Bar dataKey='revenue' fill='#dc2626' radius={[4, 4, 0, 0]} />
-              </BarChart>
+                <Area
+                  type='monotone'
+                  fillOpacity={0.25}
+                  strokeWidth={2}
+                  dataKey='revenue'
+                  fill='#dc2626'
+                  stroke='#dc2626'
+                />
+              </AreaChart>
             </ResponsiveContainer>
           )}
         </CardContent>

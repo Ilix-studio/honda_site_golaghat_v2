@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   Card,
@@ -182,7 +182,7 @@ const PartsKpiCharts = () => {
                 config={importVsReviewConfig}
                 className='h-[260px] w-full'
               >
-                <BarChart data={monthly} margin={{ left: 0, right: 12 }}>
+                <AreaChart data={monthly} margin={{ left: 0, right: 12 }}>
                   <CartesianGrid vertical={false} />
                   <XAxis
                     dataKey='month'
@@ -192,17 +192,23 @@ const PartsKpiCharts = () => {
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <ChartLegend content={<ChartLegendContent />} />
-                  <Bar
+                  <Area
+                    type='monotone'
+                    fillOpacity={0.25}
+                    strokeWidth={2}
                     dataKey='partCount'
                     fill='var(--color-partCount)'
-                    radius={4}
+                    stroke='var(--color-partCount)'
                   />
-                  <Bar
+                  <Area
+                    type='monotone'
+                    fillOpacity={0.25}
+                    strokeWidth={2}
                     dataKey='reviewCount'
                     fill='var(--color-reviewCount)'
-                    radius={4}
+                    stroke='var(--color-reviewCount)'
                   />
-                </BarChart>
+                </AreaChart>
               </ChartContainer>
             </CardContent>
           </Card>

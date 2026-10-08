@@ -187,6 +187,7 @@ export interface AssignedStockListResponse {
 export interface StockAssignStats {
   year: number;
   monthly: Array<{ month: string; assignedCount: number; revenue: number }>;
+  daily: Array<{ date: string; assignedCount: number; revenue: number }>;
   totals: {
     totalAssigned: number;
     totalRevenue: number;

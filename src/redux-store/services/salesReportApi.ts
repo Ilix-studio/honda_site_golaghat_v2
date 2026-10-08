@@ -118,6 +118,10 @@ export interface SalesReportKpiResponse {
       matchedStockNotFlipped: number;
     };
     monthly: { month: string; count: number; totalPayment: number }[];
+    /** Per sale date (yyyy-mm-dd), only dates that have sales. */
+    daily: { date: string; count: number; totalPayment: number }[];
+    /** Per sale date × purchase type (yyyy-mm-dd), only combinations that have sales. */
+    dailyByPurchaseType: { date: string; purchaseType: string; count: number; totalPayment: number }[];
     byPurchaseType: { purchaseType: string; count: number; totalPayment: number }[];
     byOutcome: { outcome: SalesReportMatchOutcome; count: number }[];
     perBranch: { branchId: string; count: number; totalPayment: number }[];
@@ -131,6 +135,9 @@ export interface SalesReportFilters {
   branchId?: string;
   matched?: boolean;
   purchaseType?: string;
+  /** Sale-date window, yyyy-mm-dd; `to` is exclusive. */
+  from?: string;
+  to?: string;
 }
 
 /** Editable fields of one row. Frame No is the dedup/stock-match key and is not editable. */

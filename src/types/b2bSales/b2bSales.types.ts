@@ -140,6 +140,8 @@ export interface B2BSalesKPIs {
   totalPayableValue: number;
   averageChallanValue: number;
   monthlyTrend: B2BSalesMonthlyTrendPoint[];
+  /** Per challan date (yyyy-mm-dd), all years; only dates with challans. */
+  dailyTrend: { date: string; challanCount: number; totalPrice: number; payablePrice: number }[];
   topItems: B2BSalesTopItem[];
   branchBreakdown?: B2BSalesBranchBreakdown[];
 }

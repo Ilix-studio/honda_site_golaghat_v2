@@ -318,6 +318,7 @@ export const csvStockApi = apiSlice.injectEndpoints({
         data: {
           totals: { totalAssigned: number; totalRevenue: number };
           monthly: { month: string; assignedCount: number }[];
+          daily: { date: string; assignedCount: number }[];
         };
       },
       { year: number }

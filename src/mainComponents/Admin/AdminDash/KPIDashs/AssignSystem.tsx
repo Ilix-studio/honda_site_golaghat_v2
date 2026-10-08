@@ -1,13 +1,5 @@
 import { useState } from "react";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
 import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
@@ -35,6 +27,7 @@ import {
   ChartSkeleton,
   EmptyChartState,
   compactInr,
+  formatDay,
   inr,
 } from "@/mainComponents/DataImport/SalesKpiCharts";
 import { useGetCSVStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
@@ -48,8 +41,8 @@ import ChallanReportKPIs from "./ChallanReportKPIs";
 // ─── Shared chart shape ──────────────────────────────────────────────────────
 
 /**
- * All three assign dashboards plot the same two things — a monthly count and
- * (where the endpoint returns it) monthly revenue — so the chart pair lives
+ * All three assign dashboards plot the same two things — a daily count and
+ * (where the endpoint returns it) daily revenue — so the chart pair lives
  * here once. Each is a single series, so identity comes from the card title
  * and neither needs a legend or a second hue.
  */
@@ -61,24 +54,24 @@ const revenueConfig: ChartConfig = {
   revenue: { label: "Revenue", color: "var(--chart-2)" },
 };
 
-interface AssignMonthlyPoint {
-  month: string;
+interface AssignDailyPoint {
+  date: string;
   count: number;
   revenue?: number;
 }
 
 function AssignCharts({
-  monthly,
+  daily,
   countTitle,
   countDescription,
   revenueDescription,
   loading,
   emptyMessage,
 }: {
-  monthly: AssignMonthlyPoint[];
+  daily: AssignDailyPoint[];
   countTitle: string;
   countDescription: string;
-  /** Omitted when the endpoint returns no monthly revenue (CSV assign). */
+  /** Omitted when the endpoint returns no daily revenue (CSV assign). */
   revenueDescription?: string;
   loading: boolean;
   emptyMessage: string;
@@ -92,10 +85,9 @@ function AssignCharts({
     );
   }
 
-  const hasCount = monthly.some((m) => m.count > 0);
+  const hasCount = daily.some((m) => m.count > 0);
   const hasRevenue =
-    revenueDescription !== undefined &&
-    monthly.some((m) => (m.revenue ?? 0) > 0);
+    revenueDescription !== undefined && daily.some((m) => (m.revenue ?? 0) > 0);
 
   if (!hasCount && !hasRevenue) {
     return <EmptyChartState message={emptyMessage} />;
@@ -112,13 +104,15 @@ function AssignCharts({
         </CardHeader>
         <CardContent>
           <ChartContainer config={countConfig} className='h-[240px] w-full'>
-            <BarChart data={monthly} margin={{ left: 0, right: 12 }}>
+            <AreaChart data={daily} margin={{ left: 0, right: 12 }}>
               <CartesianGrid vertical={false} />
               <XAxis
-                dataKey='month'
+                dataKey='date'
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
+                minTickGap={32}
+                tickFormatter={formatDay}
               />
               <YAxis
                 tickLine={false}
@@ -127,9 +121,18 @@ function AssignCharts({
                 width={32}
                 allowDecimals={false}
               />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey='count' fill='var(--color-count)' radius={4} />
-            </BarChart>
+              <ChartTooltip
+                content={<ChartTooltipContent labelFormatter={formatDay} />}
+              />
+              <Area
+                dataKey='count'
+                type='monotone'
+                fill='var(--color-count)'
+                fillOpacity={0.2}
+                stroke='var(--color-count)'
+                strokeWidth={2}
+              />
+            </AreaChart>
           </ChartContainer>
         </CardContent>
       </Card>
@@ -137,15 +140,17 @@ function AssignCharts({
       {hasRevenue && (
         <Card>
           <CardHeader>
-            <CardTitle className='text-base'>Monthly Revenue</CardTitle>
+            <CardTitle className='text-base'>Daily Revenue</CardTitle>
             <CardDescription>{revenueDescription}</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={revenueConfig} className='h-[240px] w-full'>
-              <AreaChart data={monthly} margin={{ left: 0, right: 12 }}>
+              <AreaChart data={daily} margin={{ left: 0, right: 12 }}>
                 <CartesianGrid vertical={false} />
                 <XAxis
-                  dataKey='month'
+                  dataKey='date'
+                  minTickGap={32}
+                  tickFormatter={formatDay}
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
@@ -160,6 +165,7 @@ function AssignCharts({
                 <ChartTooltip
                   content={
                     <ChartTooltipContent
+                      labelFormatter={formatDay}
                       formatter={(value) => inr(Number(value))}
                     />
                   }
@@ -207,8 +213,8 @@ function StockAssignDashboard() {
     },
   ];
 
-  const monthly: AssignMonthlyPoint[] = (stats?.monthly ?? []).map((m) => ({
-    month: m.month,
+  const daily: AssignDailyPoint[] = (stats?.daily ?? []).map((m) => ({
+    date: m.date,
     count: m.assignedCount,
     revenue: m.revenue,
   }));
@@ -224,11 +230,11 @@ function StockAssignDashboard() {
         ))}
       </div>
       <AssignCharts
-        monthly={monthly}
+        daily={daily}
         loading={isLoading}
-        countTitle='Monthly Stock Assignments'
-        countDescription={`Bikes assigned per month in ${year}`}
-        revenueDescription={`Sale price of assigned stock per month in ${year}`}
+        countTitle='Daily Stock Assignments'
+        countDescription={`Bikes assigned per day in ${year}`}
+        revenueDescription={`Sale price of assigned stock per day in ${year}`}
         emptyMessage={`No stock assigned in ${year} yet.`}
       />
     </div>
@@ -260,9 +266,9 @@ function CSVAssignDashboard() {
   ];
 
   // The CSV assign-stats endpoint returns no per-month revenue, only counts,
-  // so this dashboard gets the bar chart alone rather than a stubbed area.
-  const monthly: AssignMonthlyPoint[] = (stats?.monthly ?? []).map((m) => ({
-    month: m.month,
+  // so this dashboard gets the count chart alone rather than a stubbed area.
+  const daily: AssignDailyPoint[] = (stats?.daily ?? []).map((m) => ({
+    date: m.date,
     count: m.assignedCount,
   }));
 
@@ -277,10 +283,10 @@ function CSVAssignDashboard() {
         ))}
       </div>
       <AssignCharts
-        monthly={monthly}
+        daily={daily}
         loading={isLoading}
-        countTitle='Monthly CSV Stock Assignments'
-        countDescription={`Bikes assigned per month in ${year}`}
+        countTitle='Daily CSV Stock Assignments'
+        countDescription={`Bikes assigned per day in ${year}`}
         emptyMessage={`No CSV stock assigned in ${year} yet.`}
       />
     </div>
@@ -311,8 +317,8 @@ function VasAssignDashboard() {
     },
   ];
 
-  const monthly: AssignMonthlyPoint[] = (stats?.monthly ?? []).map((m) => ({
-    month: m.month,
+  const daily: AssignDailyPoint[] = (stats?.daily ?? []).map((m) => ({
+    date: m.date,
     count: m.activationCount,
     revenue: m.revenue,
   }));
@@ -328,11 +334,11 @@ function VasAssignDashboard() {
         ))}
       </div>
       <AssignCharts
-        monthly={monthly}
+        daily={daily}
         loading={isLoading}
-        countTitle='Monthly VAS Activations'
-        countDescription={`VAS activated per month in ${year}`}
-        revenueDescription={`Purchase price of activated VAS per month in ${year}`}
+        countTitle='Daily VAS Activations'
+        countDescription={`VAS activated per day in ${year}`}
+        revenueDescription={`Purchase price of activated VAS per day in ${year}`}
         emptyMessage={`No VAS activated in ${year} yet.`}
       />
     </div>

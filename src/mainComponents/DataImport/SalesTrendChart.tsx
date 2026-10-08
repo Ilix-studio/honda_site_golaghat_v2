@@ -1,14 +1,14 @@
 import {
-  LineChart,
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Legend,
   Line,
-  BarChart,
-  Bar,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type {
@@ -136,7 +136,7 @@ export default function SalesTrendChart({
             </div>
           ) : (
             <ResponsiveContainer width='100%' height={240}>
-              <BarChart
+              <AreaChart
                 data={data}
                 margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
               >
@@ -154,34 +154,51 @@ export default function SalesTrendChart({
                   tickLine={false}
                   width={56}
                 />
-                <Tooltip formatter={(value) => formatCurrency(Number(value) || 0)} />
+                <Tooltip
+                  formatter={(value) => formatCurrency(Number(value) || 0)}
+                />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar
+                <Area
+                  type='monotone'
+                  fillOpacity={0.25}
+                  strokeWidth={2}
                   dataKey='labourRevenue'
                   stackId='mix'
                   name='Labour'
                   fill='#2563eb'
+                  stroke='#2563eb'
                 />
-                <Bar
+                <Area
+                  type='monotone'
+                  fillOpacity={0.25}
+                  strokeWidth={2}
                   dataKey='partsRevenue'
                   stackId='mix'
                   name='Parts'
                   fill='#7c3aed'
+                  stroke='#7c3aed'
                 />
-                <Bar
+                <Area
+                  type='monotone'
+                  fillOpacity={0.25}
+                  strokeWidth={2}
                   dataKey='lubesRevenue'
                   stackId='mix'
                   name='Lubes'
                   fill='#d97706'
+                  stroke='#d97706'
                 />
-                <Bar
+                <Area
+                  type='monotone'
+                  fillOpacity={0.25}
+                  strokeWidth={2}
                   dataKey='accessoriesRevenue'
                   stackId='mix'
                   name='Accessories'
                   fill='#059669'
-                  radius={[4, 4, 0, 0]}
+                  stroke='#059669'
                 />
-              </BarChart>
+              </AreaChart>
             </ResponsiveContainer>
           )}
         </CardContent>

@@ -1,13 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Bike, IndianRupee, Receipt } from "lucide-react";
 
 import {
@@ -32,6 +24,7 @@ import {
   ChartSkeleton,
   EmptyChartState,
   compactInr,
+  formatDay,
   inr,
 } from "@/mainComponents/DataImport/SalesKpiCharts";
 
@@ -63,37 +56,59 @@ const MONTH_LABELS = [
   "Dec",
 ];
 
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 const ChallanReportKPIs = () => {
   const [year, setYear] = useState(() => new Date().getFullYear());
+  /** 0 = whole year, 1–12 = a single month. */
+  const [month, setMonth] = useState(0);
   const { data, isLoading } = useGetB2BSalesKPIsQuery();
   const kpiData = data?.data;
 
   /**
-   * The KPI endpoint takes only `branchId` — it returns every month it has, as
-   * sparse `YYYY-MM` keys across all years. So the year filter is applied here
-   * and the gaps are filled with zeros: a month with no challan is a real zero,
-   * and leaving it out would let the area chart slope straight through it.
+   * The KPI endpoint takes only `branchId` — it returns every challan date it
+   * has, across all years, and only dates that have a challan. So the year /
+   * month filter is applied here and every day in the window is filled with
+   * zeros: a day with no challan is a real zero, and without the fill a few
+   * scattered dates would draw almost nothing. A whole current year stops at
+   * today rather than flat-lining through the future.
    */
-  const monthly = useMemo(() => {
-    const prefix = `${year}-`;
-    const byMonth = new Map(
-      (kpiData?.monthlyTrend ?? [])
-        .filter((m) => m.month.startsWith(prefix))
-        .map((m) => [Number(m.month.slice(prefix.length)), m]),
-    );
-
-    return MONTH_LABELS.map((label, i) => {
-      const found = byMonth.get(i + 1);
-      return {
-        month: label,
-        challanCount: found?.challanCount ?? 0,
-        payablePrice: found?.payablePrice ?? 0,
-      };
-    });
-  }, [kpiData, year]);
-
-  const hasCount = monthly.some((m) => m.challanCount > 0);
-  const hasPayable = monthly.some((m) => m.payablePrice > 0);
+  const daily = useMemo(() => {
+    const DAY = 86_400_000;
+    const key = (t: number) => new Date(t).toISOString().slice(0, 10);
+    const todayMs = Date.parse(key(Date.now()));
+    const start = Date.UTC(year, month ? month - 1 : 0, 1);
+    const end = month
+      ? Date.UTC(year, month, 0)
+      : Math.min(Date.UTC(year, 11, 31), Math.max(todayMs, start));
+    const byDate = new Map((kpiData?.dailyTrend ?? []).map((d) => [d.date, d]));
+    const out = [];
+    for (let t = start; t <= end; t += DAY) {
+      const date = key(t);
+      out.push(
+        byDate.get(date) ?? {
+          date,
+          challanCount: 0,
+          totalPrice: 0,
+          payablePrice: 0,
+        },
+      );
+    }
+    return out;
+  }, [kpiData, year, month]);
 
   /**
    * The totals below are all-time — the endpoint has no year parameter, so the
@@ -126,6 +141,33 @@ const ChallanReportKPIs = () => {
     },
   ];
 
+  const monthControl = (
+    <div className='space-y-2 pt-3'>
+      <span className='text-xs font-medium text-muted-foreground'>
+        Challan period
+      </span>
+      <div className='flex flex-wrap gap-2' role='group' aria-label='Month'>
+        {["All", ...MONTH_LABELS].map((label, m) => (
+          <button
+            key={label}
+            type='button'
+            aria-pressed={month === m}
+            onClick={() => setMonth(m)}
+            className={`h-8 px-3 rounded-lg text-xs font-medium border transition-colors ${
+              month === m
+                ? "bg-gray-900 text-white border-gray-900"
+                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-100"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const periodLabel = month ? `${MONTH_NAMES[month - 1]} ${year}` : `${year}`;
+
   return (
     <div className='space-y-6'>
       <div className='flex items-center justify-end'>
@@ -143,31 +185,36 @@ const ChallanReportKPIs = () => {
           <ChartSkeleton />
           <ChartSkeleton />
         </div>
-      ) : !hasCount && !hasPayable ? (
+      ) : !(kpiData?.dailyTrend ?? []).some((d) =>
+          d.date.startsWith(`${year}-`),
+        ) ? (
         <EmptyChartState
           message={`No challans raised in ${year} yet — create a B2B sale to populate these charts.`}
         />
       ) : (
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <div className='space-y-4'>
           <Card>
             <CardHeader>
-              <CardTitle className='text-base'>Monthly Challans</CardTitle>
+              <CardTitle className='text-base'>Daily Challans</CardTitle>
               <CardDescription>
-                Challans raised per month in {year}
+                Challans raised per day in {periodLabel}
               </CardDescription>
+              {monthControl}
             </CardHeader>
             <CardContent>
               <ChartContainer
                 config={challanCountConfig}
                 className='h-[240px] w-full'
               >
-                <BarChart data={monthly} margin={{ left: 0, right: 12 }}>
+                <AreaChart data={daily} margin={{ left: 0, right: 12 }}>
                   <CartesianGrid vertical={false} />
                   <XAxis
-                    dataKey='month'
+                    dataKey='date'
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
+                    minTickGap={32}
+                    tickFormatter={formatDay}
                   />
                   <YAxis
                     tickLine={false}
@@ -176,22 +223,27 @@ const ChallanReportKPIs = () => {
                     width={32}
                     allowDecimals={false}
                   />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar
-                    dataKey='challanCount'
-                    fill='var(--color-challanCount)'
-                    radius={4}
+                  <ChartTooltip
+                    content={<ChartTooltipContent labelFormatter={formatDay} />}
                   />
-                </BarChart>
+                  <Area
+                    dataKey='challanCount'
+                    type='monotone'
+                    fill='var(--color-challanCount)'
+                    fillOpacity={0.2}
+                    stroke='var(--color-challanCount)'
+                    strokeWidth={2}
+                  />
+                </AreaChart>
               </ChartContainer>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className='text-base'>Monthly Payable Value</CardTitle>
+              <CardTitle className='text-base'>Daily Payable Value</CardTitle>
               <CardDescription>
-                Post-TCS value of challans raised per month in {year}
+                Post-TCS value of challans raised per day in {periodLabel}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -199,13 +251,15 @@ const ChallanReportKPIs = () => {
                 config={payableConfig}
                 className='h-[240px] w-full'
               >
-                <AreaChart data={monthly} margin={{ left: 0, right: 12 }}>
+                <AreaChart data={daily} margin={{ left: 0, right: 12 }}>
                   <CartesianGrid vertical={false} />
                   <XAxis
-                    dataKey='month'
+                    dataKey='date'
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
+                    minTickGap={32}
+                    tickFormatter={formatDay}
                   />
                   <YAxis
                     tickLine={false}
@@ -217,6 +271,7 @@ const ChallanReportKPIs = () => {
                   <ChartTooltip
                     content={
                       <ChartTooltipContent
+                        labelFormatter={formatDay}
                         formatter={(value) => inr(Number(value))}
                       />
                     }

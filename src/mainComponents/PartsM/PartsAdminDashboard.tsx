@@ -21,13 +21,13 @@ import RaiseMaintenanceRequest from "@/mainComponents/shared/RaiseMaintenanceReq
 import { Button } from "@/components/ui/button";
 
 import {
-  BarChart,
-  Bar,
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from "recharts";
 import {
   Package,
@@ -341,7 +341,7 @@ export default function PartsAdminDashboard() {
                   </div>
                 ) : (
                   <ResponsiveContainer width='100%' height={240}>
-                    <BarChart
+                    <AreaChart
                       data={stats?.monthly}
                       margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
                     >
@@ -355,12 +355,15 @@ export default function PartsAdminDashboard() {
                         allowDecimals={false}
                       />
                       <Tooltip />
-                      <Bar
+                      <Area
+                        type='monotone'
+                        fillOpacity={0.25}
+                        strokeWidth={2}
                         dataKey='partCount'
                         fill='#2563eb'
-                        radius={[4, 4, 0, 0]}
+                        stroke='#2563eb'
                       />
-                    </BarChart>
+                    </AreaChart>
                   </ResponsiveContainer>
                 )}
               </CardContent>

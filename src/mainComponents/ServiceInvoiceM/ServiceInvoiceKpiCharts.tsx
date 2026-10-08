@@ -85,11 +85,15 @@ export default function ServiceInvoiceKpiCharts({ branchId }: Props) {
       </div>
 
       {/* Headline tiles */}
-      <div className='grid grid-cols-2 gap-3 lg:grid-cols-4'>
+      <div className='grid grid-cols-2 gap-3 lg:grid-cols-5'>
         <MetricTile
           index={0}
           label='Invoices'
-          value={isLoading ? "…" : (totals?.totalInvoices ?? 0).toLocaleString("en-IN")}
+          value={
+            isLoading
+              ? "…"
+              : (totals?.totalInvoices ?? 0).toLocaleString("en-IN")
+          }
           bg='bg-blue-50'
           text='text-blue-700'
           sub='text-blue-500'
@@ -104,15 +108,34 @@ export default function ServiceInvoiceKpiCharts({ branchId }: Props) {
         />
         <MetricTile
           index={2}
+          label='Total Parts Amount'
+          value={
+            isLoading
+              ? "…"
+              : inr(
+                  Math.round(
+                    (totals?.partsRevenue ?? 0) + (totals?.lubesRevenue ?? 0),
+                  ),
+                )
+          }
+          bg='bg-violet-50'
+          text='text-violet-700'
+          sub='text-violet-500'
+          note='Parts & lubes billed, excl. awaiting stock'
+        />
+        <MetricTile
+          index={3}
           label='Parts Sold'
-          value={isLoading ? "…" : (totals?.partsSold ?? 0).toLocaleString("en-IN")}
+          value={
+            isLoading ? "…" : (totals?.partsSold ?? 0).toLocaleString("en-IN")
+          }
           bg='bg-gray-100'
           text='text-gray-800'
           sub='text-gray-500'
           note='Billed lines matched to parts stock'
         />
         <MetricTile
-          index={3}
+          index={4}
           label='Awaiting Stock'
           value={
             isLoading
@@ -160,7 +183,10 @@ export default function ServiceInvoiceKpiCharts({ branchId }: Props) {
           ) : !hasData ? (
             <EmptyChartState message='No invoices imported for this year yet.' />
           ) : (
-            <ChartContainer config={revenueTrendConfig} className='h-[260px] w-full'>
+            <ChartContainer
+              config={revenueTrendConfig}
+              className='h-[260px] w-full'
+            >
               <AreaChart data={stats?.monthly} margin={{ left: 8, right: 8 }}>
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey='month' tickLine={false} axisLine={false} />
@@ -213,16 +239,19 @@ export default function ServiceInvoiceKpiCharts({ branchId }: Props) {
                 config={invoiceTrendConfig}
                 className='h-[220px] w-full'
               >
-                <BarChart data={stats?.monthly} margin={{ left: 8, right: 8 }}>
+                <AreaChart data={stats?.monthly} margin={{ left: 8, right: 8 }}>
                   <CartesianGrid vertical={false} />
                   <XAxis dataKey='month' tickLine={false} axisLine={false} />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar
+                  <Area
+                    type='monotone'
+                    fillOpacity={0.25}
+                    strokeWidth={2}
                     dataKey='invoiceCount'
                     fill='var(--color-invoiceCount)'
-                    radius={4}
+                    stroke='var(--color-invoiceCount)'
                   />
-                </BarChart>
+                </AreaChart>
               </ChartContainer>
             )}
           </CardContent>
@@ -260,7 +289,11 @@ export default function ServiceInvoiceKpiCharts({ branchId }: Props) {
                     tick={{ fontSize: 11 }}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey='revenue' fill='var(--color-revenue)' radius={4} />
+                  <Bar
+                    dataKey='revenue'
+                    fill='var(--color-revenue)'
+                    radius={4}
+                  />
                 </BarChart>
               </ChartContainer>
             )}

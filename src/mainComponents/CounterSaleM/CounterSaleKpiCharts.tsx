@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { IndianRupee, Layers, Package } from "lucide-react";
 
 import {
@@ -24,6 +24,7 @@ import {
   EmptyChartState,
   YearSelect,
   compactInr,
+  formatDay,
   inr,
 } from "@/mainComponents/DataImport/SalesKpiCharts";
 import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSaleApi";
@@ -34,22 +35,41 @@ const revenueConfig: ChartConfig = {
   totalInvoice: { label: "Revenue", color: "var(--chart-1)" },
 };
 
-/** Short "23 Jul" labels, disambiguated with "#2" etc. when a date repeats. */
-function buildBatchLabels(dates: string[]): string[] {
-  const seen = new Map<string, number>();
-  const base = dates.map((d) =>
-    new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }),
-  );
-  const counts = new Map<string, number>();
-  base.forEach((b) => counts.set(b, (counts.get(b) ?? 0) + 1));
+const MONTH_LABELS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
-  return base.map((b) => {
-    if ((counts.get(b) ?? 0) <= 1) return b;
-    const n = (seen.get(b) ?? 0) + 1;
-    seen.set(b, n);
-    return `${b} #${n}`;
-  });
-}
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+const pad = (n: number) => String(n).padStart(2, "0");
+
+/** Local yyyy-mm-dd, so a batch uploaded in the evening stays on its own day. */
+const localDay = (d: Date) =>
+  `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 
 export default function CounterSaleKpiCharts({
   /**
@@ -61,24 +81,31 @@ export default function CounterSaleKpiCharts({
   detailsHref?: string;
 } = {}) {
   const [year, setYear] = useState(() => new Date().getFullYear());
+  /** 0 = whole year, 1–12 = a single month. */
+  const [month, setMonth] = useState(0);
   const { isAuthenticated } = useAppSelector(selectAuth);
   const { data, isLoading } = useGetCounterSaleBatchesQuery(undefined, {
     skip: !isAuthenticated,
   });
 
   /**
-   * The endpoint returns every batch it has, so the year filter is applied
-   * here — on import date, which is the only date a batch carries.
+   * The endpoint returns every batch it has, so the year / month filter is
+   * applied here — on import date, which is the only date a batch carries.
    */
   const batches = useMemo(
     () =>
       (data?.data ?? [])
-        .filter((b) => new Date(b.importDate).getFullYear() === year)
+        .filter((b) => {
+          const d = new Date(b.importDate);
+          return (
+            d.getFullYear() === year && (!month || d.getMonth() + 1 === month)
+          );
+        })
         .sort(
           (a, b) =>
             new Date(a.importDate).getTime() - new Date(b.importDate).getTime(),
         ),
-    [data, year],
+    [data, year, month],
   );
 
   const totals = useMemo(
@@ -100,28 +127,48 @@ export default function CounterSaleKpiCharts({
     [batches],
   );
 
-  const labels = useMemo(
-    () => buildBatchLabels(batches.map((b) => b.importDate)),
-    [batches],
-  );
-
   /**
-   * Per-batch takings and the running total they add up to. Both are rupees
-   * on the same scale, but one is a rate and the other a position — they get
-   * separate charts rather than a second axis on one. The running total
-   * restarts at each year, since that is the window on screen.
+   * Revenue per batch on a date axis: each batch lands on its upload day (two
+   * batches on one day add up) and every other day in the window is a zero, so
+   * the area has a shape instead of a few isolated points. A whole current
+   * year stops at today rather than flat-lining through the future.
    */
   const revenueData = useMemo(() => {
-    let running = 0;
-    return batches.map((b, i) => {
-      running += b.totalInvoice;
-      return {
-        label: labels[i],
-        totalInvoice: b.totalInvoice,
-        cumulativeInvoice: running,
-      };
+    const byDay = new Map<string, number>();
+    batches.forEach((b) => {
+      const day = localDay(new Date(b.importDate));
+      byDay.set(day, (byDay.get(day) ?? 0) + b.totalInvoice);
     });
-  }, [batches, labels]);
+
+    const start = new Date(year, month ? month - 1 : 0, 1);
+    const today = new Date();
+    const end = month
+      ? new Date(year, month, 0)
+      : new Date(
+          Math.min(
+            new Date(year, 11, 31).getTime(),
+            Math.max(
+              new Date(
+                today.getFullYear(),
+                today.getMonth(),
+                today.getDate(),
+              ).getTime(),
+              start.getTime(),
+            ),
+          ),
+        );
+
+    const out: { date: string; totalInvoice: number }[] = [];
+    for (
+      const d = new Date(start);
+      d.getTime() <= end.getTime();
+      d.setDate(d.getDate() + 1)
+    ) {
+      const date = localDay(d);
+      out.push({ date, totalInvoice: byDay.get(date) ?? 0 });
+    }
+    return out;
+  }, [batches, year, month]);
 
   const kpis: Omit<StatCardProps, "index">[] = [
     {
@@ -150,6 +197,31 @@ export default function CounterSaleKpiCharts({
     },
   ];
 
+  const monthControl = (
+    <div className='space-y-2 pt-3'>
+      <span className='text-xs font-medium text-muted-foreground'>
+        Upload period
+      </span>
+      <div className='flex flex-wrap gap-2' role='group' aria-label='Month'>
+        {["All", ...MONTH_LABELS].map((label, m) => (
+          <button
+            key={label}
+            type='button'
+            aria-pressed={month === m}
+            onClick={() => setMonth(m)}
+            className={`h-8 px-3 rounded-lg text-xs font-medium border transition-colors ${
+              month === m
+                ? "bg-gray-900 text-white border-gray-900"
+                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-100"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className='space-y-6'>
       <h4 className='text-black font-semibold'>Parts Sold</h4>
@@ -168,53 +240,65 @@ export default function CounterSaleKpiCharts({
           <ChartSkeleton />
           <ChartSkeleton />
         </div>
-      ) : batches.length === 0 ? (
-        <EmptyChartState
-          message={`No CPOTC Orders sale reports uploaded in ${year} yet.`}
-        />
       ) : (
         <div className='grid grid-cols-1 md:grid-cols-1 gap-4'>
           <Card>
             <CardHeader>
               <CardTitle className='text-base'>Revenue per Batch</CardTitle>
               <CardDescription>
-                Total Invoice summed per counter sale batch uploaded in {year}
+                Total Invoice summed per counter sale batch, by upload date —{" "}
+                {month ? `${MONTH_NAMES[month - 1]} ${year}` : `all of ${year}`}
               </CardDescription>
+              {monthControl}
             </CardHeader>
             <CardContent>
-              <ChartContainer
-                config={revenueConfig}
-                className='h-[260px] w-full'
-              >
-                <BarChart data={revenueData} margin={{ left: 0, right: 12 }}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey='label'
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    width={56}
-                    tickFormatter={compactInr}
-                  />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        formatter={(value) => inr(Number(value))}
-                      />
-                    }
-                  />
-                  <Bar
-                    dataKey='totalInvoice'
-                    fill='var(--color-totalInvoice)'
-                    radius={4}
-                  />
-                </BarChart>
-              </ChartContainer>
+              {batches.length === 0 ? (
+                <EmptyChartState
+                  message={`No CPOTC Orders sale reports uploaded in ${
+                    month ? `${MONTH_NAMES[month - 1]} ` : ""
+                  }${year} yet.`}
+                />
+              ) : (
+                <ChartContainer
+                  config={revenueConfig}
+                  className='h-[260px] w-full'
+                >
+                  <AreaChart data={revenueData} margin={{ left: 0, right: 12 }}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey='date'
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      minTickGap={32}
+                      tickFormatter={formatDay}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      width={56}
+                      tickFormatter={compactInr}
+                    />
+                    <ChartTooltip
+                      content={
+                        <ChartTooltipContent
+                          labelFormatter={formatDay}
+                          formatter={(value) => inr(Number(value))}
+                        />
+                      }
+                    />
+                    <Area
+                      type='monotone'
+                      fillOpacity={0.25}
+                      strokeWidth={2}
+                      dataKey='totalInvoice'
+                      fill='var(--color-totalInvoice)'
+                      stroke='var(--color-totalInvoice)'
+                    />
+                  </AreaChart>
+                </ChartContainer>
+              )}
             </CardContent>
           </Card>
         </div>

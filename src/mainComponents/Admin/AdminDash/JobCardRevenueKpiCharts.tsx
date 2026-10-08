@@ -2,8 +2,6 @@ import { useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
-  Bar,
-  BarChart,
   CartesianGrid,
   Cell,
   Line,
@@ -85,7 +83,7 @@ export default function JobCardRevenueKpiCharts() {
       current: { label: `${year}`, color: "var(--chart-1)" },
       previous: { label: `${year - 1}`, color: "var(--chart-3)" },
     }),
-    [year]
+    [year],
   );
 
   const yoyData = useMemo(() => {
@@ -180,7 +178,9 @@ export default function JobCardRevenueKpiCharts() {
           <Card>
             <CardHeader>
               <CardTitle className='text-base'>Revenue Trend</CardTitle>
-              <CardDescription>Invoiced revenue by month in {year}</CardDescription>
+              <CardDescription>
+                Invoiced revenue by month in {year}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer
@@ -218,7 +218,7 @@ export default function JobCardRevenueKpiCharts() {
                 config={revenueVsTaxConfig}
                 className='h-[260px] w-full'
               >
-                <BarChart data={monthly} margin={{ left: 0, right: 12 }}>
+                <AreaChart data={monthly} margin={{ left: 0, right: 12 }}>
                   <CartesianGrid vertical={false} />
                   <XAxis
                     dataKey='month'
@@ -228,19 +228,25 @@ export default function JobCardRevenueKpiCharts() {
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <ChartLegend content={<ChartLegendContent />} />
-                  <Bar
+                  <Area
+                    type='monotone'
+                    fillOpacity={0.25}
+                    strokeWidth={2}
                     dataKey='subtotal'
                     stackId='revenue'
                     fill='var(--color-subtotal)'
-                    radius={[0, 0, 0, 0]}
+                    stroke='var(--color-subtotal)'
                   />
-                  <Bar
+                  <Area
+                    type='monotone'
+                    fillOpacity={0.25}
+                    strokeWidth={2}
                     dataKey='taxTotal'
                     stackId='revenue'
                     fill='var(--color-taxTotal)'
-                    radius={[4, 4, 0, 0]}
+                    stroke='var(--color-taxTotal)'
                   />
-                </BarChart>
+                </AreaChart>
               </ChartContainer>
             </CardContent>
           </Card>
@@ -278,7 +284,9 @@ export default function JobCardRevenueKpiCharts() {
 
           <Card>
             <CardHeader>
-              <CardTitle className='text-base'>Revenue, Year over Year</CardTitle>
+              <CardTitle className='text-base'>
+                Revenue, Year over Year
+              </CardTitle>
               <CardDescription>
                 {year} vs {year - 1} — monthly revenue shape
               </CardDescription>
@@ -340,7 +348,9 @@ export default function JobCardRevenueKpiCharts() {
                       <Cell key={entry.key} fill={entry.fill} />
                     ))}
                   </Pie>
-                  <ChartLegend content={<ChartLegendContent nameKey='label' />} />
+                  <ChartLegend
+                    content={<ChartLegendContent nameKey='label' />}
+                  />
                 </PieChart>
               </ChartContainer>
             )}
@@ -350,7 +360,9 @@ export default function JobCardRevenueKpiCharts() {
         <Card>
           <CardHeader>
             <CardTitle className='text-base'>Tax % of Revenue</CardTitle>
-            <CardDescription>Share of invoiced revenue that is tax</CardDescription>
+            <CardDescription>
+              Share of invoiced revenue that is tax
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (

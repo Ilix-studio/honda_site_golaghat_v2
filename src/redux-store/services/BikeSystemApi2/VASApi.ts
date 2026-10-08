@@ -113,6 +113,7 @@ export interface PriceCalculationResponse {
 export interface VasAssignStats {
   year: number;
   monthly: Array<{ month: string; activationCount: number; revenue: number }>;
+  daily: Array<{ date: string; activationCount: number; revenue: number }>;
   totals: { totalActivations: number; totalRevenue: number };
 }
 

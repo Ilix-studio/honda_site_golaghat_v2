@@ -1,6 +1,6 @@
 // ─── Stock & Inventory ────────────────────────────────────────────────────
 import { useState } from "react";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   Card,
@@ -138,7 +138,7 @@ export const StockTab = () => {
                 config={stockAssignConfig}
                 className='h-[260px] w-full'
               >
-                <BarChart data={monthly} margin={{ left: 0, right: 12 }}>
+                <AreaChart data={monthly} margin={{ left: 0, right: 12 }}>
                   <CartesianGrid vertical={false} />
                   <XAxis
                     dataKey='month'
@@ -147,12 +147,15 @@ export const StockTab = () => {
                     tickMargin={8}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar
+                  <Area
+                    type='monotone'
+                    fillOpacity={0.25}
+                    strokeWidth={2}
                     dataKey='assignedCount'
                     fill='var(--color-assignedCount)'
-                    radius={4}
+                    stroke='var(--color-assignedCount)'
                   />
-                </BarChart>
+                </AreaChart>
               </ChartContainer>
             </CardContent>
           </Card>
@@ -194,7 +197,7 @@ export const StockTab = () => {
                 config={stockAssignConfig}
                 className='h-[260px] w-full'
               >
-                <BarChart data={monthlyCSV} margin={{ left: 0, right: 12 }}>
+                <AreaChart data={monthlyCSV} margin={{ left: 0, right: 12 }}>
                   <CartesianGrid vertical={false} />
                   <XAxis
                     dataKey='month'
@@ -203,12 +206,15 @@ export const StockTab = () => {
                     tickMargin={8}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar
+                  <Area
+                    type='monotone'
+                    fillOpacity={0.25}
+                    strokeWidth={2}
                     dataKey='assignedCount'
                     fill='var(--color-assignedCount)'
-                    radius={4}
+                    stroke='var(--color-assignedCount)'
                   />
-                </BarChart>
+                </AreaChart>
               </ChartContainer>
             </CardContent>
           </Card>

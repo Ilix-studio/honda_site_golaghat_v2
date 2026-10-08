@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   Card,
@@ -42,7 +42,11 @@ export default function SalesReportKpiCharts() {
   );
 
   const monthlyData = useMemo(
-    () => (data?.data.monthly ?? []).map((m) => ({ month: m.month, totalPayment: m.totalPayment })),
+    () =>
+      (data?.data.monthly ?? []).map((m) => ({
+        month: m.month,
+        totalPayment: m.totalPayment,
+      })),
     [data],
   );
 
@@ -100,17 +104,36 @@ export default function SalesReportKpiCharts() {
         <>
           <Card>
             <CardHeader>
-              <CardTitle className='text-base'>Total Payment by Month</CardTitle>
-              <CardDescription>Sum of Total Payment across all branches, {year}</CardDescription>
+              <CardTitle className='text-base'>
+                Total Payment by Month
+              </CardTitle>
+              <CardDescription>
+                Sum of Total Payment across all branches, {year}
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <ChartContainer config={monthlyConfig} className='h-[260px] w-full'>
-                <BarChart data={monthlyData} margin={{ left: 0, right: 12 }}>
+              <ChartContainer
+                config={monthlyConfig}
+                className='h-[260px] w-full'
+              >
+                <AreaChart data={monthlyData} margin={{ left: 0, right: 12 }}>
                   <CartesianGrid vertical={false} />
-                  <XAxis dataKey='month' tickLine={false} axisLine={false} tickMargin={8} />
+                  <XAxis
+                    dataKey='month'
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                  />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey='totalPayment' fill='var(--color-totalPayment)' radius={4} />
-                </BarChart>
+                  <Area
+                    type='monotone'
+                    fillOpacity={0.25}
+                    strokeWidth={2}
+                    dataKey='totalPayment'
+                    fill='var(--color-totalPayment)'
+                    stroke='var(--color-totalPayment)'
+                  />
+                </AreaChart>
               </ChartContainer>
             </CardContent>
           </Card>
@@ -119,7 +142,9 @@ export default function SalesReportKpiCharts() {
             <Card>
               <CardHeader>
                 <CardTitle className='text-base'>By Purchase Type</CardTitle>
-                <CardDescription>Record count and total payment per purchase type</CardDescription>
+                <CardDescription>
+                  Record count and total payment per purchase type
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className='space-y-2'>
@@ -128,7 +153,9 @@ export default function SalesReportKpiCharts() {
                       key={p.purchaseType}
                       className='flex items-center justify-between rounded-lg border border-gray-100 px-3 py-2 text-sm'
                     >
-                      <span className='font-medium text-gray-800'>{p.purchaseType}</span>
+                      <span className='font-medium text-gray-800'>
+                        {p.purchaseType}
+                      </span>
                       <span className='text-gray-500'>
                         {p.count} record(s) · {inr(p.totalPayment)}
                       </span>

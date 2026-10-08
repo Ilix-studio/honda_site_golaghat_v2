@@ -51,6 +51,13 @@ export const inr = (value: number) =>
   `₹${value.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 
 /** Compact ₹ for axis ticks and bar labels — ₹1.2L / ₹3.4Cr — so axes stay narrow. */
+/** yyyy-mm-dd bucket key → "8 Oct" for daily chart axes and tooltips. */
+export const formatDay = (value: unknown) =>
+  new Date(`${String(value)}T00:00:00`).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+  });
+
 export const compactInr = (value: number) => {
   if (Math.abs(value) >= 1e7) return `₹${(value / 1e7).toFixed(1)}Cr`;
   if (Math.abs(value) >= 1e5) return `₹${(value / 1e5).toFixed(1)}L`;
@@ -342,7 +349,7 @@ const SalesKpiCharts = ({
             config={revenueMixConfig}
             className='h-[280px] w-full'
           >
-            <BarChart data={timeseries} margin={{ left: 0, right: 12 }}>
+            <AreaChart data={timeseries} margin={{ left: 0, right: 12 }}>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey='bucket'
@@ -352,31 +359,43 @@ const SalesKpiCharts = ({
               />
               <ChartTooltip content={<ChartTooltipContent />} />
               <ChartLegend content={<ChartLegendContent />} />
-              <Bar
+              <Area
+                type='monotone'
+                fillOpacity={0.25}
+                strokeWidth={2}
                 dataKey='labourRevenue'
                 stackId='mix'
                 fill='var(--color-labourRevenue)'
-                radius={[0, 0, 0, 0]}
+                stroke='var(--color-labourRevenue)'
               />
-              <Bar
+              <Area
+                type='monotone'
+                fillOpacity={0.25}
+                strokeWidth={2}
                 dataKey='partsRevenue'
                 stackId='mix'
                 fill='var(--color-partsRevenue)'
-                radius={[0, 0, 0, 0]}
+                stroke='var(--color-partsRevenue)'
               />
-              <Bar
+              <Area
+                type='monotone'
+                fillOpacity={0.25}
+                strokeWidth={2}
                 dataKey='lubesRevenue'
                 stackId='mix'
                 fill='var(--color-lubesRevenue)'
-                radius={[0, 0, 0, 0]}
+                stroke='var(--color-lubesRevenue)'
               />
-              <Bar
+              <Area
+                type='monotone'
+                fillOpacity={0.25}
+                strokeWidth={2}
                 dataKey='accessoriesRevenue'
                 stackId='mix'
                 fill='var(--color-accessoriesRevenue)'
-                radius={[4, 4, 0, 0]}
+                stroke='var(--color-accessoriesRevenue)'
               />
-            </BarChart>
+            </AreaChart>
           </ChartContainer>
         </CardContent>
       </Card>
