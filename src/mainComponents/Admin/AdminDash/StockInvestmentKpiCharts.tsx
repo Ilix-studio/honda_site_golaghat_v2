@@ -60,6 +60,12 @@ const MONTH_LABELS = [
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
+/**
+ * Lower bound that covers every import. The server defaults a missing `from`
+ * to the trailing 30 days, so the all-time tiles have to pass one explicitly.
+ */
+const ALL_TIME_FROM = "1970-01-01";
+
 const investmentTrendConfig: ChartConfig = {
   totalCostPrice: { label: "Investment", color: "var(--chart-1)" },
 };
@@ -100,8 +106,16 @@ export default function StockInvestmentKpiCharts() {
   const { data: b2b } = useGetB2BSalesKPIsQuery();
   const { data: statusSummary } = useGetStockStatusSummaryQuery();
 
+  // The tiles ignore the chart's granularity and month window: like Not Sold
+  // and Total Sold they count every import, so an older batch never drops out
+  // of the investment total. Year buckets keep the response to a few points.
+  const { data: allTime } = useGetStockInvestmentTimeseriesQuery({
+    granularity: "year",
+    from: ALL_TIME_FROM,
+  });
+
   const timeseries = useMemo(() => data?.data.timeseries ?? [], [data]);
-  const totals = data?.data.totals;
+  const totals = allTime?.data.totals;
 
   /**
    * The endpoint only returns days that have stock, so one import day would be
@@ -214,8 +228,6 @@ export default function StockInvestmentKpiCharts() {
 
   return (
     <div className='space-y-6'>
-      {granularityControl}
-
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
         <MetricTile
           index={0}
@@ -290,12 +302,14 @@ export default function StockInvestmentKpiCharts() {
       </div>
 
       <p className='text-xs text-muted-foreground'>
-        Total Stock Investment and Vehicles Added cover the selected{" "}
-        {granularity} range (trailing 30 days by default) and count purchased
-        stock only — auto-registered service vehicles are excluded. Vehicles
-        Added therefore splits exactly into Not Sold plus the "from stock" half
-        of Total Sold.
+        Total Stock Investment and Vehicles Added cover every CSV import and
+        count purchased stock only — auto-registered service vehicles are
+        excluded. Vehicles Added therefore splits exactly into Not Sold plus the
+        "from stock" half of Total Sold. The charts below follow the selected
+        period.
       </p>
+
+      {granularityControl}
 
       {timeseries.length === 0 ? (
         <>

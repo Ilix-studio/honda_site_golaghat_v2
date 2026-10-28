@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { startJourney } from "./main";
 import "./journey.css";
 
@@ -68,6 +68,17 @@ function Ctas() {
  * `startJourney()` drives by id/class; the three.js scene renders into #scene.
  */
 export default function JourneyStory() {
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  // Jump past the whole scroll track so the page below sits at the top of
+  // the viewport. Instant, not smooth — smooth would play the story in fast-forward.
+  const skip = () => {
+    const track = trackRef.current;
+    if (!track) return;
+    const end = track.getBoundingClientRect().bottom + window.scrollY;
+    window.scrollTo({ top: end, behavior: "instant" });
+  };
+
   useEffect(() => {
     const root = document.documentElement;
     root.classList.add("journey-page");
@@ -80,7 +91,7 @@ export default function JourneyStory() {
 
   return (
     <div className='jr'>
-      <div className='track' id='journey'>
+      <div className='track' id='journey' ref={trackRef}>
         <div className='stage' id='stage'>
           <canvas
             id='scene'
@@ -145,6 +156,10 @@ export default function JourneyStory() {
           <p className='fallback' id='fallback' hidden>
             This journey needs WebGL. Scroll on to visit the dealer.
           </p>
+
+          <button type='button' className='skip' onClick={skip}>
+            SKIP ANIMATION
+          </button>
         </div>
       </div>
     </div>

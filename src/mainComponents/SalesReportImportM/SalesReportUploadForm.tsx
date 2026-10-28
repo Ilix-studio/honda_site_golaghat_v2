@@ -167,8 +167,9 @@ export default function SalesReportUploadForm({
 
           <div className='mt-3 pt-3 border-t border-gray-100 space-y-1.5'>
             <p className='text-xs font-medium text-gray-500'>
-              {SALES_REPORT_TEMPLATE_COLUMNS.filter((c) => c.required).length} columns
-              are required — an upload missing any of them is rejected:
+              {SALES_REPORT_TEMPLATE_COLUMNS.filter((c) => c.required).length} of
+              these {SALES_REPORT_TEMPLATE_COLUMNS.length} columns are required
+              (marked *) — an upload missing any of them is rejected:
             </p>
             {SALES_REPORT_TEMPLATE_COLUMNS.map((column) => (
               <div
@@ -177,6 +178,7 @@ export default function SalesReportUploadForm({
               >
                 <span className='bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md font-mono shrink-0'>
                   {column.header}
+                  {column.required && " *"}
                 </span>
                 <span className='text-gray-400'>{column.hint}</span>
               </div>
@@ -263,6 +265,29 @@ export default function SalesReportUploadForm({
               a valid mobile number is added to the customer list, matched or
               not.
             </p>
+
+            {(result.unpricedModels?.length ?? 0) > 0 && (
+              <div className='rounded-lg bg-red-50 border border-red-200 p-3'>
+                <p className='text-sm font-medium text-red-800 mb-1'>
+                  Price not found for{" "}
+                  {result.unpricedModels!.reduce((n, m) => n + m.rows, 0)} row(s)
+                  — these models are in neither the bike catalogue nor any CSV
+                  stock upload:
+                </p>
+                <ul className='text-xs text-red-700 space-y-0.5'>
+                  {result.unpricedModels!.map((m) => (
+                    <li key={m.model}>
+                      {m.model} — {m.rows} row(s)
+                    </li>
+                  ))}
+                </ul>
+                <p className='text-xs text-red-700 mt-2'>
+                  Add each model to the bike catalogue with its ex-showroom
+                  price, or upload stock that includes it, or enter Total
+                  Payment on those rows.
+                </p>
+              </div>
+            )}
 
             {result.errors.length > 0 && (
               <div className='rounded-lg bg-amber-50 border border-amber-200 p-3'>

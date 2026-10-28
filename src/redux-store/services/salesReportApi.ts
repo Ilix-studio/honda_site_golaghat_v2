@@ -24,6 +24,8 @@ export interface SalesReportImportResponse {
     detectedColumns: string[];
     errors: { row: number; data: Record<string, unknown>; error: string }[];
     created: string[];
+    /** Models priced by neither the bike catalogue nor CSV stock; their rows imported with Total Payment 0. */
+    unpricedModels?: { model: string; rows: number }[];
   };
 }
 
@@ -49,6 +51,16 @@ export interface SalesReportRow {
   saleDate?: string;
   frameNo: string;
   engineNo: string;
+  slNo?: string;
+  colour?: string;
+  /** EW / AMC / RSA / JOY CLUB: the register's 1 (taken) / 0 (not taken) flags, as written. */
+  ew?: string;
+  amc?: string;
+  rsa?: string;
+  joyClub?: string;
+  finance?: string;
+  executive?: string;
+  /** The file's STATUS column; "Sold" when it had none. */
   status: string;
   purchaseType: string;
   totalPayment: number;
@@ -145,11 +157,21 @@ export interface SalesReportRowUpdate {
   /** Required — ISO date or yyyy-mm-dd. */
   saleDate: string;
   modelName?: string;
+  /** Full name; the server splits it into first / last. */
+  customerName?: string;
   customerFirstName?: string;
   customerLastName?: string;
   customerMobile?: string;
   location?: string;
   engineNo?: string;
+  colour?: string;
+  ew?: string;
+  amc?: string;
+  rsa?: string;
+  joyClub?: string;
+  finance?: string;
+  executive?: string;
+  status?: string;
   purchaseType?: string;
   totalPayment?: number;
 }

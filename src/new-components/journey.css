@@ -78,6 +78,11 @@
 @keyframes drop { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(0); transform-origin: bottom; } }
 .jr .fallback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: var(--mono); font-size: 12px; letter-spacing: .14em; }
 
+/* skip — lives in the sticky stage, so it stays put for the whole story */
+.jr .skip { position: absolute; right: 40px; bottom: 28px; min-height: 32px; padding: 0 12px; font-family: var(--mono); font-size: 10px; letter-spacing: .2em; color: var(--ink); background: rgba(244, 242, 238, .85); border: 1px solid var(--ink); cursor: pointer; }
+.jr .skip:hover { background: var(--ink); color: var(--bg); }
+.jr .skip:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+
 /* closing */
 
 @media (max-width: 820px) {
@@ -94,6 +99,8 @@
   .jr .ln { width: 16px; }
   .jr .tx { font-size: 9px; }
   .jr .hint { display: none; }
+  /* the headline panel owns the bottom edge here — sit under the rail instead */
+  .jr .skip { top: 140px; right: 16px; bottom: auto; min-height: 40px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .jr .hblock { transition: opacity .45s ease; }

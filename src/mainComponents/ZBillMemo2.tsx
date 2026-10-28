@@ -169,7 +169,7 @@ const PAYMENT_QR_URL =
   "https://res.cloudinary.com/dk9pul4wv/image/upload/v1790827848/WhatsApp_Image_2026-10-01_at_9.37.37_AM_rsr0er.jpg";
 
 const BANK_DETAILS: { label: string; value: string }[] = [
-  { label: "Account Name", value: "Mr. ILISH JYOTISHKA HAZARIKA (STUDENT)" },
+  { label: "Account Name", value: "Mr. ILISH  HAZARIKA " },
   { label: "Account Number", value: "34182000395" },
   { label: "CIF Number", value: "87665401193" },
 ];

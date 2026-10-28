@@ -70,17 +70,25 @@ const SalesReportRecordsTable = ({ batchId }: SalesReportRecordsTableProps) => {
     { skip: !isAuthenticated },
   );
 
-  // Only Golaghat rows are listed (e.g. SARUPATHAR rows are hidden).
-  const rows = useMemo(
-    () => (data?.data ?? []).filter((r) => /golaghat/i.test(r.location ?? "")),
-    [data],
-  );
+  // Only Golaghat rows are listed (e.g. SARUPATHAR rows are hidden), in
+  // register order — oldest sale first, then the order the file listed them —
+  // so the serial number counts up from the first sale.
+  const rows = useMemo(() => {
+    const time = (iso?: string) => (iso ? Date.parse(iso) : Infinity);
+    return (data?.data ?? [])
+      .filter((r) => /golaghat/i.test(r.location ?? ""))
+      .sort(
+        (a, b) =>
+          time(a.saleDate) - time(b.saleDate) ||
+          time(a.createdAt) - time(b.createdAt),
+      );
+  }, [data]);
 
   const filteredRows = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return rows;
     return rows.filter((r) =>
-      [r.customerFirstName, r.customerLastName, r.customerMobile, r.location, r.frameNo, r.engineNo, r.modelName]
+      [r.customerFirstName, r.customerLastName, r.customerMobile, r.location, r.frameNo, r.engineNo, r.modelName, r.finance, r.executive]
         .filter(Boolean)
         .some((field) => String(field).toLowerCase().includes(q)),
     );
@@ -101,7 +109,7 @@ const SalesReportRecordsTable = ({ batchId }: SalesReportRecordsTableProps) => {
       <div className='relative max-w-md'>
         <Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
         <Input
-          placeholder='Search by customer, phone, location, frame no, engine no, or model'
+          placeholder='Search by customer, phone, location, frame no, engine no, model, finance, or executive'
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className='pl-10'
@@ -124,24 +132,37 @@ const SalesReportRecordsTable = ({ batchId }: SalesReportRecordsTableProps) => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className='min-w-[60px]'>Sl No.</TableHead>
                   <TableHead className='min-w-[110px]'>Date</TableHead>
-                  <TableHead className='min-w-[140px]'>Model Name</TableHead>
-                  <TableHead className='min-w-[160px]'>Customer</TableHead>
-                  <TableHead className='min-w-[130px]'>Phone</TableHead>
+                  <TableHead className='min-w-[160px]'>Customer Name</TableHead>
+                  <TableHead className='min-w-[130px]'>Phone No.</TableHead>
                   <TableHead className='min-w-[140px]'>Location</TableHead>
                   <TableHead className='min-w-[140px]'>Frame No</TableHead>
                   <TableHead className='min-w-[140px]'>Engine No</TableHead>
+                  <TableHead className='min-w-[140px]'>Model Name</TableHead>
+                  <TableHead className='min-w-[90px]'>Colour</TableHead>
+                  <TableHead className='text-center'>EW</TableHead>
+                  <TableHead className='text-center'>AMC</TableHead>
+                  <TableHead className='text-center'>RSA</TableHead>
+                  <TableHead className='min-w-[80px] text-center'>Joy Club</TableHead>
+                  <TableHead className='min-w-[100px]'>Finance</TableHead>
+                  <TableHead className='min-w-[110px]'>Executive</TableHead>
+                  <TableHead className='min-w-[80px]'>Status</TableHead>
                   <TableHead className='min-w-[120px]'>Total Payment</TableHead>
                   <TableHead className='min-w-[100px] text-right'>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedRows.map((r) => (
+                {paginatedRows.map((r, i) => (
                   <TableRow key={r._id}>
+                    {/* Running serial number across pages. The file's own SL NO. is
+                        mostly blank in register exports, so it isn't shown here. */}
+                    <TableCell className='text-muted-foreground tabular-nums'>
+                      {(page - 1) * RECORDS_PAGE_SIZE + i + 1}
+                    </TableCell>
                     <TableCell className='whitespace-nowrap'>
                       {r.saleDate ? format(new Date(r.saleDate), "dd MMM yyyy") : "—"}
                     </TableCell>
-                    <TableCell className='font-medium'>{r.modelName || "—"}</TableCell>
                     <TableCell>
                       {[r.customerFirstName, r.customerLastName].filter(Boolean).join(" ") || "—"}
                     </TableCell>
@@ -149,7 +170,16 @@ const SalesReportRecordsTable = ({ batchId }: SalesReportRecordsTableProps) => {
                     <TableCell>{r.location || "—"}</TableCell>
                     <TableCell className='font-mono text-xs'>{r.frameNo}</TableCell>
                     <TableCell className='font-mono text-xs'>{r.engineNo || "—"}</TableCell>
-                    <TableCell>{inr(r.totalPayment)}</TableCell>
+                    <TableCell className='font-medium'>{r.modelName || "—"}</TableCell>
+                    <TableCell>{r.colour || "—"}</TableCell>
+                    <TableCell className='text-center'>{r.ew || "—"}</TableCell>
+                    <TableCell className='text-center'>{r.amc || "—"}</TableCell>
+                    <TableCell className='text-center'>{r.rsa || "—"}</TableCell>
+                    <TableCell className='text-center'>{r.joyClub || "—"}</TableCell>
+                    <TableCell>{r.finance || "—"}</TableCell>
+                    <TableCell>{r.executive || "—"}</TableCell>
+                    <TableCell>{r.status || "—"}</TableCell>
+                    <TableCell className='whitespace-nowrap'>{inr(r.totalPayment)}</TableCell>
                     <TableCell className='text-right'>
                       {canModify(r) && (
                         <div className='flex justify-end gap-1'>

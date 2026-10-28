@@ -27,12 +27,19 @@ const toDateInput = (iso?: string) => (iso ? iso.slice(0, 10) : "");
 const SalesReportRowEditDialog = ({ row, onClose }: Props) => {
   const [form, setForm] = useState({
     saleDate: "",
-    modelName: "",
-    customerFirstName: "",
-    customerLastName: "",
+    customerName: "",
     customerMobile: "",
     location: "",
     engineNo: "",
+    modelName: "",
+    colour: "",
+    ew: "",
+    amc: "",
+    rsa: "",
+    joyClub: "",
+    finance: "",
+    executive: "",
+    status: "",
     totalPayment: "",
   });
   const [updateRow, { isLoading }] = useUpdateSalesReportRowMutation();
@@ -41,12 +48,21 @@ const SalesReportRowEditDialog = ({ row, onClose }: Props) => {
     if (!row) return;
     setForm({
       saleDate: toDateInput(row.saleDate),
-      modelName: row.modelName ?? "",
-      customerFirstName: row.customerFirstName ?? "",
-      customerLastName: row.customerLastName ?? "",
+      customerName: [row.customerFirstName, row.customerLastName]
+        .filter(Boolean)
+        .join(" "),
       customerMobile: row.customerMobile ?? "",
       location: row.location ?? "",
       engineNo: row.engineNo ?? "",
+      modelName: row.modelName ?? "",
+      colour: row.colour ?? "",
+      ew: row.ew ?? "",
+      amc: row.amc ?? "",
+      rsa: row.rsa ?? "",
+      joyClub: row.joyClub ?? "",
+      finance: row.finance ?? "",
+      executive: row.executive ?? "",
+      status: row.status ?? "",
       totalPayment: String(row.totalPayment ?? ""),
     });
   }, [row]);
@@ -78,7 +94,7 @@ const SalesReportRowEditDialog = ({ row, onClose }: Props) => {
 
   return (
     <Dialog open={!!row} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className='max-w-lg'>
+      <DialogContent className='max-w-lg max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
           <DialogTitle>Edit record</DialogTitle>
           <DialogDescription>
@@ -96,19 +112,11 @@ const SalesReportRowEditDialog = ({ row, onClose }: Props) => {
             <Input id='sr-date' type='date' required value={form.saleDate} onChange={set("saleDate")} />
           </div>
           <div className='col-span-2 space-y-1.5'>
-            <Label htmlFor='sr-model'>Model Name</Label>
-            <Input id='sr-model' value={form.modelName} onChange={set("modelName")} />
+            <Label htmlFor='sr-name'>Customer Name</Label>
+            <Input id='sr-name' value={form.customerName} onChange={set("customerName")} />
           </div>
           <div className='space-y-1.5'>
-            <Label htmlFor='sr-first'>Customer First Name</Label>
-            <Input id='sr-first' value={form.customerFirstName} onChange={set("customerFirstName")} />
-          </div>
-          <div className='space-y-1.5'>
-            <Label htmlFor='sr-last'>Customer Last Name</Label>
-            <Input id='sr-last' value={form.customerLastName} onChange={set("customerLastName")} />
-          </div>
-          <div className='space-y-1.5'>
-            <Label htmlFor='sr-mobile'>Contact Mobile</Label>
+            <Label htmlFor='sr-mobile'>Phone No.</Label>
             <Input id='sr-mobile' inputMode='numeric' value={form.customerMobile} onChange={set("customerMobile")} />
           </div>
           <div className='space-y-1.5'>
@@ -118,6 +126,41 @@ const SalesReportRowEditDialog = ({ row, onClose }: Props) => {
           <div className='space-y-1.5'>
             <Label htmlFor='sr-engine'>Engine No</Label>
             <Input id='sr-engine' className='font-mono' value={form.engineNo} onChange={set("engineNo")} />
+          </div>
+          <div className='space-y-1.5'>
+            <Label htmlFor='sr-model'>Model Name</Label>
+            <Input id='sr-model' value={form.modelName} onChange={set("modelName")} />
+          </div>
+          <div className='space-y-1.5'>
+            <Label htmlFor='sr-colour'>Colour</Label>
+            <Input id='sr-colour' value={form.colour} onChange={set("colour")} />
+          </div>
+          <div className='space-y-1.5'>
+            <Label htmlFor='sr-status'>Status</Label>
+            <Input id='sr-status' value={form.status} onChange={set("status")} />
+          </div>
+          <div className='col-span-2 grid grid-cols-4 gap-3'>
+            {(
+              [
+                ["ew", "EW"],
+                ["amc", "AMC"],
+                ["rsa", "RSA"],
+                ["joyClub", "Joy Club"],
+              ] as const
+            ).map(([key, label]) => (
+              <div key={key} className='space-y-1.5'>
+                <Label htmlFor={`sr-${key}`}>{label}</Label>
+                <Input id={`sr-${key}`} inputMode='numeric' placeholder='1 / 0' value={form[key]} onChange={set(key)} />
+              </div>
+            ))}
+          </div>
+          <div className='space-y-1.5'>
+            <Label htmlFor='sr-finance'>Finance</Label>
+            <Input id='sr-finance' value={form.finance} onChange={set("finance")} />
+          </div>
+          <div className='space-y-1.5'>
+            <Label htmlFor='sr-executive'>Executive</Label>
+            <Input id='sr-executive' value={form.executive} onChange={set("executive")} />
           </div>
           <div className='space-y-1.5'>
             <Label htmlFor='sr-pay'>Total Payment</Label>
