@@ -18,6 +18,21 @@ import {
 import { UpdateStatusRequest } from "@/types/getApproved.types";
 import type { AssignedCustomerProfile } from "../BikeSystemApi2/StockConceptApi";
 
+/** One hit of the Engine / Chassis lookup across CSV + manual stock. */
+export interface StockSearchResult {
+  source: "csv" | "manual";
+  id: string;
+  engineNumber: string;
+  chassisNumber: string;
+  model: string;
+  colour: string;
+  status?: string;
+  location?: string;
+  branchName: string;
+  /** CSV batch id, or the manual entry's stockId. */
+  reference?: string;
+}
+
 export interface AssignedCSVStockFilters {
   page?: number;
   limit?: number;
@@ -102,6 +117,15 @@ export const csvStockApi = apiSlice.injectEndpoints({
         return `/csv-stock/assigned${qs ? `?${qs}` : ""}`;
       },
       providesTags: ["CSVStockList"],
+      transformErrorResponse: (response) => handleApiError(response),
+    }),
+
+    // GET /api/csv-stock/search?q= — Engine / Chassis across CSV + manual stock
+    searchStock: builder.query<
+      { success: boolean; data: StockSearchResult[] },
+      string
+    >({
+      query: (q) => `/csv-stock/search?q=${encodeURIComponent(q)}`,
       transformErrorResponse: (response) => handleApiError(response),
     }),
 
@@ -336,6 +360,7 @@ export const csvStockApi = apiSlice.injectEndpoints({
 // ===================== EXPORTED HOOKS =====================
 
 export const {
+  useSearchStockQuery,
   useImportCSVStockMutation,
   useGetAssignedCSVStockQuery,
   useGetCSVStocksQuery,

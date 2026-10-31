@@ -117,6 +117,7 @@ const BranchManagerDashboard = () => {
       loading: salesReportBatchesLoading,
       description: "Upload sold-vehicle CSV/XLSX reports",
       action: { label: "Upload Sales Info", href: "/manager/sales-report" },
+      highlight: true,
     },
 
     {

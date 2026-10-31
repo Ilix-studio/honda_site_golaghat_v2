@@ -1,5 +1,8 @@
 /// <reference lib="webworker" />
 import { precacheAndRoute, cleanupOutdatedCaches } from "workbox-precaching";
+import { registerRoute } from "workbox-routing";
+import { StaleWhileRevalidate } from "workbox-strategies";
+import { ExpirationPlugin } from "workbox-expiration";
 import { initializeApp } from "firebase/app";
 import { getMessaging, onBackgroundMessage } from "firebase/messaging/sw";
 
@@ -7,8 +10,9 @@ import { getMessaging, onBackgroundMessage } from "firebase/messaging/sw";
  * Single service worker for the app:
  *  1. PWA precache — Workbox precaches the built app shell (injected manifest)
  *     so repeat loads are instant and the shell works offline. API requests
- *     (`/api/*`) are intentionally NOT cached — they must always hit the
- *     network (auth tokens, live inventory, customer data).
+ *     (`/api/*`) are NOT cached — they must hit the network (auth tokens, live
+ *     inventory, customer data) — with ONE exception: the anonymous public
+ *     bike catalogue GET below, to save Cloud Run requests.
  *  2. FCM background push — shows OS notifications when no tab is focused.
  *
  * NOTE: the Firebase config below is duplicated from `src/lib/firebase.ts`
@@ -20,6 +24,21 @@ declare const self: ServiceWorkerGlobalScope;
 // --- PWA precache (app shell only; never /api) -------------------------------
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST);
+
+// Public homepage catalogue: serve from cache instantly and refresh in the
+// background (max 1h old). Only anonymous GETs — any request carrying an
+// Authorization header (staff/customers editing or viewing live stock) goes
+// straight to the network.
+registerRoute(
+  ({ url, request }) =>
+    request.method === "GET" &&
+    !request.headers.has("Authorization") &&
+    /\/api\/bikes\/get$/.test(url.pathname),
+  new StaleWhileRevalidate({
+    cacheName: "public-bikes",
+    plugins: [new ExpirationPlugin({ maxEntries: 20, maxAgeSeconds: 3600 })],
+  }),
+);
 
 // Activate a waiting SW as soon as the client asks it to (see main.tsx prompt).
 self.addEventListener("message", (event) => {

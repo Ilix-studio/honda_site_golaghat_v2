@@ -61,6 +61,8 @@ export const bikeApi = apiSlice.injectEndpoints({
               { type: "BikeList", id: "LIST" },
             ]
           : [{ type: "BikeList", id: "LIST" }],
+      // Catalogue changes rarely; mutations still invalidate via BikeList tags.
+      keepUnusedDataFor: 3600,
     }),
 
     // GET /api/bikes/:id - Get single bike by ID

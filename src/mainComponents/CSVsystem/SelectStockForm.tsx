@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../redux-store/slices/authSlice";
+import StockGlobalSearch from "./StockGlobalSearch";
 const SelectStockForm = () => {
   const navigate = useNavigate();
   const { user } = useSelector(selectAuth);
@@ -50,6 +51,8 @@ const SelectStockForm = () => {
             Choose how you want to add stock items to the system
           </p>
         </div>
+
+        <StockGlobalSearch />
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           {stockOptions.map((option) => (

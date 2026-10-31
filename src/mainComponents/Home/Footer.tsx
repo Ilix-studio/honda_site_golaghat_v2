@@ -1,79 +1,57 @@
 import { Mail, MapPin, Phone, Eye, TrendingUp } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import {
   useIncrementVisitorCounterMutation,
   useGetVisitorCountQuery,
-  useLazyGetVisitorCountQuery,
 } from "@/redux-store/services/visitorApi";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 
+// Crawlers / headless browsers start with an empty localStorage every run, so
+// they would each count as a "new visitor" and hit the API on every visit.
+const isBot = (): boolean =>
+  typeof navigator !== "undefined" &&
+  (navigator.webdriver ||
+    /HeadlessChrome|bot|crawl|spider|lighthouse|prerender/i.test(
+      navigator.userAgent,
+    ));
+
 export function Footer() {
   const navigate = useNavigate();
-  const [visitorTracked, setVisitorTracked] = useState(false);
   const [showVisitorAnimation, setShowVisitorAnimation] = useState(false);
+  const trackedRef = useRef(false);
+  const bot = isBot();
 
-  // Visitor tracking hooks
   const [
     incrementVisitorCounter,
     { isLoading: incrementLoading, error: incrementError },
   ] = useIncrementVisitorCounterMutation();
 
-  const [getVisitorCount] = useLazyGetVisitorCountQuery();
-
+  // One cached read of the count (see keepUnusedDataFor in visitorApi); the
+  // increment below invalidates it, so a new visitor sees the updated number.
   const { data: currentVisitorData, isLoading: visitorCountLoading } =
-    useGetVisitorCountQuery();
+    useGetVisitorCountQuery(undefined, { skip: bot });
 
-  // Check if user has visited before
-  const isReturningVisitor = (): boolean => {
-    return localStorage.getItem("visitor_tracked") === "true";
-  };
-
-  // Mark user as having visited
-  const markAsVisited = (): void => {
-    localStorage.setItem("visitor_tracked", "true");
-    setVisitorTracked(true);
-  };
-
-  // Track visitor on component mount
   useEffect(() => {
-    const trackVisitor = async () => {
-      if (visitorTracked) return; // Prevent double tracking
+    // Count each device once; bots are never counted.
+    if (bot || trackedRef.current) return;
+    if (localStorage.getItem("visitor_tracked") === "true") return;
+    trackedRef.current = true;
 
+    const timer = setTimeout(async () => {
       try {
-        const returning = isReturningVisitor();
-
-        if (returning) {
-          // Returning visitor - just get current count
-          console.log("Returning visitor detected");
-          await getVisitorCount().unwrap();
-        } else {
-          // New visitor - increment count
-          console.log("New visitor detected, incrementing counter");
-          const result = await incrementVisitorCounter().unwrap();
-          markAsVisited();
-          setShowVisitorAnimation(true);
-          console.log("Visitor count incremented to:", result.count);
-
-          // Hide animation after 3 seconds
-          setTimeout(() => setShowVisitorAnimation(false), 3000);
-        }
+        await incrementVisitorCounter().unwrap();
+        localStorage.setItem("visitor_tracked", "true");
+        setShowVisitorAnimation(true);
+        setTimeout(() => setShowVisitorAnimation(false), 3000);
       } catch (error) {
         console.error("Error tracking visitor:", error);
-        // Fallback: try to get current count
-        try {
-          await getVisitorCount().unwrap();
-        } catch (fallbackError) {
-          console.error("Fallback visitor count failed:", fallbackError);
-        }
+        trackedRef.current = false;
       }
-    };
-
-    // Track visitor after a short delay to ensure proper loading
-    const timer = setTimeout(trackVisitor, 1000);
+    }, 1000);
     return () => clearTimeout(timer);
-  }, [incrementVisitorCounter, getVisitorCount, visitorTracked]);
+  }, [bot, incrementVisitorCounter]);
 
   // Fixed variants with proper TypeScript typing
   const visitorVariants: Variants = {

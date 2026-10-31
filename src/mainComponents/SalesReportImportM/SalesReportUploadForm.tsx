@@ -255,6 +255,8 @@ export default function SalesReportUploadForm({
               Batch: <span className='font-mono'>{result.batchId}</span>
               {result.reviewCount > 0 &&
                 ` · ${result.reviewCount} row(s) need review`}
+              {(result.skippedRows ?? 0) > 0 &&
+                ` · ${result.skippedRows} empty row(s) ignored`}
             </p>
             <p className='text-sm text-gray-500'>
               Matched &amp; sold: {result.matchedCount} · Unmatched:{" "}

@@ -1,4 +1,12 @@
-import { Cog, Settings2, TrendingUp, Package, Regex, Bot } from "lucide-react";
+import {
+  Cog,
+  Settings2,
+  TrendingUp,
+  Package,
+  Regex,
+  Bot,
+  IndianRupee,
+} from "lucide-react";
 
 import { StatCard, type StatCardProps } from "../../Admin/AdminDash/StatCard";
 
@@ -9,6 +17,7 @@ import {
 } from "../../../redux-store/services/adminApi";
 import { useGetAllVASQuery } from "@/redux-store/services/BikeSystemApi2/VASApi";
 import { useGetMyLeavesQuery } from "@/redux-store/services/NewFeatures/leaveApi";
+import { useGetBikePricesQuery } from "@/redux-store/services/BikeSystemApi/bikePriceApi";
 
 const OperationOpz = () => {
   const { data: staffData, isLoading: staffLoading } =
@@ -26,6 +35,8 @@ const OperationOpz = () => {
   const { data: myLeaveData, isLoading: myLeaveLoading } = useGetMyLeavesQuery(
     {},
   );
+  const { data: bikePricesData, isLoading: bikePricesLoading } =
+    useGetBikePricesQuery();
 
   // Stat cards built from live query data
   const operationsStatsZ: Omit<StatCardProps, "index">[] = [
@@ -76,6 +87,15 @@ const OperationOpz = () => {
       loading: myLeaveLoading,
       description: "My Leave Application",
       action: { label: "Open", href: "/manager/apply-leave" },
+    },
+    {
+      title: "Add New Price",
+      value: bikePricesData?.count ?? "—",
+      icon: IndianRupee,
+      loading: bikePricesLoading,
+      description: "Edit bike model prices, one by one or all at once",
+      action: { label: "Open Price Manager", href: "/manager/add-new-price" },
+      highlight: true,
     },
     {
       title: "Raise Maintenance Request",

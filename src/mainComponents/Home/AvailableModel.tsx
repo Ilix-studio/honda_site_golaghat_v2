@@ -40,77 +40,37 @@ const AvailableModel = () => {
   const [activeTab, setActiveTab] = useState<"all" | "bike" | "scooter">("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  // Fetch bikes and scooters with different filters
+  // One request feeds all three tabs; the Bike / Scooter tabs are filtered
+  // client-side instead of firing a request each (see keepUnusedDataFor on
+  // getBikes and the public-GET cache in sw.ts).
   const {
-    data: allVehiclesResponse,
-    isLoading: isLoadingAll,
-    error: errorAll,
+    data: vehiclesResponse,
+    isLoading,
+    error,
   } = useGetBikesQuery({
-    limit: 12,
+    limit: 24,
     inStock: true,
   });
 
-  const {
-    data: bikesResponse,
-    isLoading: isLoadingBikes,
-    error: errorBikes,
-  } = useGetBikesQuery({
-    mainCategory: "bike",
-    limit: 8,
-    inStock: true,
-  });
+  const fetchedVehicles = vehiclesResponse?.data?.bikes || [];
+  const bikes = fetchedVehicles.filter((v) => v.mainCategory === "bike");
+  const scooters = fetchedVehicles.filter((v) => v.mainCategory === "scooter");
 
-  const {
-    data: scootersResponse,
-    isLoading: isLoadingScooters,
-    error: errorScooters,
-  } = useGetBikesQuery({
-    mainCategory: "scooter",
-    limit: 8,
-    inStock: true,
-  });
+  const vehicles =
+    activeTab === "bike"
+      ? bikes.slice(0, 8)
+      : activeTab === "scooter"
+        ? scooters.slice(0, 8)
+        : fetchedVehicles.slice(0, 12);
 
-  // Get data based on active tab
-  const getCurrentData = () => {
-    switch (activeTab) {
-      case "bike":
-        return {
-          vehicles: bikesResponse?.data?.bikes || [],
-          isLoading: isLoadingBikes,
-          error: errorBikes,
-        };
-      case "scooter":
-        return {
-          vehicles: scootersResponse?.data?.bikes || [],
-          isLoading: isLoadingScooters,
-          error: errorScooters,
-        };
-      default:
-        return {
-          vehicles: allVehiclesResponse?.data?.bikes || [],
-          isLoading: isLoadingAll,
-          error: errorAll,
-        };
-    }
+  // Stats cover the same 12 vehicles the "All" tab shows
+  const statsVehicles = fetchedVehicles.slice(0, 12);
+  const stats = {
+    total: statsVehicles.length,
+    bikes: statsVehicles.filter((v) => v.mainCategory === "bike").length,
+    scooters: statsVehicles.filter((v) => v.mainCategory === "scooter").length,
+    newModels: statsVehicles.filter((v) => v.isNewModel).length,
   };
-
-  const { vehicles, isLoading, error } = getCurrentData();
-
-  // Get stats for each category
-  const getStats = () => {
-    const allVehicles = allVehiclesResponse?.data?.bikes || [];
-    const bikes = allVehicles.filter((v) => v.mainCategory === "bike");
-    const scooters = allVehicles.filter((v) => v.mainCategory === "scooter");
-
-    return {
-      total: allVehicles.length,
-      bikes: bikes.length,
-      scooters: scooters.length,
-      newModels: allVehicles.filter((v) => v.isNewModel).length,
-    };
-  };
-
-  const stats = getStats();
 
   // Error state
   if (error) {

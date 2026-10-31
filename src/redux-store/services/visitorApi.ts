@@ -58,6 +58,9 @@ export const visitorApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
       providesTags: ["VisitorCount"],
+      // Public footer counter: an hour-old number is fine and saves a request
+      // on every remount/revisit.
+      keepUnusedDataFor: 3600,
       transformErrorResponse: (response) => handleApiError(response),
     }),
 

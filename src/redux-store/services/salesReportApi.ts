@@ -7,6 +7,8 @@ export interface SalesReportImportResponse {
   message: string;
   data: {
     totalRows: number;
+    /** Empty pre-formatted rows (SL NO. only) the server ignored; not counted in totalRows. */
+    skippedRows?: number;
     successCount: number;
     failureCount: number;
     reviewCount: number;
@@ -144,6 +146,8 @@ export interface SalesReportFilters {
   page?: number;
   limit?: number;
   batchId?: string;
+  /** Phone / Frame No / Engine No contains-match across all batches (3+ chars). */
+  search?: string;
   branchId?: string;
   matched?: boolean;
   purchaseType?: string;

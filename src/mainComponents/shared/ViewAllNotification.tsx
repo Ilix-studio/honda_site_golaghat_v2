@@ -21,10 +21,11 @@ import { timeAgo } from "./NotificationBell";
 const ViewAllNotification = () => {
   const navigate = useNavigate();
 
-  const { data, isLoading, isFetching, refetch } = useGetNotificationsQuery(
-    { page: 1, limit: 20 },
-    { pollingInterval: 60000 },
-  );
+  // Same args as the header bell, which already polls this cache entry.
+  const { data, isLoading, isFetching, refetch } = useGetNotificationsQuery({
+    page: 1,
+    limit: 20,
+  });
   const [markRead] = useMarkNotificationReadMutation();
   const [markAllRead] = useMarkAllNotificationsReadMutation();
   const customerAuth = useSelector(selectCustomerAuth);

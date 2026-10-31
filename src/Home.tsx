@@ -5,6 +5,7 @@ import { FeaturesSection } from "./mainComponents/Home/FeatureSection";
 import { Footer } from "./mainComponents/Home/Footer";
 
 import NewUI from "./mainComponents/Home/NewUI";
+import { RevealOnScroll } from "./mainComponents/Home/RevealOnScroll";
 // import UnderDevelopment from "./mainComponents/UnderDevelopment";
 import AvailableModel from "./mainComponents/Home/AvailableModel";
 import ServiceDetails from "./mainComponents/Home/ServiceDetails";
@@ -18,23 +19,37 @@ function Home() {
       <NewUI />
       <main>
         {/* <UnderDevelopment /> */}
-        <AvailableModel />
-        <ServiceDetails />
+        <RevealOnScroll minHeight={600}>
+          <AvailableModel />
+        </RevealOnScroll>
+        <RevealOnScroll>
+          <ServiceDetails />
+        </RevealOnScroll>
 
         <br />
         <br />
-        <EmiCalculator />
+        <RevealOnScroll>
+          <EmiCalculator />
+        </RevealOnScroll>
         <br />
         <br />
-        <FeaturesSection />
+        <RevealOnScroll>
+          <FeaturesSection />
+        </RevealOnScroll>
         <br />
         <br />
-        <ContactSection />
+        <RevealOnScroll>
+          <ContactSection />
+        </RevealOnScroll>
         <br />
 
-        <GoogleReviews />
+        <RevealOnScroll>
+          <GoogleReviews />
+        </RevealOnScroll>
         <br />
-        <Footer />
+        <RevealOnScroll minHeight={400}>
+          <Footer />
+        </RevealOnScroll>
       </main>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ReceiptText,
   UploadCloud,
@@ -6,12 +6,16 @@ import {
   ArrowLeft,
   Archive,
   RefreshCw,
+  Search,
+  ArrowUp,
+  ArrowDown,
   BarChart3,
   Calendar as CalendarIcon,
 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -61,6 +65,16 @@ export default function SalesReportAdminDashboard() {
   const { user, isAuthenticated } = useAppSelector(selectAuth);
   const [view, setView] = useState<View>("batches");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  // Global lookup by phone / Frame No / Engine No across every batch.
+  const [searchInput, setSearchInput] = useState("");
+  const [globalSearch, setGlobalSearch] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const q = searchInput.trim();
+      setGlobalSearch(q.length >= 3 ? q : "");
+    }, 350);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
   const { data, isLoading, refetch } = useGetSalesReportBatchesQuery(
     undefined,
@@ -75,8 +89,21 @@ export default function SalesReportAdminDashboard() {
   const [deleteBatch, { isLoading: isDeleting }] =
     useDeleteSalesReportBatchMutation();
 
-  const batches = dateKey ? (dateBatchesData?.data ?? []) : (data?.data ?? []);
+  const batches = useMemo(
+    () => (dateKey ? (dateBatchesData?.data ?? []) : (data?.data ?? [])),
+    [dateKey, dateBatchesData, data],
+  );
   const showDateMode = Boolean(dateKey);
+  // Batches are ordered by import time; newest first unless the user flips it.
+  const [batchOrder, setBatchOrder] = useState<"desc" | "asc">("desc");
+  const sortedBatches = useMemo(() => {
+    const dir = batchOrder === "asc" ? 1 : -1;
+    return [...batches].sort(
+      (a, b) =>
+        dir * (Date.parse(a.importDate) - Date.parse(b.importDate)) ||
+        dir * a.batchId.localeCompare(b.batchId),
+    );
+  }, [batches, batchOrder]);
   const totalPayment = batches.reduce((sum, b) => sum + b.totalPayment, 0);
   const totalRecords = batches.reduce((sum, b) => sum + b.totalRecords, 0);
 
@@ -187,7 +214,11 @@ export default function SalesReportAdminDashboard() {
               </>
             )}
             {canUpload && (
-              <Button size='sm' onClick={() => setView("upload")}>
+              <Button
+                size='sm'
+                className='border-2 border-red-500'
+                onClick={() => setView("upload")}
+              >
                 <UploadCloud className='h-4 w-4 mr-1.5' /> Upload report
               </Button>
             )}
@@ -196,6 +227,25 @@ export default function SalesReportAdminDashboard() {
             </Button>
           </div>
         </div>
+
+        <div className='relative mb-6'>
+          <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
+          <Input
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder='Search all batches by phone number, frame number or engine number (3+ characters)'
+            className='pl-9 bg-white border-black'
+          />
+        </div>
+
+        {globalSearch && (
+          <div className='mb-8'>
+            <SalesReportRecordsTable
+              globalSearch={globalSearch}
+              onOpenBatch={(id) => setView({ batchId: id })}
+            />
+          </div>
+        )}
 
         <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8'>
           <MetricTile
@@ -243,8 +293,25 @@ export default function SalesReportAdminDashboard() {
                 Batches for {format(selectedDate!, "dd MMMM yyyy")}
               </h3>
             )}
+            <div className='flex justify-end'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() =>
+                  setBatchOrder((o) => (o === "desc" ? "asc" : "desc"))
+                }
+                aria-label='Sort batches by import date'
+              >
+                {batchOrder === "desc" ? (
+                  <ArrowDown className='h-4 w-4 mr-1.5' />
+                ) : (
+                  <ArrowUp className='h-4 w-4 mr-1.5' />
+                )}
+                {batchOrder === "desc" ? "Newest first" : "Oldest first"}
+              </Button>
+            </div>
             <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 border-2 rounded-2xl p-6 bg-white'>
-              {batches.map((b) => (
+              {sortedBatches.map((b) => (
                 <div key={b.batchId} className='relative group'>
                   <FolderCard
                     title={b.batchId}

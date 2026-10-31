@@ -19,6 +19,10 @@ const FinanceQueries = lazy(
     import("@/mainComponents/Admin/AdminDash/FinanceEnquiry/FinanceQueries"),
 );
 
+const BikePriceManager = lazy(
+  () => import("@/mainComponents/BranchM/BikePriceManager"),
+);
+
 const VASForm = lazy(() => import("@/mainComponents/VASsystem/VASForm"));
 const EditVas = lazy(() => import("@/mainComponents/VASsystem/EditVas"));
 const SelectVas = lazy(() => import("@/mainComponents/VASsystem/SelectVas"));
@@ -165,6 +169,9 @@ export const branchManagerRoutes = [
 
   // B2B Sales (Challans) — Branch-Admin submits/reads own branch
   { path: "/manager/b2b-sales", component: B2BSalesManager },
+
+  // Bike catalogue prices — edit one model, or adjust all by % / ₹
+  { path: "/manager/add-new-price", component: BikePriceManager },
   {
     path: "/manager/raise-maintenance-request",
     component: RaiseMaintenanceRequest,

@@ -21,6 +21,8 @@ export interface StatCardProps {
   description: string;
   action: { label: string; href: string };
   index: number;
+  /** Draw attention to the card with a red border. */
+  highlight?: boolean;
 }
 
 // ─── visitor metric tile ─────────────────────────────────────────────────────
@@ -44,12 +46,15 @@ export const StatCard = ({
   action,
 
   index,
+  highlight,
 }: StatCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 24 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.45, delay: index * 0.07, ease: "easeOut" }}
-    className='group relative overflow-hidden rounded-2xl bg-white border border-gray-200 shadow-lg hover:shadow-md transition-shadow duration-300'
+    className={`group relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-md transition-shadow duration-300 ${
+      highlight ? "border-2 border-red-500" : "border border-gray-200"
+    }`}
   >
     <div className='absolute top-0 left-0 h-1 w-full' />
     <div

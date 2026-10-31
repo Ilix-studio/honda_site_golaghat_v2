@@ -44,7 +44,9 @@ const NotificationBell = () => {
 
   const { data } = useGetNotificationsQuery(
     { page: 1, limit: 20 },
-    { pollingInterval: 60000 },
+    // Push (FCM onMessage) refreshes this query instantly; polling is only a
+    // safety net, so it's slow and paused while the tab is in the background.
+    { pollingInterval: 300000, skipPollingIfUnfocused: true },
   );
   const [markRead] = useMarkNotificationReadMutation();
   const [markAllRead] = useMarkAllNotificationsReadMutation();
