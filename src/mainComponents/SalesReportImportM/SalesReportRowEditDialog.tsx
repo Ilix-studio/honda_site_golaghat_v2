@@ -40,7 +40,9 @@ const SalesReportRowEditDialog = ({ row, onClose }: Props) => {
     finance: "",
     executive: "",
     status: "",
-    totalPayment: "",
+    exShowroom: "",
+    insurance: "",
+    registration: "",
   });
   const [updateRow, { isLoading }] = useUpdateSalesReportRowMutation();
 
@@ -63,7 +65,9 @@ const SalesReportRowEditDialog = ({ row, onClose }: Props) => {
       finance: row.finance ?? "",
       executive: row.executive ?? "",
       status: row.status ?? "",
-      totalPayment: String(row.totalPayment ?? ""),
+      exShowroom: String(row.exShowroom ?? ""),
+      insurance: String(row.insuranceAmount ?? ""),
+      registration: String(row.registrationAmount ?? ""),
     });
   }, [row]);
 
@@ -81,7 +85,9 @@ const SalesReportRowEditDialog = ({ row, onClose }: Props) => {
         id: row._id,
         body: {
           ...form,
-          totalPayment: form.totalPayment === "" ? undefined : Number(form.totalPayment),
+          exShowroom: form.exShowroom === "" ? undefined : Number(form.exShowroom),
+          insurance: form.insurance === "" ? undefined : Number(form.insurance),
+          registration: form.registration === "" ? undefined : Number(form.registration),
         },
       }).unwrap();
       toast.success("Record updated");
@@ -162,9 +168,22 @@ const SalesReportRowEditDialog = ({ row, onClose }: Props) => {
             <Label htmlFor='sr-executive'>Executive</Label>
             <Input id='sr-executive' value={form.executive} onChange={set("executive")} />
           </div>
-          <div className='space-y-1.5'>
-            <Label htmlFor='sr-pay'>Total Payment</Label>
-            <Input id='sr-pay' type='number' min={0} value={form.totalPayment} onChange={set("totalPayment")} />
+          <div className='col-span-2 grid grid-cols-3 gap-3'>
+            {(
+              [
+                ["exShowroom", "Ex Showroom"],
+                ["insurance", "Insurance"],
+                ["registration", "Registration"],
+              ] as const
+            ).map(([key, label]) => (
+              <div key={key} className='space-y-1.5'>
+                <Label htmlFor={`sr-${key}`}>{label}</Label>
+                <Input id={`sr-${key}`} type='number' min={0} value={form[key]} onChange={set(key)} />
+              </div>
+            ))}
+            <p className='col-span-3 text-xs text-gray-500'>
+              Total Payment is the sum of these three.
+            </p>
           </div>
         </div>
 

@@ -3,6 +3,7 @@ import {
   ReceiptText,
   UploadCloud,
   Trash2,
+  Pencil,
   ArrowLeft,
   Archive,
   RefreshCw,
@@ -36,6 +37,8 @@ import { MetricTile } from "@/mainComponents/Admin/AdminDash/StatCard";
 import FolderCard from "@/mainComponents/shared/FolderCard";
 import SalesReportRecordsTable from "./SalesReportRecordsTable";
 import SalesReportUploadForm from "./SalesReportUploadForm";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import SalesReportPendingTable from "./SalesReportPendingTable";
 import SalesReportKpiCharts from "./SalesReportKpiCharts";
 import SalesReportDeletedBatches from "./SalesReportDeletedBatches";
 import { inr } from "@/mainComponents/DataImport/SalesKpiCharts";
@@ -45,12 +48,51 @@ import {
   useGetSalesReportBatchesQuery,
   useGetSalesReportBatchesByDateQuery,
   useDeleteSalesReportBatchMutation,
+  useGetPendingSalesReportsQuery,
 } from "@/redux-store/services/salesReportApi";
 
 const formatDate = (value: string) =>
   new Date(value).toLocaleDateString("en-IN");
 
-type View = "batches" | "upload" | "kpis" | "deleted" | { batchId: string };
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+/**
+ * Sale months as "JAN", "JAN|FEB", "JAN|FEB|+1" — two shown, the rest counted.
+ * When the batch spans more than one year the month carries its year
+ * ("APR'24|APR'26"), otherwise the same name would appear twice.
+ */
+const monthLabel = (saleMonths: string[]) => {
+  const multiYear = new Set(saleMonths.map((m) => m.slice(0, 4))).size > 1;
+  return saleMonths
+    .slice(0, 2)
+    .map((m) => {
+      const name = MONTHS[Number(m.slice(5, 7)) - 1] ?? m;
+      return multiYear ? `${name}'${m.slice(2, 4)}` : name;
+    })
+    .concat(saleMonths.length > 2 ? [`+${saleMonths.length - 2}`] : [])
+    .join("|");
+};
+
+// Sale dates are stored as UTC midnight, so read them in UTC.
+const formatSaleDate = (value: string) =>
+  new Date(value).toLocaleDateString("en-IN", { timeZone: "UTC" });
+
+/** "05/10/2026 – 28/10/2026", or one date when the batch is a single day. */
+const dateRange = (from: string | null, to: string | null) => {
+  if (!from || !to) return "";
+  const a = formatSaleDate(from);
+  const b = formatSaleDate(to);
+  return a === b ? a : `${a} – ${b}`;
+};
+
+type View =
+  | "batches"
+  | "upload"
+  | "kpis"
+  | "deleted"
+  | { batchId: string }
+  // Rows waiting on EX SHOWROOM / INSURANCE / REGISTRATION; batchId narrows to one upload.
+  | { pending: true; batchId?: string };
 
 const BackButton = ({ onClick }: { onClick: () => void }) => (
   <button
@@ -60,6 +102,38 @@ const BackButton = ({ onClick }: { onClick: () => void }) => (
     <ArrowLeft className='h-4 w-4' /> Back to batches
   </button>
 );
+
+/**
+ * One batch: its imported records, plus (Branch-Admin) an Edit tab holding the
+ * rows of that batch still waiting on EX SHOWROOM / INSURANCE / REGISTRATION.
+ */
+function BatchDetail({ batchId, canEdit }: { batchId: string; canEdit: boolean }) {
+  const { isAuthenticated } = useAppSelector(selectAuth);
+  const { data } = useGetPendingSalesReportsQuery(
+    { batchId },
+    { skip: !isAuthenticated || !canEdit },
+  );
+  const pending = data?.data.length ?? 0;
+
+  if (!canEdit) return <SalesReportRecordsTable batchId={batchId} />;
+
+  return (
+    <Tabs defaultValue='records'>
+      <TabsList className='mb-4'>
+        <TabsTrigger value='records'>Records</TabsTrigger>
+        <TabsTrigger value='edit'>
+          Edit{pending > 0 && ` (${pending})`}
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value='records'>
+        <SalesReportRecordsTable batchId={batchId} />
+      </TabsContent>
+      <TabsContent value='edit'>
+        <SalesReportPendingTable batchId={batchId} />
+      </TabsContent>
+    </Tabs>
+  );
+}
 
 export default function SalesReportAdminDashboard() {
   const { user, isAuthenticated } = useAppSelector(selectAuth);
@@ -86,6 +160,10 @@ export default function SalesReportAdminDashboard() {
       dateKey ? { date: dateKey } : ({ date: "" } as any),
       { skip: !isAuthenticated || !dateKey },
     );
+  const { data: pendingData } = useGetPendingSalesReportsQuery(undefined, {
+    skip: !isAuthenticated || user?.role !== "Branch-Admin",
+  });
+  const pendingTotal = pendingData?.data.length ?? 0;
   const [deleteBatch, { isLoading: isDeleting }] =
     useDeleteSalesReportBatchMutation();
 
@@ -105,7 +183,9 @@ export default function SalesReportAdminDashboard() {
     );
   }, [batches, batchOrder]);
   const totalPayment = batches.reduce((sum, b) => sum + b.totalPayment, 0);
+  // Completed = imported rows; pending = still waiting on their three amounts.
   const totalRecords = batches.reduce((sum, b) => sum + b.totalRecords, 0);
+  const totalPending = batches.reduce((sum, b) => sum + b.pendingCount, 0);
 
   const canUpload = user?.role === "Branch-Admin";
   const isSuperAdmin = user?.role === "Super-Admin";
@@ -116,7 +196,15 @@ export default function SalesReportAdminDashboard() {
     return (
       <div className='max-w-6xl mx-auto p-4 sm:p-6'>
         <BackButton onClick={() => setView("batches")} />
-        <SalesReportUploadForm onDone={() => setView("batches")} />
+        <SalesReportUploadForm
+          onDone={(pendingBatchId) =>
+            setView(
+              pendingBatchId
+                ? { pending: true, batchId: pendingBatchId }
+                : "batches",
+            )
+          }
+        />
       </div>
     );
   }
@@ -139,14 +227,23 @@ export default function SalesReportAdminDashboard() {
     );
   }
 
+  if (typeof view === "object" && "pending" in view) {
+    return (
+      <div className='max-w-[1500px] mx-auto p-4 sm:p-6'>
+        <BackButton onClick={() => setView("batches")} />
+        <SalesReportPendingTable batchId={view.batchId} />
+      </div>
+    );
+  }
+
   if (typeof view === "object") {
     return (
-      <div className='max-w-6xl mx-auto p-4 sm:p-6'>
+      <div className='max-w-[1500px] mx-auto p-4 sm:p-6'>
         <BackButton onClick={() => setView("batches")} />
         <h2 className='text-lg font-bold text-gray-900 mb-4 font-mono'>
           {view.batchId}
         </h2>
-        <SalesReportRecordsTable batchId={view.batchId} />
+        <BatchDetail batchId={view.batchId} canEdit={canUpload} />
       </div>
     );
   }
@@ -213,6 +310,16 @@ export default function SalesReportAdminDashboard() {
                 </Button>
               </>
             )}
+            {canUpload && pendingTotal > 0 && (
+              <Button
+                variant='outline'
+                size='sm'
+                className='border-amber-400 text-amber-800'
+                onClick={() => setView({ pending: true })}
+              >
+                Pending amounts ({pendingTotal})
+              </Button>
+            )}
             {canUpload && (
               <Button
                 size='sm'
@@ -259,7 +366,8 @@ export default function SalesReportAdminDashboard() {
           <MetricTile
             index={1}
             label='Records'
-            value={totalRecords}
+            value={totalRecords + totalPending}
+            note={`${totalRecords} completed · ${totalPending} pending`}
             bg='bg-blue-50'
             text='text-blue-900'
             sub='text-blue-600'
@@ -314,10 +422,35 @@ export default function SalesReportAdminDashboard() {
               {sortedBatches.map((b) => (
                 <div key={b.batchId} className='relative group'>
                   <FolderCard
-                    title={b.batchId}
-                    countLabel={`${formatDate(b.importDate)} · ${inr(b.totalPayment)}`}
-                    onOpen={() => setView({ batchId: b.batchId })}
+                    title={monthLabel(b.saleMonths) || b.fileName}
+                    // One month: the name alone. Several: the span of dates too.
+                    countLabel={
+                      b.saleMonths.length === 1
+                        ? ""
+                        : dateRange(b.firstSaleDate, b.lastSaleDate) ||
+                          formatDate(b.importDate)
+                    }
+                    subLabel={`${inr(b.totalPayment)}${b.pendingCount > 0 ? ` · ${b.pendingCount} pending` : ""}`}
+                    onOpen={() =>
+                      setView(
+                        b.totalRecords === 0 && canUpload
+                          ? { pending: true, batchId: b.batchId }
+                          : { batchId: b.batchId },
+                      )
+                    }
                   />
+                  {canUpload && canDelete(b.branchId) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setView({ pending: true, batchId: b.batchId });
+                      }}
+                      className='absolute top-1 right-10 p-1.5 rounded-md bg-white/90 border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50'
+                      aria-label={`Edit pending amounts in batch ${b.batchId}`}
+                    >
+                      <Pencil className='h-3.5 w-3.5 text-red-600' />
+                    </button>
+                  )}
                   {canDelete(b.branchId) && (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>

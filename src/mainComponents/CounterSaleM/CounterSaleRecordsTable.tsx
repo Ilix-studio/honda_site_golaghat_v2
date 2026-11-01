@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { useGetAllCounterSalesQuery } from "@/redux-store/services/counterSaleApi";
 import { inr } from "@/mainComponents/DataImport/SalesKpiCharts";
+import LoadingSpinner from "@/config/Loadingspinner";
 import { useAppSelector } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
 
@@ -69,7 +70,7 @@ const CounterSaleRecordsTable = ({ batchId }: CounterSaleRecordsTableProps) => {
       </div>
 
       {isLoading ? (
-        <p className='text-sm text-muted-foreground'>Loading records...</p>
+        <LoadingSpinner message='Loading records...' />
       ) : filteredRows.length === 0 ? (
         <div className='text-center py-12 border rounded-lg'>
           <ReceiptText className='h-12 w-12 mx-auto mb-3 text-muted-foreground' />

@@ -4,7 +4,9 @@
  * Header strings must stay in sync with SALES_REPORT_FIELDS in
  * server3/src/utils/salesReportColumnMatcher.ts. Unlike the other import
  * templates, the columns marked required here are required — that matcher rejects the upload
- * up front, naming the exact missing labels, if any one is absent.
+ * up front, naming the exact missing labels, if any one is absent. EX SHOWROOM,
+ * INSURANCE and REGISTRATION are not required to upload, but a row missing any
+ * of them is held as pending until they are entered.
  *
  * Matching normalizes case, collapses whitespace and treats
  * `.`/`:`/`/`/`\`/`_`/`-` as spaces, and several fields accept aliases (e.g.
@@ -96,10 +98,42 @@ export const SALES_REPORT_TEMPLATE_COLUMNS: TemplateColumn[] = [
     example: "SOLD",
     hint: "Optional. Blank is recorded as Sold.",
   },
+  {
+    header: "PRODUCT CODE",
+    required: false,
+    example: "ACT125DLX",
+    hint: "Optional.",
+  },
+  {
+    header: "EX SHOWROOM",
+    required: false,
+    example: "92000",
+    hint: "Important. Amount in rupees. If this, INSURANCE or REGISTRATION is blank, the row is held until you enter them after upload.",
+  },
+  {
+    header: "INSURANCE",
+    required: false,
+    example: "6500",
+    hint: "Important. Amount in rupees.",
+  },
+  {
+    header: "REGISTRATION",
+    required: false,
+    example: "3800",
+    hint: "Important. Amount in rupees. Total payment = EX SHOWROOM + INSURANCE + REGISTRATION.",
+  },
 ];
 
+/** Money columns that are not required to upload, but that a row is held for if any is blank. */
+const AMOUNT_HEADERS = ["EX SHOWROOM", "INSURANCE", "REGISTRATION"];
+
+/** Columns the upload guide lists under "Important": the required ones plus the three amounts. */
+export const isImportantColumn = (c: TemplateColumn) =>
+  c.required || AMOUNT_HEADERS.includes(c.header);
+
 export function buildSalesReportTemplateCsv(): string {
-  return buildTemplateCsv(SALES_REPORT_TEMPLATE_COLUMNS);
+  // Headers only — no example row to delete before uploading.
+  return buildTemplateCsv(SALES_REPORT_TEMPLATE_COLUMNS, { includeExample: false });
 }
 
 export function downloadSalesReportTemplate(): void {

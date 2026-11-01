@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   SALES_REPORT_TEMPLATE_COLUMNS,
   downloadSalesReportTemplate,
+  isImportantColumn,
 } from "@/lib/salesReportTemplate";
 import { useAppSelector, useAppDispatch } from "@/hooks/redux";
 import { selectAuth } from "@/redux-store/slices/authSlice";
@@ -31,8 +32,12 @@ const MAX_UPLOAD_LABEL = "25MB";
 const formatFileSize = (bytes: number) =>
   `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 
+const important = SALES_REPORT_TEMPLATE_COLUMNS.filter(isImportantColumn);
+const optional = SALES_REPORT_TEMPLATE_COLUMNS.filter((c) => !isImportantColumn(c));
+
 interface SalesReportUploadFormProps {
-  onDone?: () => void;
+  /** `pendingBatchId` is set when the upload left rows waiting for their amounts. */
+  onDone?: (pendingBatchId?: string) => void;
 }
 
 export default function SalesReportUploadForm({
@@ -158,34 +163,42 @@ export default function SalesReportUploadForm({
               variant='outline'
               size='sm'
               onClick={downloadSalesReportTemplate}
-              className='shrink-0'
+              className='shrink-0 border-2 border-blue-500'
             >
               <Download className='h-4 w-4 mr-2' />
               Download template (CSV)
             </Button>
           </div>
 
-          <div className='mt-3 pt-3 border-t border-gray-100 space-y-1.5'>
-            <p className='text-xs font-medium text-gray-500'>
+          <div className='mt-3 pt-3 border-t border-gray-100'>
+            <p className='text-xs font-medium text-gray-500 mb-3'>
               {SALES_REPORT_TEMPLATE_COLUMNS.filter((c) => c.required).length} of
               these {SALES_REPORT_TEMPLATE_COLUMNS.length} columns are required
-              (marked *) — an upload missing any of them is rejected:
+              (marked *) — an upload missing any of them is rejected.
             </p>
-            {SALES_REPORT_TEMPLATE_COLUMNS.map((column) => (
-              <div
-                key={column.header}
-                className='flex items-start gap-2 text-xs'
-              >
-                <span className='bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md font-mono shrink-0'>
-                  {column.header}
-                  {column.required && " *"}
-                </span>
-                <span className='text-gray-400'>{column.hint}</span>
-              </div>
-            ))}
-            <p className='text-xs text-gray-400 pt-1'>
-              Delete the example row before uploading real data.
-            </p>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              {(
+                [
+                  ["Important", important, "border-red-200 bg-red-50/40"],
+                  ["Optional", optional, "border-gray-200 bg-gray-50/60"],
+                ] as const
+              ).map(([title, columns, tone]) => (
+                <div key={title} className={`rounded-lg border p-2.5 space-y-1 ${tone}`}>
+                  <p className='text-[11px] font-semibold uppercase tracking-wide text-gray-700'>
+                    {title}
+                  </p>
+                  {columns.map((column) => (
+                    <div key={column.header} className='flex items-start gap-1.5 text-[11px] leading-snug'>
+                      <span className='bg-white border border-gray-200 text-gray-700 px-1.5 py-px rounded font-mono text-[10px] shrink-0'>
+                        {column.header}
+                        {column.required && " *"}
+                      </span>
+                      <span className='text-gray-500'>{column.hint}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -195,7 +208,7 @@ export default function SalesReportUploadForm({
         >
           <label
             htmlFor='sales-report-file'
-            className='flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 py-10 cursor-pointer hover:border-gray-400 transition-colors'
+            className='flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dotted border-green-500 py-10 cursor-pointer hover:border-green-600 transition-colors'
           >
             <UploadCloud className='h-8 w-8 text-gray-400' />
             <span className='text-sm font-medium text-gray-700'>
@@ -268,25 +281,15 @@ export default function SalesReportUploadForm({
               not.
             </p>
 
-            {(result.unpricedModels?.length ?? 0) > 0 && (
-              <div className='rounded-lg bg-red-50 border border-red-200 p-3'>
-                <p className='text-sm font-medium text-red-800 mb-1'>
-                  Price not found for{" "}
-                  {result.unpricedModels!.reduce((n, m) => n + m.rows, 0)} row(s)
-                  — these models are in neither the bike catalogue nor any CSV
-                  stock upload:
+            {result.pendingCount > 0 && (
+              <div className='rounded-lg bg-amber-50 border border-amber-200 p-3'>
+                <p className='text-sm font-medium text-amber-800'>
+                  {result.warning ??
+                    `${result.pendingCount} rows without EX SHOWROOM, INSURANCE, REGISTRATION`}
                 </p>
-                <ul className='text-xs text-red-700 space-y-0.5'>
-                  {result.unpricedModels!.map((m) => (
-                    <li key={m.model}>
-                      {m.model} — {m.rows} row(s)
-                    </li>
-                  ))}
-                </ul>
-                <p className='text-xs text-red-700 mt-2'>
-                  Add each model to the bike catalogue with its ex-showroom
-                  price, or upload stock that includes it, or enter Total
-                  Payment on those rows.
+                <p className='text-xs text-amber-700 mt-1'>
+                  (Select Done to edit.) These rows are not added to the
+                  customer database until all three amounts are entered.
                 </p>
               </div>
             )}
@@ -310,7 +313,15 @@ export default function SalesReportUploadForm({
               <Button variant='outline' onClick={resetForm}>
                 Upload another
               </Button>
-              {onDone && <Button onClick={onDone}>Done</Button>}
+              {onDone && (
+                <Button
+                  onClick={() =>
+                    onDone(result.pendingCount > 0 ? result.batchId : undefined)
+                  }
+                >
+                  Done
+                </Button>
+              )}
             </div>
           </div>
         )}

@@ -88,6 +88,7 @@ export const apiSlice = createApi({
     "CounterSaleDeletedBatch",
     "SalesReport",
     "SalesReportBatch",
+    "SalesReportPending",
     "SalesReportDeletedBatch",
     "Me",
     "DataImportConfig",

@@ -29,8 +29,12 @@ const toCsvRow = (cells: string[]): string => cells.map(escapeCsvCell).join(",")
  * Written with a UTF-8 BOM and CRLF endings so Excel opens it without mangling
  * the header row.
  */
-export function buildTemplateCsv(columns: TemplateColumn[]): string {
+export function buildTemplateCsv(
+  columns: TemplateColumn[],
+  { includeExample = true }: { includeExample?: boolean } = {},
+): string {
   const headers = toCsvRow(columns.map((c) => c.header));
+  if (!includeExample) return `\uFEFF${headers}\r\n`;
   const example = toCsvRow(columns.map((c) => c.example));
   return `\uFEFF${headers}\r\n${example}\r\n`;
 }

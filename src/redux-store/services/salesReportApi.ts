@@ -26,9 +26,31 @@ export interface SalesReportImportResponse {
     detectedColumns: string[];
     errors: { row: number; data: Record<string, unknown>; error: string }[];
     created: string[];
-    /** Models priced by neither the bike catalogue nor CSV stock; their rows imported with Total Payment 0. */
-    unpricedModels?: { model: string; rows: number }[];
+    /** Rows held because EX SHOWROOM / INSURANCE / REGISTRATION were not all filled in. */
+    pendingCount: number;
+    /** e.g. "4 rows without EX SHOWROOM, INSURANCE, REGISTRATION"; null when nothing is pending. */
+    warning: string | null;
   };
+}
+
+/** A register row waiting on its EX SHOWROOM / INSURANCE / REGISTRATION. */
+export interface SalesReportPendingRow {
+  _id: string;
+  importBatch: string;
+  fileName: string;
+  slNo?: string;
+  saleDate?: string;
+  customerFirstName: string;
+  customerLastName: string;
+  customerMobile: string;
+  location?: string;
+  frameNo: string;
+  engineNo: string;
+  modelName: string;
+  /** Whatever has been entered so far. */
+  exShowroom?: number;
+  insuranceAmount?: number;
+  registrationAmount?: number;
 }
 
 export type SalesReportMatchOutcome =
@@ -66,6 +88,9 @@ export interface SalesReportRow {
   status: string;
   purchaseType: string;
   totalPayment: number;
+  exShowroom?: number;
+  insuranceAmount?: number;
+  registrationAmount?: number;
   matchOutcome: SalesReportMatchOutcome;
   matched: boolean;
   needsReview: boolean;
@@ -95,6 +120,13 @@ export interface SalesReportBatch {
   matchedCount: number;
   unmatchedCount: number;
   reviewCount: number;
+  /** Rows of this batch still waiting on EX SHOWROOM / INSURANCE / REGISTRATION. */
+  pendingCount: number;
+  /** Sale-date span of the batch (imported + pending rows); null when no row has a date. */
+  firstSaleDate: string | null;
+  lastSaleDate: string | null;
+  /** The yyyy-mm months those sales fall in, ascending. */
+  saleMonths: string[];
 }
 
 export interface SalesReportBatchesResponse {
@@ -177,7 +209,10 @@ export interface SalesReportRowUpdate {
   executive?: string;
   status?: string;
   purchaseType?: string;
-  totalPayment?: number;
+  /** Total Payment is their sum, re-derived by the server. */
+  exShowroom?: number;
+  insurance?: number;
+  registration?: number;
 }
 
 export interface SalesReportBatchesByDateFilters {
@@ -196,6 +231,42 @@ export const salesReportApi = apiSlice.injectEndpoints({
         body: formData,
       }),
       invalidatesTags: ["SalesReport", "SalesReportBatch"],
+    }),
+
+    getPendingSalesReports: builder.query<
+      { success: boolean; data: SalesReportPendingRow[] },
+      { batchId?: string } | void
+    >({
+      query: (params) =>
+        `/sales-report/pending${params?.batchId ? `?batchId=${encodeURIComponent(params.batchId)}` : ""}`,
+      providesTags: ["SalesReportPending"],
+    }),
+
+    /**
+     * Save the amounts typed on a pending row. `completed: true` means all
+     * three were present, so the row was imported and the customer added.
+     */
+    updatePendingSalesReport: builder.mutation<
+      { success: boolean; completed: boolean; message: string },
+      { id: string; exShowroom?: number | null; insurance?: number | null; registration?: number | null }
+    >({
+      query: ({ id, ...body }) => ({
+        url: `/sales-report/pending/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (result) =>
+        result?.completed
+          ? ["SalesReportPending", "SalesReport", "SalesReportBatch"]
+          : ["SalesReportPending"],
+    }),
+
+    deletePendingSalesReport: builder.mutation<
+      { success: boolean; message: string },
+      { id: string }
+    >({
+      query: ({ id }) => ({ url: `/sales-report/pending/${id}`, method: "DELETE" }),
+      invalidatesTags: ["SalesReportPending"],
     }),
 
     getAllSalesReports: builder.query<SalesReportListResponse, SalesReportFilters | void>({
@@ -296,6 +367,9 @@ export const salesReportApi = apiSlice.injectEndpoints({
 
 export const {
   useImportSalesReportMutation,
+  useGetPendingSalesReportsQuery,
+  useUpdatePendingSalesReportMutation,
+  useDeletePendingSalesReportMutation,
   useGetAllSalesReportsQuery,
   useGetSalesReportBatchesQuery,
   useGetSalesReportBatchesByDateQuery,
