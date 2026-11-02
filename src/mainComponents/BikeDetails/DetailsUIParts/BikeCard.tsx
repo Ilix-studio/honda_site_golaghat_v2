@@ -6,10 +6,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency } from "../../../lib/formatters";
 import { Link } from "react-router-dom";
 import { Bike } from "../../../redux-store/slices/BikeSystemSlice/bikesSlice";
-import { AlertTriangle, Star, Fuel, Calendar, Zap } from "lucide-react";
+import {
+  AlertTriangle,
+  Star,
+  Fuel,
+  Calendar,
+  Zap,
+  Pencil,
+} from "lucide-react";
 
 interface BikeCardProps {
   bike: Bike;
+  /** Admin pages pass this to show an Edit button, e.g. "/bikes/edit". */
+  editPath?: string;
 }
 
 // Error Boundary Component
@@ -52,7 +61,7 @@ class BikeCardErrorBoundary extends React.Component<
 }
 
 // Safe BikeCard Component
-function SafeBikeCard({ bike }: BikeCardProps) {
+function SafeBikeCard({ bike, editPath }: BikeCardProps) {
   // Safe image URL extraction - using the images array from your bike model
   const getPrimaryImageUrl = (): string => {
     if (bike?.images && Array.isArray(bike.images) && bike.images.length > 0) {
@@ -277,6 +286,18 @@ function SafeBikeCard({ bike }: BikeCardProps) {
               </Button>
             </Link>
           </div>
+          {editPath && (
+            <Link to={`${editPath}/${bikeId}`} className='mt-2 block'>
+              <Button
+                variant='outline'
+                size='sm'
+                className='w-full border-red-300 text-red-600 hover:bg-red-50'
+              >
+                <Pencil className='mr-1.5 h-3.5 w-3.5' />
+                Edit
+              </Button>
+            </Link>
+          )}
 
           {/* Stock Status */}
           {inStock && (
@@ -293,10 +314,10 @@ function SafeBikeCard({ bike }: BikeCardProps) {
 }
 
 // Main export with error boundary
-export function BikeCard({ bike }: BikeCardProps) {
+export function BikeCard({ bike, editPath }: BikeCardProps) {
   return (
     <BikeCardErrorBoundary>
-      <SafeBikeCard bike={bike} />
+      <SafeBikeCard bike={bike} editPath={editPath} />
     </BikeCardErrorBoundary>
   );
 }
