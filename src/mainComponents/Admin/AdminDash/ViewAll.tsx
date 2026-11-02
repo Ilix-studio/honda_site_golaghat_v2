@@ -204,7 +204,7 @@ export default function ViewAll() {
                     }
                   >
                     {bikes.map((bike) => (
-                      <BikeCard key={bike._id} bike={bike} />
+                      <BikeCard key={bike._id} bike={bike} editPath='/bikes/edit' />
                     ))}
                   </motion.div>
                 )}

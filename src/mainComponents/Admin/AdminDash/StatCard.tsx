@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Plus, ChevronRight } from "lucide-react";
@@ -34,7 +35,9 @@ export interface MetricTileProps {
   sub: string;
   index: number;
   /** Optional caption under the value — used to say what a number does and doesn't include. */
-  note?: string;
+  note?: ReactNode;
+  /** Pack label, value and note together instead of spreading them over a tall tile. */
+  packed?: boolean;
 }
 
 export const StatCard = ({
@@ -115,21 +118,22 @@ export const MetricTile = ({
   sub,
   index,
   note,
+  packed,
 }: MetricTileProps) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.95 }}
     animate={{ opacity: 1, scale: 1 }}
     transition={{ delay: 0.35 + index * 0.07, duration: 0.4 }}
-    className={`relative overflow-hidden rounded-2xl p-5 ${bg} flex flex-col justify-between min-h-[110px]`}
+    className={`relative overflow-hidden rounded-2xl p-5 ${bg} flex flex-col min-h-[110px] ${packed ? "justify-start gap-2" : "justify-between"}`}
   >
     <p className={`text-xs font-semibold uppercase tracking-widest ${sub}`}>
       {label}
     </p>
     <p className={`text-3xl font-black tabular-nums ${text}`}>{value}</p>
     {note && (
-      <p className={`mt-1 text-[11px] font-medium leading-snug ${sub}`}>
+      <div className={`mt-1 text-[11px] font-medium leading-snug ${sub}`}>
         {note}
-      </p>
+      </div>
     )}
   </motion.div>
 );

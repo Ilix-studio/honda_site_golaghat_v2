@@ -45,10 +45,14 @@ import {
 import { useGetServiceInvoiceStatsQuery } from "@/redux-store/services/serviceInvoiceApi";
 import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSaleApi";
 import { useGetStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
-import { useGetCSVStockAssignStatsQuery } from "@/redux-store/services/BikeSystemApi3/csvStockApi";
+import {
+  useGetCSVStockAssignStatsQuery,
+  useGetStockInvestmentTimeseriesQuery,
+} from "@/redux-store/services/BikeSystemApi3/csvStockApi";
 import { useGetB2BSalesKPIsQuery } from "@/redux-store/services/BikeSystemApi2/b2bSalesApi";
 import { useGetSalesReportKpisQuery } from "@/redux-store/services/salesReportApi";
 import WhatYouUpload from "@/mainComponents/WhatYouUpload";
+import StockInvestmentKpiCharts from "./StockInvestmentKpiCharts";
 
 /**
  * The five domains roll up into three parts of the business, and that grouping
@@ -73,7 +77,9 @@ const REVENUE_FAMILIES = {
 type RevenueFamily = keyof typeof REVENUE_FAMILIES;
 
 const revenueByDomainConfig: ChartConfig = {
+  investment: { label: "Investment" },
   revenue: { label: "Revenue" },
+  challans: { label: "Vehicle Challans" },
 };
 
 /**
@@ -206,7 +212,16 @@ export default function SuperOverviewKpiCharts() {
     skip,
   );
   const { data: b2b } = useGetB2BSalesKPIsQuery(undefined, skip);
+  // Every CSV import, not just the selected year: the server defaults a missing
+  // `from` to the trailing 30 days, so the all-time total passes one explicitly.
+  const { data: stockInvestment } = useGetStockInvestmentTimeseriesQuery(
+    { granularity: "year", from: "1970-01-01" },
+    skip,
+  );
   const { data: salesReport } = useGetSalesReportKpisQuery({ year }, skip);
+
+  const stockInvestmentTotal = stockInvestment?.data.totals.totalCostPrice ?? 0;
+  const partsInvestmentTotal = partsStatus?.data.totalRevenue ?? 0;
 
   const counterSaleRevenue = useMemo(
     () => (counterSale?.data ?? []).reduce((sum, b) => sum + b.totalInvoice, 0),
@@ -230,25 +245,28 @@ export default function SuperOverviewKpiCharts() {
    * up the same family colour as the bar it describes.
    */
   const revenueByDomain = useMemo(() => {
-    const rows: { domain: string; family: RevenueFamily; revenue: number }[] = [
+    // One group per domain. The pale bar is what was invested (stock bought),
+    // the solid bar is revenue; Vehicle also gets a mid-tone bar for B2B
+    // challans, which belong to the same family. Groups with nothing to show
+    // for a series simply omit it.
+    const rows: {
+      domain: string;
+      family: RevenueFamily;
+      investment?: number;
+      revenue: number;
+      challans?: number;
+    }[] = [
       {
-        domain: "Vehicle Sold",
+        domain: "Vehicle",
         family: "vehicle",
+        investment: Math.round(stockInvestmentTotal),
         revenue: Math.round(vehicleRevenue),
+        challans: Math.round(b2b?.data.totalPayableValue ?? 0),
       },
       {
-        domain: "B2B",
-        family: "vehicle",
-        revenue: Math.round(b2b?.data.totalPayableValue ?? 0),
-      },
-      {
-        domain: "Parts Added to Stock",
+        domain: "Parts (CPTOS)",
         family: "parts",
-        revenue: Math.round(partsStatus?.data.totalRevenue ?? 0),
-      },
-      {
-        domain: "CPTOS",
-        family: "parts",
+        investment: Math.round(partsInvestmentTotal),
         revenue: Math.round(counterSaleRevenue),
       },
       {
@@ -262,7 +280,14 @@ export default function SuperOverviewKpiCharts() {
       ...row,
       fill: REVENUE_FAMILIES[row.family].color,
     }));
-  }, [vehicleRevenue, b2b, partsStatus, counterSaleRevenue, serviceStats]);
+  }, [
+    stockInvestmentTotal,
+    partsInvestmentTotal,
+    vehicleRevenue,
+    b2b,
+    counterSaleRevenue,
+    serviceStats,
+  ]);
 
   /**
    * Both stats endpoints return a filled 12-month array, but joining on the
@@ -311,6 +336,8 @@ export default function SuperOverviewKpiCharts() {
 
   return (
     <div className='space-y-6'>
+      <StockInvestmentKpiCharts />
+
       <Card>
         <CardHeader>
           <CardTitle className='text-base'>Overview by Domain</CardTitle>
@@ -324,7 +351,7 @@ export default function SuperOverviewKpiCharts() {
           ) : (
             <ChartContainer
               config={revenueByDomainConfig}
-              className='h-[280px] w-full'
+              className='h-[280px] w-full rounded-xl bg-gray-100 p-3'
             >
               <BarChart
                 data={revenueByDomain}
@@ -351,9 +378,35 @@ export default function SuperOverviewKpiCharts() {
                     />
                   }
                 />
+                <Bar dataKey='investment' radius={4}>
+                  {revenueByDomain.map((entry) => (
+                    <Cell
+                      key={entry.domain}
+                      fill={entry.fill}
+                      stroke={entry.fill}
+                      strokeWidth={2}
+                      fillOpacity={0.35}
+                    />
+                  ))}
+                  <LabelList
+                    dataKey='investment'
+                    position='top'
+                    offset={8}
+                    className='fill-muted-foreground'
+                    fontSize={11}
+                    formatter={(value: unknown) =>
+                      value == null ? "" : compactInr(Number(value))
+                    }
+                  />
+                </Bar>
                 <Bar dataKey='revenue' radius={4}>
                   {revenueByDomain.map((entry) => (
-                    <Cell key={entry.domain} fill={entry.fill} />
+                    <Cell
+                      key={entry.domain}
+                      fill={entry.fill}
+                      stroke={entry.fill}
+                      strokeWidth={2}
+                    />
                   ))}
                   <LabelList
                     dataKey='revenue'
@@ -362,7 +415,28 @@ export default function SuperOverviewKpiCharts() {
                     className='fill-muted-foreground'
                     fontSize={11}
                     formatter={(value: unknown) =>
-                      compactInr(Number(value ?? 0))
+                      value == null ? "" : compactInr(Number(value))
+                    }
+                  />
+                </Bar>
+                <Bar dataKey='challans' radius={4}>
+                  {revenueByDomain.map((entry) => (
+                    <Cell
+                      key={entry.domain}
+                      fill={entry.fill}
+                      stroke={entry.fill}
+                      strokeWidth={2}
+                      fillOpacity={0.65}
+                    />
+                  ))}
+                  <LabelList
+                    dataKey='challans'
+                    position='top'
+                    offset={8}
+                    className='fill-muted-foreground'
+                    fontSize={11}
+                    formatter={(value: unknown) =>
+                      value == null ? "" : compactInr(Number(value))
                     }
                   />
                 </Bar>
@@ -381,6 +455,9 @@ export default function SuperOverviewKpiCharts() {
                   {family.label}
                 </div>
               ))}
+              <span className='text-xs text-black'>
+                Pale = investment, solid = revenue, mid-tone = vehicle challans
+              </span>
             </div>
           )}
         </CardContent>

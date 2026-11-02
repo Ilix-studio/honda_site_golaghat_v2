@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { selectUserRole } from "../redux-store/slices/authSlice";
 import AdminHeader from "../mainComponents/Home/Header/AdminHeader";
 import ManagerHeader from "../mainComponents/Home/Header/ManagerHeader";
+import BranchSidebar from "../mainComponents/BranchM/BranchSidebar";
 import { CustomerDashHeader } from "../mainComponents/Home/Header/CustomerDashHeader";
 import { Header } from "../mainComponents/Home/Header/Header";
 import ProtectedRoute from "./ProtectedRoute";
@@ -52,11 +53,20 @@ const SuperAdminRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
   </ProtectedRoute>
 );
 
+// The Branch-Admin header plus the pinned multi-level menu — used everywhere a
+// Branch-Admin gets a header, so the menu is on every page they can open.
+const ManagerChrome: React.FC = () => (
+  <>
+    <ManagerHeader />
+    <BranchSidebar />
+  </>
+);
+
 const BranchManagerRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => (
   <ProtectedRoute requiredRole='branch-admin'>
-    <ManagerHeader />
+    <ManagerChrome />
     {children}
   </ProtectedRoute>
 );
@@ -66,7 +76,7 @@ const SharedBikeRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const role = useSelector(selectUserRole);
-  const Header = role === "Branch-Admin" ? ManagerHeader : AdminHeader;
+  const Header = role === "Branch-Admin" ? ManagerChrome : AdminHeader;
 
   return (
     <ProtectedRoute requiredRole='branch-admin-or-super-admin'>
@@ -81,7 +91,7 @@ const SharedBikeRouteWrapper: React.FC<{ children: React.ReactNode }> = ({
 // 'admin' already covers exactly these 5 roles (see ProtectedRoute's
 // hasAnyAdminRole()).
 const ROLE_HEADER: Record<string, React.ComponentType> = {
-  "Branch-Admin": ManagerHeader,
+  "Branch-Admin": ManagerChrome,
   "Service-Admin": ServiceAdminsHeader,
   "Part-Admin": PartAdminHeader,
   Developer: DeveloperHeader,

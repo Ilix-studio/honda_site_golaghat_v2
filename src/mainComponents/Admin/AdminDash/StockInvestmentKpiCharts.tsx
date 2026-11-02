@@ -1,28 +1,6 @@
-import { useMemo, useState } from "react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  type ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
 import { MetricTile } from "./StatCard";
-import {
-  ChartSkeleton,
-  EmptyChartState,
-  GranularityToggle,
-  compactInr,
-  formatDay,
-  inr,
-} from "@/mainComponents/DataImport/SalesKpiCharts";
+import { motion } from "framer-motion";
+import { compactInr, inr } from "@/mainComponents/DataImport/SalesKpiCharts";
 
 import {
   useGetCSVStockAssignStatsQuery,
@@ -33,32 +11,10 @@ import {
   useGetStockStatusSummaryQuery,
 } from "@/redux-store/services/BikeSystemApi2/StockConceptApi";
 import { useGetSalesReportKpisQuery } from "@/redux-store/services/salesReportApi";
+import { useGetPartsStockStatusQuery } from "@/redux-store/services/partsApi";
+import { useGetServiceInvoiceStatsQuery } from "@/redux-store/services/serviceInvoiceApi";
+import { useGetCounterSaleBatchesQuery } from "@/redux-store/services/counterSaleApi";
 import { useGetB2BSalesKPIsQuery } from "@/redux-store/services/BikeSystemApi2/b2bSalesApi";
-import type { InvestmentGranularity } from "@/types/customer/stockcsv.types";
-
-/**
- * Buckets are yyyy-mm-dd for "day"; weekly/monthly buckets use other shapes,
- * so anything that isn't a plain date is shown as-is.
- */
-const formatBucket = (value: unknown) =>
-  /^\d{4}-\d{2}-\d{2}$/.test(String(value)) ? formatDay(value) : String(value);
-
-const MONTH_LABELS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
-const pad = (n: number) => String(n).padStart(2, "0");
 
 /**
  * Lower bound that covers every import. The server defaults a missing `from`
@@ -66,13 +22,60 @@ const pad = (n: number) => String(n).padStart(2, "0");
  */
 const ALL_TIME_FROM = "1970-01-01";
 
-const investmentTrendConfig: ChartConfig = {
-  totalCostPrice: { label: "Investment", color: "var(--chart-1)" },
-};
+// Colours follow the "Data owned by" badges: Branch Admin purple, Parts Admin
+// amber, Service Admin green.
+const REVENUE_TONES = {
+  vehicle: {
+    box: "bg-purple-50 border-purple-100",
+    label: "text-purple-500",
+    value: "text-purple-700",
+    rule: "border-purple-200",
+  },
+  parts: {
+    box: "bg-amber-50 border-amber-100",
+    label: "text-amber-600",
+    value: "text-amber-700",
+    rule: "border-amber-200",
+  },
+  service: {
+    box: "bg-green-50 border-green-100",
+    label: "text-green-600",
+    value: "text-green-700",
+    rule: "border-green-200",
+  },
+} as const;
 
-const vehicleCountConfig: ChartConfig = {
-  vehicleCount: { label: "Vehicles Added", color: "var(--chart-2)" },
-};
+type RevenueTone = keyof typeof REVENUE_TONES;
+
+function RevenuePart({
+  label,
+  value,
+  tone,
+  strong,
+  nested,
+}: {
+  label: string;
+  value: number;
+  tone: RevenueTone;
+  strong?: boolean;
+  nested?: boolean;
+}) {
+  const t = REVENUE_TONES[tone];
+  return (
+    <div className={nested ? `pl-2 border-l-2 ${t.rule}` : ""}>
+      <p
+        className={`text-[11px] font-semibold uppercase tracking-wider ${t.label}`}
+      >
+        {label}
+      </p>
+      <p
+        className={`tabular-nums ${t.value} ${strong ? "text-lg font-bold" : "text-sm font-medium"}`}
+      >
+        {compactInr(value)}
+      </p>
+    </div>
+  );
+}
 
 /**
  * Daily (or weekly/monthly) Stock Investment KPI block: how much cost price
@@ -82,21 +85,8 @@ const vehicleCountConfig: ChartConfig = {
  * dashboard.
  */
 export default function StockInvestmentKpiCharts() {
-  const [granularity, setGranularity] = useState<InvestmentGranularity>("day");
   /** 0 = trailing 30 days (the server default), 1–12 = that month of this year. */
-  const [month, setMonth] = useState(0);
-  const year = new Date().getFullYear();
-  const monthRange = month
-    ? {
-        from: `${year}-${pad(month)}-01`,
-        // `to` is inclusive server-side, so end it on the month's last instant.
-        to: `${year}-${pad(month)}-${pad(new Date(year, month, 0).getDate())}T23:59:59.999Z`,
-      }
-    : {};
-  const { data, isLoading } = useGetStockInvestmentTimeseriesQuery({
-    granularity,
-    ...monthRange,
-  });
+
   const { data: stockAssignStats } = useGetStockAssignStatsQuery({});
   const { data: csvStockAssignStats } = useGetCSVStockAssignStatsQuery({
     year: new Date().getFullYear(),
@@ -105,6 +95,9 @@ export default function StockInvestmentKpiCharts() {
   const { data: salesReportKpis } = useGetSalesReportKpisQuery();
   const { data: b2b } = useGetB2BSalesKPIsQuery();
   const { data: statusSummary } = useGetStockStatusSummaryQuery();
+  const { data: serviceStats } = useGetServiceInvoiceStatsQuery();
+  const { data: counterSale } = useGetCounterSaleBatchesQuery();
+  const { data: partsStatus } = useGetPartsStockStatusQuery();
 
   // The tiles ignore the chart's granularity and month window: like Not Sold
   // and Total Sold they count every import, so an older batch never drops out
@@ -114,42 +107,7 @@ export default function StockInvestmentKpiCharts() {
     from: ALL_TIME_FROM,
   });
 
-  const timeseries = useMemo(() => data?.data.timeseries ?? [], [data]);
   const totals = allTime?.data.totals;
-
-  /**
-   * The endpoint only returns days that have stock, so one import day would be
-   * a single point and draw no area at all. For the day view, fill the window
-   * (the selected month, or the server's trailing 30 days; bucketed in UTC)
-   * with zeros so quiet days read as a dip and the area has a shape.
-   */
-  const series = useMemo(() => {
-    if (granularity !== "day" || timeseries.length === 0) return timeseries;
-    const DAY = 86_400_000;
-    const key = (t: number) => new Date(t).toISOString().slice(0, 10);
-    const todayMs = Date.parse(key(Date.now()));
-    const dataMs = timeseries.map((t) => Date.parse(t.bucket));
-    const windowStart = month
-      ? Date.UTC(year, month - 1, 1)
-      : todayMs - 29 * DAY;
-    const windowEnd = month ? Date.UTC(year, month, 0) : todayMs;
-    const byBucket = new Map(timeseries.map((t) => [t.bucket, t]));
-    const first = Math.min(windowStart, ...dataMs);
-    const last = Math.max(windowEnd, ...dataMs);
-    const filled: typeof timeseries = [];
-    for (let t = first; t <= last; t += DAY) {
-      const b = key(t);
-      filled.push(
-        byBucket.get(b) ?? {
-          bucket: b,
-          bucketStart: b,
-          totalCostPrice: 0,
-          vehicleCount: 0,
-        },
-      );
-    }
-    return filled;
-  }, [timeseries, granularity, month, year]);
 
   const manualStockAssignRevenue =
     stockAssignStats?.data.totals.totalRevenue ?? 0;
@@ -158,11 +116,34 @@ export default function StockInvestmentKpiCharts() {
   const salesReportRevenue = salesReportKpis?.data.totals.totalPayment ?? 0;
   const challanRevenue = b2b?.data.totalPayableValue ?? 0;
 
-  const totalRevenue =
-    manualStockAssignRevenue +
-    csvStockAssignRevenue +
-    salesReportRevenue +
-    challanRevenue;
+  // Vehicle revenue has three sources: stock assigned from CSV uploads (plus
+  // manual assignment), B2B challans, and the Branch-Admin's sales report.
+  const stockVehicleRevenue = manualStockAssignRevenue + csvStockAssignRevenue;
+  const vehicleRevenue =
+    stockVehicleRevenue + challanRevenue + salesReportRevenue;
+  // Parts revenue has two sources: parts and lubes sold on service invoices,
+  // and counter sales (CPTOS). Parts stock value is investment, not revenue.
+  // The invoice total already contains the parts, so Service is the remainder
+  // and the figures never double count.
+  const invoiceTotals = serviceStats?.data.totals;
+  const partsFromServiceRevenue =
+    (invoiceTotals?.partsRevenue ?? 0) + (invoiceTotals?.lubesRevenue ?? 0);
+  const partsFromCptosRevenue = (counterSale?.data ?? []).reduce(
+    (sum, b) => sum + b.totalInvoice,
+    0,
+  );
+  const partsRevenue = partsFromServiceRevenue + partsFromCptosRevenue;
+  const serviceRevenue =
+    (invoiceTotals?.totalRevenue ?? 0) - partsFromServiceRevenue;
+
+  const totalRevenue = vehicleRevenue + partsRevenue + serviceRevenue;
+
+  // Vehicle + parts investment minus revenue: positive means there is still
+  // investment to recover, negative means revenue has passed it.
+  const stockInvestmentAmount = totals?.totalCostPrice ?? 0;
+  const partsInvestmentAmount = Math.round(partsStatus?.data.totalRevenue ?? 0);
+  const totalInvestment = stockInvestmentAmount + partsInvestmentAmount;
+  const investmentGap = Math.round(totalInvestment - totalRevenue);
 
   // Vehicles whose stock row is flagged "Sold". Challan sales are already in
   // here — creating a challan flips the stock row — so the challan tile below
@@ -179,256 +160,231 @@ export default function StockInvestmentKpiCharts() {
 
   const totalSold = soldInStock + soldWithoutStock;
 
+  // Challan vehicles are already inside `soldInStock`; splitting them out
+  // changes how the total is shown, not what it adds up to.
+  const challanVehicles = Math.min(b2b?.data.totalVehicles ?? 0, soldInStock);
+  const stockOnlySold = soldInStock - challanVehicles;
+
   // Sold vehicles whose stock row was found but never flipped — still counted
   // as available stock, so "Not Sold" is overstated by this much.
   const staleStockRows =
     salesReportKpis?.data.totals.matchedStockNotFlipped ?? 0;
 
-  const granularityControl = (
-    <div className='flex items-center justify-between flex-wrap gap-3'>
-      <span className='text-xs font-medium text-muted-foreground'>View by</span>
-      <GranularityToggle value={granularity} onChange={setGranularity} />
-    </div>
-  );
-
-  const monthControl = (
-    <div className='space-y-2 pt-3'>
-      <span className='text-xs font-medium text-muted-foreground'>
-        Sales period
-      </span>
-      <div className='flex flex-wrap gap-2' role='group' aria-label='Month'>
-        {["All", ...MONTH_LABELS].map((label, m) => (
-          <button
-            key={label}
-            type='button'
-            aria-pressed={month === m}
-            onClick={() => setMonth(m)}
-            className={`h-8 px-3 rounded-lg text-xs font-medium border transition-colors ${
-              month === m
-                ? "bg-gray-900 text-white border-gray-900"
-                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-100"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
-  if (isLoading) {
-    return (
-      <div className='space-y-4'>
-        {granularityControl}
-        <ChartSkeleton />
-        <ChartSkeleton />
-      </div>
-    );
-  }
-
   return (
     <div className='space-y-6'>
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
-        <MetricTile
-          index={0}
-          label='Total Stock Investment'
-          value={inr(totals?.totalCostPrice ?? 0)}
-          bg='bg-red-50'
-          text='text-red-700'
-          sub='text-red-500'
-        />
-        <MetricTile
-          index={1}
-          label='Vehicles Added'
-          value={(totals?.vehicleCount ?? 0).toLocaleString("en-IN")}
-          bg='bg-blue-50'
-          text='text-blue-700'
-          sub='text-blue-500'
-        />
-        <MetricTile
-          index={2}
-          label='Total Revenue'
-          value={inr(totalRevenue)}
-          bg='bg-green-50'
-          text='text-green-700'
-          sub='text-green-500'
-        />
-        <MetricTile
-          index={3}
-          label='Total Sold'
-          value={totalSold.toLocaleString("en-IN")}
-          note={`${soldInStock.toLocaleString("en-IN")} from stock + ${soldWithoutStock.toLocaleString("en-IN")} sold from sales record`}
-          bg='bg-emerald-50'
-          text='text-emerald-700'
-          sub='text-emerald-500'
-        />
-        <MetricTile
-          index={4}
-          label='Not Sold'
-          value={(statusSummary?.data.combined.notSold ?? 0).toLocaleString(
-            "en-IN",
-          )}
-          note={
-            staleStockRows > 0
-              ? `Includes ${staleStockRows.toLocaleString("en-IN")} sold vehicle(s) whose stock row was never flipped — needs review`
-              : "Stock still on hand"
-          }
-          bg='bg-amber-50'
-          text='text-amber-700'
-          sub='text-amber-500'
-        />
-        <MetricTile
-          index={5}
-          label='Vehicles via Challan'
-          value={(b2b?.data.totalVehicles ?? 0).toLocaleString("en-IN")}
-          note='Part of Total Sold, not additional to it'
-          bg='bg-purple-50'
-          text='text-purple-700'
-          sub='text-purple-500'
-        />
-        <MetricTile
-          index={6}
-          label='Sales Report Vehicles'
-          value={(
-            salesReportKpis?.data.totals.totalRecords ?? 0
-          ).toLocaleString("en-IN")}
-          note={`${soldWithoutStock.toLocaleString("en-IN")} not in stock, ${(
-            (salesReportKpis?.data.totals.totalRecords ?? 0) - soldWithoutStock
-          ).toLocaleString("en-IN")} matched a stock vehicle`}
-          bg='bg-gray-100'
-          text='text-gray-800'
-          sub='text-gray-500'
-        />
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_3.4fr] gap-4 items-start'>
+        <div className='space-y-4'>
+          <div className='rounded-2xl border border-green-700'>
+            <MetricTile
+              index={0}
+              label='Total Stock Investment'
+              packed
+              value={inr(totals?.totalCostPrice ?? 0)}
+              // Shown for reference only — deliberately not added to the vehicle total.
+              note={
+                <div className='mt-2 border-t-2 border-dotted border-black pt-3'>
+                  <p className='text-[13px] font-semibold uppercase tracking-wider'>
+                    Total Parts investment
+                  </p>
+                  <p className='text-lg font-bold tabular-nums text-gray-900'>
+                    {inr(Math.round(partsStatus?.data.totalRevenue ?? 0))}
+                  </p>
+                </div>
+              }
+              bg='bg-gray-100'
+              text='text-gray-900'
+              sub='text-gray-500'
+            />
+          </div>
+          <div>
+            <MetricTile
+              index={1}
+              label='Vehicles Added'
+              packed
+              value={(totals?.vehicleCount ?? 0).toLocaleString("en-IN")}
+              bg='bg-blue-50'
+              text='text-blue-700'
+              sub='text-blue-500'
+            />
+          </div>
+        </div>
+        <div className='space-y-4'>
+          <div>
+            <MetricTile
+              index={3}
+              label='Total Sold'
+              value={totalSold.toLocaleString("en-IN")}
+              note={
+                <>
+                  {stockOnlySold.toLocaleString("en-IN")} from stock +{" "}
+                  {soldWithoutStock.toLocaleString("en-IN")} from sales record +{" "}
+                  <span className='font-semibold text-purple-600'>
+                    {challanVehicles.toLocaleString("en-IN")} challans
+                  </span>
+                </>
+              }
+              bg='bg-emerald-50'
+              text='text-emerald-700'
+              sub='text-emerald-500'
+            />
+          </div>
+          <div>
+            <MetricTile
+              index={4}
+              label='Not Sold'
+              value={(statusSummary?.data.combined.notSold ?? 0).toLocaleString(
+                "en-IN",
+              )}
+              note={
+                staleStockRows > 0
+                  ? `Includes ${staleStockRows.toLocaleString("en-IN")} sold vehicle(s) whose stock row was never flipped — needs review`
+                  : "Stock still on hand"
+              }
+              bg='bg-amber-50'
+              text='text-amber-700'
+              sub='text-amber-500'
+            />
+          </div>
+        </div>
+        <div className='space-y-4 sm:col-span-2 lg:col-span-1'>
+          <div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.35 + 2 * 0.07, duration: 0.4 }}
+              className='rounded-2xl bg-gray-100 p-4 sm:p-5 flex flex-col gap-4 min-h-[110px]'
+            >
+              <div>
+                <p className='text-xs font-semibold uppercase tracking-widest text-gray-500'>
+                  Total Revenue
+                </p>
+                <p className='text-2xl sm:text-3xl font-black tabular-nums text-gray-900'>
+                  {inr(totalRevenue)}
+                </p>
+              </div>
+              <div className='grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3 border-t border-gray-300 pt-4'>
+                <div
+                  className={`space-y-2 rounded-xl border p-3 ${REVENUE_TONES.vehicle.box}`}
+                >
+                  <RevenuePart
+                    label='Vehicle'
+                    value={vehicleRevenue}
+                    tone='vehicle'
+                    strong
+                  />
+                  <RevenuePart
+                    label='Stock CSV'
+                    value={stockVehicleRevenue}
+                    tone='vehicle'
+                    nested
+                  />
+                  <RevenuePart
+                    label='B2B Challans'
+                    value={challanRevenue}
+                    tone='vehicle'
+                    nested
+                  />
+                  <RevenuePart
+                    label='Sales report'
+                    value={salesReportRevenue}
+                    tone='vehicle'
+                    nested
+                  />
+                </div>
+                <div
+                  className={`space-y-2 rounded-xl border p-3 ${REVENUE_TONES.parts.box}`}
+                >
+                  <RevenuePart
+                    label='Parts'
+                    value={partsRevenue}
+                    tone='parts'
+                    strong
+                  />
+                  <RevenuePart
+                    label='Services'
+                    value={partsFromServiceRevenue}
+                    tone='parts'
+                    nested
+                  />
+                  <RevenuePart
+                    label='CPTOS'
+                    value={partsFromCptosRevenue}
+                    tone='parts'
+                    nested
+                  />
+                </div>
+                <div
+                  className={`space-y-2 rounded-xl border p-3 ${REVENUE_TONES.service.box}`}
+                >
+                  <RevenuePart
+                    label='Service'
+                    value={serviceRevenue}
+                    tone='service'
+                    strong
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+        <div className='sm:col-span-2 lg:col-span-3'>
+          <MetricTile
+            index={2}
+            label='Investment − Revenue'
+            packed
+            value={`${investmentGap < 0 ? "−" : ""}${inr(Math.abs(investmentGap))}`}
+            note={
+              <div className='mt-2 space-y-1 border-t-2 border-dotted border-black pt-3 text-sm text-gray-900'>
+                {[
+                  ["Total Stock Investment", stockInvestmentAmount, "+"],
+                  ["Total Parts Investment", partsInvestmentAmount, "+"],
+                ].map(([label, amount, sign]) => (
+                  <p
+                    key={label as string}
+                    className='flex justify-between gap-3'
+                  >
+                    <span>
+                      <span className='inline-block w-4 font-bold'>{sign}</span>
+                      {label}
+                    </span>
+                    <span className='tabular-nums'>
+                      {inr(amount as number)}
+                    </span>
+                  </p>
+                ))}
+                <p className='flex justify-between gap-3 border-t border-gray-400 pt-1 font-semibold'>
+                  <span>
+                    <span className='inline-block w-4'>=</span>Total Investment
+                  </span>
+                  <span className='tabular-nums'>{inr(totalInvestment)}</span>
+                </p>
+                <p className='flex justify-between gap-3'>
+                  <span>
+                    <span className='inline-block w-4 font-bold'>−</span>Total
+                    Revenue
+                  </span>
+                  <span className='tabular-nums'>{inr(totalRevenue)}</span>
+                </p>
+                <p className='flex justify-between gap-3 border-t border-gray-400 pt-1 font-bold'>
+                  <span>
+                    <span className='inline-block w-4'>=</span>
+                    {investmentGap > 0
+                      ? "Still to recover"
+                      : "Revenue is ahead"}
+                  </span>
+                  <span className='tabular-nums'>
+                    {investmentGap < 0 ? "−" : ""}
+                    {inr(Math.abs(investmentGap))}
+                  </span>
+                </p>
+              </div>
+            }
+            bg={investmentGap > 0 ? "bg-red-50" : "bg-green-50"}
+            text={investmentGap > 0 ? "text-red-700" : "text-green-700"}
+            sub={investmentGap > 0 ? "text-red-500" : "text-green-500"}
+          />
+        </div>
       </div>
-
-      <p className='text-xs text-muted-foreground'>
-        Total Stock Investment and Vehicles Added cover every CSV import and
-        count purchased stock only — auto-registered service vehicles are
-        excluded. Vehicles Added therefore splits exactly into Not Sold plus the
-        "from stock" half of Total Sold. The charts below follow the selected
-        period.
-      </p>
-
-      {granularityControl}
-
-      {timeseries.length === 0 ? (
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle className='text-base'>Investment Trend</CardTitle>
-              {monthControl}
-            </CardHeader>
-            <CardContent>
-              <EmptyChartState message='No CSV stock imported in this range yet.' />
-            </CardContent>
-          </Card>
-        </>
-      ) : (
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle className='text-base'>Investment Trend</CardTitle>
-              <CardDescription>
-                Cost price of incoming stock, by {granularity} —{" "}
-                {month
-                  ? `${MONTH_LABELS[month - 1]} ${year}`
-                  : "trailing 30 days"}
-              </CardDescription>
-              {monthControl}
-            </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={investmentTrendConfig}
-                className='h-[240px] w-full'
-              >
-                <AreaChart data={series} margin={{ left: 0, right: 12 }}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey='bucket'
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    minTickGap={32}
-                    tickFormatter={formatBucket}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    width={56}
-                    tickFormatter={compactInr}
-                  />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        labelFormatter={formatBucket}
-                        formatter={(value) => inr(Number(value))}
-                      />
-                    }
-                  />
-                  <Area
-                    dataKey='totalCostPrice'
-                    type='monotone'
-                    fill='var(--color-totalCostPrice)'
-                    fillOpacity={0.2}
-                    stroke='var(--color-totalCostPrice)'
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className='text-base'>
-                Vehicles Added per {granularity}
-              </CardTitle>
-              <CardDescription>
-                Count of CSV stock rows imported
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={vehicleCountConfig}
-                className='h-[240px] w-full'
-              >
-                <AreaChart data={series} margin={{ left: 0, right: 12 }}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey='bucket'
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    minTickGap={32}
-                    tickFormatter={formatBucket}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    width={32}
-                    allowDecimals={false}
-                  />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent labelFormatter={formatBucket} />
-                    }
-                  />
-                  <Area
-                    dataKey='vehicleCount'
-                    type='monotone'
-                    fill='var(--color-vehicleCount)'
-                    fillOpacity={0.2}
-                    stroke='var(--color-vehicleCount)'
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-        </>
-      )}
     </div>
   );
 }
